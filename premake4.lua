@@ -32,7 +32,7 @@ project "albion"
 	language "C++"
 	files { "src/**.h", "src/**.cpp" }
 	platforms { "x32", "x64" }
-	defines { "A2E_NET_PROTOCOL=TCP_protocol", "A2E_USE_OPENMP", "A2E_USE_OPENCL" }
+	defines { "A2E_NET_PROTOCOL=TCP_protocol", "A2E_USE_OPENMP" }
 	targetdir "bin"
 
 	-- TODO: write unix premake file
@@ -80,6 +80,12 @@ project "albion"
 		defines { "__WINDOWS__", "_CONSOLE", "A2E_IMPORTS", "_CRT_SECURE_NO_DEPRECATE" }
 	end
 	
+	
+	configuration { "x32" }
+		defines { "PLATFORM_X86" }
+	
+	configuration { "x64" }
+		defines { "PLATFORM_X64" }
 
 	configuration "Debug"
 		defines { "DEBUG" }

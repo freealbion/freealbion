@@ -36,8 +36,11 @@ int main(int argc, char *argv[]) {
 	e->set_caption(APPLICATION_NAME);
 	
 	conf::init();
-	//xld::set_xld_path("/Users/flo/xld/");
+#ifndef __WINDOWS__
+	xld::set_xld_path("/Users/flo/xld/");
+#else
 	xld::set_xld_path("C:/xld/");
+#endif
 
 	// init class pointers
 	c = e->get_core();

@@ -33,8 +33,8 @@ public:
 	static void scale_4x(const SCALE_TYPE scale_type, const unsigned int* input, const size2& input_size, unsigned int* output);
 	
 protected:
-	static opencl::kernel_object* hq4x;
-	static cl::NDRange hq4x_range;
+	//static opencl::kernel_object* hq4x;
+	//static cl::NDRange hq4x_range;
 	static unsigned int RGBtoYUV[16777216];
 	
 	static void hq4x_32(const unsigned int* sp, unsigned int* dp, const size2& input_size);

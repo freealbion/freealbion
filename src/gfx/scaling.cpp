@@ -19,8 +19,8 @@
 
 #include "scaling.h"
 
-opencl::kernel_object* scaling::hq4x = NULL;
-cl::NDRange scaling::hq4x_range;
+//opencl::kernel_object* scaling::hq4x = NULL;
+//cl::NDRange scaling::hq4x_range;
 unsigned int scaling::RGBtoYUV[16777216];
 
 void scaling::init() {
