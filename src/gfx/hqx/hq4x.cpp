@@ -285,8 +285,8 @@ static inline void Interp10(unsigned int * pc, unsigned int c1, unsigned int c2,
 #define PIXEL33_82    Interp8(dp+dpL+dpL+dpL+3, w[5], w[8]);
 
 void scaling::hq4x_32(const unsigned int* sp, unsigned int* dp, const size2& input_size) {
-	int Xres = input_size.x;
-	int Yres = input_size.y;
+	int Xres = (int)input_size.x;
+	int Yres = (int)input_size.y;
     int  i, j, k;
     int  prevline, nextline;
     unsigned int w[10];

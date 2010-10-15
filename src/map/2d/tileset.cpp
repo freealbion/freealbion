@@ -69,7 +69,6 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0) {
 	 * [byte 8: ?]
 	 * 
 	 */
-	set<size_t> collision_bytes;
 
 	size_t tile_count = 0;
 	const float2 empty_tc = float2(tile_tc_size * float(tiles_per_row-1));
@@ -110,17 +109,11 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0) {
 			tilesets[i]->tiles[index].special_2 = object->data[j*8+2] + (object->data[j*8+3] << 8);
 			
 			tilesets[i]->tiles[index].collision = (size_t)object->data[j*8+1];
-			collision_bytes.insert((size_t)tilesets[i]->tiles[index].collision);
 			
 			tilesets[i]->tiles[index].upper_bytes = (((size_t)object->data[j*8]) << 24) + (((size_t)object->data[j*8+1]) << 16) + (((size_t)object->data[j*8+2]) << 8) + (size_t)object->data[j*8+3];
 			tilesets[i]->tiles[index].lower_bytes = (object->data[j*8+4] << 24) + (object->data[j*8+5] << 16) + (object->data[j*8+6] << 8) + object->data[j*8+7];
 		}
 	}
-	cout << "!! collision_bytes: ";
-	for(set<size_t>::const_iterator cb_iter = collision_bytes.begin(); cb_iter != collision_bytes.end(); cb_iter++) {
-		cout << hex << *cb_iter << dec << ", ";
-	}
-	cout << endl;
 
 	delete icondata;
 }

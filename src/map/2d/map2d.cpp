@@ -130,7 +130,9 @@ void map2d::load(const size_t& map_num) {
 		size_t tile_count = 0;
 		for(size_t y = 0; y < map_size.y; y++) {
 			for(size_t x = 0; x < map_size.x; x++) {
-				if(tile_nums[y*map_size.x + x] != 0) tile_count++;
+				tile_obj = &(tileset_obj.tiles[tile_nums[y*map_size.x + x]]);
+				if(tile_obj->num == 0xFFF) continue;
+				tile_count++;
 			}
 			
 			// while we're at it, also save the tile num/id offset of each row (only applies to overlay layer)
@@ -143,20 +145,22 @@ void map2d::load(const size_t& map_num) {
 		layers[i].vertices = new float2[tile_count*4];
 		layers[i].tex_coords = new float2[tile_count*4];
 		layers[i].indices = new index4[tile_count];
-		size_t tile_num = 0;
+		unsigned int tile_num = 0;
 		
 		static const double texel_size = 1.0 / 4096.0;
-		static const double half_texel_size = texel_size / 2.0;
+		static const float half_texel_size = (float)(texel_size / 2.0);
 		
 		for(size_t y = 0; y < map_size.y; y++) {
 			for(size_t x = 0; x < map_size.x; x++) {
 				if(tile_nums[y*map_size.x + x] != 0) {
+					tile_obj = &(tileset_obj.tiles[tile_nums[y*map_size.x + x]]);
+					if(tile_obj->num == 0xFFF) continue;
+
 					layers[i].vertices[tile_num*4 + 0].set(float(x)*tile_size, float(y)*tile_size);
 					layers[i].vertices[tile_num*4 + 1].set(float(x)*tile_size + tile_size, float(y)*tile_size);
 					layers[i].vertices[tile_num*4 + 2].set(float(x)*tile_size + tile_size, float(y)*tile_size + tile_size);
 					layers[i].vertices[tile_num*4 + 3].set(float(x)*tile_size, float(y)*tile_size + tile_size);
 					
-					tile_obj = &(tileset_obj.tiles[tile_nums[y*map_size.x + x]]);
 					/*layers[i].tex_coords[tile_num*4 + 0].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y);
 					layers[i].tex_coords[tile_num*4 + 1].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y);
 					layers[i].tex_coords[tile_num*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y + tile_tc_size);

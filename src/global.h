@@ -25,6 +25,11 @@ using namespace std;
 
 #define APPLICATION_NAME "Albion Remake"
 
+#ifdef __WINDOWS__
+#pragma warning(disable: 4244)
+#pragma warning(disable: 4267)
+#endif
+
 extern engine* e;
 extern core* c;
 extern file_io* fio;
