@@ -74,8 +74,8 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 	unsigned int* scaled_data = new unsigned int[scaled_npc_size.x*scaled_npc_size.y];
 	for(size_t i = 0; i < object_count; i++) {
 		gfxconv::convert_8to32(&(object->data[offset + i*npc_size.x*npc_size.y]), data_32bpp, npc_size.x, npc_size.y, cur_palette);
-		scaling::scale_4x(scaling::ST_NEAREST, data_32bpp, npc_size, scaled_data);
-		//scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, npc_size, scaled_data);
+		//scaling::scale_4x(scaling::ST_NEAREST, data_32bpp, npc_size, scaled_data);
+		scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, npc_size, scaled_data);
 
 		// copy data into surface
 		const size_t offset_x = (i%4) * scaled_npc_size.x;
