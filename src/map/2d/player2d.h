@@ -17,31 +17,34 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
-#ifndef __AR_MAIN_H__
-#define __AR_MAIN_H__
+#ifndef __AR_PLAYER2D_H__
+#define __AR_PLAYER2D_H__
 
 #include "global.h"
-#include "conf.h"
-
-#include "albion_ui.h"
-#include "xld.h"
-#include "palette.h"
-#include "tileset.h"
+#include "map_defines.h"
+#include "map2d.h"
 #include "npcgfx.h"
-#include "player2d.h"
-#include "scaling.h"
+#include "npc2d.h"
 
-#include "map_handler.h"
+/*! @class player
+ *  @brief player class
+ *  @author flo
+ *  
+ *  player class
+ */
 
-image* img;
-map_handler* mh;
-albion_ui* aui;
+class player2d : public npc2d {
+public:
+	player2d(map2d* map2d_obj, npcgfx* npc_graphics);
+	~player2d();
 
-bool done = false;
+	virtual void draw() const;
+	virtual void handle();
 
-SDL_Event sevent;
+protected:
+	
+	virtual void compute_move();
 
-stringstream caption;
-stringstream tmp;
+};
 
 #endif

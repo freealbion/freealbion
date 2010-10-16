@@ -17,31 +17,54 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
-#ifndef __AR_MAIN_H__
-#define __AR_MAIN_H__
+#ifndef __AR_NPC2D_H__
+#define __AR_NPC2D_H__
 
 #include "global.h"
-#include "conf.h"
-
-#include "albion_ui.h"
-#include "xld.h"
-#include "palette.h"
-#include "tileset.h"
+#include "map_defines.h"
+#include "map2d.h"
 #include "npcgfx.h"
-#include "player2d.h"
-#include "scaling.h"
+#include "map_npcs.h"
 
-#include "map_handler.h"
+class npc2d {
+public:
+	npc2d(map2d* map2d_obj, npcgfx* npc_graphics);
+	~npc2d();
 
-image* img;
-map_handler* mh;
-albion_ui* aui;
+	virtual void draw() const;
+	virtual void handle();
+	virtual void move(const MOVE_DIRECTION& direction);
 
-bool done = false;
+	virtual void set_pos(const size_t& x, const size_t& y);
+	virtual const size2& get_pos() const;
 
-SDL_Event sevent;
+	virtual void set_npc_data(const map_npcs::map_npc* npc_data);
 
-stringstream caption;
-stringstream tmp;
+	virtual void set_enabled(const bool& state);
+	virtual bool is_enabled() const;
+
+protected:
+	map2d* map2d_obj;
+	npcgfx* npc_graphics;
+
+	const map_npcs::map_npc* npc_data;
+	
+	size2 pos;
+	size2 next_pos;
+	float pos_interp;
+	
+	//NPC_STATE state;
+	size_t state;
+	
+	size_t time_per_tile;
+	size_t last_frame;
+	size_t last_anim_frame;
+	size_t last_move;
+
+	bool enabled;
+
+	virtual void compute_move();
+
+};
 
 #endif

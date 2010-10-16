@@ -25,6 +25,9 @@
 #include "map_defines.h"
 #include "xld.h"
 #include "tileset.h"
+#include "npcgfx.h"
+#include "map_npcs.h"
+#include "map_events.h"
 
 /*! @class map2d
  *  @brief displays 2d maps
@@ -33,9 +36,10 @@
  *  opens and displays 2d maps
  */
 
+class npc2d;
 class map2d {
 public:
-	map2d(tileset* tilesets);
+	map2d(tileset* tilesets, npcgfx* npc_graphics);
 	~map2d();
 
 	void load(const size_t& map_num);
@@ -43,7 +47,7 @@ public:
 	bool is_2d_map(const size_t& map_num) const;
 	
 	void handle();
-	void draw(bool type) const;
+	void draw(const MAP_DRAW_STAGE& draw_stage) const;
 
 	//void add_npc(const size_t& id, const size_t& x, const size_t& y);
 	//void move_npc(const size_t& id, const size_t& x, const size_t& y);
@@ -63,10 +67,15 @@ public:
 
 protected:
 	tileset* tilesets;
+	npcgfx* npc_graphics;
 
 	xld* maps1;
 	xld* maps2;
 	xld* maps3;
+
+	vector<npc2d*> npcs;
+	map_npcs* mnpcs;
+	map_events mevents;
 
 	//
 	size_t cur_map_num;
@@ -123,8 +132,6 @@ protected:
 	ssize2 normal_player_offset;
 
 	bool map_loaded;
-
-	vector<npc*> npcs;
 
 };
 

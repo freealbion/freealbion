@@ -25,6 +25,9 @@
 // experimental: 5 - 6 tiles per second (-> at least 166 - 200ms between move cmds)
 #define TILES_PER_SECOND (6) // assume 6 tiles/s for the moment, looks smoother
 #define TIME_PER_TILE (1000 / TILES_PER_SECOND)
+#define TILES_PER_SECOND_NPC (3) // assume 3 tiles/s for the moment
+#define TIME_PER_TILE_NPC (1000 / TILES_PER_SECOND_NPC)
+#define TIME_PER_ANIMATION_FRAME (150)
 
 enum NPC_STATE {
 	S_BACK1		= 0x01,
@@ -54,6 +57,11 @@ enum MOVE_DIRECTION {
 	MD_DOWN
 };
 
+enum MOVEMENT_TYPE {
+	MT_RANDOM,
+	MT_TRACK
+};
+
 enum TILE_DEBUG_TYPE {
 	TBT_TRANSPARENT_1 = 0,
 	TBT_TRANSPARENT_2 = 2,
@@ -61,12 +69,11 @@ enum TILE_DEBUG_TYPE {
 	TBT_ORANGE = 6,
 };
 
-struct npc {
-	size_t id;
-	size2 position;
-	
-	NPC_STATE state;
-	MOVE_DIRECTION direction;
+enum MAP_DRAW_STAGE {
+	MDS_UNDERLAY,
+	MDS_OVERLAY,
+	MDS_NPCS,
+	MDS_DEBUG
 };
 
 #endif

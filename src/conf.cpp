@@ -114,4 +114,5 @@ void conf::init() {
 	conf::add<bool>("ui.display", true);
 	
 	conf::add<bool>("debug.player_pos", false);
+	conf::add<bool>("debug.draw_events", false);
 }

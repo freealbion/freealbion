@@ -16,47 +16,34 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
- 
-#ifndef __AR_PLAYER_H__
-#define __AR_PLAYER_H__
+
+#ifndef __AR_MAP_NPCS_H__
+#define __AR_MAP_NPCS_H__
 
 #include "global.h"
 #include "map_defines.h"
-#include "map2d.h"
-#include "npcgfx.h"
+#include "xld.h"
 
-/*! @class player
- *  @brief player class
- *  @author flo
- *  
- *  player class
- */
-
-class player {
+class map_npcs {
 public:
-	player(map2d* map2d_obj, npcgfx* npc_graphics);
-	~player();
-
-	void draw() const;
-	void handle();
-	void move(const MOVE_DIRECTION& direction);
-
-	void set_pos(const size_t& x, const size_t& y);
-	const size2& get_pos() const;
-
+	map_npcs();
+	~map_npcs();
+	
+	struct map_npc {
+		unsigned int npc_num;
+		unsigned int object_num;
+		unsigned int event_num; //?
+		MOVEMENT_TYPE movement_type;
+		
+		size2* position;
+	};
+	
+	void load(const unsigned char* data, const size_t& event_end_offset);
+	const vector<map_npc*>& get_npcs() const;
+	
 protected:
-	map2d* map2d_obj;
-	npcgfx* npc_graphics;
+	vector<map_npc*> npcs;
 	
-	size2 pos;
-	size2 next_pos;
-	float pos_interp;
-	
-	//NPC_STATE state;
-	size_t state;
-
-	size_t last_frame;
-
 };
 
 #endif

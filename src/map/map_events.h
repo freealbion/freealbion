@@ -16,32 +16,45 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
- 
-#ifndef __AR_MAIN_H__
-#define __AR_MAIN_H__
+
+#ifndef __AR_MAP_EVENTS_H__
+#define __AR_MAP_EVENTS_H__
 
 #include "global.h"
-#include "conf.h"
-
-#include "albion_ui.h"
+#include "map_defines.h"
 #include "xld.h"
-#include "palette.h"
-#include "tileset.h"
-#include "npcgfx.h"
-#include "player2d.h"
-#include "scaling.h"
+#include "events.h"
 
-#include "map_handler.h"
+class map_events {
+public:
+	map_events();
+	~map_events();
+	
+	struct map_event_info {
+		bool global;
+		unsigned int xpos;
+		unsigned int ypos;
+		unsigned int trigger;
+		unsigned int event_num;
+		events::event* event_obj;
+	};
+	
+	void load(const unsigned char* data, const size_t& data_offset, const size2& map_size);
+	void unload();
 
-image* img;
-map_handler* mh;
-albion_ui* aui;
-
-bool done = false;
-
-SDL_Event sevent;
-
-stringstream caption;
-stringstream tmp;
+	const size_t get_event_count() const;
+	const size_t get_event_info_count() const;
+	events::event* get_event(const size_t& num) const;
+	map_event_info* get_event_info(const size_t& num) const;
+	
+	const size_t& get_end_offset() const;
+	
+protected:
+	vector<map_event_info*> event_info;
+	vector<events::event*> events;
+	
+	size_t end_offset;
+	
+};
 
 #endif

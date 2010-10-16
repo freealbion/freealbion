@@ -22,6 +22,9 @@
 
 #include "global.h"
 
+#define AR_GET_USINT(data_, offset_) ((data_[offset_+1] << 8) + data_[offset_])
+#define AR_GET_UINT(data_, offset_) ((data_[offset_+3] << 24) + (data_[offset_+2] << 16) + (data_[offset_+1] << 8) + data_[offset_])
+
 /*! @class xld
  *  @brief xld loader
  *  @author flo

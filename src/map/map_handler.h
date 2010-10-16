@@ -25,8 +25,10 @@
 #include "map_defines.h"
 #include "map2d.h"
 #include "map3d.h"
-#include "player.h"
+#include "npc2d.h"
+#include "player2d.h"
 #include "npcgfx.h"
+#include "labdata.h"
 
 class map_handler {
 public:
@@ -52,7 +54,8 @@ protected:
 	map2d* maps2d;
 	//map3d* maps3d;
 	npcgfx* npc_graphics;
-	player* p;
+	player2d* p;
+	labdata* lab_data;
 	
 	//
 	size_t last_key_press;

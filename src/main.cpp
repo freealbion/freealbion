@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
 
 	mh = new map_handler(palettes);
 	mh->load_map(42);
+	//mh->load_map(11);
 	
 	aui = new albion_ui(mh);
 	aui->open_goto_map_wnd();
@@ -109,6 +110,9 @@ int main(int argc, char *argv[]) {
 							break;
 						case SDLK_o:
 							conf::set<bool>("map.draw_overlay", conf::get<bool>("map.draw_overlay") ^ true);
+							break;
+						case SDLK_e:
+							conf::set<bool>("debug.draw_events", conf::get<bool>("debug.draw_events") ^ true);
 							break;
 						default:
 						break;

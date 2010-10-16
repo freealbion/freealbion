@@ -113,6 +113,9 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0) {
 			tilesets[i]->tiles[index].upper_bytes = (((size_t)object->data[j*8]) << 24) + (((size_t)object->data[j*8+1]) << 16) + (((size_t)object->data[j*8+2]) << 8) + (size_t)object->data[j*8+3];
 			tilesets[i]->tiles[index].lower_bytes = (object->data[j*8+4] << 24) + (object->data[j*8+5] << 16) + (object->data[j*8+6] << 8) + object->data[j*8+7];
 		}
+		
+		// highest tile count: 4041
+		//cout << "tile count: " << tilesets[i]->tile_count << endl;
 	}
 
 	delete icondata;
@@ -159,7 +162,8 @@ void tileset::load(const size_t& num) {
 	delete [] scaled_data;
 	delete [] data_32bpp;
 
-	cur_tileset_tex = t->add_texture(tiles_surface, tileset_size.x, tileset_size.y, GL_RGBA8, GL_RGBA, texture_object::TF_TRILINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+	// don't use any filtering here! this will only produce artifacts!
+	cur_tileset_tex = t->add_texture(tiles_surface, tileset_size.x, tileset_size.y, GL_RGBA8, GL_RGBA, texture_object::TF_POINT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 	tilesets[num]->tileset = cur_tileset_tex;
 	tilesets[num]->loaded = true;
 

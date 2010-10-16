@@ -76,7 +76,7 @@ project "albion"
 	
 	if(os.is("windows")) then
 		links { "opengl32", "glu32", "odbc32", "odbccp32", "SDL", "SDLmain", "SDL_net", "SDL_image", "ftgl", "lua51", "libxml2", "vcomp", "OpenCL" }
-		includedirs { "src/", "src/gfx/", "src/gfx/hqx/", "src/map/", "src/map/2d/", "src/map/3d/", "src/ui/" }
+		includedirs { "src/", "src/gfx/", "src/gfx/hqx/", "src/map/", "src/map/2d/", "src/map/3d/", "src/ui/", "src/events/" }
 		defines { "__WINDOWS__", "_CONSOLE", "A2E_IMPORTS", "_CRT_SECURE_NO_DEPRECATE" }
 	end
 	

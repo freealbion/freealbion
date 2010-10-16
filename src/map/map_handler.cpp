@@ -21,10 +21,12 @@
 
 map_handler::map_handler(pal* palettes) : palettes(palettes) {	
 	tilesets = new tileset(palettes);
-	maps2d = new map2d(tilesets);
 	npc_graphics = new npcgfx(palettes);
+	maps2d = new map2d(tilesets, npc_graphics);
+	lab_data = new labdata();
+	lab_data->load(0);
 	
-	p = new player(maps2d, npc_graphics);
+	p = new player2d(maps2d, npc_graphics);
 	p->set_pos(9, 8);
 	
 	//
@@ -54,6 +56,7 @@ map_handler::~map_handler() {
 	delete tilesets;
 	delete maps2d;
 	delete npc_graphics;
+	delete lab_data;
 	delete p;
 }
 
@@ -80,11 +83,14 @@ void map_handler::draw() {
 	glDisable(GL_DEPTH_TEST);
 	//p->draw();
 	
-	if(conf::get<bool>("map.draw_underlay")) maps2d->draw(0);
+	if(conf::get<bool>("map.draw_underlay")) maps2d->draw(MDS_UNDERLAY);
 	
+	maps2d->draw(MDS_NPCS);
 	p->draw();
 	
-	if(conf::get<bool>("map.draw_overlay")) maps2d->draw(1);
+	if(conf::get<bool>("map.draw_overlay")) maps2d->draw(MDS_OVERLAY);
+
+	maps2d->draw(MDS_DEBUG);
 	
 	//p->draw();
 	glEnable(GL_DEPTH_TEST);
@@ -94,8 +100,9 @@ void map_handler::draw() {
 
 void map_handler::load_map(const size_t& map_num) {
 	if(maps2d->is_2d_map(map_num)) {
+		p->set_pos(9, 8);
 		maps2d->load(map_num);
-		npc_graphics->set_palette(maps2d->get_palette());
+		npc_graphics->set_palette(maps2d->get_palette()-1);
 	}
 	/*else if(maps3d->is_3d_map(map_num)) {
 		maps3d->load(map_num);

@@ -17,50 +17,58 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "player.h"
+#include "npc2d.h"
 
-/*! player constructor
+/*! npc2d constructor
  */
-player::player(map2d* map2d_obj, npcgfx* npc_graphics) : map2d_obj(map2d_obj), npc_graphics(npc_graphics) {
+npc2d::npc2d(map2d* map2d_obj, npcgfx* npc_graphics) : map2d_obj(map2d_obj), npc_graphics(npc_graphics) {
+	time_per_tile = TIME_PER_TILE_NPC;
 	pos_interp = 0.0f;
 	state = S_FRONT1;
-	last_frame = SDL_GetTicks();
+	last_frame = last_anim_frame = last_move = SDL_GetTicks();
+	npc_data = NULL;
+	enabled = true;
 }
 
-/*! player destructor
+/*! npc2d destructor
  */
-player::~player() {
+npc2d::~npc2d() {
 }
 
-void player::draw() const {
-	const float tile_size = map2d_obj->get_tile_size();
-	const float2& screen_position = map2d_obj->get_screen_position();
-	float2 player_pos = pos;
-	float2 player_next_pos = next_pos;
-	player_pos = player_pos*(1.0f-pos_interp) + player_next_pos*pos_interp;
-	npc_graphics->draw_npc(202, (NPC_STATE)state,
-						   (player_pos.x - screen_position.x)*tile_size,
-						   (player_pos.y - 2.0f - screen_position.y)*tile_size);
-	
-	//
-	if(conf::get<bool>("debug.player_pos")) {
-		gfx::rect dbg_rect;
-		dbg_rect.x1 = (player_pos.x - screen_position.x)*tile_size;
-		dbg_rect.y1 = (player_pos.y - screen_position.y)*tile_size;
-		dbg_rect.x2 = dbg_rect.x1 + tile_size;
-		dbg_rect.y2 = dbg_rect.y1 + tile_size;
-		egfx->draw_rectangle(&dbg_rect, 0xFF0000);
+void npc2d::set_npc_data(const map_npcs::map_npc* npc_data) {
+	npc2d::npc_data = npc_data;
+
+	// set start position from map data (-1, b/c we start at 0)
+	if(npc_data->position[0].x == 0 || npc_data->position[0].y == 0) {
+		// pos (0, 0) = disabled npc
+		set_enabled(false);
+		set_pos(0, 0);
 	}
+	else set_pos(npc_data->position[0].x-1, npc_data->position[0].y-1);
 }
 
-void player::handle() {
-	map2d_obj->set_pos(next_pos.x, next_pos.y);
-	
+void npc2d::draw() const {
+	if(!enabled) return;
+	if(npc_data == NULL) return;
+
+	const float tile_size = map2d_obj->get_tile_size();
+	float2 npc_pos = pos;
+	float2 npc_next_pos = next_pos;
+	npc_pos = npc_pos*(1.0f-pos_interp) + npc_next_pos*pos_interp;
+
+	npc_graphics->draw_npc(npc_data->object_num, (NPC_STATE)state,
+						   (npc_pos.x)*tile_size,
+						   (npc_pos.y - 2.0f)*tile_size);
+}
+
+void npc2d::handle() {
+	if(!enabled) return;
+
 	//
-	/*pos_interp += 0.2f; // TODO: make this fps independent, bind to key repeat
-	pos_interp = c->clamp(pos_interp, 0.0f, 1.0f);
-	if(pos_interp >= 1.0f) pos = next_pos;*/
-	float interp = float(SDL_GetTicks() - last_frame) / float(TIME_PER_TILE);
+	compute_move();
+
+	//
+	float interp = float(SDL_GetTicks() - last_frame) / float(time_per_tile);
 	last_frame = SDL_GetTicks();
 
 	pos_interp += interp;
@@ -68,9 +76,7 @@ void player::handle() {
 	if(pos_interp >= 1.0f) pos = next_pos;
 	
 	// animation (TODO: this is more of a hack right now, think of a better method)
-	static const size_t time_per_frame = 150;
-	static size_t last_frame = SDL_GetTicks();
-	bool new_frame = (SDL_GetTicks() - last_frame >= time_per_frame) && (next_pos.x != pos.x || next_pos.y != pos.y);
+	bool new_frame = (SDL_GetTicks() - last_anim_frame >= TIME_PER_ANIMATION_FRAME) && (next_pos.x != pos.x || next_pos.y != pos.y);
 	
 	const size_t cur_frame = (state & 0x7);
 	const size_t cur_frame_dir = (state & 0x8) >> 3;
@@ -82,16 +88,18 @@ void player::handle() {
 		else {
 			state |= (cur_frame > 1 ? ((cur_frame >> 1) | 0x8) : 0x2);
 		}
-		last_frame = SDL_GetTicks();
+		last_anim_frame = SDL_GetTicks();
 	}
 }
 
-void player::set_pos(const size_t& x, const size_t& y) {
+void npc2d::set_pos(const size_t& x, const size_t& y) {
 	pos.set(x, y);
 	next_pos.set(x, y);
 }
 
-void player::move(const MOVE_DIRECTION& direction) {
+void npc2d::move(const MOVE_DIRECTION& direction) {
+	if(!enabled) return;
+
 	pos = next_pos;
 	pos_interp = 0.0f;
 	switch(direction) {
@@ -124,7 +132,31 @@ void player::move(const MOVE_DIRECTION& direction) {
 	}
 }
 
-const size2& player::get_pos() const {
-	//return pos;
+const size2& npc2d::get_pos() const {
 	return next_pos;
+}
+
+void npc2d::compute_move() {
+	if(!enabled) return;
+
+	// TODO: compute next move
+	if(npc_data->movement_type == MT_RANDOM) {
+		// TODO: think of a better method ;)
+		if(SDL_GetTicks() - last_move < time_per_tile) return;
+		last_move = SDL_GetTicks();
+
+		MOVE_DIRECTION dir = (MOVE_DIRECTION)((rand() % 4)+1);
+		move(dir);
+	}
+	else {
+		// TODO: follow track dependent on game time
+	}
+}
+
+void npc2d::set_enabled(const bool& state) {
+	enabled = state;
+}
+
+bool npc2d::is_enabled() const {
+	return enabled;
 }

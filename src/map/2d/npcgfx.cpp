@@ -44,8 +44,8 @@ npcgfx::~npcgfx() {
 
 void npcgfx::load_npcgfx(const size_t& npc_num) {
 	const xld::xld_object* object = NULL;
-	if(npc_num < 100 && npc_num < npcgfx0->get_object_count()) {
-		object = npcgfx0->get_object(npc_num);
+	if(npc_num < 100 && npc_num <= npcgfx0->get_object_count()) {
+		object = npcgfx0->get_object(npc_num-1); // TODO: check if only npcgfx nums have to decremented in the sub-100 range
 	}
 	else if(npc_num < 200 && (npc_num - 100) < npcgfx1->get_object_count()) {
 		object = npcgfx1->get_object(npc_num - 100);
@@ -56,8 +56,10 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 	else if(npc_num < 400 && (npc_num - 300) < npcgfx3->get_object_count()) {
 		object = npcgfx3->get_object(npc_num - 300);
 	}
-	else {
-		return;
+	
+	if(object == NULL) {
+		a2e_error("invalid npc num #%u!", npc_num);
+		object = npcgfx0->get_object(0);
 	}
 	
 	const size2 npc_size = size2(32, 48);
@@ -141,6 +143,7 @@ void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame, const float& x
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glEnable(GL_BLEND);
 
+	glFrontFace(GL_CCW);
 	glBegin(GL_QUADS);
 		glTexCoord2f(tx, ty);
 		glVertex2f(x, y);

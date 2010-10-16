@@ -12,11 +12,14 @@
 		5C06AFDE12612E4800405DE8 /* liba2ed.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFDC12612E4800405DE8 /* liba2ed.dylib */; };
 		5C06B00D1261336700405DE8 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06B00C1261336700405DE8 /* OpenGL.framework */; };
 		5C06B00F1261336C00405DE8 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06B00E1261336C00405DE8 /* SDL.framework */; };
+		5C58907D12690BA80011E96B /* map_events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C58907912690BA80011E96B /* map_events.cpp */; };
+		5C58907E12690BA80011E96B /* map_npcs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C58907B12690BA80011E96B /* map_npcs.cpp */; };
+		5C58908212690BB00011E96B /* labdata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C58908012690BB00011E96B /* labdata.cpp */; };
+		5C58908612690BBE0011E96B /* events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C58908412690BBE0011E96B /* events.cpp */; };
 		5C71CDD51261F4FA0052A6C2 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C71CDD41261F4FA0052A6C2 /* OpenCL.framework */; };
 		5C9C510E126548C100A15B31 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50EA126548C100A15B31 /* main.cpp */; };
 		5C9C510F126548C100A15B31 /* map2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50ED126548C100A15B31 /* map2d.cpp */; };
 		5C9C5110126548C100A15B31 /* npcgfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50EF126548C100A15B31 /* npcgfx.cpp */; };
-		5C9C5111126548C100A15B31 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50F1126548C100A15B31 /* player.cpp */; };
 		5C9C5112126548C100A15B31 /* tileset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50F3126548C100A15B31 /* tileset.cpp */; };
 		5C9C5113126548C100A15B31 /* map3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50F6126548C100A15B31 /* map3d.cpp */; };
 		5C9C5114126548C100A15B31 /* map_handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50F9126548C100A15B31 /* map_handler.cpp */; };
@@ -28,6 +31,8 @@
 		5C9C511A126548C100A15B31 /* scaling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C5108126548C100A15B31 /* scaling.cpp */; };
 		5C9C511B126548C100A15B31 /* xld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C510A126548C100A15B31 /* xld.cpp */; };
 		5C9C511C126548C100A15B31 /* global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C510C126548C100A15B31 /* global.cpp */; };
+		5CFFE9241269605A00199C96 /* npc2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CFFE9201269605A00199C96 /* npc2d.cpp */; };
+		5CFFE9251269605A00199C96 /* player2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CFFE9221269605A00199C96 /* player2d.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,14 +42,20 @@
 		5C06AFDC12612E4800405DE8 /* liba2ed.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liba2ed.dylib; path = Developer/SDKs/MacOSX10.6.sdk/usr/local/lib/liba2ed.dylib; sourceTree = SDKROOT; };
 		5C06B00C1261336700405DE8 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		5C06B00E1261336C00405DE8 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Developer/SDKs/MacOSX10.6.sdk/Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
+		5C58907912690BA80011E96B /* map_events.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = map_events.cpp; sourceTree = "<group>"; };
+		5C58907A12690BA80011E96B /* map_events.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_events.h; sourceTree = "<group>"; };
+		5C58907B12690BA80011E96B /* map_npcs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = map_npcs.cpp; sourceTree = "<group>"; };
+		5C58907C12690BA80011E96B /* map_npcs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_npcs.h; sourceTree = "<group>"; };
+		5C58908012690BB00011E96B /* labdata.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = labdata.cpp; sourceTree = "<group>"; };
+		5C58908112690BB00011E96B /* labdata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = labdata.h; sourceTree = "<group>"; };
+		5C58908412690BBE0011E96B /* events.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = events.cpp; sourceTree = "<group>"; };
+		5C58908512690BBE0011E96B /* events.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = events.h; sourceTree = "<group>"; };
 		5C71CDD41261F4FA0052A6C2 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
 		5C9C50EA126548C100A15B31 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = SOURCE_ROOT; };
 		5C9C50ED126548C100A15B31 /* map2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = map2d.cpp; sourceTree = "<group>"; };
 		5C9C50EE126548C100A15B31 /* map2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map2d.h; sourceTree = "<group>"; };
 		5C9C50EF126548C100A15B31 /* npcgfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = npcgfx.cpp; sourceTree = "<group>"; };
 		5C9C50F0126548C100A15B31 /* npcgfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = npcgfx.h; sourceTree = "<group>"; };
-		5C9C50F1126548C100A15B31 /* player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player.cpp; sourceTree = "<group>"; };
-		5C9C50F2126548C100A15B31 /* player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player.h; sourceTree = "<group>"; };
 		5C9C50F3126548C100A15B31 /* tileset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tileset.cpp; sourceTree = "<group>"; };
 		5C9C50F4126548C100A15B31 /* tileset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tileset.h; sourceTree = "<group>"; };
 		5C9C50F6126548C100A15B31 /* map3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = map3d.cpp; sourceTree = "<group>"; };
@@ -73,6 +84,10 @@
 		5C9C512C1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = en; path = src/osx/en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		5C9C512E1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = en; path = src/osx/en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		5C9C512F1265490700A15B31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = src/osx/Info.plist; sourceTree = "<group>"; };
+		5CFFE9201269605A00199C96 /* npc2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = npc2d.cpp; sourceTree = "<group>"; };
+		5CFFE9211269605A00199C96 /* npc2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = npc2d.h; sourceTree = "<group>"; };
+		5CFFE9221269605A00199C96 /* player2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player2d.cpp; sourceTree = "<group>"; };
+		5CFFE9231269605A00199C96 /* player2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player2d.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +129,7 @@
 				5C9C510B126548C100A15B31 /* xld.h */,
 				5C9C510C126548C100A15B31 /* global.cpp */,
 				5C9C510D126548C100A15B31 /* global.h */,
+				5C58908312690BBE0011E96B /* events */,
 				5C9C5101126548C100A15B31 /* gfx */,
 				5C9C50EB126548C100A15B31 /* map */,
 				5C9C50FD126548C100A15B31 /* ui */,
@@ -162,9 +178,23 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		5C58908312690BBE0011E96B /* events */ = {
+			isa = PBXGroup;
+			children = (
+				5C58908412690BBE0011E96B /* events.cpp */,
+				5C58908512690BBE0011E96B /* events.h */,
+			);
+			name = events;
+			path = src/events;
+			sourceTree = SOURCE_ROOT;
+		};
 		5C9C50EB126548C100A15B31 /* map */ = {
 			isa = PBXGroup;
 			children = (
+				5C58907912690BA80011E96B /* map_events.cpp */,
+				5C58907A12690BA80011E96B /* map_events.h */,
+				5C58907B12690BA80011E96B /* map_npcs.cpp */,
+				5C58907C12690BA80011E96B /* map_npcs.h */,
 				5C9C50F9126548C100A15B31 /* map_handler.cpp */,
 				5C9C50FA126548C100A15B31 /* map_handler.h */,
 				5C9C50F8126548C100A15B31 /* map_defines.h */,
@@ -178,12 +208,14 @@
 		5C9C50EC126548C100A15B31 /* 2d */ = {
 			isa = PBXGroup;
 			children = (
+				5CFFE9201269605A00199C96 /* npc2d.cpp */,
+				5CFFE9211269605A00199C96 /* npc2d.h */,
+				5CFFE9221269605A00199C96 /* player2d.cpp */,
+				5CFFE9231269605A00199C96 /* player2d.h */,
 				5C9C50ED126548C100A15B31 /* map2d.cpp */,
 				5C9C50EE126548C100A15B31 /* map2d.h */,
 				5C9C50EF126548C100A15B31 /* npcgfx.cpp */,
 				5C9C50F0126548C100A15B31 /* npcgfx.h */,
-				5C9C50F1126548C100A15B31 /* player.cpp */,
-				5C9C50F2126548C100A15B31 /* player.h */,
 				5C9C50F3126548C100A15B31 /* tileset.cpp */,
 				5C9C50F4126548C100A15B31 /* tileset.h */,
 			);
@@ -193,6 +225,8 @@
 		5C9C50F5126548C100A15B31 /* 3d */ = {
 			isa = PBXGroup;
 			children = (
+				5C58908012690BB00011E96B /* labdata.cpp */,
+				5C58908112690BB00011E96B /* labdata.h */,
 				5C9C50F6126548C100A15B31 /* map3d.cpp */,
 				5C9C50F7126548C100A15B31 /* map3d.h */,
 			);
@@ -292,7 +326,6 @@
 				5C9C510E126548C100A15B31 /* main.cpp in Sources */,
 				5C9C510F126548C100A15B31 /* map2d.cpp in Sources */,
 				5C9C5110126548C100A15B31 /* npcgfx.cpp in Sources */,
-				5C9C5111126548C100A15B31 /* player.cpp in Sources */,
 				5C9C5112126548C100A15B31 /* tileset.cpp in Sources */,
 				5C9C5113126548C100A15B31 /* map3d.cpp in Sources */,
 				5C9C5114126548C100A15B31 /* map_handler.cpp in Sources */,
@@ -304,6 +337,12 @@
 				5C9C511A126548C100A15B31 /* scaling.cpp in Sources */,
 				5C9C511B126548C100A15B31 /* xld.cpp in Sources */,
 				5C9C511C126548C100A15B31 /* global.cpp in Sources */,
+				5C58907D12690BA80011E96B /* map_events.cpp in Sources */,
+				5C58907E12690BA80011E96B /* map_npcs.cpp in Sources */,
+				5C58908212690BB00011E96B /* labdata.cpp in Sources */,
+				5C58908612690BBE0011E96B /* events.cpp in Sources */,
+				5CFFE9241269605A00199C96 /* npc2d.cpp in Sources */,
+				5CFFE9251269605A00199C96 /* player2d.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
