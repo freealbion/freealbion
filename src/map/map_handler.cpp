@@ -69,7 +69,7 @@ void map_handler::handle() {
 		last_move = SDL_GetTicks();
 		p->move(next_dir);
 	}
-
+	
 	maps2d->handle();
 	p->handle();
 }
@@ -148,4 +148,8 @@ npcgfx* map_handler::get_npc_graphics() const {
 
 tileset::tile_object* map_handler::get_tile(unsigned int type) {
 	return maps2d->get_tile(type);
+}
+
+unsigned int map_handler::get_tile_num(unsigned int type) {
+	return maps2d->get_tile_num(type);
 }

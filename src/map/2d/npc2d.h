@@ -53,6 +53,7 @@ protected:
 	size2 next_pos;
 	float pos_interp;
 	
+	CHARACTER_TYPE char_type;
 	//NPC_STATE state;
 	size_t state;
 	

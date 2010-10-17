@@ -32,8 +32,7 @@ map2d::map2d(tileset* tilesets, npcgfx* npc_graphics) : tilesets(tilesets), npc_
 	map_loaded = false;
 	map_palette = 0;
 	cur_map_num = (~0);
-	
-	row_offsets = NULL;
+	last_tile_animation = SDL_GetTicks();
 
 	mnpcs = NULL;
 
@@ -107,7 +106,7 @@ void map2d::load(const size_t& map_num) {
 	underlay_tiles = new unsigned int[map_size.x*map_size.y];
 	overlay_tiles = new unsigned int[map_size.x*map_size.y];
 
-	tilesets->load(cur_tileset_num-1);
+	tilesets->load(cur_tileset_num-1, map_palette-1);
 
 	const size_t map_data_offset = npc_data_len + header_len;
 	const size_t map_data_len = (map_size.x * map_size.y) * 3;
@@ -130,8 +129,7 @@ void map2d::load(const size_t& map_num) {
 	}
 	
 	// create opengl buffers
-	row_offsets = new size_t[map_size.y];
-	
+
 	const float tile_tc_size = tilesets->get_tile_tex_coord_size();
 	const tileset::tile_object* tile_obj;
 	const tileset::tileset_object& tileset_obj = tilesets->get_cur_tileset();
@@ -140,17 +138,13 @@ void map2d::load(const size_t& map_num) {
 		unsigned int* tile_nums = (i == 0 ? underlay_tiles : overlay_tiles);
 		
 		// figure out tile count, so we can allocate the right amount of memory
-		size_t tile_count = 0;
+		size_t tile_count = 0, ani_tile_count = 0;
 		for(size_t y = 0; y < map_size.y; y++) {
 			for(size_t x = 0; x < map_size.x; x++) {
 				tile_obj = &(tileset_obj.tiles[tile_nums[y*map_size.x + x]]);
 				if(tile_obj->num == 0xFFF) continue;
 				tile_count++;
-			}
-			
-			// while we're at it, also save the tile num/id offset of each row (only applies to overlay layer)
-			if(i == 1) {
-				row_offsets[y] = tile_count;
+				if(tile_obj->ani_tiles > 1) ani_tile_count++;
 			}
 		}
 		
@@ -158,8 +152,12 @@ void map2d::load(const size_t& map_num) {
 		layers[i].vertices = new float3[tile_count*4];
 		layers[i].tex_coords = new float2[tile_count*4];
 		layers[i].indices = new index4[tile_count];
-		unsigned int tile_num = 0;
-		
+		layers[i].tile_nums = new unsigned int[tile_count];
+		layers[i].ani_offset = tile_count-ani_tile_count;
+
+		// note: animated tiles will be stored at the end (in one block), so they
+		// can be updated in a faster way (w/o reuploading unanimated tiles)
+		size_t tile_num = 0, ani_tile_num = layers[i].ani_offset;
 		for(size_t y = 0; y < map_size.y; y++) {
 			for(size_t x = 0; x < map_size.x; x++) {
 				if(tile_nums[y*map_size.x + x] != 0) {
@@ -168,31 +166,38 @@ void map2d::load(const size_t& map_num) {
 
 					float tile_depth = 0.0f;
 					switch(tile_obj->layer_type) {
-						case tileset::TL_UNDERLAY: tile_depth = 0.0f; break;
-						case tileset::TL_OVERLAY: tile_depth = 1.0f; break;
-						case tileset::TL_DYNAMIC_1:
+						case TL_UNDERLAY: tile_depth = 0.0f; break;
+						case TL_OVERLAY: tile_depth = 1.0f; break;
+						case TL_DYNAMIC_1:
 							tile_depth = float(y)/255.0f;
 							break;
-						case tileset::TL_DYNAMIC_2:
+						case TL_DYNAMIC_2:
 							tile_depth = float(y+1)/255.0f;
+							break;
+						case TL_DYNAMIC_3:
+							tile_depth = float(y+2)/255.0f;
 							break;
 						default:
 							tile_depth = -1.0f;
 							break;
 					}
 
-					layers[i].vertices[tile_num*4 + 0].set(float(x)*tile_size, float(y)*tile_size, tile_depth);
-					layers[i].vertices[tile_num*4 + 1].set(float(x)*tile_size + tile_size, float(y)*tile_size, tile_depth);
-					layers[i].vertices[tile_num*4 + 2].set(float(x)*tile_size + tile_size, float(y)*tile_size + tile_size, tile_depth);
-					layers[i].vertices[tile_num*4 + 3].set(float(x)*tile_size, float(y)*tile_size + tile_size, tile_depth);
+					const size_t& num = (tile_obj->ani_tiles > 1 ? ani_tile_num : tile_num);
+					layers[i].vertices[num*4 + 0].set(float(x)*tile_size, float(y)*tile_size, tile_depth);
+					layers[i].vertices[num*4 + 1].set(float(x)*tile_size + tile_size, float(y)*tile_size, tile_depth);
+					layers[i].vertices[num*4 + 2].set(float(x)*tile_size + tile_size, float(y)*tile_size + tile_size, tile_depth);
+					layers[i].vertices[num*4 + 3].set(float(x)*tile_size, float(y)*tile_size + tile_size, tile_depth);
 					
-					layers[i].tex_coords[tile_num*4 + 0].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y);
-					layers[i].tex_coords[tile_num*4 + 1].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y);
-					layers[i].tex_coords[tile_num*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y + tile_tc_size);
-					layers[i].tex_coords[tile_num*4 + 3].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y + tile_tc_size);
+					layers[i].tex_coords[num*4 + 0].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y);
+					layers[i].tex_coords[num*4 + 1].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y);
+					layers[i].tex_coords[num*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y + tile_tc_size);
+					layers[i].tex_coords[num*4 + 3].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y + tile_tc_size);
 					
-					layers[i].indices[tile_num].set(tile_num*4 + 0, tile_num*4 + 1, tile_num*4 + 2, tile_num*4 + 3);
-					tile_num++;
+					layers[i].indices[num].set(num*4 + 0, num*4 + 1, num*4 + 2, num*4 + 3);
+					layers[i].tile_nums[num] = tile_nums[y*map_size.x + x];
+
+					if(tile_obj->ani_tiles > 1) ani_tile_num++;
+					else tile_num++;
 				}
 			}
 		}
@@ -204,7 +209,7 @@ void map2d::load(const size_t& map_num) {
 		
 		glGenBuffers(1, &layers[i].tex_coords_vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, layers[i].tex_coords_vbo);
-		glBufferData(GL_ARRAY_BUFFER, tile_count * 4 * 2 * sizeof(float), layers[i].tex_coords, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, tile_count * 4 * 2 * sizeof(float), layers[i].tex_coords, GL_DYNAMIC_DRAW);
 		
 		glGenBuffers(1, &layers[i].indices_vbo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, layers[i].indices_vbo);
@@ -237,10 +242,6 @@ void map2d::unload() {
 	if(overlay_tiles != NULL) {
 		delete [] overlay_tiles;
 		overlay_tiles = NULL;
-	}
-	if(row_offsets != NULL) {
-		delete [] row_offsets;
-		row_offsets = NULL;
 	}
 	if(mnpcs != NULL) {
 		delete mnpcs;
@@ -318,6 +319,45 @@ void map2d::handle() {
 	
 	// set new, scrolled/interpolated screen position
 	screen_position = screen_position + scroll_speed * scroll_factor;
+
+
+	// handle tileset and animations
+	if((SDL_GetTicks() - last_tile_animation) > TIME_PER_TILE_ANIMATION_FRAME) {
+		last_tile_animation = SDL_GetTicks();
+
+		set<unsigned int> modified_tiles;
+		tilesets->handle_animations(modified_tiles);
+	
+		//cout << "modified_tiles: " << modified_tiles.size() << endl;
+		if(modified_tiles.size() > 0) {
+			const float tile_tc_size = tilesets->get_tile_tex_coord_size();
+			const tileset::tile_object* tile_obj;
+			const tileset::tileset_object& tileset_obj = tilesets->get_cur_tileset();
+			for(size_t i = 0; i < 2; i++) {
+				map_layer& cur_layer = layers[i];
+				for(size_t t = cur_layer.ani_offset; t < (cur_layer.index_count/4); t++) {
+					if(modified_tiles.count(cur_layer.tile_nums[t]) > 0) {
+						tile_obj = &(tileset_obj.tiles[cur_layer.tile_nums[t]]);
+						if(tile_obj->num == 0xFFF) continue;
+					
+						cur_layer.tex_coords[t*4 + 0].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y);
+						cur_layer.tex_coords[t*4 + 1].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y);
+						cur_layer.tex_coords[t*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y + tile_tc_size);
+						cur_layer.tex_coords[t*4 + 3].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y + tile_tc_size);
+					}
+				}
+
+				size_t update_size = (cur_layer.index_count - cur_layer.ani_offset*4);
+				//cout << "update size " << i << ": " << (update_size/4) << endl;
+				if(update_size == 0) continue;
+
+				glBindBuffer(GL_ARRAY_BUFFER, cur_layer.tex_coords_vbo);
+				glBufferSubData(GL_ARRAY_BUFFER, (cur_layer.ani_offset*4) * 2 * sizeof(float), update_size * 2 * sizeof(float), &cur_layer.tex_coords[cur_layer.ani_offset*4]);
+			}
+
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		}
+	}
 }
 
 void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_draw_stage) const {
@@ -403,6 +443,10 @@ tileset::tile_object* map2d::get_tile(unsigned int type) {
 	return map_loaded ? &(tilesets->get_cur_tileset().tiles[(type==1?overlay_tiles:underlay_tiles)[next_position.y*map_size.x+next_position.x]]) : NULL;
 }
 
+unsigned int map2d::get_tile_num(unsigned int type) {
+	return map_loaded ? (type==1?overlay_tiles:underlay_tiles)[next_position.y*map_size.x+next_position.x] : 0;
+}
+
 const size2& map2d::get_size() const {
 	return map_size;
 }
@@ -411,8 +455,10 @@ void map2d::set_pos(const size_t& x, const size_t& y) {
 	next_position.set(x, y);
 }
 
-bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position) const {
-	if(map_loaded && conf::get<bool>("map.collision")) {
+bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const {
+	if(map_loaded) {
+		if(!conf::get<bool>("map.collision") && char_type == CT_PLAYER) return false;
+
 		size2 next_position[2];
 		size_t position_count = 0;
 		switch(direction) {

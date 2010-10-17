@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
 				caption << " | ";
 				
 				stringstream tbytes;
-				string byte_strs[4];
+				string byte_strs[6];
 				tbytes.setf(ios::hex, ios::basefield);
 				
 				tbytes << mh->get_tile(0)->upper_bytes;
@@ -151,8 +151,14 @@ int main(int argc, char *argv[]) {
 				tbytes << mh->get_tile(1)->lower_bytes;
 				byte_strs[3] = tbytes.str();
 				c->reset(&tbytes);
-				
-				for(size_t i = 0; i < 4; i++) {
+				tbytes << mh->get_tile_num(0);
+				byte_strs[4] = tbytes.str();
+				c->reset(&tbytes);
+				tbytes << mh->get_tile_num(1);
+				byte_strs[5] = tbytes.str();
+				c->reset(&tbytes);
+
+				for(size_t i = 0; i < 6; i++) {
 					size_t add_zeros = 8 - byte_strs[i].length();
 					for(size_t j = 0; j < add_zeros; j++) {
 						byte_strs[i] = "0"+byte_strs[i];
@@ -160,7 +166,9 @@ int main(int argc, char *argv[]) {
 				}
 				
 				caption << byte_strs[0] << " " << byte_strs[1] << " | ";
-				caption << byte_strs[2] << " " << byte_strs[3] << " |";
+				caption << byte_strs[2] << " " << byte_strs[3] << " | ";
+				caption << byte_strs[4] << " | ";
+				caption << byte_strs[5] << " |";
 			}
 			caption << " (" << mh->get_player_position().x << ", " << mh->get_player_position().y << ")";
 			if(mh->get_tile(0) != NULL) caption << " | c: " << (size_t)mh->get_tile(0)->collision << " " << (size_t)mh->get_tile(1)->collision;

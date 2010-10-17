@@ -59,10 +59,11 @@ public:
 	const size_t& get_palette() const;
 	const float2& get_screen_position() const;
 
-	bool collide(const MOVE_DIRECTION& direction, const size2& cur_position) const;
+	bool collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const;
 
 	// DEBUG: for debugging purposes
 	tileset::tile_object* get_tile(unsigned int type);
+	unsigned int get_tile_num(unsigned int type);
 
 protected:
 	tileset* tilesets;
@@ -93,7 +94,9 @@ protected:
 		float3* vertices;
 		float2* tex_coords;
 		index4* indices;
+		unsigned int* tile_nums;
 		size_t index_count;
+		size_t ani_offset;
 		
 		void clear() {
 			if(glIsBuffer(vertices_vbo)) glDeleteBuffers(1, &vertices_vbo);
@@ -112,14 +115,18 @@ protected:
 				delete [] indices;
 				indices = NULL;
 			}
+			if(tile_nums != NULL) {
+				delete [] tile_nums;
+				tile_nums = NULL;
+			}
 			index_count = 0;
 		}
 		
-		map_layer() : vertices_vbo(0), tex_coords_vbo(0), indices_vbo(0), vertices(NULL), tex_coords(NULL), indices(NULL), index_count(0) {}
+		map_layer() : vertices_vbo(0), tex_coords_vbo(0), indices_vbo(0), vertices(NULL), tex_coords(NULL), indices(NULL), tile_nums(NULL), index_count(0), ani_offset(0) {}
 		~map_layer() { clear(); }
 	};
 	map_layer layers[2]; // under/overlay
-	size_t* row_offsets;
+	size_t last_tile_animation;
 
 	//
 	ssize2 next_position;

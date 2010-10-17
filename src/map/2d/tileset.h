@@ -39,19 +39,12 @@ public:
 	tileset(const pal* palettes);
 	~tileset();
 
-	enum TILE_LAYER {
-		TL_UNKNOWN,
-		TL_UNDERLAY,	//! always underlay
-		TL_DYNAMIC_1,	//! underlay if player y > tile y, overlay if player y <= tile y
-		TL_DYNAMIC_2,	//! underlay if player y > tile y, overlay if player y <= tile y
-		TL_OVERLAY		//! always overlay
-	};
-
 	struct tile_object {
 		unsigned char special_1;
 		unsigned char collision;
 		unsigned short int special_2;
 		size_t num;
+		size_t ani_num;
 		size_t ani_tiles;
 		
 		float2 tex_coord;
@@ -63,18 +56,18 @@ public:
 
 	struct tileset_object {
 		size_t tile_count;
-		size_t palette_num;
 		unsigned char* tile_data;
 		tile_object* tiles;
+		size_t tile_obj_count;
 		a2e_texture tileset;
 		bool loaded;
 		
-		tileset_object() : tile_count(0), palette_num(0), tile_data(NULL), tiles(NULL), tileset(), loaded(false) {}
+		tileset_object() : tile_count(0), tile_data(NULL), tiles(NULL), tile_obj_count(0), tileset(), loaded(false) {}
 	};
 
-	void load(const size_t& num);
+	void load(const size_t& num, const size_t& palette);
+	void handle_animations(set<unsigned int>& modified_tiles);
 	
-	const size_t get_tileset_palette(const size_t& num) const;
 	const tileset_object& get_tileset(const size_t& num) const;
 	const tileset_object& get_cur_tileset() const;
 	const TILE_LAYER get_layer_type(const unsigned char& ch) const;

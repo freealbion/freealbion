@@ -48,6 +48,7 @@ public:
 	
 	// DEBUG: for debugging purposes
 	tileset::tile_object* get_tile(unsigned int type);
+	unsigned int get_tile_num(unsigned int type);
 
 protected:
 	pal* palettes;

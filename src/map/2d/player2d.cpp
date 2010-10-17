@@ -22,6 +22,7 @@
 /*! player constructor
  */
 player2d::player2d(map2d* map2d_obj, npcgfx* npc_graphics) : npc2d(map2d_obj, npc_graphics) {
+	char_type = CT_PLAYER;
 	time_per_tile = TIME_PER_TILE;
 }
 

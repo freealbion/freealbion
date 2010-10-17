@@ -21,7 +21,7 @@
 
 /*! npc2d constructor
  */
-npc2d::npc2d(map2d* map2d_obj, npcgfx* npc_graphics) : map2d_obj(map2d_obj), npc_graphics(npc_graphics) {
+npc2d::npc2d(map2d* map2d_obj, npcgfx* npc_graphics) : map2d_obj(map2d_obj), npc_graphics(npc_graphics), char_type(CT_NPC) {
 	time_per_tile = TIME_PER_TILE_NPC;
 	pos_interp = 0.0f;
 	state = S_FRONT1;
@@ -105,25 +105,25 @@ void npc2d::move(const MOVE_DIRECTION& direction) {
 	pos_interp = 0.0f;
 	switch(direction) {
 		case MD_LEFT:
-			if(!map2d_obj->collide(MD_LEFT, pos)) {
+			if(!map2d_obj->collide(MD_LEFT, pos, char_type)) {
 				if(pos.x != 0) next_pos.x--;
 			}
 			state = (S_LEFT1 & 0xF0) | (state & 0xF);
 			break;
 		case MD_RIGHT:
-			if(!map2d_obj->collide(MD_RIGHT, pos)) {
+			if(!map2d_obj->collide(MD_RIGHT, pos, char_type)) {
 				if(pos.x < map2d_obj->get_size().x-1) next_pos.x++;
 			}
 			state = (S_RIGHT1 & 0xF0) | (state & 0xF);
 			break;
 		case MD_UP:
-			if(!map2d_obj->collide(MD_UP, pos)) {
+			if(!map2d_obj->collide(MD_UP, pos, char_type)) {
 				if(pos.y != 0) next_pos.y--;
 			}
 			state = (S_BACK1 & 0xF0) | (state & 0xF);
 			break;
 		case MD_DOWN:
-			if(!map2d_obj->collide(MD_DOWN, pos)) {
+			if(!map2d_obj->collide(MD_DOWN, pos, char_type)) {
 				if(pos.y < map2d_obj->get_size().y-1) next_pos.y++;
 			}
 			state = (S_FRONT1 & 0xF0) | (state & 0xF);

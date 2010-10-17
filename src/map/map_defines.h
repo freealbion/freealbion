@@ -28,6 +28,7 @@
 #define TILES_PER_SECOND_NPC (3) // assume 3 tiles/s for the moment
 #define TIME_PER_TILE_NPC (1000 / TILES_PER_SECOND_NPC)
 #define TIME_PER_ANIMATION_FRAME (150)
+#define TIME_PER_TILE_ANIMATION_FRAME (100)
 
 enum NPC_STATE {
 	S_BACK1		= 0x01,
@@ -82,6 +83,20 @@ enum NPC_DRAW_STAGE {
 	NDS_PRE_OVERLAY,
 	NDS_POST_OVERLAY,
 	NDS_DEBUG
+};
+
+enum TILE_LAYER {
+	TL_UNKNOWN,
+	TL_UNDERLAY,	//! always underlay
+	TL_DYNAMIC_1,	//! underlay if player y > tile y, overlay if player y <= tile y
+	TL_DYNAMIC_2,	//! same as TL_DYNAMIC_1, but tile y + 1
+	TL_DYNAMIC_3,	//! same as TL_DYNAMIC_1, but tile y + 2
+	TL_OVERLAY		//! always overlay
+};
+
+enum CHARACTER_TYPE {
+	CT_PLAYER,
+	CT_NPC
 };
 
 #endif
