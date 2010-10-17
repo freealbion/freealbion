@@ -42,7 +42,8 @@ public:
 	enum TILE_LAYER {
 		TL_UNKNOWN,
 		TL_UNDERLAY,	//! always underlay
-		TL_DYNAMIC,		//! underlay if player y > tile y, overlay if player y <= tile y
+		TL_DYNAMIC_1,	//! underlay if player y > tile y, overlay if player y <= tile y
+		TL_DYNAMIC_2,	//! underlay if player y > tile y, overlay if player y <= tile y
 		TL_OVERLAY		//! always overlay
 	};
 

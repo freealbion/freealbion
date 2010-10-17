@@ -44,16 +44,13 @@ public:
 	void set_palette(const size_t& palette_num);
 
 	const a2e_texture& get_npcgfx(const size_t& npc_num);
-	void draw_npc(const size_t& npc_num, const size_t& frame, const float& x, const float& y);
+	void draw_npc(const size_t& npc_num, const size_t& frame, const float2& screen_position, const float2& position, const float depth_overwrite = -1.0f);
 	
 protected:
 	const pal* palettes;
 	size_t cur_palette;
 
 	map<size_t, a2e_texture> npc_graphics;
-	
-	float2 draw_size;
-	float2 tsize;
 	
 	xld* npcgfx0;
 	xld* npcgfx1;

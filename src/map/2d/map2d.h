@@ -47,14 +47,13 @@ public:
 	bool is_2d_map(const size_t& map_num) const;
 	
 	void handle();
-	void draw(const MAP_DRAW_STAGE& draw_stage) const;
+	void draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_draw_stage) const;
 
 	//void add_npc(const size_t& id, const size_t& x, const size_t& y);
 	//void move_npc(const size_t& id, const size_t& x, const size_t& y);
 
 
 	void set_pos(const size_t& x, const size_t& y);
-	const size2& get_player_offset() const;
 	const size2& get_size() const;
 	const float get_tile_size() const;
 	const size_t& get_palette() const;
@@ -91,7 +90,7 @@ protected:
 		GLuint vertices_vbo;
 		GLuint tex_coords_vbo;
 		GLuint indices_vbo;
-		float2* vertices;
+		float3* vertices;
 		float2* tex_coords;
 		index4* indices;
 		size_t index_count;
@@ -123,12 +122,9 @@ protected:
 	size_t* row_offsets;
 
 	//
-	ssize2 position;
 	ssize2 next_position;
 	float2 screen_position;
 	
-	size2 player_offset;
-	size2 player_position;
 	ssize2 normal_player_offset;
 
 	bool map_loaded;

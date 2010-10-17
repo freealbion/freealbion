@@ -44,10 +44,12 @@ protected:
 	a2eui_window* albion_dbg;
 	gui_button* b_goto_map;
 	gui_input* i_goto_map;
+	gui_list* lb_map_names;
 	
 	//
 	void handle_b_goto_map_button(event::GUI_EVENT_TYPE type, GUI_ID id);
 	void handle_i_goto_map_selected(event::GUI_EVENT_TYPE type, GUI_ID id);
+	void handle_lb_map_names_list(event::GUI_EVENT_TYPE type, GUI_ID id);
 
 };
 

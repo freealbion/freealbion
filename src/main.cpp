@@ -31,7 +31,7 @@
 
 int main(int argc, char *argv[]) {
 	// initialize the engine
-	e = new engine(argv[0], (const char*)"../../data/");
+	e = new engine(argv[0], (const char*)"../data/");
 	e->init();
 	e->set_caption(APPLICATION_NAME);
 	

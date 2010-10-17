@@ -76,25 +76,27 @@ void map_handler::handle() {
 
 void map_handler::draw() {
 	e->start_2d_draw();
-	
-	//glEnable(GL_STENCIL_TEST);
-	//glDisable(GL_STENCIL_TEST);
-	
-	glDisable(GL_DEPTH_TEST);
-	//p->draw();
-	
-	if(conf::get<bool>("map.draw_underlay")) maps2d->draw(MDS_UNDERLAY);
-	
-	maps2d->draw(MDS_NPCS);
-	p->draw();
-	
-	if(conf::get<bool>("map.draw_overlay")) maps2d->draw(MDS_OVERLAY);
-
-	maps2d->draw(MDS_DEBUG);
-	
-	//p->draw();
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
 	
+	maps2d->draw(MDS_NPCS, NDS_PRE_UNDERLAY);
+	p->draw(NDS_PRE_UNDERLAY);
+	
+	if(conf::get<bool>("map.draw_underlay")) maps2d->draw(MDS_UNDERLAY, NDS_NONE);
+	
+	maps2d->draw(MDS_NPCS, NDS_PRE_OVERLAY);
+	p->draw(NDS_PRE_OVERLAY);
+	
+	if(conf::get<bool>("map.draw_overlay")) maps2d->draw(MDS_OVERLAY, NDS_NONE);
+
+	maps2d->draw(MDS_NPCS, NDS_POST_OVERLAY);
+	p->draw(NDS_POST_OVERLAY);
+
+	// clear depth (so it doesn't interfere with the gui) and draw debug stuff
+	glClear(GL_DEPTH_BUFFER_BIT);
+	maps2d->draw(MDS_DEBUG, NDS_NONE);
+	
+	glDisable(GL_BLEND);
 	e->stop_2d_draw();
 }
 
@@ -117,22 +119,18 @@ void map_handler::handle_key_press(event::GUI_EVENT_TYPE type, GUI_ID id) {
 		case SDLK_LEFT:
 		case SDLK_a:
 			next_dir = MD_LEFT;
-			//p->move(MD_LEFT);
 			break;
 		case SDLK_RIGHT:
 		case SDLK_d:
 			next_dir = MD_RIGHT;
-			//p->move(MD_RIGHT);
 			break;
 		case SDLK_UP:
 		case SDLK_w:
 			next_dir = MD_UP;
-			//p->move(MD_UP);
 			break;
 		case SDLK_DOWN:
 		case SDLK_s:
 			next_dir = MD_DOWN;
-			//p->move(MD_DOWN);
 			break;
 		default:
 			next_dir = MD_NONE;
@@ -144,10 +142,10 @@ const size2& map_handler::get_player_position() const {
 	return p->get_pos();
 }
 
-tileset::tile_object* map_handler::get_tile(unsigned int type) {
-	return maps2d->get_tile(type);
-}
-
 npcgfx* map_handler::get_npc_graphics() const {
 	return npc_graphics;
+}
+
+tileset::tile_object* map_handler::get_tile(unsigned int type) {
+	return maps2d->get_tile(type);
 }

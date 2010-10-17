@@ -47,7 +47,7 @@ void npc2d::set_npc_data(const map_npcs::map_npc* npc_data) {
 	else set_pos(npc_data->position[0].x-1, npc_data->position[0].y-1);
 }
 
-void npc2d::draw() const {
+void npc2d::draw(const NPC_DRAW_STAGE& draw_stage) const {
 	if(!enabled) return;
 	if(npc_data == NULL) return;
 
@@ -55,10 +55,11 @@ void npc2d::draw() const {
 	float2 npc_pos = pos;
 	float2 npc_next_pos = next_pos;
 	npc_pos = npc_pos*(1.0f-pos_interp) + npc_next_pos*pos_interp;
-
+	
+	float depth_overwrite = (draw_stage == NDS_PRE_UNDERLAY || draw_stage == NDS_PRE_OVERLAY) ? 0.0f : -1.0f;
 	npc_graphics->draw_npc(npc_data->object_num, (NPC_STATE)state,
-						   (npc_pos.x)*tile_size,
-						   (npc_pos.y - 2.0f)*tile_size);
+						   float2((npc_pos.x)*tile_size, (npc_pos.y - 2.0f)*tile_size),
+						   npc_pos, depth_overwrite);
 }
 
 void npc2d::handle() {

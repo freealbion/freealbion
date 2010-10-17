@@ -155,7 +155,7 @@ void map2d::load(const size_t& map_num) {
 		}
 		
 		// allocate memory and fill data
-		layers[i].vertices = new float2[tile_count*4];
+		layers[i].vertices = new float3[tile_count*4];
 		layers[i].tex_coords = new float2[tile_count*4];
 		layers[i].indices = new index4[tile_count];
 		unsigned int tile_num = 0;
@@ -166,10 +166,25 @@ void map2d::load(const size_t& map_num) {
 					tile_obj = &(tileset_obj.tiles[tile_nums[y*map_size.x + x]]);
 					if(tile_obj->num == 0xFFF) continue;
 
-					layers[i].vertices[tile_num*4 + 0].set(float(x)*tile_size, float(y)*tile_size);
-					layers[i].vertices[tile_num*4 + 1].set(float(x)*tile_size + tile_size, float(y)*tile_size);
-					layers[i].vertices[tile_num*4 + 2].set(float(x)*tile_size + tile_size, float(y)*tile_size + tile_size);
-					layers[i].vertices[tile_num*4 + 3].set(float(x)*tile_size, float(y)*tile_size + tile_size);
+					float tile_depth = 0.0f;
+					switch(tile_obj->layer_type) {
+						case tileset::TL_UNDERLAY: tile_depth = 0.0f; break;
+						case tileset::TL_OVERLAY: tile_depth = 1.0f; break;
+						case tileset::TL_DYNAMIC_1:
+							tile_depth = float(y)/255.0f;
+							break;
+						case tileset::TL_DYNAMIC_2:
+							tile_depth = float(y+1)/255.0f;
+							break;
+						default:
+							tile_depth = -1.0f;
+							break;
+					}
+
+					layers[i].vertices[tile_num*4 + 0].set(float(x)*tile_size, float(y)*tile_size, tile_depth);
+					layers[i].vertices[tile_num*4 + 1].set(float(x)*tile_size + tile_size, float(y)*tile_size, tile_depth);
+					layers[i].vertices[tile_num*4 + 2].set(float(x)*tile_size + tile_size, float(y)*tile_size + tile_size, tile_depth);
+					layers[i].vertices[tile_num*4 + 3].set(float(x)*tile_size, float(y)*tile_size + tile_size, tile_depth);
 					
 					layers[i].tex_coords[tile_num*4 + 0].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y);
 					layers[i].tex_coords[tile_num*4 + 1].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y);
@@ -185,7 +200,7 @@ void map2d::load(const size_t& map_num) {
 		// create vbos
 		glGenBuffers(1, &layers[i].vertices_vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, layers[i].vertices_vbo);
-		glBufferData(GL_ARRAY_BUFFER, tile_count * 4 * 2 * sizeof(float), layers[i].vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, tile_count * 4 * 3 * sizeof(float), layers[i].vertices, GL_STATIC_DRAW);
 		
 		glGenBuffers(1, &layers[i].tex_coords_vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, layers[i].tex_coords_vbo);
@@ -305,7 +320,7 @@ void map2d::handle() {
 	screen_position = screen_position + scroll_speed * scroll_factor;
 }
 
-void map2d::draw(const MAP_DRAW_STAGE& draw_stage) const {
+void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_draw_stage) const {
 	if(map_loaded) {
 		glPushMatrix();
 		glFrontFace(GL_CW);
@@ -321,21 +336,18 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage) const {
 		glTranslatef(-snapped_position.x * scaled_tile_size, -snapped_position.y * scaled_tile_size, 0.0f);
 
 		if(draw_stage == MDS_UNDERLAY || draw_stage == MDS_OVERLAY) {
-			glScalef(scale, scale, scale);
+			glScalef(scale, scale, 1.0f);
 			glColor3f(1.0f, 1.0f, 1.0f);
 
 			const tileset::tileset_object& tileset_obj = tilesets->get_cur_tileset();
 			const map_layer& cur_layer = (draw_stage == MDS_UNDERLAY ? layers[0] : layers[1]);
-
-			if(draw_stage == MDS_OVERLAY) glEnable(GL_BLEND);
-			else glDisable(GL_BLEND);
 		
 			glActiveTexture(GL_TEXTURE0);
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, tileset_obj.tileset->tex());
 		
 			glBindBuffer(GL_ARRAY_BUFFER, cur_layer.vertices_vbo);
-			glVertexPointer(2, GL_FLOAT, 0, NULL);
+			glVertexPointer(3, GL_FLOAT, 0, NULL);
 			glEnableClientState(GL_VERTEX_ARRAY);
 		
 			glClientActiveTexture(GL_TEXTURE0);
@@ -357,13 +369,13 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage) const {
 		else if(draw_stage == MDS_NPCS) {
 			// draw npcs
 			for(vector<npc2d*>::const_iterator npc_iter = npcs.begin(); npc_iter != npcs.end(); npc_iter++) {
-				(*npc_iter)->draw();
+				(*npc_iter)->draw(npc_draw_stage);
 			}
 		}
 		else if(draw_stage == MDS_DEBUG) {
 			// draw events onto the map
 			if(conf::get<bool>("debug.draw_events")) {
-				glScalef(scale, scale, scale);
+				glScalef(scale, scale, 1.0f);
 				glColor3f(1.0f, 1.0f, 1.0f);
 
 				glDisable(GL_TEXTURE_2D);
@@ -388,7 +400,7 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage) const {
 }
 
 tileset::tile_object* map2d::get_tile(unsigned int type) {
-	return map_loaded ? &(tilesets->get_cur_tileset().tiles[(type==1?overlay_tiles:underlay_tiles)[player_position.y*map_size.x+player_position.x]]) : NULL;
+	return map_loaded ? &(tilesets->get_cur_tileset().tiles[(type==1?overlay_tiles:underlay_tiles)[next_position.y*map_size.x+next_position.x]]) : NULL;
 }
 
 const size2& map2d::get_size() const {
@@ -401,30 +413,30 @@ void map2d::set_pos(const size_t& x, const size_t& y) {
 
 bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position) const {
 	if(map_loaded && conf::get<bool>("map.collision")) {
-		size2 next_position_1;
-		size2 next_position_2;
+		size2 next_position[2];
+		size_t position_count = 0;
 		switch(direction) {
 			case MD_DOWN:
 				if(cur_position.y == map_size.y-1) return true;
-				next_position_1 = size2(cur_position.x, cur_position.y+1);
-				next_position_2 = size2(cur_position.x+1, cur_position.y+1);
+				next_position[0] = size2(cur_position.x, cur_position.y+1);
+				next_position[1] = size2(cur_position.x+1, cur_position.y+1);
+				position_count = 2;
 				break;
 			case MD_UP:
 				if(cur_position.y == 0) return true;
-				next_position_1 = size2(cur_position.x, cur_position.y-1);
-				next_position_2 = size2(cur_position.x+1, cur_position.y-1);
+				next_position[0] = size2(cur_position.x, cur_position.y-1);
+				next_position[1] = size2(cur_position.x+1, cur_position.y-1);
+				position_count = 2;
 				break;
 			case MD_LEFT:
 				if(cur_position.x == 0) return true;
-				next_position_1 = size2(cur_position.x-1, cur_position.y);
-				next_position_2 = next_position_1;
-				//next_position_2 = size2(cur_position.x-1, cur_position.y+1);
+				next_position[0] = size2(cur_position.x-1, cur_position.y);
+				position_count = 1;
 				break;
 			case MD_RIGHT:
 				if(cur_position.x+1 == map_size.x-1) return true;
-				next_position_1 = size2(cur_position.x+2, cur_position.y);
-				next_position_2 = next_position_1;
-				//next_position_2 = size2(cur_position.x+2, cur_position.y+1);
+				next_position[0] = size2(cur_position.x+2, cur_position.y);
+				position_count = 1;
 				break;
 			default:
 				break;
@@ -432,42 +444,41 @@ bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position) 
 		
 		//
 		const tileset::tileset_object& cur_tileset = tilesets->get_cur_tileset();
-		const tileset::tile_object& tile_1_u = cur_tileset.tiles[underlay_tiles[next_position_1.y*map_size.x + next_position_1.x]];
-		const tileset::tile_object& tile_1_o = cur_tileset.tiles[overlay_tiles[next_position_1.y*map_size.x + next_position_1.x]];
-		const tileset::tile_object& tile_2_u = cur_tileset.tiles[underlay_tiles[next_position_2.y*map_size.x + next_position_2.x]];
-		const tileset::tile_object& tile_2_o = cur_tileset.tiles[overlay_tiles[next_position_2.y*map_size.x + next_position_2.x]];
+		for(size_t p = 0; p < position_count; p++) {
+			const tileset::tile_object& tile_u = cur_tileset.tiles[underlay_tiles[next_position[p].y*map_size.x + next_position[p].x]];
+			const tileset::tile_object& tile_o = cur_tileset.tiles[overlay_tiles[next_position[p].y*map_size.x + next_position[p].x]];
 		
-		// first, check special types
-		for(size_t i = 0; i < 4; i++) {
-			const tileset::tile_object& cur_tile = (i == 0 ? tile_1_u : (i == 1 ? tile_2_u : (i == 2 ? tile_1_o : tile_2_o)));
-			switch(cur_tile.special_2) {
-				case 0x0020:
-					return (cur_tile.collision != 0);
-				case 0x0204:
-				case 0x0284:
-				case 0x0080:
-				case 0x0100:
-				case 0x0304:
-					return true;
-					break;
-				default:
-					break;
+			// first, check special types
+			bool collision_overwrite = false;
+			for(size_t i = 0; i < 2; i++) {
+				const tileset::tile_object& cur_tile = (i == 0 ? tile_u : tile_o);
+				switch(cur_tile.special_2) {
+					case 0x0020:
+						collision_overwrite = (cur_tile.collision == 0);
+						break;
+					case 0x0204:
+					case 0x0284:
+					case 0x0080:
+					case 0x0100:
+					case 0x0304:
+						return true;
+						break;
+					default:
+						break;
+				}
 			}
-		}
+
+			// if we have a collision overwrite, consider the other tile (if count == 2) or default to false (no collision)
+			if(collision_overwrite) continue;
 		
-		// check collision byte
-		if(tile_1_u.collision != 0 ||
-		   tile_1_o.collision != 0 ||
-		   tile_2_u.collision != 0 ||
-		   tile_2_o.collision != 0) {
-			return true;
+			// check collision byte
+			if(tile_u.collision != 0 ||
+			   tile_o.collision != 0) {
+				return true;
+			}
 		}
 	}
 	return false;
-}
-
-const size2& map2d::get_player_offset() const {
-	return player_offset;
 }
 
 const float map2d::get_tile_size() const {

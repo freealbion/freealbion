@@ -215,6 +215,7 @@ const tileset::TILE_LAYER tileset::get_layer_type(const unsigned char& ch) const
 	
 	if(ch == 0) return tileset::TL_UNDERLAY;
 	if(ch & 2 && ch & 4) return tileset::TL_OVERLAY;
-	// 2, 4
-	return tileset::TL_DYNAMIC;
+	if(ch & 2) return tileset::TL_DYNAMIC_1;
+	if(ch & 4) return tileset::TL_DYNAMIC_2;
+	return tileset::TL_UNKNOWN;
 }

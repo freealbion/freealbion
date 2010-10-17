@@ -45,9 +45,10 @@ public:
 	
 	//
 	const size2& get_player_position() const;
+	
 	// DEBUG: for debugging purposes
 	tileset::tile_object* get_tile(unsigned int type);
-	
+
 protected:
 	pal* palettes;
 	tileset* tilesets;

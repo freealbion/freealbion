@@ -31,7 +31,7 @@ public:
 	npc2d(map2d* map2d_obj, npcgfx* npc_graphics);
 	~npc2d();
 
-	virtual void draw() const;
+	virtual void draw(const NPC_DRAW_STAGE& draw_stage) const;
 	virtual void handle();
 	virtual void move(const MOVE_DIRECTION& direction);
 
