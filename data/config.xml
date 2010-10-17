@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<engine>
+	<screen width="1280" height="720" depth="32" zbuffer="24" stencil="8" fullscreen="0" vsync="1" alpha="1" stereo="0"/>
+	<screen_ width="1680" height="1050" depth="32" zbuffer="24" stencil="8" fullscreen="1" vsync="1" alpha="1" stereo="0"/>
+	<gui style="CLEARLOOKS" color_scheme="CLEARLOOKS" shadow_type="1"/> // shadow_type: 0=shadows disabled, 1=32 blur passes, 2=64 blur passes
+	<input key_repeat="10" ldouble_click="10" mdouble_click="10" rdouble_click="10"/>
+	<sleep time="0"/>
+	<thread count="0"/> // number of threads to use (0 = use max threads)
+	<server port="1337" max_clients="32"/>
+	<client server="127.0.0.1" port="1337" lis_port="1336" name="Flo"/>
+	<graphic filtering="TRILINEAR" anti_aliasing="NONE" hdr="0" hdr_rgba16="0"/>
+	<graphic_device disabled_extensions="" force_device="" force_vendor=""/>
+</engine>

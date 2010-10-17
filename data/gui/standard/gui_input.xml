@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gui_element type="inputbox">
+	<state type="NORMAL">
+		<gfx type="rect_filled" bbox="x1 y1 x2 y2" correct="2 2 -1 -1" primary_color="LIGHT1"/>
+		<gfx type="line" bbox="x1 y1 x1 y1" correct="0 1 1 0" primary_color="LIGHT9"/>
+		<gfx type="line" bbox="x2 y1 x2 y1" correct="-1 0 0 1" primary_color="LIGHT9"/>
+		<gfx type="line" bbox="x1 y2 x1 y2" correct="0 -1 1 0" primary_color="LIGHT9"/>
+		<gfx type="line" bbox="x2 y2 x2 y2" correct="-1 0 0 -1" primary_color="LIGHT9"/>
+		<gfx type="line" bbox="x1 y1 x1 y2" correct="1 2 1 -2" primary_color="WINDOW_BG1"/>
+		<gfx type="line" bbox="x1 y1 x2 y1" correct="2 1 -2 1" primary_color="WINDOW_BG1"/>
+		<gfx type="line" bbox="x1 y1 x2 y1" correct="2 0 -2 0" primary_color="DARK6"/>
+		<gfx type="line" bbox="x1 y2 x2 y2" correct="2 0 -2 0" primary_color="DARK6"/>
+		<gfx type="line" bbox="x1 y1 x1 y2" correct="0 2 0 -2" primary_color="DARK6"/>
+		<gfx type="line" bbox="x2 y1 x2 y2" correct="0 2 0 -2" primary_color="DARK6"/>
+		<gfx type="point" bbox="x1 y1 x1 y1" correct="1 1 0 0" primary_color="DARK6"/>
+		<gfx type="point" bbox="x2 y1 x1 y1" correct="-1 1 0 0" primary_color="DARK6"/>
+		<gfx type="point" bbox="x1 y2 x1 y1" correct="1 -1 0 0" primary_color="DARK6"/>
+		<gfx type="point" bbox="x2 y2 x1 y1" correct="-1 -1 0 0" primary_color="DARK6"/>
+	</state>
+	<state type="CLICKED">
+		<gfx type="rect_filled" bbox="x1 y1 x2 y2" correct="2 2 -1 -1" primary_color="LIGHT1"/>
+		<gfx type="rect" bbox="x1 y1 x2 y2" correct="1 1 -1 -1" primary_color="LIGHT10"/>
+		<gfx type="line" bbox="x1 y1 x1 y1" correct="0 1 1 0" primary_color="LIGHT11"/>
+		<gfx type="line" bbox="x2 y1 x2 y1" correct="-1 0 0 1" primary_color="LIGHT11"/>
+		<gfx type="line" bbox="x1 y2 x1 y2" correct="0 -1 1 0" primary_color="LIGHT11"/>
+		<gfx type="line" bbox="x2 y2 x2 y2" correct="-1 0 0 -1" primary_color="LIGHT11"/>
+		<gfx type="line" bbox="x1 y1 x2 y1" correct="2 0 -2 0" primary_color="DARK10"/>
+		<gfx type="line" bbox="x1 y2 x2 y2" correct="2 0 -2 0" primary_color="DARK10"/>
+		<gfx type="line" bbox="x1 y1 x1 y2" correct="0 2 0 -2" primary_color="DARK10"/>
+		<gfx type="line" bbox="x2 y1 x2 y2" correct="0 2 0 -2" primary_color="DARK10"/>
+		<gfx type="point" bbox="x1 y1 x1 y1" correct="1 1 0 0" primary_color="DARK10"/>
+		<gfx type="point" bbox="x2 y1 x1 y1" correct="-1 1 0 0" primary_color="DARK10"/>
+		<gfx type="point" bbox="x1 y2 x1 y1" correct="1 -1 0 0" primary_color="DARK10"/>
+		<gfx type="point" bbox="x2 y2 x1 y1" correct="-1 -1 0 0" primary_color="DARK10"/>
+	</state>
+</gui_element>

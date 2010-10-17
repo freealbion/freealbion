@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<gui_element type="vbar_slider">
+	<state type="NORMAL">
+		<gfx type="rect" bbox="x1 y1 x2 y2" correct="3 0 0 0" primary_color="DARK5"/>
+		<gfx type="rect_2col" bbox="x1 y1 x2 y2" correct="4 1 -1 -1" primary_color="LIGHT1" secondary_color="LIGHT6"/>
+		<gfx type="vfade" bbox="x1 y1 x2 y2" correct="5 2 -2 -2" primary_color="BG6" secondary_color="BG7"/>
+		<gfx type="line" bbox="x1 center x2 center" correct="8 0 -4 0" primary_color="LIGHT8"/>
+		<gfx type="line" bbox="x1 center x2 center" correct="8 1 -4 1" primary_color="LIGHT5"/>
+		<gfx type="line" bbox="x1 center x2 center" correct="8 -3 -4 -3" primary_color="LIGHT8"/>
+		<gfx type="line" bbox="x1 center x2 center" correct="8 -2 -4 -2" primary_color="LIGHT5"/>
+		<gfx type="line" bbox="x1 center x2 center" correct="8 3 -4 3" primary_color="LIGHT8"/>
+		<gfx type="line" bbox="x1 center x2 center" correct="8 4 -4 4" primary_color="LIGHT5"/>
+	</state>
+</gui_element>

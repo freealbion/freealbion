@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<vertex_shader>
+		<variables>
+varying vec2 tex_coord;
+		</variables>
+		<program>
+void main()
+{
+	gl_Position = gl_Vertex;
+	tex_coord = gl_MultiTexCoord0.xy;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<variables>
+uniform float width;
+
+varying vec2 tex_coord;
+		</variables>
+		<program>
+void main() {
+	vec2 frag_coord = floor(gl_FragCoord.xy);
+	frag_coord.x /= width;
+	
+	float angle = frag_coord.y * 45.0 + frag_coord.x * 45.0;
+	float x = -1.0 + frag_coord.y * 0.125 + frag_coord.x * 0.125;
+	
+	gl_FragData[0].rgba = vec4(sin(angle), cos(angle), asin(x), acos(x));
+}
+		</program>
+	</fragment_shader>
+
+</a2e_shader>

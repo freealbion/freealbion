@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<vertex_shader>
+		<variables>
+uniform vec2 half_pixel;
+
+varying vec2 tex_coord0;
+varying vec2 tex_coord1;
+varying vec2 tex_coord2;
+varying vec2 tex_coord3;
+		</variables>
+		<program>
+void main() {
+	gl_Position = gl_Vertex;
+	vec2 tex_coord = gl_Vertex.xy * 0.5 + 0.5;
+
+	tex_coord0 = tex_coord + vec2(-1.0,  1.0) * half_pixel;
+	tex_coord1 = tex_coord + vec2( 1.0,  1.0) * half_pixel;
+	tex_coord2 = tex_coord + vec2( 1.0, -1.0) * half_pixel;
+	tex_coord3 = tex_coord + vec2(-1.0, -1.0) * half_pixel;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<variables>
+uniform sampler2D rt_tex;
+
+varying vec2 tex_coord0;
+varying vec2 tex_coord1;
+varying vec2 tex_coord2;
+varying vec2 tex_coord3;
+		</variables>
+		<program>
+void main() {
+	vec4 rt = texture2D(rt_tex, tex_coord0);
+	rt += texture2D(rt_tex, tex_coord1);
+	rt += texture2D(rt_tex, tex_coord2);
+	rt += texture2D(rt_tex, tex_coord3);
+
+	rt.rgb /= (4.0 * 128.0);
+
+	gl_FragColor = rt;
+}
+		</program>
+	</fragment_shader>
+
+</a2e_shader>

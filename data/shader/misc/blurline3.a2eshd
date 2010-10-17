@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<includes>blur</includes>
+	
+	<fragment_shader>
+		<variables>
+varying vec2 tex_coord;
+
+uniform vec2 tcs[3];
+uniform sampler2D texture;
+		</variables>
+		<program>
+void main() {
+	vec4 sample[3];
+	
+	for (int i = 0; i < 3; i++)
+	{
+		sample[i] = texture2D(texture, tex_coord + tcs[i]);
+	}
+
+//   2 1 2
+//     / 5
+
+	gl_FragColor = ((2.0*sample[0]) + sample[1] + (2.0*sample[2])) / 5.0;
+}
+		</program>
+	</fragment_shader>
+
+</a2e_shader>

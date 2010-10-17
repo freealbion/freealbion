@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<vertex_shader>
+		<variables>
+varying vec2 tex_coord;
+		</variables>
+		<program>
+void main() {
+	gl_Position = gl_Vertex;
+	tex_coord = gl_Vertex.xy * 0.5 + 0.5;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<preprocessor>
+#extension GL_ARB_draw_buffers : enable
+		</preprocessor>
+		<variables>
+uniform sampler2D particle_pos_time_tex;
+uniform sampler2D particle_dir_vel_tex;
+uniform vec3 gravity;
+uniform float time_passed;
+uniform float living_time;
+uniform float particle_count;
+uniform float tex_width;
+
+varying vec2 tex_coord;
+		</variables>
+		<program>
+void main() {
+	vec2 frag_coord = floor(gl_FragCoord.xy);
+	float particle_num = frag_coord.y * tex_width + frag_coord.x;
+
+	if(particle_num < particle_count) {
+		vec4 pos_time = texture2D(particle_pos_time_tex, tex_coord).rgba;
+		vec4 dir_vel = texture2D(particle_dir_vel_tex, tex_coord).rgba;
+		
+		vec3 npos = pos_time.rgb;
+		float tpassed = time_passed;
+		if(pos_time.a > 0.0 && pos_time.a <= living_time) {
+			if(living_time - time_passed < pos_time.a) tpassed = living_time - pos_time.a;
+			float time_step = tpassed / 1000.0;
+			vec3 acceleration = gravity * time_step;
+			dir_vel.rgb += acceleration;
+			npos += dir_vel.rgb * time_step;
+		}
+		
+		float ltime = pos_time.a - time_passed;
+		
+		gl_FragData[0].rgba = vec4(npos, ltime);
+		gl_FragData[1].rgba = vec4(dir_vel.r, dir_vel.g, dir_vel.b, dir_vel.a);
+	}
+	else {
+		gl_FragData[0].rgba = vec4(0.0);
+		gl_FragData[1].rgba = vec4(0.0);
+	}
+}
+		</program>
+	</fragment_shader>
+
+</a2e_shader>

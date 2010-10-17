@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<gui_element type="image">
+	<state type="NORMAL">
+		<gfx type="image" bbox="x1 y1 x2 y2" correct="0 0 0 0"/>
+	</state>
+</gui_element>

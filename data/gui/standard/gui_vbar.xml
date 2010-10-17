@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<gui_element type="vbar">
+	<state type="NORMAL">
+		<gfx type="rect_filled" bbox="x1 y1 x2 y2" correct="4 16 -1 -16" primary_color="BG8"/>
+		<gfx type="line" bbox="x1 y1 x1 y2" correct="3 16 3 -16" primary_color="DARK11"/>
+		<gfx type="line" bbox="x2 y1 x2 y2" correct="0 16 0 -16" primary_color="DARK11"/>
+	</state>
+</gui_element>

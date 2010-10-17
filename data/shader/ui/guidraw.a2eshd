@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<vertex_shader>
+		<program>
+void main() {
+	gl_Position = gl_Vertex;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader preprocessing="GUI">
+		<preprocessor>
+#extension GL_ARB_texture_rectangle : enable
+		</preprocessor>
+		<variables>
+uniform sampler2DRect wnd_buffers[$TEXTURE_UNITS];
+uniform sampler2DRect wnd_mask_buffers[$MASK_TEXTURE_UNITS];
+uniform vec4 wnd_rectangle[$TEXTURE_UNITS];
+uniform float wnd_height;
+		</variables>
+		<program>
+void main() {
+	vec2 frag_coord = floor(gl_FragCoord.xy);
+	frag_coord.y = wnd_height - frag_coord.y;
+	vec3 color = vec3(0.0);
+	float alpha = 0.0;
+	vec4 tmp;
+	vec4 mask;
+
+	$GUI_DRAW_LOOP_BEGIN
+		mask = texture2DRect(wnd_mask_buffers[$MASK_ITER], frag_coord);
+		$MASK_LOOP_BEGIN
+		if(mask.$CHANNEL_ITER > 0.0) {
+			tmp = texture2DRect(wnd_buffers[$TEXTURE_ITER], frag_coord - wnd_rectangle[$TEXTURE_ITER].xy);
+			color = mix(color, tmp.rgb, tmp.a);
+			alpha += tmp.a;
+		}
+		$MASK_LOOP_END
+	$GUI_DRAW_LOOP_END
+
+ 	gl_FragColor.rgba = vec4(color, alpha);
+}
+		</program>
+	</fragment_shader>
+
+</a2e_shader>

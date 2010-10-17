@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader_include version="1">
+	<vertex_shader>
+		<preprocessor>
+		<condition value="GC_GEFORCE_7 GC_RADEON_X GC_GENERIC_SM_4_0" type="LEQUAL">
+vec4 texture2DGrad(sampler2D sampler, vec2 coord, vec2 dx, vec2 dy) {
+	return texture2D(sampler, coord);
+}
+		</condition>
+		<condition value="GC_RADEON_X1" type="GEQUAL">
+#extension GL_ATI_shader_texture_lod : require
+vec4 texture2DGrad(sampler2D sampler, vec2 coord, vec2 dx, vec2 dy) {
+	return texture2D_ATI(sampler, coord, dx, dy);
+}
+		</condition>
+		<condition value="GC_GEFORCE_8" type="GEQUAL">
+#extension GL_EXT_gpu_shader4 : require // GeForce 8 cards already have texture2DGrad implemented
+		</condition>
+		</preprocessor>
+	</vertex_shader>
+	
+	<geometry_shader>
+		<preprocessor>
+		<condition value="GC_GEFORCE_7 GC_RADEON_X GC_GENERIC_SM_4_0" type="LEQUAL">
+vec4 texture2DGrad(sampler2D sampler, vec2 coord, vec2 dx, vec2 dy) {
+	return texture2D(sampler, coord);
+}
+		</condition>
+		<condition value="GC_RADEON_X1" type="GEQUAL">
+#extension GL_ATI_shader_texture_lod : require
+vec4 texture2DGrad(sampler2D sampler, vec2 coord, vec2 dx, vec2 dy) {
+	return texture2D_ATI(sampler, coord, dx, dy);
+}
+		</condition>
+		<condition value="GC_GEFORCE_8" type="GEQUAL">
+#extension GL_EXT_gpu_shader4 : require // GeForce 8 cards already have texture2DGrad implemented
+		</condition>
+		</preprocessor>
+	</geometry_shader>
+	
+	<fragment_shader>
+		<preprocessor>
+		<condition value="GC_GEFORCE_7 GC_RADEON_X GC_GENERIC_SM_4_0" type="LEQUAL">
+vec4 texture2DGrad(sampler2D sampler, vec2 coord, vec2 dx, vec2 dy) {
+	return texture2D(sampler, coord);
+}
+		</condition>
+		<condition value="GC_RADEON_X1" type="GEQUAL">
+#extension GL_ATI_shader_texture_lod : require
+vec4 texture2DGrad(sampler2D sampler, vec2 coord, vec2 dx, vec2 dy) {
+	return texture2D_ATI(sampler, coord, dx, dy);
+}
+		</condition>
+		<condition value="GC_GEFORCE_8" type="GEQUAL">
+#extension GL_EXT_gpu_shader4 : require // GeForce 8 cards already have texture2DGrad implemented
+		</condition>
+		</preprocessor>
+	</fragment_shader>
+</a2e_shader_include>

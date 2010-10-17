@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<includes>sincos_emu</includes>
+
+	<vertex_shader>
+		<variables>
+varying vec2 tex_coord;
+		</variables>
+		<program>
+void main() {
+	gl_Position = gl_Vertex;
+	tex_coord = gl_Vertex.xy * 0.5 + 0.5;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<preprocessor>
+#extension GL_ARB_draw_buffers : enable
+		</preprocessor>
+		<variables>
+uniform vec3 position_offset;
+uniform sampler2D random_tex;
+uniform sampler2D particle_pos_time_tex;
+uniform sampler2D particle_dir_vel_tex;
+uniform int type;
+uniform float living_time;
+uniform float particle_count;
+uniform float tex_width;
+uniform vec3 angle;
+uniform vec3 extents;
+uniform vec3 direction;
+uniform vec3 gravity;
+uniform float velocity;
+
+varying vec2 tex_coord;
+		</variables>
+		<program>
+
+vec2 sincos(float value) {
+	return vec2(sin(value), cos(value));
+}
+
+void main() {
+	vec2 frag_coord = floor(gl_FragCoord.xy);
+	float particle_time = texture2D(particle_pos_time_tex, tex_coord).a;
+	float particle_num = frag_coord.y * tex_width + frag_coord.x;
+
+	if(particle_time < 0.0 && particle_num < particle_count) {
+		vec3 position;
+		vec3 dir;
+		vec4 rand = texture2D(random_tex, tex_coord);
+		// output buffers (position, direction, velocity, living_time)
+		if(type == 0) { // box emitter
+			position = clamp(rand.xyz, 0.0, 1.0).xyz * extents.xyz - 0.5 * extents.xyz;
+		}
+		else if(type == 1) { // sphere emitter
+			float x, y, z;
+		<condition value="GC_GEFORCE_FX GC_RADEON_X1 GC_GENERIC_SM_3_0" type="GEQUAL">
+			vec2 angle_1 = sincos(2.0*3.14159265 * rand.x);
+			vec2 angle_2 = sincos(acos(1.0 - 2.0 * rand.y));
+		</condition>
+		<condition value="GC_RADEON_X GC_GENERIC_SM_2_0" type="LEQUAL">
+			vec2 angle_1 = texture2D(sincos_tex, get_angle_tex_coord(degrees(2.0*3.14159265 * rand.x))).xy;
+			float a2acos = texture2D(sincos_tex, get_sincos_tex_coord(1.0 - 2.0 * rand.y)).w;
+			vec2 angle_2 = texture2D(sincos_tex, get_angle_tex_coord(degrees(a2acos))).xy;
+		</condition>
+			x = extents.x * angle_1.y * angle_2.x * rand.z;
+			y = extents.x * angle_1.x * angle_2.x * rand.z;
+			z = extents.x * angle_2.y * rand.z;
+			position = vec3(x, y, z);
+		}
+		else if(type == 2) { // point emitter
+			position = vec3(0.0);
+		}
+		else {
+			position = vec3(0.0);
+		}
+		
+		position += position_offset;
+		
+		// rotate direction
+		vec3 rangle = (rand.yzw*2.0 - vec3(1.0)) * angle;
+		<condition value="GC_GEFORCE_FX GC_RADEON_X1 GC_GENERIC_SM_3_0" type="GEQUAL">
+		vec3 sina, cosa;
+		sina = sin(rangle);
+		cosa = cos(rangle);
+		mat3 rmat = mat3(cosa.y * cosa.z + sina.x * sina.y * sina.z, -cosa.x * sina.z, sina.x * cosa.y * sina.z - sina.y * cosa.z,
+			  cosa.y * sina.z - sina.x * sina.y * cosa.z, cosa.x * cosa.z, -sina.y * sina.z - sina.x * cosa.y * cosa.z,
+			  cosa.x * sina.y, sina.x, cosa.x * cosa.y);
+		</condition>
+		<condition value="GC_RADEON_X GC_GENERIC_SM_2_0" type="LEQUAL">
+		vec2 scx, scy, scz;
+		scx = texture2D(sincos_tex, get_angle_tex_coord(rangle.x)).xy;
+		scy = texture2D(sincos_tex, get_angle_tex_coord(rangle.y)).xy;
+		scz = texture2D(sincos_tex, get_angle_tex_coord(rangle.z)).xy;
+		mat3 rmat = mat3(scy.y * scz.y + scx.x * scy.x * scz.x, -scx.y * scz.x, scx.x * scy.y * scz.x - scy.x * scz.y,
+			  scy.y * scz.x - scx.x * scy.x * scz.y, scx.y * scz.y, -scy.x * scz.x - scx.x * scy.y * scz.y,
+			  scx.y * scy.x, scx.x, scx.y * scy.y);
+		</condition>
+		
+		dir = direction * rmat;
+		dir *= velocity;
+
+		float tpassed = -particle_time;
+		float time_step = tpassed / 1000.0;
+		vec3 acceleration = gravity * time_step;
+		dir += acceleration;
+		position += dir * time_step;
+
+		particle_time += living_time;
+		gl_FragData[0].rgba = vec4(position, particle_time);
+		gl_FragData[1].rgba = vec4(dir, 0.0);
+	}
+	else {
+		gl_FragData[0].rgba = texture2D(particle_pos_time_tex, tex_coord).rgba;
+		gl_FragData[1].rgba = texture2D(particle_dir_vel_tex, tex_coord).rgba;
+	}
+}
+		</program>
+	</fragment_shader>
+
+</a2e_shader>

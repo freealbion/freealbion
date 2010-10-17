@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_user_interface version="2">
+	<window width="535" height="310" id="20" name="save_dialog" caption="Save"/>
+	<object type="list" name="sd_l_files" caption="" id="21" tab_id="-1" tab="0" width="370" height="230" xpos="160" ypos="28"/>
+	<object type="list" name="sd_l_volumes" caption="" id="22" tab_id="-1" tab="0" width="150" height="230" xpos="5" ypos="28"/>
+	<object type="combo" name="sd_co_dir" caption="" id="23" tab_id="-1" tab="0" width="455" height="19" xpos="75" ypos="5"/>
+	<object type="button" name="sd_b_save" caption="Save" id="24" tab_id="-1" tab="0" width="80" height="20" xpos="450" ypos="285" filename="" img_scaling="0"/>
+	<object type="button" name="sd_b_cancel" caption="Cancel" id="25" tab_id="-1" tab="0" width="80" height="20" xpos="365" ypos="285" filename="" img_scaling="0"/>
+	<object type="button" name="sd_b_backward" caption="&lt;" id="26" tab_id="-1" tab="0" width="30" height="19" xpos="5" ypos="5" filename="" img_scaling="0"/>
+	<object type="button" name="sd_b_forward" caption="&gt;" id="27" tab_id="-1" tab="0" width="30" height="19" xpos="40" ypos="5" filename="" img_scaling="0"/>
+	<object type="input" name="sd_i_file_name" caption="" id="28" tab_id="-1" tab="0" width="525" height="19" xpos="5" ypos="262"/>
+</a2e_user_interface>

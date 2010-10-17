@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader_include version="1">
+	<vertex_shader>
+		<variables>
+varying vec2 tex_coord;
+		</variables>
+		<program>
+void main() {
+	gl_Position = gl_Vertex;
+	tex_coord = gl_Vertex.xy * 0.5 + 0.5;
+}
+		</program>
+	</vertex_shader>
+</a2e_shader_include>

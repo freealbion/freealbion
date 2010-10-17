@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<gui_element type="listbox">
+	<state type="NORMAL">
+		<gfx type="rect_filled" bbox="x1 y1 x2 y2" correct="1 1 -20 -1" primary_color="LIGHT1"/>
+		<gfx type="rect" bbox="x1 y1 x2 y2" correct="0 0 -19 0" primary_color="LIGHT8"/>
+	</state>
+</gui_element>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<vertex_shader>
+		<program>
+void main() {
+	gl_Position = gl_Vertex;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<preprocessor>
+#extension GL_ARB_texture_rectangle : enable
+		</preprocessor>
+		<variables>
+uniform vec4 wnd_rectangle[4];
+		</variables>
+		<program>
+void main() {
+	vec2 frag_coord = floor(gl_FragCoord.xy);
+	vec4 mask = vec4(0.0);
+	if(all(bvec4(greaterThanEqual(frag_coord, wnd_rectangle[0].xy), lessThanEqual(frag_coord, wnd_rectangle[0].zw)))) mask.x = 1.0;
+	if(all(bvec4(greaterThanEqual(frag_coord, wnd_rectangle[1].xy), lessThanEqual(frag_coord, wnd_rectangle[1].zw)))) mask.y = 1.0;
+	if(all(bvec4(greaterThanEqual(frag_coord, wnd_rectangle[2].xy), lessThanEqual(frag_coord, wnd_rectangle[2].zw)))) mask.z = 1.0;
+	if(all(bvec4(greaterThanEqual(frag_coord, wnd_rectangle[3].xy), lessThanEqual(frag_coord, wnd_rectangle[3].zw)))) mask.w = 1.0;
+ 	gl_FragColor.rgba = mask;
+}
+                 </program>
+	</fragment_shader>
+</a2e_shader>

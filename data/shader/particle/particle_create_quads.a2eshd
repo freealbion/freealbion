@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<vertex_shader>
+		<variables>
+varying vec2 tex_coord;
+		</variables>
+		<program>
+void main() {
+	gl_Position = gl_Vertex;
+	tex_coord = gl_Vertex.xy * 0.5 + 0.5;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<preprocessor>
+#extension GL_ARB_draw_buffers : enable
+		</preprocessor>
+		<variables>
+uniform sampler2D particle_pos_time_tex;
+uniform float particle_count;
+uniform float tex_width;
+
+varying vec2 tex_coord;
+		</variables>
+		<program>
+void main() {
+	vec2 frag_coord = floor(gl_FragCoord.xy);
+	// divide by 4, b/c quad buffer is fourfold as big as particle buffer
+	// multiply by 2, b/c tex_width belongs to particle buffer tex width, but quad buffer tex width is twice as big
+	float particle_num = floor((frag_coord.y * (tex_width*2.0) + frag_coord.x) / 4.0);
+
+	if(particle_num < particle_count) {
+		float y = floor(particle_num/tex_width);
+		float x = (particle_num - y*tex_width)/tex_width;
+		y /= tex_width;
+		vec4 pos_time = texture2D(particle_pos_time_tex, vec2(x, y));
+		gl_FragData[0].rgba = pos_time;
+	}
+	else {
+		gl_FragData[0].rgba = vec4(0.0);
+	}
+}
+		</program>
+	</fragment_shader>
+
+</a2e_shader>

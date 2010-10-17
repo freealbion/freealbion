@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader_include version="1">
+	<vertex_shader version="120">
+		<variables>
+
+		</variables>
+		<program>
+
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader version="120">
+		<preprocessor>
+			#extension GL_ARB_draw_buffers : enable
+		</preprocessor>
+		<variables>
+
+		</variables>
+		<program>
+vec2 encode_normal(vec3 in_normal) {
+	// encode normal (thank you martin mittring ;))
+	vec3 normal = normalize(in_normal);
+	return normalize(normal.xy) * sqrt(normal.z * 0.5 + 0.5);
+}
+
+void write_gbuffer(vec3 diffuse, vec3 specular, vec3 normal, vec2 roughness) {
+	vec2 gnormal = encode_normal(normal);
+	
+	// write to gbuffer
+	gl_FragData[0].rgba = vec4(diffuse, 0.0);
+	gl_FragData[1].rgba = vec4(specular, 0.0);
+	gl_FragData[2].rgba = vec4(gnormal.x, gnormal.y, Nuv.x, Nuv.y);
+	//gl_FragDepth = gl_FragCoord.z-0.05;
+}
+		</program>
+	</fragment_shader>
+</a2e_shader_include>

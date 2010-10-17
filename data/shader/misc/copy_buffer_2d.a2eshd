@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<vertex_shader>
+		<variables>
+varying vec2 tex_coord;
+		</variables>
+		<program>
+void main() {
+	gl_Position = gl_Vertex;
+	tex_coord = gl_MultiTexCoord0.xy;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<preprocessor>
+#extension GL_ARB_draw_buffers : enable
+		</preprocessor>
+		<variables>
+uniform sampler2D src_buffer;
+varying vec2 tex_coord;
+		</variables>
+		<program>
+void main() {
+	gl_FragData[0].rgba = texture2D(src_buffer, tex_coord).rgba;
+}
+		</program>
+	</fragment_shader>
+
+</a2e_shader>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<vertex_shader version="120">
+		<variables>
+			varying vec2 tex_coord;
+		</variables>
+		<program>
+void main() {
+			gl_Position = gl_Vertex;
+			tex_coord = gl_Vertex.xy * 0.5 + 0.5;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader version="120">
+		<variables>
+			uniform sampler2D light_buffer_1;
+			uniform sampler2D light_buffer_2;
+			
+			varying vec2 tex_coord;
+		</variables>
+		<program>
+void main() {
+			vec4 light_color_1 = texture2D(light_buffer_1, tex_coord);
+			vec4 light_color_2 = texture2D(light_buffer_2, tex_coord);
+			gl_FragColor = light_color_1+light_color_2;
+}
+		</program>
+	</fragment_shader>
+	
+</a2e_shader>
