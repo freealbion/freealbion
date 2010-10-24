@@ -36,11 +36,7 @@ int main(int argc, char *argv[]) {
 	e->set_caption(APPLICATION_NAME);
 	
 	conf::init();
-#ifndef __WINDOWS__
-	xld::set_xld_path("/Users/flo/xld/");
-#else
-	xld::set_xld_path("C:/xld/");
-#endif
+	xld::set_xld_path(e->data_path("xld/"));
 
 	// init class pointers
 	c = e->get_core();
@@ -50,7 +46,11 @@ int main(int argc, char *argv[]) {
 	t = e->get_texman();
 	ocl = e->get_opencl();
 	
+	conf::add<a2e_texture>("debug.texture", t->get_dummy_texture());
+	
 	s = new shader(e);
+	sce = new scene(e, s);
+	cam = new camera(e);
 	egui = new gui(e, s);
 	eui = new a2eui(e, egui);
 	gs = egui->get_gui_style();
@@ -61,13 +61,41 @@ int main(int argc, char *argv[]) {
 	// initialize the gui
 	egui->init();
 
+	// initialize the camera
+	cam->set_position(0.0f, -80.0f, 0.0f);
+	cam->set_rotation(0.0f, 90.0f+45.0f, 0.0f);
+	cam->set_mouse_input(false);
+	cam->set_rotation_speed(300.0f);
+	cam->set_cam_speed(5.0f);
+
+	// initialize the scene
+	sce->set_eye_distance(-0.3f);
+	
+	// add map objects shader
+	const string mo_shd_filename = "deferred/gbuffer_map_objects.a2eshd";
+	const string mo_shd_identifier = "AR_DR_GBUFFER_MAP_OBJECTS";
+	a2e_shader* a2e_shd = s->get_a2e_shader();
+	a2e_shd->add_a2e_shader(mo_shd_identifier);
+	if(!a2e_shd->load_a2e_shader(mo_shd_identifier, e->shader_path(mo_shd_filename.c_str()), a2e_shd->get_a2e_shader(mo_shd_identifier))) {
+		a2e_error("couldn't load a2e-shader \"%s\"!", mo_shd_filename);
+		done = true;
+	}
+	else {
+		if(!a2e_shd->preprocess_and_compile_a2e_shader(a2e_shd->get_a2e_shader(mo_shd_identifier))) {
+			a2e_error("couldn't preprocess and/or compile a2e-shader \"%s\"!", mo_shd_filename);
+			done = true;
+		}
+	}
+
 	// load/init stuff
 	scaling::init();
 	pal* palettes = new pal();
 	gfxconv::init(palettes);
 
 	mh = new map_handler(palettes);
-	mh->load_map(42);
+	//mh->load_map(42);
+	mh->load_map(10);
+	//mh->load_map(50);
 	//mh->load_map(11);
 	
 	aui = new albion_ui(mh);
@@ -76,7 +104,10 @@ int main(int argc, char *argv[]) {
 	// dbg img
 	image* img = new image(e);
 	img->set_scaling(true);
-	img->set_texture((a2e_texture&)mh->get_npc_graphics()->get_npcgfx(202));
+	
+	// debug window
+	//a2e_debug_wnd::init(e, eui, s, cam);
+	//a2e_debug_wnd::open();
 	
 	while(!done) {
 		/*static float gscale = conf::get<float>("global.scale");
@@ -114,8 +145,36 @@ int main(int argc, char *argv[]) {
 						case SDLK_e:
 							conf::set<bool>("debug.draw_events", conf::get<bool>("debug.draw_events") ^ true);
 							break;
+						case SDLK_q:
+							conf::set<bool>("debug.display_debug_texture", conf::get<bool>("debug.display_debug_texture") ^ true);
+							img->set_texture((a2e_texture&)conf::get<a2e_texture>("debug.texture"));
+							break;
+						case SDLK_n:
+							if(conf::get<size_t>("debug.npcgfx") > 0) {
+								conf::set<size_t>("debug.npcgfx", conf::get<size_t>("debug.npcgfx")-1);
+								cout << ":: " << conf::get<size_t>("debug.npcgfx") << endl;
+							}
+							break;
+						case SDLK_m:
+							if(conf::get<size_t>("debug.npcgfx") < 209) {
+								conf::set<size_t>("debug.npcgfx", conf::get<size_t>("debug.npcgfx")+1);
+								cout << ":: " << conf::get<size_t>("debug.npcgfx") << endl;
+							}
+							break;
+						case SDLK_LSHIFT:
+							cam->set_cam_speed(0.2f);
+							break;
 						default:
 						break;
+					}
+					break;
+				case SDL_KEYUP:
+					switch(evt->get_event().key.keysym.sym) {
+						case SDLK_LSHIFT:
+							cam->set_cam_speed(5.0f);
+							break;
+						default:
+							break;
 					}
 					break;
 				default:
@@ -168,10 +227,21 @@ int main(int argc, char *argv[]) {
 				caption << byte_strs[0] << " " << byte_strs[1] << " | ";
 				caption << byte_strs[2] << " " << byte_strs[3] << " | ";
 				caption << byte_strs[4] << " | ";
-				caption << byte_strs[5] << " |";
+				caption << byte_strs[5] << " | ";
+				caption << "c: " << (size_t)mh->get_tile(0)->collision << " " << (size_t)mh->get_tile(1)->collision;
 			}
-			caption << " (" << mh->get_player_position().x << ", " << mh->get_player_position().y << ")";
-			if(mh->get_tile(0) != NULL) caption << " | c: " << (size_t)mh->get_tile(0)->collision << " " << (size_t)mh->get_tile(1)->collision;
+
+			if(mh->get_active_map_type() == MT_3D_MAP) {
+				ssize3 tile_info = mh->get_3d_tile();
+				if(tile_info.min_element() >= 0) {
+					caption << " | " << tile_info.x << " " << tile_info.y << " " << tile_info.z;
+				}
+				caption << " | Pos: " << -float3(*e->get_position());
+			}
+			else if(mh->get_active_map_type() == MT_2D_MAP) {
+				caption << " | Pos: " << mh->get_player_position();
+			}
+
 			e->set_caption(caption.str().c_str());
 			c->reset(&caption);
 		}
@@ -183,14 +253,18 @@ int main(int argc, char *argv[]) {
 
 		mh->draw();
 		
-		/*e->start_2d_draw();
-		img->draw();
-		e->stop_2d_draw();*/
+		if(conf::get<bool>("debug.display_debug_texture")) {
+			e->start_2d_draw();
+			img->draw(720, 720);
+			e->stop_2d_draw();
+		}
 		
 		if(conf::get<bool>("ui.display")) egui->draw();
 
 		e->stop_draw();
 	}
+	
+	//a2e_debug_wnd::close();
 
 	delete palettes;
 
@@ -198,6 +272,8 @@ int main(int argc, char *argv[]) {
 	delete aui;
 	delete eui;
 	delete egui;
+	delete sce;
+	delete cam;
 	delete s;
 	delete e;
 

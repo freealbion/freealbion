@@ -99,4 +99,10 @@ enum CHARACTER_TYPE {
 	CT_NPC
 };
 
+enum MAP_TYPE {
+	MT_2D_MAP,
+	MT_3D_MAP,
+	MT_NONE
+};
+
 #endif

@@ -42,8 +42,6 @@ echo "using: premake4 --cc=gcc --os="${ALBION_OS}" gmake"
 
 premake4 --cc=gcc --os=${ALBION_OS} gmake
 
-chmod +x build_version.sh
-
 echo ""
 echo "###################################################"
 echo "# NOTE: use '"${ALBION_MAKE}" config=release"${ALBION_MAKE_PLATFORM}"' to build albion"

@@ -17,19 +17,26 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef __AR_MAP_OBJECTS_H__
+#define __AR_MAP_OBJECTS_H__
 
 #include "global.h"
+#include "conf.h"
+#include "map_defines.h"
 
-engine* e;
-core* c;
-file_io* fio;
-gfx* egfx;
-gui* egui;
-a2eui* eui;
-texman* t;
-event* evt;
-gui_style* gs;
-shader* s;
-opencl* ocl;
-scene* sce;
-camera* cam;
+class map_objects : public a2estatic {
+public:
+	map_objects();
+	virtual ~map_objects();
+	
+	virtual void draw();
+	
+	void set_ws_positions(float3* ws_positions);
+
+protected:
+	float3* ws_positions;
+	GLuint vbo_ws_position_id;
+
+};
+
+#endif

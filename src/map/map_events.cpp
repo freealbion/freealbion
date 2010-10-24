@@ -50,8 +50,8 @@ void map_events::load(const unsigned char* data, const size_t& data_offset, cons
 		event_info.back()->ypos = 0;
 		event_info.back()->trigger = AR_GET_USINT(data, offset);
 		offset += 2;
-		if(event_info.back()->trigger & events::ETR_NPC || event_info.back()->trigger & events::ETR_SPEAK) cout << ">> npc or speak event trigger!" << endl;
-		if(event_info.back()->trigger > 0x1FFF) cout << "unknown event trigger!" << endl;
+		//if(event_info.back()->trigger & events::ETR_NPC || event_info.back()->trigger & events::ETR_SPEAK) cout << ">> npc or speak event trigger!" << endl;
+		//if(event_info.back()->trigger > 0x1FFF) cout << "unknown event trigger!" << endl;
 		event_info.back()->event_num = AR_GET_USINT(data, offset);
 		offset += 2;
 		event_info.back()->event_obj = NULL;
@@ -78,8 +78,8 @@ void map_events::load(const unsigned char* data, const size_t& data_offset, cons
 			event_info.back()->ypos = i;
 			event_info.back()->trigger = AR_GET_USINT(data, offset);
 			offset += 2;
-			if(event_info.back()->trigger & events::ETR_NPC || event_info.back()->trigger & events::ETR_SPEAK) cout << ">> npc or speak event trigger!" << endl;
-			if(event_info.back()->trigger > 0x1FFF) cout << "unknown event trigger!" << endl;
+			//if(event_info.back()->trigger & events::ETR_NPC || event_info.back()->trigger & events::ETR_SPEAK) cout << ">> npc or speak event trigger!" << endl;
+			//if(event_info.back()->trigger > 0x1FFF) cout << "unknown event trigger!" << endl;
 			event_info.back()->event_num = AR_GET_USINT(data, offset);
 			offset += 2;
 			event_info.back()->event_obj = NULL;
@@ -117,7 +117,7 @@ void map_events::load(const unsigned char* data, const size_t& data_offset, cons
 	for(vector<map_event_info*>::iterator ei_iter = event_info.begin(); ei_iter != event_info.end(); ei_iter++) {
 		(*ei_iter)->event_obj = get_event((*ei_iter)->event_num);
 		if((*ei_iter)->event_obj == NULL) {
-			a2e_debug("NULL event: %u", (*ei_iter)->event_num);
+			//a2e_debug("NULL event: %u", (*ei_iter)->event_num);
 			continue;
 		}
 		(*ei_iter)->event_obj->assigned = true;
@@ -126,7 +126,7 @@ void map_events::load(const unsigned char* data, const size_t& data_offset, cons
 		if((*e_iter)->next_event_num != 0xFFFF) {
 			(*e_iter)->next_event = get_event((*e_iter)->next_event_num);
 			if((*e_iter)->next_event == NULL) {
-				a2e_debug("NULL event: %u", (*e_iter)->next_event_num);
+				//a2e_debug("NULL event: %u", (*e_iter)->next_event_num);
 				continue;
 			}
 			if((*e_iter)->assigned) (*e_iter)->next_event->assigned = true;

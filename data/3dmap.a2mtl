@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_material version="2" object_count="2">
+	<materials>
+		<material id="0" type="diffuse" model="phong">
+			<texture type="diffuse" file="red.png" />
+			<texture type="specular" file="white.png" />
+		</material>
+		<material id="1" type="diffuse" model="phong">
+			<texture type="diffuse" file="green.png" />
+			<texture type="specular" file="white.png" />
+		</material>
+	</materials>
+	<material_mapping>
+		<object material_id="0" />
+		<object material_id="1" />
+	</material_mapping>
+</a2e_material>

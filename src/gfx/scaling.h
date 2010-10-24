@@ -21,6 +21,7 @@
 #define __AR_SCALING_H__
 
 #include "global.h"
+#include "core/vector2.h"
 
 class scaling {
 public:

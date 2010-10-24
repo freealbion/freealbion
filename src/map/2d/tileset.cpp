@@ -48,7 +48,7 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), 
 	/* icon data spec:
 	 * 
 	 * [8 byte chunk]
-	 * [byte 1: overlay/underlay type]
+	 * [byte 1: higher 4 bit: overlay/underlay type, lower 4 bit: unknown]
 	 * [byte 2: collision byte (0 = passable; 8 = not passable)
 	 * [byte 3 + 4: special data
 	 * 				0x0000 = normal tile
@@ -60,12 +60,17 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), 
 	 * 				0x0403 = W (western), to the left, chair left side
 	 * 				0x---- = E (eastern), to the right
 	 * 				0x---- = Z ?
-	 * 				0x0400 = none (wall sit?), to the left, chair right side
+	 * 				0x0400 = none (wall sit?)
 	 * 				0x2000 = black on white, override collision (-> no collision)
-	 * [byte 4: ?]
 	 * [byte 5 + 6: tile number]
 	 * [byte 7: animation tile count]
 	 * [byte 8: ?]
+	 *
+	 * 0x8000 = NL
+	 * 0x???1 = NR
+	 * 0x*??2 = S (*=0: L, *=8: R)
+	 * 0x???3 = W
+	 * 0xC??1 = E
 	 * 
 	 */
 
@@ -135,7 +140,6 @@ void tileset::load(const size_t& num, const size_t& palette) {
 	if(cur_tileset_num != num && tilesets[cur_tileset_num]->loaded) {
 		// unload old tileset
 		t->delete_texture(tilesets[cur_tileset_num]->tileset);
-		cur_tileset_tex = t->get_dummy_texture();
 		tilesets[cur_tileset_num]->loaded = false;
 	}
 	

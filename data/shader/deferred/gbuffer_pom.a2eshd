@@ -86,7 +86,7 @@ void main() {
 			vec3 normal = texture2D(normal_texture, parallax_tex_coord.xy).xyz * 2.0 - 1.0;
 			
 			// write to gbuffer
-			write_gbuffer(diffuse_color.rgb, specular_color.rgb, normal, Nuv);
+			write_gbuffer(diffuse_color, specular_color, normal, Nuv);
 }
 		</program>
 	</fragment_shader>

@@ -41,5 +41,7 @@ extern event* evt;
 extern gui_style* gs;
 extern shader* s;
 extern opencl* ocl;
+extern scene* sce;
+extern camera* cam;
 
 #endif

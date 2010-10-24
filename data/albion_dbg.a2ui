@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a2e_user_interface version="2">
 	<window width="400" height="125" id="500" name="albion_dbg" caption="albion_dbg"/>
-	<object type="button" name="b_goto_map" caption="Go!" id="501" tab_id="-1" tab="0" width="350" height="15" xpos="5" ypos="105" filename="" img_scaling="0"/>
-	<object type="input" name="i_goto_map" caption="go to map ..." id="502" tab_id="-1" tab="0" width="350" height="16" xpos="5" ypos="5"/>
-	<object type="list" name="lb_map_names" caption="" id="503" tab_id="-1" tab="0" width="350" height="75" xpos="5" ypos="25"/>
+	<object type="button" name="b_goto_map" caption="Go!" id="501" tab_id="-1" tab="0" width="375" height="15" xpos="5" ypos="105" filename="" img_scaling="0"/>
+	<object type="input" name="i_goto_map" caption="go to map ..." id="502" tab_id="-1" tab="0" width="375" height="16" xpos="5" ypos="5"/>
+	<object type="list" name="lb_map_names" caption="" id="503" tab_id="-1" tab="0" width="375" height="75" xpos="5" ypos="25"/>
 </a2e_user_interface>

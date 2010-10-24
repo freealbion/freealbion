@@ -23,13 +23,17 @@
 #include "global.h"
 #include "map_defines.h"
 #include "xld.h"
+#include "palette.h"
+#include "gfxconv.h"
+#include "scaling.h"
+#include "conf.h"
 
 class labdata {
 public:
 	labdata();
 	~labdata();
 	
-	void load(const size_t& labdata_num);
+	void load(const size_t& labdata_num, const size_t& palette);
 	void unload();
 	
 	enum AUTOGFX_TYPE {
@@ -59,21 +63,30 @@ public:
 		bool collision;
 		unsigned int texture;
 		unsigned int animation;
+		float2 tex_coord;
 	};
 	
 	struct lab_object_info {
+		unsigned char type;
+		unsigned int collision; // 3 bytes
 		unsigned int texture;
 		unsigned int animation;
 		unsigned int x_size;
 		unsigned int y_size;
-		unsigned int x_offset; //?
-		unsigned int y_offset; //?
+		unsigned int x_scale;
+		unsigned int y_scale;
+
+		float2 tex_coord_begin;
+		float2 tex_coord_end;
 	};
 	
 	struct lab_object {
 		AUTOGFX_TYPE type;
-		unsigned int object_num;
-		lab_object_info* object_info;
+
+		size_t sub_object_count;
+		ssize3 offset[8];
+		size_t object_num[8];
+		lab_object_info* sub_objects[8];
 	};
 	
 	struct lab_wall_overlay {
@@ -93,11 +106,15 @@ public:
 		unsigned int y_size;
 		unsigned int overlay_count;
 		vector<lab_wall_overlay*> overlays;
+		float2 tex_coord_begin;
+		float2 tex_coord_end;
 	};
 	
 	const lab_object* get_object(const size_t& num) const;
 	const lab_floor* get_floor(const size_t& num) const;
 	const lab_wall* get_wall(const size_t& num) const;
+	a2ematerial* get_material() const;
+	a2ematerial* get_object_material() const;
 	
 protected:
 	vector<lab_object*> objects;
@@ -108,6 +125,18 @@ protected:
 
 	xld* labdata_xlds[3];
 	size_t cur_labdata_num;
+	
+	a2e_texture floors_tex;
+	a2e_texture walls_tex;
+	a2e_texture objects_tex;
+	a2ematerial* lab_material;
+	a2ematerial* lab_obj_material;
+
+	//
+	xld* floor_xlds[3];
+	xld* object_xlds[4];
+	xld* overlay_xlds[3];
+	xld* wall_xlds[2];
 	
 };
 

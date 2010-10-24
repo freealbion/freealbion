@@ -19,16 +19,25 @@
 		<program>
 vec2 encode_normal(vec3 in_normal) {
 	// encode normal (thank you martin mittring ;))
+	
 	vec3 normal = normalize(in_normal);
-	return normalize(normal.xy) * sqrt(normal.z * 0.5 + 0.5);
+	
+	// note: to work around general compiler optimizations/assumptions and floating point
+	// inaccuracies, add an epsilon to normal.xy (in case it's (0,0)) and the final result
+	// and also abs() the inner sqrt result (in case normal.z is slightly off)
+	const float epsilon = 0.00001;
+	vec2 enormal = normalize(normal.xy+vec2(epsilon)) * sqrt(abs(normal.z * 0.5 + 0.5));
+	return (enormal + vec2(epsilon));
 }
 
-void write_gbuffer(vec3 diffuse, vec3 specular, vec3 normal, vec2 roughness) {
+void write_gbuffer(vec4 diffuse, vec4 specular, vec3 normal, vec2 roughness) {
+	if(diffuse.a < 0.1) discard;
+	
 	vec2 gnormal = encode_normal(normal);
 	
 	// write to gbuffer
-	gl_FragData[0].rgba = vec4(diffuse, 0.0);
-	gl_FragData[1].rgba = vec4(specular, 0.0);
+	gl_FragData[0].rgba = vec4(diffuse.rgb, 0.0);
+	gl_FragData[1].rgba = vec4(specular.rgb, 0.0);
 	gl_FragData[2].rgba = vec4(gnormal.x, gnormal.y, Nuv.x, Nuv.y);
 	//gl_FragDepth = gl_FragCoord.z-0.05;
 }

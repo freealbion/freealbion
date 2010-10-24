@@ -39,6 +39,7 @@ public:
 	void draw();
 	
 	void load_map(const size_t& map_num);
+	const MAP_TYPE get_map_type(const size_t& map_num) const;
 	
 	//
 	npcgfx* get_npc_graphics() const;
@@ -49,22 +50,33 @@ public:
 	// DEBUG: for debugging purposes
 	tileset::tile_object* get_tile(unsigned int type);
 	unsigned int get_tile_num(unsigned int type);
+	const MAP_TYPE& get_active_map_type() const;
+	const ssize3 get_3d_tile() const;
+	void debug_draw();
 
 protected:
 	pal* palettes;
 	tileset* tilesets;
 	map2d* maps2d;
-	//map3d* maps3d;
+	map3d* maps3d;
 	npcgfx* npc_graphics;
 	player2d* p;
 	labdata* lab_data;
+
+	xld* maps1;
+	xld* maps2;
+	xld* maps3;
 	
 	//
 	size_t last_key_press;
 	size_t last_move;
 	MOVE_DIRECTION next_dir;
-	void handle_key_press(event::GUI_EVENT_TYPE type, GUI_ID id);
+	void handle_key_down(event::GUI_EVENT_TYPE type, GUI_ID id);
+	void handle_key_up(event::GUI_EVENT_TYPE type, GUI_ID id);
+	void handle_right_click(event::GUI_EVENT_TYPE type, GUI_ID id);
 	
+	MAP_TYPE active_map_type;
+
 };
 
 #endif

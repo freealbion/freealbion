@@ -19,11 +19,11 @@ void main() {
 			uniform sampler2D rt0;
 			uniform sampler2D rt1;
 			uniform sampler2D rt2;
-			//uniform sampler2D rt3;
 			uniform sampler2D depth_buffer;
 			
 			uniform vec3 cam_position;
 			uniform vec2 screen_size;
+			uniform vec2 projection_ab;
 			
 			uniform vec3 light_position;
 			uniform vec3 light_ambient;
@@ -34,25 +34,6 @@ void main() {
 			uniform mat4 IMVM;
 		</variables>
 		<program>
-
-const float m_up = 0.72654252800536066024136247722454;
-const float m_right = 0.72654252800536066024136247722454 * (1280.0 / 720.0);
-
-vec3 viewSpacePos(vec2 winPos, vec2 winSize, float depth, vec2 nearFar) {
-    vec3 position;
-	
-    position.z = -nearFar.x / (nearFar.y - (depth * (nearFar.y - nearFar.x))) * nearFar.y;
-
-    position.x = (((winPos.x / winSize.x) * 2.0) - 1.0) * m_right;
-    position.y = (((winPos.y / winSize.y) * 2.0) - 1.0) * m_up;
-
-    float scale = -position.z / nearFar.x;
-    position.x *= scale;
-    position.y *= scale;
-
-    return position;
-}
-
 void main() {
 			vec2 tex_coord = gl_FragCoord.xy / screen_size;
 			//float coeff = (mod(floor(tex_coord.x / (1.0/8.0)), 2.0) >= 1.0) ? 0.0 : 1.0;
@@ -63,27 +44,25 @@ void main() {
 			vec4 diff_color = texture2D(rt0, tex_coord);
 			vec4 spec_color = texture2D(rt1, tex_coord);
 			vec4 normal_nuv = texture2D(rt2, tex_coord);
-
-			////////////////////////////////////////////////////////////////////////////
-			
-			// Calculate our projection constants (you should of course do this in the app code, I'm just showing how to do it)
-			const float FarClipDistance = 1000.0;
-			const float NearClipDistance = 1.0;
-			const float ProjectionA = FarClipDistance / (FarClipDistance - NearClipDistance);
-			const float ProjectionB = (-FarClipDistance * NearClipDistance) / (FarClipDistance - NearClipDistance);
-			
-			float linear_depth = ProjectionB / (depth - ProjectionA); // in [NearClipDistance, FarClipDistance]
 			
 			////////////////////////////////////////////////////////////////////////////
 			// reconstruct world space position
-			vec3 rep_pos = viewSpacePos(gl_FragCoord.xy, screen_size, depth, vec2(1.0, 1000.0));
+			float linear_depth = projection_ab.y / (depth - projection_ab.x); // in [near plane, far plane]
+			const float up_vec = 0.72654252800536066024136247722454;
+			float right_vec = 0.72654252800536066024136247722454 * (screen_size.x / screen_size.y);
+
+			vec3 rep_pos;
+			rep_pos.z = -linear_depth;
+			rep_pos.xy = (tex_coord * 2.0 - 1.0) * vec2(right_vec, up_vec) * linear_depth;
 			rep_pos = vec3(IMVM * vec4(rep_pos, 1.0));
+	
 			
 			////////////////////////////////////////////////////////////////////////////
 			// decode normal
 			vec3 normal;
 			normal.z = dot(normal_nuv.xy, normal_nuv.xy) * 2.0 - 1.0;
-			normal.xy = normalize(normal_nuv.xy) * sqrt(1.0 - normal.z * normal.z);
+			// and again: abs inner sqrt result, b/c of fp inaccuracies
+			normal.xy = normalize(normal_nuv.xy) * sqrt(abs(1.0 - normal.z * normal.z));
 			
 			
 			////////////////////////////////////////////////////////////////////////////

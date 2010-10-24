@@ -39,7 +39,7 @@
 class npc2d;
 class map2d {
 public:
-	map2d(tileset* tilesets, npcgfx* npc_graphics);
+	map2d(tileset* tilesets, npcgfx* npc_graphics, xld* maps1, xld* maps2, xld* maps3);
 	~map2d();
 
 	void load(const size_t& map_num);

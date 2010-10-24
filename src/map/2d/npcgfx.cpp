@@ -59,11 +59,11 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 		object = npcgfx0->get_object(0);
 	}
 	
-	const size2 npc_size = size2(32, 48);
+	const size2 npc_size = size2(object->data[0], object->data[2]);
 	const size_t object_count = object->length / (npc_size.x * npc_size.y);
 	const size_t scale = 4;
 	const size2 scaled_npc_size = npc_size * scale;
-	const size2 surface_size = size2(512, 1024);
+	const size2 surface_size = size2(npc_size.x*4*4, 1024);
 	const size_t offset = (object_count > 1 ? 6 : 0);
 	
 	unsigned int* surface = new unsigned int[surface_size.x*surface_size.y];
@@ -72,6 +72,7 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 	unsigned int* data_32bpp = new unsigned int[npc_size.x*npc_size.y];
 	unsigned int* scaled_data = new unsigned int[scaled_npc_size.x*scaled_npc_size.y];
 	for(size_t i = 0; i < object_count; i++) {
+		if(i >= 19) break; // TODO: fix irregular npcgfx (111)
 		gfxconv::convert_8to32(&(object->data[offset + i*npc_size.x*npc_size.y]), data_32bpp, npc_size.x, npc_size.y, cur_palette);
 		//scaling::scale_4x(scaling::ST_NEAREST, data_32bpp, npc_size, scaled_data);
 		scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, npc_size, scaled_data);

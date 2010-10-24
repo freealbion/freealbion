@@ -17,19 +17,23 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef __AR_TRANSTB_H__
+#define __AR_TRANSTB_H__
 
 #include "global.h"
+#include "conf.h"
+#include "gfxconv.h"
+#include "scaling.h"
 
-engine* e;
-core* c;
-file_io* fio;
-gfx* egfx;
-gui* egui;
-a2eui* eui;
-texman* t;
-event* evt;
-gui_style* gs;
-shader* s;
-opencl* ocl;
-scene* sce;
-camera* cam;
+class transtb {
+public:
+	transtb();
+	~transtb();
+
+protected:
+
+	a2e_texture ttb_tex;
+
+};
+
+#endif

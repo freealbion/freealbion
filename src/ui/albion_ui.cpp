@@ -121,9 +121,11 @@ void albion_ui::open_goto_map_wnd() {
 		{ 158, "Kenget 3D" },
 		{ 159, "Kenget 3D" },
 		{ 160, "Kenget 3D" },
+		{ 161, "-----" },
 		{ 162, "Kenget 3D" },
 		{ 163, "Test-Map Kenget" },
 		{ 164, "Formergebäude nach Kampf gegen Argim" },
+		{ 165, "-----" },
 		{ 166, "Sequenz nach Landung auf Albion" },
 		{ 167, "Kampftrainer Jirinaar" },
 		{ 168, "Transporterhöhle Jirinaar" },
@@ -133,7 +135,9 @@ void albion_ui::open_goto_map_wnd() {
 		{ 172, "Transporterhöhle Umajo" },
 		{ 173, "Transporterhöhle Dji Cantos" },
 		{ 174, "Endszenario (nicht Sequenz)" },
+		{ 190, "00s (don't load)" },
 		{ 195, "Test-Map" },
+		{ 196, "-----" },
 		{ 197, "Test-Map" },
 		{ 198, "Test-Map" },
 		{ 199, "ALBION SHORTCUT-MAP" },
@@ -153,6 +157,7 @@ void albion_ui::open_goto_map_wnd() {
 		{ 215, "Umajo Kontinentkarte" },
 		{ 216, "Umajo Kontinentkarte" },
 		{ 217, "Umajo Kontinentkarte" },
+		{ 218, "-----" },
 		{ 219, "Umajo Kontinentkarte" },
 		{ 230, "Gerätemacher Gildenhaus" },
 		{ 231, "Diamantschleifer Gildenhaus" },
@@ -173,6 +178,9 @@ void albion_ui::open_goto_map_wnd() {
 		{ 246, "Gerätemacher 3D Kossotto" },
 		{ 247, "Eingang ins Dungeon Gerätemacherkammer" },
 		{ 248, "Stollen Bergarbeiter (Spitzel)" },
+		{ 249, "-----" },
+		{ 250, "-----" },
+		{ 251, "-----" },
 		{ 252, "Kounos Höhle Lvl 1" },
 		{ 253, "Kounos Höhle Lvl 2" },
 		{ 254, "Kounos Höhle Lvl 3" },
@@ -190,6 +198,7 @@ void albion_ui::open_goto_map_wnd() {
 		{ 269, "Poschs Waffenladen" },
 		{ 270, "Gemischtwaren Riolea" },
 		{ 271, "Heilerin Ramina" },
+		{ 272, "-----" },
 		{ 273, "Händlerin Kounos" },
 		{ 274, "Darios" },
 		{ 275, "Gasthaus Kounos" },
@@ -204,9 +213,12 @@ void albion_ui::open_goto_map_wnd() {
 		{ 284, "Srimalinar Karte" },
 		{ 290, "Test-Map Wüste" },
 		{ 291, "Test-Map Dji Cantos" },
+		{ 292, "-----" },
 		{ 293, "Test Items" },
 		{ 294, "Test-Map Kenget Kamulos" },
 		{ 295, "Test-Map Mahinohaus" },
+		{ 297, "-----" },
+		{ 298, "-----" },
 		{ 299, "Testmap Haus" },
 		{ 300, "Toronto 2D Gesamtkarte Spielbeginn" },
 		{ 301, "Reaktorraum der Toronto" },
@@ -217,12 +229,23 @@ void albion_ui::open_goto_map_wnd() {
 		{ 310, "Gefängnis Kenget" },
 		{ 311, "Kenget Kamulos 2D-Bereich" },
 		{ 312, "Sklavenquartiere der Kenget" },
+		{ 313, "-----" },
 		{ 320, "Insel des Friedens" },
-		{ 322, "Cantos Haus"}
+		{ 322, "Cantos Haus"},
+		{ 388, "-----" },
+		{ 389, "-----" },
+		{ 390, "-----" },
+		{ 398, "-----" },
+		{ 399, "-----" },
 	};
 	const size_t map_count = A2E_ARRAY_LENGTH(albion_maps);
 	for(size_t i = 0; i < map_count; i++) {
 		string item_str = size_t2string(albion_maps[i].map_num-100) + " - " + albion_maps[i].map_name;
+		switch(mh->get_map_type(albion_maps[i].map_num-100)) {
+			case MT_2D_MAP: item_str += " (2D)"; break;
+			case MT_3D_MAP: item_str += " (3D)"; break;
+			default: break;
+		}
 		lb_map_names->add_item(item_str.c_str());
 	}
 }

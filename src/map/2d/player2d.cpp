@@ -40,7 +40,7 @@ void player2d::draw(const NPC_DRAW_STAGE& draw_stage) const {
 	player_pos = player_pos*(1.0f-pos_interp) + player_next_pos*pos_interp;
 
 	float depth_overwrite = (draw_stage == NDS_PRE_UNDERLAY || draw_stage == NDS_PRE_OVERLAY) ? 0.0f : -1.0f;
-	npc_graphics->draw_npc(200, (NPC_STATE)state,
+	npc_graphics->draw_npc(conf::get<size_t>("debug.npcgfx"), (NPC_STATE)state,
 						   float2((player_pos.x - screen_position.x)*tile_size,
 								  (player_pos.y - 2.0f - screen_position.y)*tile_size),
 						   player_pos, depth_overwrite);

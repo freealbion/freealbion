@@ -32,26 +32,36 @@ project "albion"
 	language "C++"
 	files { "src/**.h", "src/**.cpp" }
 	platforms { "x32", "x64" }
-	defines { "A2E_NET_PROTOCOL=TCP_protocol", "A2E_USE_OPENMP" }
+	defines { "A2E_NET_PROTOCOL=TCP_protocol" }
 	targetdir "bin"
 
 	-- TODO: write unix premake file
-	--[[if(not os.is("windows")) then
-		includedirs { "/usr/include", "/usr/local/include", "./", "src/", "src/control/", "src/db/", "src/net/", "src/plugins/", "src/plugins/implementations", "src/threading/" }
-		buildoptions { "-Wall -x c++ -fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -Wunused-variable -funroll-loops -ftree-vectorize" }
+	if(not os.is("windows")) then
+		includedirs { "/usr/include", "/usr/include/freetype2", "/usr/include/libxml2", "/usr/local/include", "/usr/local/include/a2e" }
+		buildoptions { "-Wall -x c++ -fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -Wunused-variable -funroll-loops" }
 		buildoptions { "-msse3 -fvisibility=hidden -fvisibility-inlines-hidden" }
-		prebuildcommands { "./build_version.sh" }
 	end
 	
 	if(os.is("linux") or os.is("bsd")) then
-		libdirs { os.findlib("SDL"), os.findlib("SDL_net"), os.findlib("libpq") }
-		links { "SDL", "SDLmain", "SDL_net", "libpq" }
+		-- find lua lib (try different lib names)
+		local lua_lib_names = { "lua", "lua5.1", "lua-5.1" }
+		local lua_lib = { name = nil, dir = nil }
+		for i = 1, table.maxn(lua_lib_names) do
+			lua_lib.name = lua_lib_names[i]
+			lua_lib.dir = os.findlib(lua_lib.name)
+			if(lua_lib.dir ~= nil) then
+				break
+			end
+		end
+		
+		libdirs { os.findlib("SDL"), os.findlib("SDL_net"), os.findlib("SDL_image"), os.findlib("ftgl"), lua_lib.dir, os.findlib("xml2"), os.findlib("a2e") }
+		links { "SDL", "SDLmain", "SDL_net", "SDL_image", "ftgl", lua_lib.name, "xml2" }
 		buildoptions { "`sdl-config --cflags`" }
 		linkoptions { "`sdl-config --libs`" }
 		defines { "_GLIBCXX__PTHREADS" }
 		
 		-- find all necessary headers (in case they aren't in /usr/include)
-		local include_files = { "SDL.h", "SDL_net.h", "libpq-fe.h" }
+		local include_files = { "SDL.h", "SDL_net.h", "lua.h" }
 		for i = 1, table.maxn(include_files) do
 			if((not os.isfile("/usr/include/"..include_files[i])) and
 			   (not os.isfile("/usr/local/include/"..include_files[i]))) then
@@ -68,19 +78,21 @@ project "albion"
 		end
 	end
 	
-	if(os.is("macosx")) then
+	-- use provided xcode project for now
+	--[[if(os.is("macosx")) then
 		buildoptions { "-Iinclude -I/usr/local/include -isysroot /Developer/SDKs/MacOSX10.6.sdk -msse4.1 -mmacosx-version-min=10.6 -gdwarf-2 -mdynamic-no-pic" }
 		linkoptions { "-isysroot /Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.6 -framework SDL_net -framework SDL" }
-		links { "libpq" }
 	end]]--
 	
 	if(os.is("windows")) then
 		links { "opengl32", "glu32", "odbc32", "odbccp32", "SDL", "SDLmain", "SDL_net", "SDL_image", "ftgl", "lua51", "libxml2", "vcomp", "OpenCL" }
-		includedirs { "src/", "src/gfx/", "src/gfx/hqx/", "src/map/", "src/map/2d/", "src/map/3d/", "src/ui/", "src/events/" }
 		defines { "__WINDOWS__", "_CONSOLE", "A2E_IMPORTS", "_CRT_SECURE_NO_DEPRECATE" }
 	end
 	
+	-- the same for all
+	includedirs { "src/", "src/gfx/", "src/gfx/hqx/", "src/map/", "src/map/2d/", "src/map/3d/", "src/ui/", "src/events/" }
 	
+	-- configs
 	configuration { "x32" }
 		defines { "PLATFORM_X86" }
 	

@@ -21,5 +21,65 @@
 #define __AR_MAP3D_H__
 
 #include "global.h"
+#include "conf.h"
+#include "map_defines.h"
+#include "xld.h"
+#include "labdata.h"
+#include "map_npcs.h"
+#include "map_events.h"
+#include "map_objects.h"
+
+class map3d {
+public:
+	map3d(labdata* lab_data, xld* maps1, xld* maps2, xld* maps3);
+	~map3d();
+
+	void load(const size_t& map_num);
+	void unload();
+	bool is_3d_map(const size_t& map_num) const;
+	
+	void handle();
+	void draw() const;
+
+	// DEBUG: for debugging purposes
+	const ssize3 get_tile() const;
+	
+protected:
+	labdata* lab_data;
+	xld* maps1;
+	xld* maps2;
+	xld* maps3;
+	
+	//vector<npc2d*> npcs;
+	map_npcs* mnpcs;
+	map_events mevents;
+	
+	unsigned int* ow_tiles;
+	unsigned int* floor_tiles;
+	unsigned int* ceiling_tiles;
+
+	// gl
+	float3* vertices;
+	float2* tex_coords;
+	index3** indices;
+	size_t tile_count;
+	a2estatic* map_model;
+	
+	float3* obj_vertices;
+	float3* obj_ws_positions;
+	float2* obj_tex_coords;
+	index3** obj_indices;
+	map_objects* objects_model;
+	
+	light* player_light;
+
+	//
+	bool map_loaded;
+	size_t cur_map_num;
+	size_t cur_labdata_num;
+	size2 map_size;
+	size_t map_palette;
+
+};
 
 #endif
