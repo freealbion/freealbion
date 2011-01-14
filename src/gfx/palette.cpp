@@ -18,6 +18,8 @@
  */
 
 #include "palette.h"
+#include "ar_global.h"
+#include "xld.h"
 
 /*! palette constructor
  */
@@ -47,6 +49,74 @@ pal::pal() {
 		}
 	}
 	delete palette_xld;
+
+	// set animated ranges (aka palette color rotation)
+	for(size_t i = 0; i < palette_count; i++) {
+		animated_ranges.push_back(vector<size2>());
+	}
+
+	/*  3D: 1, 3, 7, 8, 13, 14, 15, 18, 22, 25, 29, 30, 51
+
+		1  :  1 : y 0x99-0x9F, 0xB0-0xBF
+		3  :  3 : y 0x40-0x43, 0x43-0x4F
+		7  :  7 : -
+		8  :  8 : -
+		13 :  d : -
+		14 :  e : y 0xB0-0xB3, 0xB4-0xBF
+		15 :  f : y 0x58-0x5F
+		18 : 12 : -
+		22 : 16 : -
+		25 : 19 : y 0xB0-0xB3, 0xB4-0xBF
+		29 : 1d : -
+		30 : 1e : -
+		51 : 33 : y 0xB0-0xB3, 0xB4-0xBF
+
+		2D: 1, 2, 4, 5, 6, 9, 16, 20, 26, 28, 31, 45, 56
+
+		1  :  1 : y 0x99-0x9F, 0xB0-0xBF
+		2  :  2 : y 0x99-0x9F, 0xB0-0xB4, 0xB5-0xBF
+		4  :  4 : -
+		5  :  5 : -
+		6  :  6 : y 0xB0-0xB4, 0xB5-0xBF
+		9  :  9 : -
+		16 : 10 : -
+		20 : 14 : -
+		26 : 1a : y 0xB4-0xB7, 0xB8-0xBB, 0xBC-0xBF
+		28 : 1c : -
+		31 : 1f : y 0x10-0x4F
+		45 : 2d : -
+		56 : 38 : -
+	*/
+
+	animated_ranges[0].push_back(size2(0x99, 0x9F));
+	animated_ranges[0].push_back(size2(0xB0, 0xBF));
+	
+	animated_ranges[1].push_back(size2(0x99, 0x9F));
+	animated_ranges[1].push_back(size2(0xB0, 0xB4));
+	animated_ranges[1].push_back(size2(0xB5, 0xBF));
+	
+	animated_ranges[2].push_back(size2(0x40, 0x43));
+	animated_ranges[2].push_back(size2(0x44, 0x4F));
+	
+	animated_ranges[5].push_back(size2(0xB0, 0xB4));
+	animated_ranges[5].push_back(size2(0xB5, 0xBF));
+	
+	animated_ranges[13].push_back(size2(0xB0, 0xB3));
+	animated_ranges[13].push_back(size2(0xB4, 0xBF));
+
+	animated_ranges[14].push_back(size2(0x58, 0x5F));
+
+	animated_ranges[24].push_back(size2(0xB0, 0xB3));
+	animated_ranges[24].push_back(size2(0xB4, 0xBF));
+	
+	animated_ranges[25].push_back(size2(0xB4, 0xB7));
+	animated_ranges[25].push_back(size2(0xB8, 0xBB));
+	animated_ranges[25].push_back(size2(0xBC, 0xBF));
+
+	//animated_ranges[30].push_back(size2(0x10, 0x4F)); // don't use, will crash! (it's only used on a debug/test map anyways)
+
+	animated_ranges[50].push_back(size2(0xB0, 0xB3));
+	animated_ranges[50].push_back(size2(0xB4, 0xBF));
 }
 
 /*! palette destructor
@@ -64,4 +134,12 @@ const unsigned int* const pal::get_palette(const size_t& num) const {
 		return NULL;
 	}
 	return palettes[num];
+}
+
+const vector<size2>& pal::get_animated_ranges(const size_t& num) const {
+	if(num >= palettes.size()) {
+		a2e_error("invalid palette number %d!", num);
+		return animated_ranges[0];
+	}
+	return animated_ranges[num];
 }

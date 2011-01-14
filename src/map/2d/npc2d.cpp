@@ -21,30 +21,13 @@
 
 /*! npc2d constructor
  */
-npc2d::npc2d(map2d* map2d_obj, npcgfx* npc_graphics) : map2d_obj(map2d_obj), npc_graphics(npc_graphics), char_type(CT_NPC) {
-	time_per_tile = TIME_PER_TILE_NPC;
-	pos_interp = 0.0f;
+npc2d::npc2d(map2d* map2d_obj, npcgfx* npc_graphics) : npc(), map2d_obj(map2d_obj), npc_graphics(npc_graphics) {
 	state = S_FRONT1;
-	last_frame = last_anim_frame = last_move = SDL_GetTicks();
-	npc_data = NULL;
-	enabled = true;
 }
 
 /*! npc2d destructor
  */
 npc2d::~npc2d() {
-}
-
-void npc2d::set_npc_data(const map_npcs::map_npc* npc_data) {
-	npc2d::npc_data = npc_data;
-
-	// set start position from map data (-1, b/c we start at 0)
-	if(npc_data->position[0].x == 0 || npc_data->position[0].y == 0) {
-		// pos (0, 0) = disabled npc
-		set_enabled(false);
-		set_pos(0, 0);
-	}
-	else set_pos(npc_data->position[0].x-1, npc_data->position[0].y-1);
 }
 
 void npc2d::draw(const NPC_DRAW_STAGE& draw_stage) const {
@@ -93,71 +76,47 @@ void npc2d::handle() {
 	}
 }
 
-void npc2d::set_pos(const size_t& x, const size_t& y) {
-	pos.set(x, y);
-	next_pos.set(x, y);
-}
-
 void npc2d::move(const MOVE_DIRECTION& direction) {
 	if(!enabled) return;
 
 	pos = next_pos;
 	pos_interp = 0.0f;
-	switch(direction) {
-		case MD_LEFT:
-			if(!map2d_obj->collide(MD_LEFT, pos, char_type)) {
-				if(pos.x != 0) next_pos.x--;
-			}
-			state = (S_LEFT1 & 0xF0) | (state & 0xF);
+	
+	size_t final_dir = 0;
+	MOVE_DIRECTION dirs[4];
+	size_t dir_count = 0;
+	if(direction & MD_UP) dirs[dir_count++] = MD_UP;
+	if(direction & MD_DOWN) dirs[dir_count++] = MD_DOWN;
+	if(direction & MD_LEFT) dirs[dir_count++] = MD_LEFT;
+	if(direction & MD_RIGHT) dirs[dir_count++] = MD_RIGHT;
+	
+	for(size_t i = 0; i < dir_count+1; i++) {
+		if(i == 0 && !map2d_obj->collide(direction, pos, char_type)) {
+			final_dir = direction;
 			break;
-		case MD_RIGHT:
-			if(!map2d_obj->collide(MD_RIGHT, pos, char_type)) {
-				if(pos.x < map2d_obj->get_size().x-1) next_pos.x++;
-			}
-			state = (S_RIGHT1 & 0xF0) | (state & 0xF);
+		}
+		else if(i > 0 && !map2d_obj->collide(dirs[i-1], pos, char_type)) {
+			final_dir = dirs[i-1];
 			break;
-		case MD_UP:
-			if(!map2d_obj->collide(MD_UP, pos, char_type)) {
-				if(pos.y != 0) next_pos.y--;
-			}
-			state = (S_BACK1 & 0xF0) | (state & 0xF);
-			break;
-		case MD_DOWN:
-			if(!map2d_obj->collide(MD_DOWN, pos, char_type)) {
-				if(pos.y < map2d_obj->get_size().y-1) next_pos.y++;
-			}
-			state = (S_FRONT1 & 0xF0) | (state & 0xF);
-			break;
-		default:
-			break;
+		}
 	}
-}
-
-const size2& npc2d::get_pos() const {
-	return next_pos;
-}
-
-void npc2d::compute_move() {
-	if(!enabled) return;
-
-	// TODO: compute next move
-	if(npc_data->movement_type == MT_RANDOM) {
-		// TODO: think of a better method ;)
-		if(SDL_GetTicks() - last_move < time_per_tile) return;
-		last_move = SDL_GetTicks();
-
-		MOVE_DIRECTION dir = (MOVE_DIRECTION)((rand() % 4)+1);
-		move(dir);
+	
+	if(final_dir & MD_LEFT) {
+		if(pos.x != 0) next_pos.x--;
 	}
-	else {
-		// TODO: follow track dependent on game time
+	if(final_dir & MD_RIGHT)  {
+		if(pos.x < map2d_obj->get_size().x-1) next_pos.x++;
 	}
-}
-
-void npc2d::set_enabled(const bool& state) {
-	enabled = state;
-}
-
-bool npc2d::is_enabled() const {
-	return enabled;
+	if(final_dir & MD_UP)  {
+		if(pos.y != 0) next_pos.y--;
+	}
+	if(final_dir & MD_DOWN)  {
+		if(pos.y < map2d_obj->get_size().y-1) next_pos.y++;
+	}
+	
+	// prioritize left/right when selecting the npc state
+	if(final_dir & MD_UP) state = (S_BACK1 & 0xF0) | (state & 0xF);
+	if(final_dir & MD_DOWN) state = (S_FRONT1 & 0xF0) | (state & 0xF);
+	if(final_dir & MD_LEFT) state = (S_LEFT1 & 0xF0) | (state & 0xF);
+	if(final_dir & MD_RIGHT) state = (S_RIGHT1 & 0xF0) | (state & 0xF);
 }

@@ -21,7 +21,7 @@
 
 transtb::transtb() {
 	// i don't really have any idea where those are used for yet ...
-	/*xld* ttb = new xld("TRANSTB0.XLD");
+	xld* ttb = new xld("TRANSTB0.XLD");
 
 	// floors
 	const size2 ttb_tex_size = size2(1536, 1536);
@@ -48,10 +48,10 @@ transtb::transtb() {
 	}
 	delete [] data_32bpp;
 
-	ttb_tex = t->add_texture(ttb_surface, ttb_tex_size.x, ttb_tex_size.y, GL_RGBA8, GL_RGBA, texture_object::TF_POINT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
-	conf::set<a2e_texture>("debug.texture", ttb_tex);
+	ttb_tex = t->add_texture(ttb_surface, ttb_tex_size.x, ttb_tex_size.y, GL_RGBA8, GL_RGBA, texture_object::TF_POINT, 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+	//conf::set<a2e_texture>("debug.texture", ttb_tex);
 
-	delete ttb;*/
+	delete ttb;
 }
 
 transtb::~transtb() {

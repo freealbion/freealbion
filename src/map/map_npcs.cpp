@@ -85,7 +85,7 @@ void map_npcs::load(const unsigned char* data, const size_t& event_end_offset) {
 			}
 		}
 		
-		//cout << "NPC @" << hex << offset << dec << ": " << (*niter)->npc_num << ", " << (*niter)->event_num << ", " << npcs.back()->movement_type << ", (" << (*niter)->xpos << ", " << (*niter)->ypos << ")" << endl;
+		cout << "NPC @" << hex << offset << dec << ": " << (*niter)->npc_num << ", " << (*niter)->event_num << ", " << npcs.back()->movement_type << ", " << *(*niter)->position << endl;
 	}
 }
 

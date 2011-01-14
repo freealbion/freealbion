@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<includes>inferred</includes>
+
+	<vertex_shader version="120">
+		<variables>
+varying vec3 out_cube_tex_coord;
+		</variables>
+		<program>
+void main() {
+	//inferred_vs();
+	out_depth = 0.999999;
+	out_position = gl_Vertex;
+	
+	out_cube_tex_coord = gl_MultiTexCoord0.xyz;
+	
+	gl_Position = gl_Vertex;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader version="120">
+		<variables>
+uniform samplerCube diffuse_texture;
+
+varying vec3 out_cube_tex_coord;
+		</variables>
+		<program>
+void main() {
+	vec4 light_color = compute_light_color();
+	vec4 diff_color = textureCube(diffuse_texture, out_cube_tex_coord);
+	vec3 final_color = light_color.rgb * diff_color.rgb;
+	
+	gl_FragColor = vec4(final_color, 1.0);
+}
+		</program>
+	</fragment_shader>
+	
+</a2e_shader>

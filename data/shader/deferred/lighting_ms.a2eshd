@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<vertex_shader version="120">
+		<variables>
+			uniform vec3 light_position;
+			
+			uniform mat4 PM;
+			uniform mat4 MVM;
+		</variables>
+		<program>
+void main() {
+			gl_Position = (PM * MVM) * (gl_Vertex + vec4(light_position, 0.0));
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader version="120">
+		<preprocessor>
+			#extension GL_ARB_texture_multisample : enable
+		</preprocessor>
+		<variables>
+			uniform sampler2DMS rt0;
+			uniform sampler2DMS rt1;
+			uniform sampler2DMS rt2;
+			uniform sampler2DMS depth_buffer;
+			uniform int sample_count;
+			
+			uniform vec3 cam_position;
+			uniform vec2 screen_size;
+			uniform vec2 projection_ab;
+			
+			uniform vec3 light_position;
+			uniform vec3 light_ambient;
+			uniform vec3 light_diffuse;
+			uniform vec3 light_specular;
+			uniform vec3 light_attenuation;
+			
+			uniform mat4 IMVM;
+		</variables>
+		<program>
+void main() {
+			vec2 tex_coord = floor(gl_FragCoord.xy) / screen_size;
+			ivec2 sample_tex_coord = ivec2(tex_coord * vec2(textureSize(rt0)));
+			
+			vec3 final_color = vec3(0.0);
+			float valid_sample_count = sample_count;
+			for(int sample = 0; sample < sample_count; sample++) {
+				float depth = texelFetch(depth_buffer, sample_tex_coord, sample).r; // in [0, 1]
+				//if(depth >= 1.0) discard;
+				if(depth >= 1.0) {
+					valid_sample_count -= 1.0f;
+					continue;
+				}
+				
+				vec4 diff_color = texelFetch(rt0, sample_tex_coord, sample);
+				vec4 spec_color = texelFetch(rt1, sample_tex_coord, sample);
+				vec4 normal_nuv = texelFetch(rt2, sample_tex_coord, sample);
+				
+				////////////////////////////////////////////////////////////////////////////
+				// reconstruct world space position
+				float linear_depth = projection_ab.y / (depth - projection_ab.x); // in [near plane, far plane]
+				const float up_vec = 0.72654252800536066024136247722454;
+				float right_vec = 0.72654252800536066024136247722454 * (screen_size.x / screen_size.y);
+
+				vec3 rep_pos;
+				rep_pos.z = -linear_depth;
+				rep_pos.xy = (tex_coord * 2.0 - 1.0) * vec2(right_vec, up_vec) * linear_depth;
+				rep_pos = vec3(IMVM * vec4(rep_pos, 1.0));
+		
+				
+				////////////////////////////////////////////////////////////////////////////
+				// decode normal
+				vec3 normal;
+				normal.z = dot(normal_nuv.xy, normal_nuv.xy) * 2.0 - 1.0;
+				// and again: abs inner sqrt result, b/c of fp inaccuracies
+				normal.xy = normalize(normal_nuv.xy) * sqrt(abs(1.0 - normal.z * normal.z));
+				
+				
+				////////////////////////////////////////////////////////////////////////////
+				// lighting
+				vec3 light_dir = light_position - rep_pos;
+				vec3 view_dir = cam_position - rep_pos;
+				
+				float dist = length(light_dir);
+				float attenuation = max(1.0 / (light_attenuation.x + (light_attenuation.y * dist) + (light_attenuation.z * dist * dist)), 0.0);
+				
+				light_dir = normalize(light_dir);
+				view_dir = normalize(view_dir);
+				
+				vec3 color = vec3(0.0);
+#if 1
+				// phong lighting
+				
+				vec3 E, R;
+				E = view_dir;
+				float lambertTerm, specular;
+				
+				color += light_ambient * attenuation;
+				
+				lambertTerm = dot(normal, light_dir);
+				if(lambertTerm > 0.0) {
+					color += light_diffuse * lambertTerm * attenuation;
+				
+					R = reflect(-light_dir, normal);
+					specular = pow(max(dot(R, E), 0.0), 16.0f);
+				
+					color += light_specular * specular * spec_color.rgb * attenuation;
+				}
+				color = diff_color.rgb * color;
+#else
+				// ashikhmin/shirley lighting
+				
+				// setup vars
+				float Nu = normal_nuv.z;
+				float Nv = normal_nuv.w;
+				//spec_color *= 0.1;
+				vec3 Nf = normalize(normal);
+				vec3 Vf = normalize(view_dir);
+				float NdotV = dot(Nf, Vf);
+				
+				//
+				vec3 epsilon = vec3( 1.0, 0.0, 0.0 );
+				vec3 tangent = normalize( cross( Nf, epsilon ) );
+				vec3 bitangent = normalize( cross( Nf, tangent ) );
+				
+				//
+				vec3 ambient = vec3(0.0);
+				vec3 diffuse = vec3(0.0);
+				vec3 specular = vec3(0.0);
+				vec3 L, H, Pd, Ps;
+				float NdotH, BdotH, TdotH, LdotH, NdotL;
+				float ps_num_exp, Ps_num, Ps_den;
+				
+				ambient += light_ambient * attenuation;
+				
+				spec_color *= 0.5; // scale down specular
+				
+				L = light_dir;
+				NdotL = dot(Nf, L);
+				if(NdotL > 0.0) {
+					Pd = (28.0 * diff_color.rgb * light_diffuse) / ( 23.0 * 3.14159265 );
+					Pd *= vec3(1.0) - spec_color.rgb * 0.02 * light_specular; // scale down specular a bit more
+					Pd *= (1.0 - pow(1.0 - (NdotL / 2.0), 5.0));
+					Pd *= (1.0 - pow(1.0 - (NdotV / 2.0), 5.0));
+					Pd *= attenuation;
+					diffuse += Pd;
+				
+					if(NdotV > 0.0) {
+						H = normalize(L + Vf);
+						NdotH = dot(Nf, H);
+						BdotH = dot(bitangent, H);
+						TdotH = dot(tangent, H);
+						LdotH = dot(L, H);
+				
+						ps_num_exp = Nu * TdotH * TdotH + Nv * BdotH * BdotH;
+						ps_num_exp /= 1.0 - NdotH * NdotH;
+				
+						Ps_num = sqrt( (Nu + 1.0) * (Nv + 1.0) );
+						Ps_num *= pow( NdotH, ps_num_exp );
+				
+						Ps_den = 8.0 * 3.14159265 * LdotH;
+						Ps_den *= max( NdotL, NdotV );
+				
+						Ps = spec_color.rgb * (Ps_num / Ps_den);
+						Ps *= spec_color.rgb + (vec3(1.0) - spec_color.rgb * light_specular) * pow( 1.0 - LdotH, 5.0 );
+						Ps *= attenuation;
+						specular += Ps;
+					}
+				}
+				
+				color = ambient + diffuse + specular;
+#endif
+
+				final_color += color;
+			}
+			
+			final_color /= valid_sample_count;
+			
+			gl_FragColor = vec4(final_color, 1.0);
+}
+		</program>
+	</fragment_shader>
+	
+</a2e_shader>

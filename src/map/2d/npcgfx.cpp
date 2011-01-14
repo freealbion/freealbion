@@ -23,73 +23,54 @@
  */
 npcgfx::npcgfx(const pal* palettes) : palettes(palettes), cur_palette(6) {
 	// load npc graphics
-	npcgfx0 = new xld("NPCGR0.XLD");
-	npcgfx1 = new xld("NPCGR1.XLD");
-	npcgfx2 = new xld("PARTGR0.XLD");
-	npcgfx3 = new xld("TACTICO0.XLD");
+	npcgfx_xlds[0] = new xld("NPCGR0.XLD");
+	npcgfx_xlds[1] = new xld("NPCGR1.XLD");
+	npcgfx_xlds[2] = new xld("PARTGR0.XLD");
+	npcgfx_xlds[3] = new xld("TACTICO0.XLD");
 }
 
 /*! npcgfx destructor
  */
 npcgfx::~npcgfx() {
 	clear();
-	delete npcgfx0;
-	delete npcgfx1;
-	delete npcgfx2;
-	delete npcgfx3;
+	delete npcgfx_xlds[0];
+	delete npcgfx_xlds[1];
+	delete npcgfx_xlds[2];
+	delete npcgfx_xlds[3];
 }
 
 void npcgfx::load_npcgfx(const size_t& npc_num) {
 	const xld::xld_object* object = NULL;
-	if(npc_num < 100 && npc_num <= npcgfx0->get_object_count()) {
-		object = npcgfx0->get_object(npc_num-1); // TODO: check if only npcgfx nums have to decremented in the sub-100 range
+	if(npc_num < 100 && npc_num <= npcgfx_xlds[0]->get_object_count()) {
+		object = npcgfx_xlds[0]->get_object(npc_num-1); // TODO: check if only npcgfx nums have to be decremented in the sub-100 range
 	}
-	else if(npc_num < 200 && (npc_num - 100) < npcgfx1->get_object_count()) {
-		object = npcgfx1->get_object(npc_num - 100);
+	else if(npc_num < 200 && (npc_num - 100) < npcgfx_xlds[1]->get_object_count()) {
+		object = npcgfx_xlds[1]->get_object(npc_num - 100);
 	}
-	else if(npc_num < 300 && (npc_num - 200) < npcgfx2->get_object_count()) {
-		object = npcgfx2->get_object(npc_num - 200);
+	else if(npc_num < 300 && (npc_num - 200) < npcgfx_xlds[2]->get_object_count()) {
+		object = npcgfx_xlds[2]->get_object(npc_num - 200);
 	}
-	else if(npc_num < 400 && (npc_num - 300) < npcgfx3->get_object_count()) {
-		object = npcgfx3->get_object(npc_num - 300);
+	else if(npc_num < 400 && (npc_num - 300) < npcgfx_xlds[3]->get_object_count()) {
+		object = npcgfx_xlds[3]->get_object(npc_num - 300);
 	}
 	
 	if(object == NULL) {
 		a2e_error("invalid npc num #%u!", npc_num);
-		object = npcgfx0->get_object(0);
+		object = npcgfx_xlds[0]->get_object(0);
 	}
-	
+
 	const size2 npc_size = size2(object->data[0], object->data[2]);
 	const size_t object_count = object->length / (npc_size.x * npc_size.y);
-	const size_t scale = 4;
-	const size2 scaled_npc_size = npc_size * scale;
-	const size2 surface_size = size2(npc_size.x*4*4, 1024);
 	const size_t offset = (object_count > 1 ? 6 : 0);
-	
-	unsigned int* surface = new unsigned int[surface_size.x*surface_size.y];
-	memset(surface, 0, surface_size.x*surface_size.y*sizeof(unsigned int));
-	
-	unsigned int* data_32bpp = new unsigned int[npc_size.x*npc_size.y];
-	unsigned int* scaled_data = new unsigned int[scaled_npc_size.x*scaled_npc_size.y];
-	for(size_t i = 0; i < object_count; i++) {
-		if(i >= 19) break; // TODO: fix irregular npcgfx (111)
-		gfxconv::convert_8to32(&(object->data[offset + i*npc_size.x*npc_size.y]), data_32bpp, npc_size.x, npc_size.y, cur_palette);
-		//scaling::scale_4x(scaling::ST_NEAREST, data_32bpp, npc_size, scaled_data);
-		scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, npc_size, scaled_data);
 
-		// copy data into surface
-		const size_t offset_x = (i%4) * scaled_npc_size.x;
-		const size_t offset_y = (i/4) * scaled_npc_size.y;
-		for(size_t y = 0; y < scaled_npc_size.y; y++) {
-			memcpy(&surface[(offset_y + y) * surface_size.x + offset_x], &scaled_data[y*scaled_npc_size.x], scaled_npc_size.x*sizeof(unsigned int));
-		}
-	}
-	delete [] scaled_data;
-	delete [] data_32bpp;
+	albion_texture::albion_texture_single_object tex_info_obj;
+	tex_info_obj.object_count = object_count;
+	tex_info_obj.object = object;
+	tex_info_obj.offset = offset;
+	vector<albion_texture::albion_texture_info*> tex_info;
+	tex_info.push_back(&tex_info_obj);
 
-	npc_graphics[npc_num] = t->add_texture(surface, surface_size.x, surface_size.y, GL_RGBA8, GL_RGBA, texture_object::TF_TRILINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
-
-	delete [] surface;
+	npc_graphics[npc_num] = albion_texture::create(size2(npc_size.x*4*4, 1024), npc_size, cur_palette, tex_info, NULL, texture_object::TF_TRILINEAR);
 }
 
 const a2e_texture& npcgfx::get_npcgfx(const size_t& npc_num) {

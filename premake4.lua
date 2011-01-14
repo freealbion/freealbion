@@ -35,7 +35,6 @@ project "albion"
 	defines { "A2E_NET_PROTOCOL=TCP_protocol" }
 	targetdir "bin"
 
-	-- TODO: write unix premake file
 	if(not os.is("windows")) then
 		includedirs { "/usr/include", "/usr/include/freetype2", "/usr/include/libxml2", "/usr/local/include", "/usr/local/include/a2e" }
 		buildoptions { "-Wall -x c++ -fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -Wunused-variable -funroll-loops" }
@@ -65,7 +64,7 @@ project "albion"
 		for i = 1, table.maxn(include_files) do
 			if((not os.isfile("/usr/include/"..include_files[i])) and
 			   (not os.isfile("/usr/local/include/"..include_files[i]))) then
-			   -- search in /usr/include and /usr/local/include
+				-- search in /usr/include and /usr/local/include
 				local include_path = find_include(include_files[i], "/usr/include/")
 				if(include_path == "") then
 					include_path = find_include(include_files[i], "/usr/local/include/")
@@ -87,6 +86,8 @@ project "albion"
 	if(os.is("windows")) then
 		links { "opengl32", "glu32", "odbc32", "odbccp32", "SDL", "SDLmain", "SDL_net", "SDL_image", "ftgl", "lua51", "libxml2", "vcomp", "OpenCL" }
 		defines { "__WINDOWS__", "_CONSOLE", "A2E_IMPORTS", "_CRT_SECURE_NO_DEPRECATE" }
+		flags { "NoMinimalRebuild", "NoEditAndContinue" }
+		buildoptions { "/Zi /MP8" }
 	end
 	
 	-- the same for all

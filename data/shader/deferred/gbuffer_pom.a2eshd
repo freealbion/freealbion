@@ -14,7 +14,6 @@
 			attribute vec3 binormal;
 			attribute vec3 tangent;
 			
-			varying vec3 out_normal;
 			varying vec2 out_tex_coord;
 			varying vec3 out_view_vec;
 		</variables>
@@ -49,7 +48,6 @@ void main() {
 			uniform vec2 Nuv;
 			uniform float max_step_count;
 			
-			varying vec3 out_normal;
 			varying vec2 out_tex_coord;
 			varying vec3 out_view_vec;
 		</variables>

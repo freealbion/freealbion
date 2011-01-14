@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<includes>gbuffer</includes>
+	
+	<vertex_shader>
+		<variables>
+varying vec3 out_cube_tex_coord;
+		</variables>
+		<program>
+void main() {
+	out_cube_tex_coord = gl_MultiTexCoord0.xyz;
+	
+	gl_Position = gl_Vertex;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<variables>
+uniform vec2 Nuv;
+uniform vec2 id;
+
+varying vec3 out_cube_tex_coord;
+		</variables>
+		<program>
+void main() {
+	// write to gbuffer
+	vec3 normal = vec3(out_cube_tex_coord.x, -out_cube_tex_coord.y, -out_cube_tex_coord.z);
+	gl_FragData[0].rg = encode_normal(normal);
+	gl_FragData[1].rg = Nuv;
+	gl_FragData[2].rg = id;
+	gl_FragDepth = 0.999999; // must not by 1.0!
+}
+		</program>
+	</fragment_shader>
+
+</a2e_shader>

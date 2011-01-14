@@ -248,6 +248,56 @@ void albion_ui::open_goto_map_wnd() {
 		}
 		lb_map_names->add_item(item_str.c_str());
 	}
+
+	//
+#if 0
+	xld* maps[3];
+	maps[0] = new xld("MAPDATA1.XLD");
+	maps[1] = new xld("MAPDATA2.XLD");
+	maps[2] = new xld("MAPDATA3.XLD");
+	/*for(size_t i = 0; i < map_count; i++) {
+		size_t map_num = albion_maps[i].map_num-100;
+		if(mh->get_map_type(map_num) == MT_3D_MAP) {
+			xld* mx = (map_num < 100 ? maps[0] : (map_num < 200 ? maps[1] : maps[2]));
+			const xld::xld_object* obj = mx->get_object(map_num % 100);
+			cout << "# " << map_num << ": " << (size_t)obj->data[6] << " (" << albion_maps[i].map_name << ")" << endl;
+		}
+	}*/
+	set<size_t> palettes_2d, palettes_3d;
+	for(size_t i = 0; i < map_count; i++) {
+		size_t map_num = albion_maps[i].map_num-100;
+		xld* mx = (map_num < 100 ? maps[0] : (map_num < 200 ? maps[1] : maps[2]));
+		const xld::xld_object* obj = mx->get_object(map_num % 100);
+
+		if(mh->get_map_type(map_num) == MT_3D_MAP) {
+			palettes_3d.insert((size_t)obj->data[8]);
+		}
+		if(mh->get_map_type(map_num) == MT_2D_MAP) {
+			palettes_2d.insert((size_t)obj->data[8]);
+			if(1 == (size_t)obj->data[8]) cout << "!!!!!!!!!!!!! MAP " << map_num << ": palette 14" << endl;
+		}
+	}
+
+	cout << "########### PALETTES: ####" << endl;
+	cout << "2D: " << endl;
+	for(set<size_t>::iterator piter = palettes_2d.begin(); piter != palettes_2d.end(); piter++) {
+		cout << *piter << ", ";
+	}
+	cout << endl << endl;
+	cout << "3D: " << endl;
+	for(set<size_t>::iterator piter = palettes_3d.begin(); piter != palettes_3d.end(); piter++) {
+		cout << *piter << ", ";
+	}
+	cout << endl;
+
+	delete maps[0];
+	delete maps[1];
+	delete maps[2];
+#endif
+}
+
+void albion_ui::close_goto_map_wnd() {
+	eui->close(albion_dbg);
 }
 
 void albion_ui::handle_b_goto_map_button(event::GUI_EVENT_TYPE type, GUI_ID id) {

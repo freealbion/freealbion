@@ -20,13 +20,14 @@
 #ifndef __AR_NPCGFX_H__
 #define __AR_NPCGFX_H__
 
-#include "global.h"
+#include "ar_global.h"
 #include "conf.h"
 #include "map_defines.h"
 #include "xld.h"
 #include "palette.h"
 #include "gfxconv.h"
 #include "scaling.h"
+#include "albion_texture.h"
 
 /*! @class npcgfx
  *  @brief npc graphics
@@ -52,10 +53,7 @@ protected:
 
 	map<size_t, a2e_texture> npc_graphics;
 	
-	xld* npcgfx0;
-	xld* npcgfx1;
-	xld* npcgfx2;
-	xld* npcgfx3;
+	xld* npcgfx_xlds[4];
 
 	void load_npcgfx(const size_t& npc_num);
 	

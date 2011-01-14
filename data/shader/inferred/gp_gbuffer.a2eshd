@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<includes>gbuffer</includes>
+	
+	<vertex_shader>
+		<variables>
+			uniform mat4 local_mview;
+			uniform mat4 local_scale;
+			
+			attribute vec3 normal;
+			//attribute vec2 texture_coord;
+			
+			varying vec3 out_normal;
+			//varying vec2 out_tex_coord;
+		</variables>
+		<program>
+void main() {
+			mat4 transform_mat = local_scale * local_mview;
+			
+			out_normal = vec3(transform_mat * vec4(normal, 1.0));
+			//out_tex_coord = texture_coord;
+			
+			gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<variables>
+			uniform vec2 Nuv;
+			uniform vec2 id;
+			
+			varying vec3 out_normal;
+			//varying vec2 out_tex_coord;
+		</variables>
+		<program>
+void main() {
+			// write to gbuffer
+			gl_FragData[0].rg = encode_normal(out_normal);
+			gl_FragData[1].rg = Nuv;
+			gl_FragData[2].rg = id;
+}
+		</program>
+	</fragment_shader>
+
+</a2e_shader>

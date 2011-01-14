@@ -20,8 +20,7 @@
 #ifndef __AR_GFXCONV_H__
 #define __AR_GFXCONV_H__
 
-#include "global.h"
-#include "palette.h"
+#include "ar_global.h"
 
 /*! @class gfxconv
  *  @brief gfx converter
@@ -32,16 +31,14 @@
 
 class gfxconv {
 public:
-	static void init(const pal* palettes);
-
-	static void convert_8to32(const unsigned char* data_8bpp, unsigned int* data_32bpp, const size_t& width, const size_t& height, const size_t& palette_num);
+	static void convert_8to32(const unsigned char* data_8bpp, unsigned int* data_32bpp, const size_t& width, const size_t& height, const size_t& palette_num,
+							  const size_t palette_shift = 0, const bool overwrite_alpha = false, const unsigned int replacement_alpha = 0);
 	
 protected:
-	static const pal* palettes;
-
 	gfxconv() {}
 	~gfxconv() {}
 	gfxconv& operator=(const gfxconv& gfxc);
+
 };
 
 #endif

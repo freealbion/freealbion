@@ -20,12 +20,13 @@
 #ifndef __AR_TILESET_H__
 #define __AR_TILESET_H__
 
-#include "global.h"
+#include "ar_global.h"
 #include "map_defines.h"
 #include "xld.h"
 #include "palette.h"
 #include "gfxconv.h"
 #include "scaling.h"
+#include "albion_texture.h"
 
 /*! @class tileset
  *  @brief tileset loader
@@ -46,12 +47,16 @@ public:
 		size_t num;
 		size_t ani_num;
 		size_t ani_tiles;
-		
+
 		float2 tex_coord;
+		bool palette_shift;
+		
 		TILE_LAYER layer_type;
 
 		unsigned int upper_bytes;
 		unsigned int lower_bytes;
+
+		tile_object() : tex_coord(), palette_shift(false) {}
 	};
 
 	struct tileset_object {
@@ -62,7 +67,11 @@ public:
 		a2e_texture tileset;
 		bool loaded;
 		
-		tileset_object() : tile_count(0), tile_data(NULL), tiles(NULL), tile_obj_count(0), tileset(), loaded(false) {}
+		albion_texture::albion_texture_single_object_ps tex_info_obj;
+		const vector<vector<float2> >* tex_coords;
+		float2 tile_tc_size;
+
+		tileset_object() : tile_count(0), tile_data(NULL), tiles(NULL), tile_obj_count(0), tileset(), loaded(false), tex_info_obj(), tex_coords(NULL), tile_tc_size() {}
 	};
 
 	void load(const size_t& num, const size_t& palette);
@@ -71,7 +80,8 @@ public:
 	const tileset_object& get_tileset(const size_t& num) const;
 	const tileset_object& get_cur_tileset() const;
 	const TILE_LAYER get_layer_type(const unsigned char& ch) const;
-	const float get_tile_tex_coord_size() const;
+	const float2 get_tile_tex_coord_size() const;
+	const vector<vector<float2> >* get_tex_coords() const;
 	
 protected:
 	const pal* palettes;
@@ -80,6 +90,8 @@ protected:
 	size_t cur_tileset_num;
 	const tileset_object* cur_tileset;
 	a2e_texture cur_tileset_tex;
+
+	xld* icongfx;
 
 };
 

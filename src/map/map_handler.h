@@ -20,7 +20,7 @@
 #ifndef __AR_MAP_HANDLER_H__
 #define __AR_MAP_HANDLER_H__
 
-#include "global.h"
+#include "ar_global.h"
 #include "conf.h"
 #include "map_defines.h"
 #include "map2d.h"
@@ -32,7 +32,7 @@
 
 class map_handler {
 public:
-	map_handler(pal* palettes);
+	map_handler();
 	~map_handler();
 	
 	void handle();
@@ -46,6 +46,7 @@ public:
 	
 	//
 	const size2& get_player_position() const;
+	size_t& get_next_dir();
 	
 	// DEBUG: for debugging purposes
 	tileset::tile_object* get_tile(unsigned int type);
@@ -55,7 +56,6 @@ public:
 	void debug_draw();
 
 protected:
-	pal* palettes;
 	tileset* tilesets;
 	map2d* maps2d;
 	map3d* maps3d;
@@ -70,7 +70,7 @@ protected:
 	//
 	size_t last_key_press;
 	size_t last_move;
-	MOVE_DIRECTION next_dir;
+	size_t next_dir;
 	void handle_key_down(event::GUI_EVENT_TYPE type, GUI_ID id);
 	void handle_key_up(event::GUI_EVENT_TYPE type, GUI_ID id);
 	void handle_right_click(event::GUI_EVENT_TYPE type, GUI_ID id);

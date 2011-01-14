@@ -20,7 +20,7 @@
 #ifndef __AR_PLAYER2D_H__
 #define __AR_PLAYER2D_H__
 
-#include "global.h"
+#include "ar_global.h"
 #include "map_defines.h"
 #include "map2d.h"
 #include "npcgfx.h"

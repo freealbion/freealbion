@@ -17,31 +17,48 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_GLOBAL_H__
-#define __AR_GLOBAL_H__
+#ifndef __AR_NPC_H__
+#define __AR_NPC_H__
 
-#include <a2e.h>
-using namespace std;
+#include "ar_global.h"
+#include "map_defines.h"
+#include "map_npcs.h"
 
-#define APPLICATION_NAME "Albion Remake"
-
-#ifdef __WINDOWS__
-#pragma warning(disable: 4244)
-#pragma warning(disable: 4267)
-#endif
-
-extern engine* e;
-extern core* c;
-extern file_io* fio;
-extern gfx* egfx;
-extern gui* egui;
-extern a2eui* eui;
-extern texman* t;
-extern event* evt;
-extern gui_style* gs;
-extern shader* s;
-extern opencl* ocl;
-extern scene* sce;
-extern camera* cam;
+class npc {
+public:
+	npc();
+	~npc();
+	
+	virtual void handle() = 0;
+	virtual void move(const MOVE_DIRECTION& direction) = 0;
+	
+	virtual void set_pos(const size_t& x, const size_t& y);
+	virtual const size2& get_pos() const;
+	virtual const float2 get_interpolated_pos() const;
+	
+	virtual void set_npc_data(const map_npcs::map_npc* npc_data);
+	
+	virtual void set_enabled(const bool& state);
+	virtual bool is_enabled() const;
+	
+protected:
+	const map_npcs::map_npc* npc_data;
+	
+	size2 pos;
+	size2 next_pos;
+	float pos_interp;
+	
+	CHARACTER_TYPE char_type;
+	
+	size_t time_per_tile;
+	size_t last_frame;
+	size_t last_anim_frame;
+	size_t last_move;
+	
+	bool enabled;
+	
+	virtual void compute_move();
+	
+};
 
 #endif

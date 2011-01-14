@@ -14,7 +14,6 @@
 			attribute vec3 binormal;
 			attribute vec3 tangent;
 			
-			varying vec3 out_normal;
 			varying vec2 out_tex_coord;
 			varying vec3 out_view_vec;
 		</variables>
@@ -48,7 +47,6 @@ void main() {
 			uniform sampler2D normal_texture;
 			uniform vec2 Nuv;
 			
-			varying vec3 out_normal;
 			varying vec2 out_tex_coord;
 			varying vec3 out_view_vec;
 		</variables>

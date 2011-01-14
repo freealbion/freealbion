@@ -102,3 +102,12 @@ const xld::xld_object* xld::get_object(const size_t& num) const {
 const vector<xld::xld_object*>& xld::get_objects() const {
 	return objects;
 }
+
+const xld::xld_object* xld::get_object(const size_t& num, const xld* const* xlds, const size_t max_value) {
+	if(max_value != 0 && num >= max_value) {
+		a2e_error("invalid object number: %u!", num);
+		return NULL;
+	}
+
+	return xlds[num / 100]->get_object(num % 100);
+}

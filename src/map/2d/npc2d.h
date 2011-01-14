@@ -20,13 +20,14 @@
 #ifndef __AR_NPC2D_H__
 #define __AR_NPC2D_H__
 
-#include "global.h"
+#include "ar_global.h"
 #include "map_defines.h"
 #include "map2d.h"
 #include "npcgfx.h"
 #include "map_npcs.h"
+#include "npc.h"
 
-class npc2d {
+class npc2d : public npc {
 public:
 	npc2d(map2d* map2d_obj, npcgfx* npc_graphics);
 	~npc2d();
@@ -35,36 +36,11 @@ public:
 	virtual void handle();
 	virtual void move(const MOVE_DIRECTION& direction);
 
-	virtual void set_pos(const size_t& x, const size_t& y);
-	virtual const size2& get_pos() const;
-
-	virtual void set_npc_data(const map_npcs::map_npc* npc_data);
-
-	virtual void set_enabled(const bool& state);
-	virtual bool is_enabled() const;
-
 protected:
 	map2d* map2d_obj;
 	npcgfx* npc_graphics;
 
-	const map_npcs::map_npc* npc_data;
-	
-	size2 pos;
-	size2 next_pos;
-	float pos_interp;
-	
-	CHARACTER_TYPE char_type;
-	//NPC_STATE state;
 	size_t state;
-	
-	size_t time_per_tile;
-	size_t last_frame;
-	size_t last_anim_frame;
-	size_t last_move;
-
-	bool enabled;
-
-	virtual void compute_move();
 
 };
 

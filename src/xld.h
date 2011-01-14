@@ -20,7 +20,7 @@
 #ifndef __AR_XLD_H__
 #define __AR_XLD_H__
 
-#include "global.h"
+#include "ar_global.h"
 
 #define AR_GET_USINT(data_, offset_) ((unsigned short int)((data_[offset_+1] << 8) | data_[offset_]))
 #define AR_GET_SINT(data_, offset_) ((short int)((data_[offset_+1] << 8) | data_[offset_]))
@@ -56,6 +56,8 @@ public:
 	static void set_xld_path(const string& xld_path);
 	static const string get_xld_path();
 	static const string make_xld_path(const string& filename);
+
+	static const xld_object* get_object(const size_t& num, const xld* const* xlds, const size_t max_value = 0);
 	
 protected:
 	string data;

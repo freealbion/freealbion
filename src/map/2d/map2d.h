@@ -20,7 +20,7 @@
 #ifndef __AR_MAP2D_H__
 #define __AR_MAP2D_H__
 
-#include "global.h"
+#include "ar_global.h"
 #include "conf.h"
 #include "map_defines.h"
 #include "xld.h"

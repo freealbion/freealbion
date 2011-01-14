@@ -17,19 +17,30 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef __AR_NPC3D_H__
+#define __AR_NPC3D_H__
 
-#include "global.h"
+#include "ar_global.h"
+#include "map_defines.h"
+#include "map3d.h"
+#include "map_npcs.h"
+#include "npc.h"
 
-engine* e;
-core* c;
-file_io* fio;
-gfx* egfx;
-gui* egui;
-a2eui* eui;
-texman* t;
-event* evt;
-gui_style* gs;
-shader* s;
-opencl* ocl;
-scene* sce;
-camera* cam;
+class npc3d : public npc {
+public:
+	npc3d(map3d* map3d_obj);
+	~npc3d();
+	
+	virtual void draw() const;
+	virtual void handle();
+	virtual void move(const MOVE_DIRECTION& direction);
+	
+protected:
+	map3d* map3d_obj;
+	
+	size_t state;
+	bool anim_dir; // 0 = +, 1 = -
+	
+};
+
+#endif

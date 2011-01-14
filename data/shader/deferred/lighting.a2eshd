@@ -36,7 +36,6 @@ void main() {
 		<program>
 void main() {
 			vec2 tex_coord = gl_FragCoord.xy / screen_size;
-			//float coeff = (mod(floor(tex_coord.x / (1.0/8.0)), 2.0) >= 1.0) ? 0.0 : 1.0;
 			
 			float depth = texture2D(depth_buffer, tex_coord).r; // in [0, 1]
 			if(depth >= 1.0) discard;

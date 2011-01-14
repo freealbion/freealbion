@@ -20,7 +20,7 @@
 #ifndef __AR_ALBION_UI_H__
 #define __AR_ALBION_UI_H__
 
-#include "global.h"
+#include "ar_global.h"
 #include "map_handler.h"
 
 /*! @class agui
@@ -34,8 +34,9 @@ class albion_ui {
 public:
 	albion_ui(map_handler* mh);
 	~albion_ui();
-
+	
 	void open_goto_map_wnd();
+	void close_goto_map_wnd();
 
 protected:
 	map_handler* mh;

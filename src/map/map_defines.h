@@ -20,13 +20,15 @@
 #ifndef __AR_MAP_DEFINES_H__
 #define __AR_MAP_DEFINES_H__
 
-#include "global.h"
+#include "ar_global.h"
 
 // experimental: 5 - 6 tiles per second (-> at least 166 - 200ms between move cmds)
 #define TILES_PER_SECOND (6) // assume 6 tiles/s for the moment, looks smoother
 #define TIME_PER_TILE (1000 / TILES_PER_SECOND)
 #define TILES_PER_SECOND_NPC (3) // assume 3 tiles/s for the moment
 #define TIME_PER_TILE_NPC (1000 / TILES_PER_SECOND_NPC)
+#define TILES_PER_SECOND_NPC3D (1) // assume 3 tiles/s for the moment
+#define TIME_PER_TILE_NPC3D (1000 / TILES_PER_SECOND_NPC3D)
 #define TIME_PER_ANIMATION_FRAME (150)
 #define TIME_PER_TILE_ANIMATION_FRAME (100)
 
@@ -50,12 +52,19 @@ enum NPC_STATE {
 	S_LAY		= 0x80
 };
 
+enum NPC3D_STATE {
+	N3DS_NONE,
+	N3DS_FRONT1,
+	N3DS_FRONT2,
+	N3DS_FRONT3,
+};
+
 enum MOVE_DIRECTION {
-	MD_NONE,
-	MD_LEFT,
-	MD_RIGHT,
-	MD_UP,
-	MD_DOWN
+	MD_NONE		= 0,
+	MD_LEFT		= 1,
+	MD_RIGHT	= 2,
+	MD_UP		= 4,
+	MD_DOWN		= 8
 };
 
 enum MOVEMENT_TYPE {

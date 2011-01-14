@@ -31,15 +31,14 @@ vec2 encode_normal(vec3 in_normal) {
 }
 
 void write_gbuffer(vec4 diffuse, vec4 specular, vec3 normal, vec2 roughness) {
-	if(diffuse.a < 0.1) discard;
+	if(diffuse.a < 0.5) discard;
 	
 	vec2 gnormal = encode_normal(normal);
 	
 	// write to gbuffer
 	gl_FragData[0].rgba = vec4(diffuse.rgb, 0.0);
 	gl_FragData[1].rgba = vec4(specular.rgb, 0.0);
-	gl_FragData[2].rgba = vec4(gnormal.x, gnormal.y, Nuv.x, Nuv.y);
-	//gl_FragDepth = gl_FragCoord.z-0.05;
+	gl_FragData[2].rgba = vec4(gnormal.x, gnormal.y, roughness.x, roughness.y);
 }
 		</program>
 	</fragment_shader>

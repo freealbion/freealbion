@@ -20,7 +20,7 @@
 #ifndef __AR_SCALING_H__
 #define __AR_SCALING_H__
 
-#include "global.h"
+#include "ar_global.h"
 #include "core/vector2.h"
 
 class scaling {

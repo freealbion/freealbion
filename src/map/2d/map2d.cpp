@@ -89,6 +89,12 @@ void map2d::load(const size_t& map_num) {
 	map_size.set(cur_map_data[4], cur_map_data[5]);
 	cur_tileset_num = cur_map_data[6];
 	map_palette = (size_t)cur_map_data[8];
+
+	for(size_t i = 0; i < 32; i++) {
+		cout << ((size_t)cur_map_data[i] < 16 ? "0":"") << hex << (size_t)cur_map_data[i] << dec;
+	}
+	cout << endl;
+	cout << "map_palette: " << map_palette << endl;
 	
 	// npc/monster info
 	if(npc_data_len == 0x00) npc_data_len = 32 * 10;
@@ -123,7 +129,7 @@ void map2d::load(const size_t& map_num) {
 	
 	// create opengl buffers
 
-	const float tile_tc_size = tilesets->get_tile_tex_coord_size();
+	const float2 tile_tc_size = tilesets->get_tile_tex_coord_size();
 	const tileset::tile_object* tile_obj;
 	const tileset::tileset_object& tileset_obj = tilesets->get_cur_tileset();
 	for(size_t i = 0; i < 2; i++) {
@@ -182,9 +188,9 @@ void map2d::load(const size_t& map_num) {
 					layers[i].vertices[num*4 + 3].set(float(x)*tile_size, float(y)*tile_size + tile_size, tile_depth);
 					
 					layers[i].tex_coords[num*4 + 0].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y);
-					layers[i].tex_coords[num*4 + 1].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y);
-					layers[i].tex_coords[num*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y + tile_tc_size);
-					layers[i].tex_coords[num*4 + 3].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y + tile_tc_size);
+					layers[i].tex_coords[num*4 + 1].set(tile_obj->tex_coord.x + tile_tc_size.x, tile_obj->tex_coord.y);
+					layers[i].tex_coords[num*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size.x, tile_obj->tex_coord.y + tile_tc_size.y);
+					layers[i].tex_coords[num*4 + 3].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y + tile_tc_size.y);
 					
 					layers[i].indices[num].set(num*4 + 0, num*4 + 1, num*4 + 2, num*4 + 3);
 					layers[i].tile_nums[num] = tile_nums[y*map_size.x + x];
@@ -325,7 +331,7 @@ void map2d::handle() {
 	
 		//cout << "modified_tiles: " << modified_tiles.size() << endl;
 		if(modified_tiles.size() > 0) {
-			const float tile_tc_size = tilesets->get_tile_tex_coord_size();
+			const float2 tile_tc_size = tilesets->get_tile_tex_coord_size();
 			const tileset::tile_object* tile_obj;
 			const tileset::tileset_object& tileset_obj = tilesets->get_cur_tileset();
 			for(size_t i = 0; i < 2; i++) {
@@ -336,14 +342,13 @@ void map2d::handle() {
 						if(tile_obj->num == 0xFFF) continue;
 					
 						cur_layer.tex_coords[t*4 + 0].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y);
-						cur_layer.tex_coords[t*4 + 1].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y);
-						cur_layer.tex_coords[t*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size, tile_obj->tex_coord.y + tile_tc_size);
-						cur_layer.tex_coords[t*4 + 3].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y + tile_tc_size);
+						cur_layer.tex_coords[t*4 + 1].set(tile_obj->tex_coord.x + tile_tc_size.x, tile_obj->tex_coord.y);
+						cur_layer.tex_coords[t*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size.x, tile_obj->tex_coord.y + tile_tc_size.y);
+						cur_layer.tex_coords[t*4 + 3].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y + tile_tc_size.y);
 					}
 				}
 
 				size_t update_size = (cur_layer.index_count - cur_layer.ani_offset*4);
-				//cout << "update size " << i << ": " << (update_size/4) << endl;
 				if(update_size == 0) continue;
 
 				glBindBuffer(GL_ARRAY_BUFFER, cur_layer.tex_coords_vbo);
@@ -451,77 +456,78 @@ void map2d::set_pos(const size_t& x, const size_t& y) {
 }
 
 bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const {
-	if(map_loaded) {
-		if(!conf::get<bool>("map.collision") && char_type == CT_PLAYER) return false;
+	if(!map_loaded) return false;
+	
+	if(!conf::get<bool>("map.collision") && char_type == CT_PLAYER) return false;
+	
+	if(cur_position.x >= map_size.x) return true;
+	if(cur_position.y >= map_size.y) return true;
+	
+	size2 next_position[6]; // just to be on the safe side ...
+	size_t position_count = 0;
+	
+	if(direction & MD_LEFT) {
+		if(cur_position.x == 0) return true;
+		next_position[position_count++] = size2(cur_position.x-1, cur_position.y);
+	}
+	if(direction & MD_RIGHT) {
+		if(cur_position.x+2 >= map_size.x) return true;
+		next_position[position_count++] = size2(cur_position.x+2, cur_position.y);
+	}
+	if(direction & MD_UP) {
+		if(cur_position.y == 0) return true;
+		if(position_count > 0) next_position[0].y -= 1; // sideways movement
+		next_position[position_count++] = size2(cur_position.x, cur_position.y-1);
+		next_position[position_count++] = size2(cur_position.x+1, cur_position.y-1);
+	}
+	if(direction & MD_DOWN) {
+		if(cur_position.y+1 >= map_size.y) return true;
+		if(position_count > 0) next_position[0].y += 1;
+		next_position[position_count++] = size2(cur_position.x, cur_position.y+1);
+		next_position[position_count++] = size2(cur_position.x+1, cur_position.y+1);
+	}
+	
+	if(position_count == 0 || position_count > 3) {
+		if(position_count > 3) a2e_error("impossible movement (#pos: %u, dir: %X)!", position_count, direction);
+		return true;
+	}
+	
+	//
+	const tileset::tileset_object& cur_tileset = tilesets->get_cur_tileset();
+	for(size_t p = 0; p < position_count; p++) {
+		const tileset::tile_object& tile_u = cur_tileset.tiles[underlay_tiles[next_position[p].y*map_size.x + next_position[p].x]];
+		const tileset::tile_object& tile_o = cur_tileset.tiles[overlay_tiles[next_position[p].y*map_size.x + next_position[p].x]];
 		
-		if(cur_position.x >= map_size.x) return true;
-		if(cur_position.y >= map_size.y) return true;
-
-		size2 next_position[2];
-		size_t position_count = 0;
-		switch(direction) {
-			case MD_DOWN:
-				if(cur_position.y+1 >= map_size.y) return true;
-				next_position[0] = size2(cur_position.x, cur_position.y+1);
-				next_position[1] = size2(cur_position.x+1, cur_position.y+1);
-				position_count = 2;
-				break;
-			case MD_UP:
-				if(cur_position.y == 0) return true;
-				next_position[0] = size2(cur_position.x, cur_position.y-1);
-				next_position[1] = size2(cur_position.x+1, cur_position.y-1);
-				position_count = 2;
-				break;
-			case MD_LEFT:
-				if(cur_position.x == 0) return true;
-				next_position[0] = size2(cur_position.x-1, cur_position.y);
-				position_count = 1;
-				break;
-			case MD_RIGHT:
-				if(cur_position.x+2 >= map_size.x) return true;
-				next_position[0] = size2(cur_position.x+2, cur_position.y);
-				position_count = 1;
-				break;
-			default:
-				return true;
+		// first, check special types
+		bool collision_override = false;
+		for(size_t i = 0; i < 2; i++) {
+			const tileset::tile_object& cur_tile = (i == 0 ? tile_u : tile_o);
+			switch(cur_tile.special_2) {
+				case 0x0020:
+					collision_override = (cur_tile.collision == 0);
+					break;
+				case 0x0204:
+				case 0x0284:
+				case 0x0080:
+				case 0x0100:
+				case 0x0304:
+					return true;
+					break;
+				default:
+					break;
+			}
 		}
 		
-		//
-		const tileset::tileset_object& cur_tileset = tilesets->get_cur_tileset();
-		for(size_t p = 0; p < position_count; p++) {
-			const tileset::tile_object& tile_u = cur_tileset.tiles[underlay_tiles[next_position[p].y*map_size.x + next_position[p].x]];
-			const tileset::tile_object& tile_o = cur_tileset.tiles[overlay_tiles[next_position[p].y*map_size.x + next_position[p].x]];
+		// if we have a collision override, consider the other tile (if count == 2) or default to false (no collision)
+		if(collision_override) continue;
 		
-			// first, check special types
-			bool collision_override = false;
-			for(size_t i = 0; i < 2; i++) {
-				const tileset::tile_object& cur_tile = (i == 0 ? tile_u : tile_o);
-				switch(cur_tile.special_2) {
-					case 0x0020:
-						collision_override = (cur_tile.collision == 0);
-						break;
-					case 0x0204:
-					case 0x0284:
-					case 0x0080:
-					case 0x0100:
-					case 0x0304:
-						return true;
-						break;
-					default:
-						break;
-				}
-			}
-
-			// if we have a collision override, consider the other tile (if count == 2) or default to false (no collision)
-			if(collision_override) continue;
-		
-			// check collision byte
-			if(tile_u.collision != 0 ||
-			   tile_o.collision != 0) {
-				return true;
-			}
+		// check collision byte
+		if(tile_u.collision != 0 ||
+		   tile_o.collision != 0) {
+			return true;
 		}
 	}
+	
 	return false;
 }
 

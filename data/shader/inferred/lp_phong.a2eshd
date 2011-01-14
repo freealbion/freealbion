@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<vertex_shader version="120">
+		<variables>
+			uniform vec3 light_position;
+			uniform float light_radius;
+			
+			uniform mat4 PM;
+			uniform mat4 MVM;
+		</variables>
+		<program>
+void main() {
+			gl_Position = (PM * MVM) * (vec4(gl_Vertex.xyz*light_radius, 1.0) + vec4(light_position, 0.0));
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader version="120">
+		<variables>
+			uniform sampler2D normal_buffer;
+			uniform sampler2D Nuv_buffer;
+//			uniform sampler2D dsf_buffer;
+			uniform sampler2D depth_buffer;
+			
+			uniform vec3 cam_position;
+			uniform vec2 screen_size;
+			uniform vec2 projection_ab;
+			
+			uniform vec3 light_position;
+			uniform vec3 light_ambient;
+			uniform vec3 light_diffuse;
+			uniform vec3 light_specular;
+			uniform vec3 light_attenuation;
+			
+			uniform mat4 IMVM;
+		</variables>
+		<program>
+void main() {
+	vec2 tex_coord = gl_FragCoord.xy / screen_size;
+	
+	float depth = texture2D(depth_buffer, tex_coord).r; // in [0, 1]
+														//if(depth >= 1.0) discard;
+	
+	vec2 normal_read = texture2D(normal_buffer, tex_coord).rg;
+	vec2 nuv_read = texture2D(Nuv_buffer, tex_coord).rg;
+	//vec2 dsf_read = texture2D(dsf_buffer, tex_coord).rg;
+	
+	////////////////////////////////////////////////////////////////////////////
+	// reconstruct world space position
+	float linear_depth = projection_ab.y / (depth - projection_ab.x); // in [near plane, far plane]
+	const float up_vec = 0.72654252800536066024136247722454;
+	float right_vec = up_vec * (screen_size.x / screen_size.y);
+	
+	vec3 rep_pos;
+	rep_pos.z = -linear_depth;
+	rep_pos.xy = (tex_coord * 2.0 - 1.0) * vec2(right_vec, up_vec) * linear_depth;
+	rep_pos = vec3(IMVM * vec4(rep_pos, 1.0));
+	
+	
+	////////////////////////////////////////////////////////////////////////////
+	// decode normal
+	vec3 normal;
+	normal.z = dot(normal_read.xy, normal_read.xy) * 2.0 - 1.0;
+	// and again: abs inner sqrt result, b/c of fp inaccuracies
+	normal.xy = normalize(normal_read.xy) * sqrt(abs(1.0 - normal.z * normal.z));
+	
+	
+	////////////////////////////////////////////////////////////////////////////
+	// lighting
+	vec3 light_dir = light_position - rep_pos;
+	vec3 view_dir = cam_position - rep_pos;
+	
+	float dist = length(light_dir);
+	float attenuation = max(1.0 / (light_attenuation.x + (light_attenuation.y * dist) + (light_attenuation.z * dist * dist)), 0.0);
+	
+	light_dir = normalize(light_dir);
+	view_dir = normalize(view_dir);
+	
+	// phong lighting
+	vec4 final_color = vec4(light_ambient * attenuation, 0.0);
+	float lambertTerm = dot(normal, light_dir);
+	if(lambertTerm > 0.0) {
+		final_color.rgb += light_diffuse * lambertTerm * attenuation;
+		
+		vec3 R = reflect(-light_dir, normal);
+		float specular = pow(max(dot(R, view_dir), 0.0), nuv_read.x);
+		
+		//final_color.a = length(light_specular * attenuation * specular) * clamp(log(attenuation)/5.0, 0.0, 2.0);
+		final_color.a = length(light_specular * attenuation * specular) * 0.2;
+	}
+	
+	gl_FragColor = final_color;
+}
+		</program>
+	</fragment_shader>
+	
+</a2e_shader>

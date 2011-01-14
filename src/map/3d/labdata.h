@@ -20,13 +20,14 @@
 #ifndef __AR_LABDATA_H__
 #define __AR_LABDATA_H__
 
-#include "global.h"
+#include "ar_global.h"
 #include "map_defines.h"
 #include "xld.h"
 #include "palette.h"
 #include "gfxconv.h"
 #include "scaling.h"
 #include "conf.h"
+#include "albion_texture.h"
 
 class labdata {
 public:
@@ -58,12 +59,32 @@ public:
 		AGT_GOTO_POINT,
 		AGT_EVENT
 	};
+
+	enum WALL_TYPE {
+		WT_WRITE_OVERLAY_ZERO = 0x04,
+		WT_CUT_ALPHA = 0x20,
+		WT_TRANSPARENT = 0x40,
+	};
+
+	struct lab_info {
+		size_t scale_1;
+		size_t scale_2;
+		size_t background;
+		size_t camera_height;
+		size_t camera_target_height;
+		size_t fog_distance;
+		size_t max_light_strength;
+		size_t max_visible_tiles;
+		size_t lighting;
+	};
 	
 	struct lab_floor {
 		bool collision;
-		unsigned int texture;
+		unsigned int tex_num;
 		unsigned int animation;
-		float2 tex_coord;
+		unsigned int cur_ani;
+		albion_texture::albion_texture_multi_xld* tex_info;
+		lab_floor() : collision(false), tex_num(0), animation(1), cur_ani(0), tex_info(NULL) {}
 	};
 	
 	struct lab_object_info {
@@ -76,20 +97,26 @@ public:
 		unsigned int x_scale;
 		unsigned int y_scale;
 
-		float2 tex_coord_begin;
-		float2 tex_coord_end;
+		unsigned int palette_shift;
+		unsigned int cur_ani;
+		float2* tex_coord_begin;
+		float2* tex_coord_end;
+		lab_object_info() : palette_shift(0), cur_ani(0) {}
 	};
 	
 	struct lab_object {
 		AUTOGFX_TYPE type;
 
+		bool animated;
 		size_t sub_object_count;
 		ssize3 offset[8];
 		size_t object_num[8];
 		lab_object_info* sub_objects[8];
+		lab_object() : animated(false) {}
 	};
 	
 	struct lab_wall_overlay {
+		bool write_zero;
 		unsigned int texture;
 		unsigned int x_size;
 		unsigned int y_size;
@@ -98,23 +125,33 @@ public:
 	};
 	
 	struct lab_wall {
-		AUTOGFX_TYPE type;
+		unsigned int type;
+		unsigned int collision; // 3 bytes
+		AUTOGFX_TYPE autogfx_type;
 		unsigned int texture;
-		unsigned int animation; //?
+		unsigned int animation;
 		unsigned int palette_num; //?
 		unsigned int x_size;
 		unsigned int y_size;
 		unsigned int overlay_count;
 		vector<lab_wall_overlay*> overlays;
-		float2 tex_coord_begin;
-		float2 tex_coord_end;
+		
+		unsigned int cur_ani;
+		float2* tex_coord_begin;
+		float2* tex_coord_end;
+
+		lab_wall() : cur_ani(0) {}
 	};
 	
+	const lab_info* get_lab_info() const { return &info; }
 	const lab_object* get_object(const size_t& num) const;
 	const lab_floor* get_floor(const size_t& num) const;
 	const lab_wall* get_wall(const size_t& num) const;
-	a2ematerial* get_material() const;
+	a2ematerial* get_fc_material() const;
+	a2ematerial* get_wall_material() const;
 	a2ematerial* get_object_material() const;
+
+	void handle_animations();
 	
 protected:
 	vector<lab_object*> objects;
@@ -123,13 +160,16 @@ protected:
 	vector<lab_floor*> floors;
 	vector<lab_wall*> walls;
 
-	xld* labdata_xlds[3];
+	lab_info info;
+
+	const xld* labdata_xlds[3];
 	size_t cur_labdata_num;
 	
 	a2e_texture floors_tex;
 	a2e_texture walls_tex;
 	a2e_texture objects_tex;
-	a2ematerial* lab_material;
+	a2ematerial* lab_fc_material;
+	a2ematerial* lab_wall_material;
 	a2ematerial* lab_obj_material;
 
 	//
@@ -137,6 +177,8 @@ protected:
 	xld* object_xlds[4];
 	xld* overlay_xlds[3];
 	xld* wall_xlds[2];
+
+	texture_object::TEXTURE_FILTERING tex_filtering;
 	
 };
 

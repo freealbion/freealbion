@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader_include version="1">
+	<vertex_shader version="120">
+		<variables>
+varying float out_depth;
+centroid varying vec4 out_position;
+		</variables>
+		<program>
+void inferred_vs() {
+	out_depth = -(gl_ModelViewMatrix * gl_Vertex).z;
+	out_position = gl_ModelViewProjectionMatrix * gl_Vertex;
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader version="120">
+		<variables>
+uniform vec2 id;
+uniform sampler2D dsf_buffer;
+uniform sampler2D depth_buffer;
+uniform sampler2D light_buffer;
+
+uniform vec2 projection_ab;
+uniform vec2 screen_size;
+uniform vec2 l_buffer_size;
+uniform vec2 texel_size;
+
+varying float out_depth;
+centroid varying vec4 out_position;
+		</variables>
+		<program>
+vec4 compute_light_color() {
+	vec2 frag_coord = ((out_position.xy/out_position.w) + 1.0) * (screen_size * 0.5);
+	frag_coord.x -= 0.33333;
+	//frag_coord.y += 0.125;
+	
+	//vec2 tex_coord = gl_FragCoord.xy / screen_size;
+	vec2 tex_coord = frag_coord / screen_size;
+	vec2 lb_tex_coord = tex_coord * l_buffer_size;
+	vec2 scale = l_buffer_size / screen_size;
+	float norm_depth = out_depth / 1000.0;
+	
+	// compute the 4 sample coordinates
+	vec2 coords[4];
+	coords[0] = (floor(lb_tex_coord) + 0.5) / l_buffer_size; // upper left
+	coords[1] = vec2(coords[0].x + texel_size.x, coords[0].y); // upper right
+	coords[2] = vec2(coords[0].x, coords[0].y + texel_size.y); // lower left
+	coords[3] = vec2(coords[0].x + texel_size.x, coords[0].y + texel_size.y); // lower right
+	
+	//
+	vec4 light_color = vec4(0.0);
+	vec4 light_vals[4];
+	float valid_sample[4];
+	//const float depth_epsilon = 0.1;
+	//const float epsilon = 0.01; // seems to be okay for now
+	const float depth_epsilon = 0.05;
+	const float epsilon = 0.1; // seems to be okay for now
+	float valid_samples = 0.0;
+	for(int i = 0; i < 4; i++) {
+		vec2 dsf = texture2D(dsf_buffer, coords[i]).rg;
+		float depth = projection_ab.y / (texture2D(depth_buffer, coords[i]).r - projection_ab.x) / 1000.0;
+		
+		vec2 dsf_diff = abs(dsf - id);
+		if(abs(depth - norm_depth) <= depth_epsilon &&
+		   dsf_diff.x <= epsilon &&
+		   dsf_diff.y <= epsilon) {
+			valid_sample[i] = 1.0;
+			valid_samples += 1.0;
+		}
+		else valid_sample[i] = 0.0;
+		
+		light_vals[i] = texture2D(light_buffer, coords[i]);
+	}
+	
+	// compute weights for bilinear filtering
+	vec2 bilinear_weight = fract(lb_tex_coord) - 0.5*scale;
+	float weights[3];
+	weights[0] = clamp(bilinear_weight.x - valid_sample[0] + valid_sample[1], 0.0, 1.0);
+	weights[1] = clamp(bilinear_weight.x - valid_sample[2] + valid_sample[3], 0.0, 1.0);
+	float top_weight = (valid_sample[0] + valid_sample[1]) * 0.5;
+	float bottom_weight = (valid_sample[2] + valid_sample[3]) * 0.5;
+	weights[2] = clamp(bilinear_weight.y - top_weight + bottom_weight, 0.0, 1.0);
+	
+	light_color = mix(mix(light_vals[0], light_vals[1], weights[0]),
+					  mix(light_vals[2], light_vals[3], weights[1]),
+					  weights[2]);
+	
+	if(valid_samples == 0.0) {
+		// modify lighting a bit dependent on its intensity
+		light_color.rgb *= (light_color.r+light_color.g+light_color.b)/3.0;
+		light_color.a *= light_color.a;
+		light_color *= 0.75;
+	}
+	
+	return light_color;
+}
+		</program>
+	</fragment_shader>
+</a2e_shader_include>

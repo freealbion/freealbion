@@ -20,8 +20,7 @@
 #ifndef __AR_PALETTE_H__
 #define __AR_PALETTE_H__
 
-#include "global.h"
-#include "xld.h"
+#include <a2e.h>
 
 /*! @class pal
  *  @brief palette loader
@@ -36,9 +35,11 @@ public:
 	~pal();
 
 	const unsigned int* const get_palette(const size_t& num) const;
+	const vector<size2>& get_animated_ranges(const size_t& num) const;
 	
 protected:
 	vector<unsigned int*> palettes;
+	vector<vector<size2> > animated_ranges;
 
 };
 

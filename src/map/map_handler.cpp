@@ -19,7 +19,7 @@
 
 #include "map_handler.h"
 
-map_handler::map_handler(pal* palettes) : palettes(palettes) {
+map_handler::map_handler() {
 	// load maps
 	maps1 = new xld("MAPDATA1.XLD");
 	maps2 = new xld("MAPDATA2.XLD");
@@ -101,13 +101,9 @@ map_handler::~map_handler() {
 }
 
 void map_handler::handle() {
-	if((SDL_GetTicks() - last_key_press) > TIME_PER_TILE) {
-		next_dir = MD_NONE;
-	}
-
 	if(next_dir != MD_NONE && (SDL_GetTicks() - last_move) > TIME_PER_TILE) {
 		last_move = SDL_GetTicks();
-		p->move(next_dir);
+		p->move((MOVE_DIRECTION)next_dir);
 	}
 	
 	maps2d->handle();
@@ -143,74 +139,39 @@ void map_handler::draw() {
 	}
 	else if(active_map_type == MT_3D_MAP) {
 		cam->run();
-
-		//glDisable(GL_CULL_FACE);
 		sce->draw();
-		//glEnable(GL_CULL_FACE);
 	}
 }
 
 void map_handler::load_map(const size_t& map_num) {
 	if(maps2d->is_2d_map(map_num)) {
 		p->set_pos(9, 8);
+		maps3d->unload();
 		maps2d->load(map_num);
 		npc_graphics->set_palette(maps2d->get_palette()-1);
 		active_map_type = MT_2D_MAP;
 	}
 	else if(maps3d->is_3d_map(map_num)) {
+		maps2d->unload();
 		maps3d->load(map_num);
 		active_map_type = MT_3D_MAP;
 	}
 }
 
 void map_handler::handle_key_down(event::GUI_EVENT_TYPE type, GUI_ID id) {
-	//if(SDL_GetTicks() - last_key_press < time_per_tile) return;
 	last_key_press = SDL_GetTicks();
 	
-	switch(id) {
-		case SDLK_LEFT:
-		case SDLK_a:
-			next_dir = MD_LEFT;
-			evt->set_key_left(true);
-			break;
-		case SDLK_RIGHT:
-		case SDLK_d:
-			next_dir = MD_RIGHT;
-			evt->set_key_right(true);
-			break;
-		case SDLK_UP:
-		case SDLK_w:
-			next_dir = MD_UP;
-			evt->set_key_up(true);
-			break;
-		case SDLK_DOWN:
-		case SDLK_s:
-			next_dir = MD_DOWN;
-			evt->set_key_down(true);
-			break;
+	/*switch(id) {
 		default:
-			next_dir = MD_NONE;
 			break;
-	}
+	}*/
 }
 
 void map_handler::handle_key_up(event::GUI_EVENT_TYPE type, GUI_ID id) {
-	switch(id) {
-		case SDLK_a:
-			evt->set_key_left(false);
-			break;
-		case SDLK_d:
-			evt->set_key_right(false);
-			break;
-		case SDLK_w:
-			evt->set_key_up(false);
-			break;
-		case SDLK_s:
-			evt->set_key_down(false);
-			break;
+	/*switch(id) {
 		default:
 			break;
-	}
+	}*/
 }
 
 void map_handler::handle_right_click(event::GUI_EVENT_TYPE type, GUI_ID id) {
@@ -263,4 +224,8 @@ void map_handler::debug_draw() {
 			egfx->draw_bbox(&box, 0x7FFF0000);
 		}
 	}
+}
+
+size_t& map_handler::get_next_dir() {
+	return next_dir;
 }

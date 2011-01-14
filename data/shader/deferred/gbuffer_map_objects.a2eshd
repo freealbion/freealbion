@@ -6,15 +6,16 @@
 		<variables>
 			uniform mat4 local_mview;
 			uniform mat4 local_scale;
-			uniform float orth_angle;
 			uniform vec3 cam_position;
 			
 			attribute vec3 ws_position;
 			attribute vec3 normal;
 			attribute vec2 texture_coord;
+			attribute vec4 tc_restrict;
 			
 			varying vec3 out_normal;
 			varying vec2 out_tex_coord;
+			varying vec4 out_tc_restrict;
 		</variables>
 		<program>
 void main() {
@@ -43,6 +44,8 @@ void main() {
 			vec4 vertex = vec4((bb_mat * gl_Vertex.xyz) + ws_position, 1.0);
 			out_normal = bb_mat * -out_normal;
 			
+			out_tc_restrict = tc_restrict;
+			
 			gl_Position = gl_ModelViewProjectionMatrix * vertex;
 }
 		</program>
@@ -53,14 +56,17 @@ void main() {
 			uniform sampler2D diffuse_texture;
 			uniform sampler2D specular_texture;
 			uniform vec2 Nuv;
+			uniform vec2 texel_size;
 			
 			varying vec3 out_normal;
 			varying vec2 out_tex_coord;
+			varying vec4 out_tc_restrict;
 		</variables>
 		<program>
 void main() {
-			vec4 diffuse_color = texture2D(diffuse_texture, out_tex_coord);
-			vec4 specular_color = texture2D(specular_texture, out_tex_coord);
+			vec2 tex_coord = clamp(out_tex_coord, out_tc_restrict.xy+texel_size, out_tc_restrict.zw-texel_size);
+			vec4 diffuse_color = texture2D(diffuse_texture, tex_coord);
+			vec4 specular_color = texture2D(specular_texture, tex_coord);
 			
 			// write to gbuffer
 			write_gbuffer(diffuse_color, specular_color, out_normal, Nuv);

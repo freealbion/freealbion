@@ -19,14 +19,11 @@
 
 #include "tileset.h"
 
-static const size_t tiles_per_row = 64;
-static const float tile_tc_size = 1.0f / float(tiles_per_row);
-
 /*! tileset constructor
  */
 tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), cur_tileset(NULL) {
 	// load tilesets
-	xld* icongfx = new xld("ICONGFX0.XLD");
+	icongfx = new xld("ICONGFX0.XLD");
 
 	const size_t tileset_count = icongfx->get_object_count();
 	tilesets.reserve(tileset_count);
@@ -34,11 +31,8 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), 
 		tilesets.push_back(new tileset_object());
 		const xld::xld_object* object = icongfx->get_object(i);
 		tilesets.back()->tile_count = object->length/256;
-		tilesets.back()->tile_data = new unsigned char[object->length];
-		memcpy(tilesets.back()->tile_data, object->data, object->length);
+		tilesets.back()->tile_data = object->data;
 	}
-
-	delete icongfx;
 
 	// index tilesets
 	xld* icondata = new xld("ICONDAT0.XLD");
@@ -75,7 +69,7 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), 
 	 */
 
 	size_t tile_count = 0;
-	const float2 empty_tc = float2(tile_tc_size * float(tiles_per_row-1));
+	const float2 empty_tc = float2(1.0f, 1.0f);
 	for(size_t i = 0; i < icondata->get_object_count(); i++) {
 		const xld::xld_object* object = icondata->get_object(i);
 		tile_count = object->length/8;
@@ -86,7 +80,7 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), 
 		for(size_t j = 0; j < 2; j++) {
 			tilesets[i]->tiles[j].num = 0xFFF;
 			tilesets[i]->tiles[j].ani_num = 0xFFF;
-			tilesets[i]->tiles[j].ani_tiles = 0;
+			tilesets[i]->tiles[j].ani_tiles = 1;
 			tilesets[i]->tiles[j].tex_coord = empty_tc;
 			tilesets[i]->tiles[j].upper_bytes = 0;
 			tilesets[i]->tiles[j].lower_bytes = 0;
@@ -100,7 +94,7 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), 
 			if(object->data[j*8+2] == 0x20 || object->data[j*8+6] == 0x00) {
 				tilesets[i]->tiles[index].num = 0xFFF;
 				tilesets[i]->tiles[index].ani_num = 0xFFF;
-				tilesets[i]->tiles[index].ani_tiles = 0;
+				tilesets[i]->tiles[index].ani_tiles = 1;
 				tilesets[i]->tiles[index].tex_coord = empty_tc;
 				tilesets[i]->tiles[index].layer_type = TL_UNDERLAY;
 			}
@@ -108,8 +102,6 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), 
 				tilesets[i]->tiles[index].num = object->data[j*8+4] + (object->data[j*8+5] << 8);
 				tilesets[i]->tiles[index].ani_num = tilesets[i]->tiles[index].num;
 				tilesets[i]->tiles[index].ani_tiles = object->data[j*8+6];
-				tilesets[i]->tiles[index].tex_coord.x = float(tilesets[i]->tiles[index].num % tiles_per_row) * tile_tc_size;
-				tilesets[i]->tiles[index].tex_coord.y = float(tilesets[i]->tiles[index].num / tiles_per_row) * tile_tc_size;
 				tilesets[i]->tiles[index].layer_type = get_layer_type((object->data[j*8] >> 4) & 0x0F);
 			}
 			
@@ -121,9 +113,6 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), 
 			tilesets[i]->tiles[index].upper_bytes = (((size_t)object->data[j*8]) << 24) + (((size_t)object->data[j*8+1]) << 16) + (((size_t)object->data[j*8+2]) << 8) + (size_t)object->data[j*8+3];
 			tilesets[i]->tiles[index].lower_bytes = (object->data[j*8+4] << 24) + (object->data[j*8+5] << 16) + (object->data[j*8+6] << 8) + object->data[j*8+7];
 		}
-		
-		// highest tile count: 4041
-		//cout << "tile count: " << tilesets[i]->tile_count << endl;
 	}
 
 	delete icondata;
@@ -132,6 +121,7 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), 
 /*! tileset destructor
  */
 tileset::~tileset() {
+	delete icongfx;
 }
 
 void tileset::load(const size_t& num, const size_t& palette) {
@@ -189,62 +179,89 @@ void tileset::load(const size_t& num, const size_t& palette) {
 	cout << ": mappings: " << mappings << endl;
 	delete blklist;*/
 	////////////////////
-
-	const size2 tileset_size = size2(4096, 4096);
-	unsigned int* tiles_surface = new unsigned int[tileset_size.x*tileset_size.y];
-	memset(tiles_surface, 0, tileset_size.x*tileset_size.y*sizeof(unsigned int));
 	
+	tilesets[num]->tex_info_obj.object_count = tilesets[num]->tile_count;
+	tilesets[num]->tex_info_obj.object = icongfx->get_object(num);
+	vector<albion_texture::albion_texture_info*> tex_info;
+	tex_info.push_back(&tilesets[num]->tex_info_obj);
+	
+	// compute required texture size
+	const size_t max_tex_size = exts->get_max_texture_size();
+	const size_t tiles_per_row = max_tex_size / 64;
+	size2 tileset_tex_size;
 	const size2 tile_size = size2(16, 16);
-	const size2 scaled_tile_size = size2(64, 64);
-	unsigned int* data_32bpp = new unsigned int[tile_size.x*tile_size.y];
-	unsigned int* scaled_data = new unsigned int[scaled_tile_size.x*scaled_tile_size.y];
+	const vector<size2>& animated_ranges = palettes->get_animated_ranges(palette);
+	size_t tile_count = 0;
+	const xld::xld_object* gfx_obj = icongfx->get_object(num);
 	for(size_t i = 0; i < tilesets[num]->tile_count; i++) {
-		gfxconv::convert_8to32(&(tilesets[num]->tile_data[i*256]), data_32bpp, tile_size.x, tile_size.y, palette);
-		//scaling::scale_4x(scaling::ST_NEAREST, data_32bpp, tile_size, scaled_data);
-		scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, tile_size, scaled_data);
-
-		// copy data into tiles surface
-		const size_t offset_x = (scaled_tile_size.x * i) % tileset_size.x;
-		const size_t offset_y = scaled_tile_size.y * (scaled_tile_size.x * i / tileset_size.x);
-		for(size_t y = 0; y < scaled_tile_size.y; y++) {
-			memcpy(&tiles_surface[(offset_y + y) * tileset_size.x + offset_x], &scaled_data[y*64], 64*sizeof(unsigned int));
+		// check if tile contains animated colors
+		size_t animations = 1;
+		for(vector<size2>::const_iterator ani_range = animated_ranges.begin(); ani_range != animated_ranges.end(); ani_range++) {
+			const size_t obj_size = tile_size.x*tile_size.y;
+			const size_t p_offset = i*obj_size;
+			for(size_t p = 0; p < obj_size; p++) {
+				if(gfx_obj->data[p_offset + p] >= ani_range->x && gfx_obj->data[p_offset + p] <= ani_range->y) {
+					animations = std::max(ani_range->y - ani_range->x + 1, animations);
+					break;
+				}
+			}
 		}
+		tile_count += animations;
 	}
-	delete [] scaled_data;
-	delete [] data_32bpp;
+	tileset_tex_size.set(tile_count >= tiles_per_row ? max_tex_size : (tile_count * 64),
+						 ((tile_count/tiles_per_row)+1) * 64);
+	tilesets[num]->tile_tc_size = float2(64.0f)/float2(tileset_tex_size);
 
-	// don't use any filtering here! this will only produce artifacts!
-	cur_tileset_tex = t->add_texture(tiles_surface, tileset_size.x, tileset_size.y, GL_RGBA8, GL_RGBA, texture_object::TF_POINT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+	// create texture
+	cur_tileset_tex = albion_texture::create(tileset_tex_size, size2(16, 16), palette, tex_info, NULL, texture_object::TF_POINT);
+	//conf::set<a2e_texture>("debug.texture", cur_tileset_tex);
 	tilesets[num]->tileset = cur_tileset_tex;
+	tilesets[num]->tex_coords = &tilesets[num]->tex_info_obj.tex_coords;
 	tilesets[num]->loaded = true;
 
-	delete [] tiles_surface;
+	// set tile tex coords
+	for(size_t i = 2; i < tilesets[num]->tile_obj_count; i++) {
+		if(tilesets[num]->tiles[i].num != 0xFFF) {
+			tilesets[num]->tiles[i].tex_coord = (*tilesets[num]->tex_coords)[tilesets[num]->tiles[i].num][0];
+			if(tilesets[num]->tiles[i].ani_tiles == 1 && (*tilesets[num]->tex_coords)[tilesets[num]->tiles[i].num].size() > 1) {
+				tilesets[num]->tiles[i].ani_tiles = (*tilesets[num]->tex_coords)[tilesets[num]->tiles[i].num].size();
+				tilesets[num]->tiles[i].palette_shift = true;
+			}
+		}
+	}
+
 	a2e_debug("tileset %u loaded!", num);
 }
 
 void tileset::handle_animations(set<unsigned int>& modified_tiles) {
-	if(cur_tileset != NULL) {
-		for(unsigned int i = 0; i < (unsigned int)cur_tileset->tile_obj_count; i++) {
-			if(cur_tileset->tiles[i].ani_tiles > 1) {
-				// update num
-				cur_tileset->tiles[i].ani_num++;
-				if(cur_tileset->tiles[i].ani_num > (cur_tileset->tiles[i].num+cur_tileset->tiles[i].ani_tiles-1)) {
-					cur_tileset->tiles[i].ani_num = cur_tileset->tiles[i].num;
-				}
+	if(cur_tileset == NULL) return;
 
-				// update tex coord
-				cur_tileset->tiles[i].tex_coord.x = float(cur_tileset->tiles[i].ani_num % tiles_per_row) * tile_tc_size;
-				cur_tileset->tiles[i].tex_coord.y = float(cur_tileset->tiles[i].ani_num / tiles_per_row) * tile_tc_size;
-
-				//
-				modified_tiles.insert(i);
+	const vector<vector<float2> >* tex_coords = cur_tileset->tex_coords;
+	for(unsigned int i = 0; i < (unsigned int)cur_tileset->tile_obj_count; i++) {
+		if(cur_tileset->tiles[i].ani_tiles > 1) {
+			// update num
+			cur_tileset->tiles[i].ani_num++;
+			if(cur_tileset->tiles[i].ani_num > (cur_tileset->tiles[i].num+cur_tileset->tiles[i].ani_tiles-1)) {
+				cur_tileset->tiles[i].ani_num = cur_tileset->tiles[i].num;
 			}
+
+			// update tex coord
+			if(cur_tileset->tiles[i].palette_shift) {
+				cur_tileset->tiles[i].tex_coord = (*tex_coords)[cur_tileset->tiles[i].num][cur_tileset->tiles[i].ani_num-cur_tileset->tiles[i].num];
+			}
+			else {
+				cur_tileset->tiles[i].tex_coord = (*tex_coords)[cur_tileset->tiles[i].ani_num][0];
+			}
+
+			//
+			modified_tiles.insert(i);
 		}
 	}
 }
 
-const float tileset::get_tile_tex_coord_size() const {
-	return tile_tc_size;
+const float2 tileset::get_tile_tex_coord_size() const {
+	if(cur_tileset == NULL) return float2(0.0f);
+	return cur_tileset->tile_tc_size;
 }
 
 const tileset::tileset_object& tileset::get_tileset(const size_t& num) const {
@@ -253,6 +270,10 @@ const tileset::tileset_object& tileset::get_tileset(const size_t& num) const {
 
 const tileset::tileset_object& tileset::get_cur_tileset() const {
 	return *cur_tileset;
+}
+
+const vector<vector<float2> >* tileset::get_tex_coords() const {
+	return cur_tileset->tex_coords;
 }
 
 const TILE_LAYER tileset::get_layer_type(const unsigned char& ch) const {

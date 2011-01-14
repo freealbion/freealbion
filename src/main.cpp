@@ -45,6 +45,7 @@ int main(int argc, char *argv[]) {
 	egfx = e->get_gfx();
 	t = e->get_texman();
 	ocl = e->get_opencl();
+	exts = e->get_ext();
 	
 	conf::add<a2e_texture>("debug.texture", t->get_dummy_texture());
 	
@@ -72,31 +73,43 @@ int main(int argc, char *argv[]) {
 	sce->set_eye_distance(-0.3f);
 	
 	// add map objects shader
-	const string mo_shd_filename = "deferred/gbuffer_map_objects.a2eshd";
-	const string mo_shd_identifier = "AR_DR_GBUFFER_MAP_OBJECTS";
+	map<string, string> ar_shaders;
+	ar_shaders["AR_DR_GBUFFER_MAP_OBJECTS"] = "deferred/gbuffer_map_objects.a2eshd";
+	ar_shaders["AR_DR_GBUFFER_MAP_TILES"] = "deferred/gbuffer_map_tiles.a2eshd";
+	ar_shaders["AR_DR_GBUFFER_SKY"] = "deferred/gbuffer_sky.a2eshd";
+	ar_shaders["AR_IR_GBUFFER_MAP_OBJECTS"] = "inferred/gp_gbuffer_map_objects.a2eshd";
+	ar_shaders["AR_IR_GBUFFER_MAP_TILES"] = "inferred/gp_gbuffer_map_tiles.a2eshd";
+	ar_shaders["AR_IR_GBUFFER_SKY"] = "inferred/gp_gbuffer_sky.a2eshd";
+	ar_shaders["AR_IR_MP_SKY"] = "inferred/mp_sky.a2eshd";
+	ar_shaders["AR_IR_MP_MAP_OBJECTS"] = "inferred/mp_map_objects.a2eshd";
+	ar_shaders["AR_IR_MP_MAP_TILES"] = "inferred/mp_map_tiles.a2eshd";
+
 	a2e_shader* a2e_shd = s->get_a2e_shader();
-	a2e_shd->add_a2e_shader(mo_shd_identifier);
-	if(!a2e_shd->load_a2e_shader(mo_shd_identifier, e->shader_path(mo_shd_filename.c_str()), a2e_shd->get_a2e_shader(mo_shd_identifier))) {
-		a2e_error("couldn't load a2e-shader \"%s\"!", mo_shd_filename);
-		done = true;
-	}
-	else {
-		if(!a2e_shd->preprocess_and_compile_a2e_shader(a2e_shd->get_a2e_shader(mo_shd_identifier))) {
-			a2e_error("couldn't preprocess and/or compile a2e-shader \"%s\"!", mo_shd_filename);
+	for(map<string, string>::const_iterator ars_iter = ar_shaders.begin(); ars_iter != ar_shaders.end(); ars_iter++) {
+		a2e_shd->add_a2e_shader(ars_iter->first);
+		if(!a2e_shd->load_a2e_shader(ars_iter->first, e->shader_path(ars_iter->second.c_str()), a2e_shd->get_a2e_shader(ars_iter->first))) {
+			a2e_error("couldn't load a2e-shader \"%s\"!", ars_iter->second);
 			done = true;
+		}
+		else {
+			if(!a2e_shd->preprocess_and_compile_a2e_shader(a2e_shd->get_a2e_shader(ars_iter->first))) {
+				a2e_error("couldn't preprocess and/or compile a2e-shader \"%s\"!", ars_iter->second);
+				done = true;
+			}
 		}
 	}
 
 	// load/init stuff
+	palettes = new pal();
 	scaling::init();
-	pal* palettes = new pal();
-	gfxconv::init(palettes);
 
-	mh = new map_handler(palettes);
+	mh = new map_handler();
 	//mh->load_map(42);
-	mh->load_map(10);
+	//mh->load_map(10);
 	//mh->load_map(50);
 	//mh->load_map(11);
+	//mh->load_map(22);
+	mh->load_map(183);
 	
 	aui = new albion_ui(mh);
 	aui->open_goto_map_wnd();
@@ -106,8 +119,9 @@ int main(int argc, char *argv[]) {
 	img->set_scaling(true);
 	
 	// debug window
-	//a2e_debug_wnd::init(e, eui, s, cam);
-	//a2e_debug_wnd::open();
+	a2e_debug_wnd::init(e, eui, s, cam);
+
+	//transtb* ttb = new transtb();
 	
 	while(!done) {
 		/*static float gscale = conf::get<float>("global.scale");
@@ -127,8 +141,14 @@ int main(int argc, char *argv[]) {
 						case SDLK_ESCAPE:
 							done = true;
 							break;
+						case SDLK_CARET:
+							if(!a2e_debug_wnd::is_open()) a2e_debug_wnd::open();
+							else a2e_debug_wnd::close();
+							break;
 						case SDLK_g:
 							conf::set<bool>("ui.display", conf::get<bool>("ui.display") ^ true);
+							if(conf::get<bool>("ui.display")) aui->open_goto_map_wnd();
+							else aui->close_goto_map_wnd();
 							break;
 						case SDLK_c:
 							conf::set<bool>("map.collision", conf::get<bool>("map.collision") ^ true);
@@ -162,7 +182,28 @@ int main(int argc, char *argv[]) {
 							}
 							break;
 						case SDLK_LSHIFT:
+						case SDLK_RSHIFT:
 							cam->set_cam_speed(0.2f);
+							break;
+						case SDLK_LEFT:
+						case SDLK_a:
+							evt->set_key_left(true);
+							mh->get_next_dir() |= MD_LEFT;
+							break;
+						case SDLK_RIGHT:
+						case SDLK_d:
+							evt->set_key_right(true);
+							mh->get_next_dir() |= MD_RIGHT;
+							break;
+						case SDLK_UP:
+						case SDLK_w:
+							evt->set_key_up(true);
+							mh->get_next_dir() |= MD_UP;
+							break;
+						case SDLK_DOWN:
+						case SDLK_s:
+							evt->set_key_down(true);
+							mh->get_next_dir() |= MD_DOWN;
 							break;
 						default:
 						break;
@@ -171,7 +212,28 @@ int main(int argc, char *argv[]) {
 				case SDL_KEYUP:
 					switch(evt->get_event().key.keysym.sym) {
 						case SDLK_LSHIFT:
+						case SDLK_RSHIFT:
 							cam->set_cam_speed(5.0f);
+							break;
+						case SDLK_LEFT:
+						case SDLK_a:
+							evt->set_key_left(false);
+							mh->get_next_dir() ^= MD_LEFT;
+							break;
+						case SDLK_RIGHT:
+						case SDLK_d:
+							evt->set_key_right(false);
+							mh->get_next_dir() ^= MD_RIGHT;
+							break;
+						case SDLK_UP:
+						case SDLK_w:
+							evt->set_key_up(false);
+							mh->get_next_dir() ^= MD_UP;
+							break;
+						case SDLK_DOWN:
+						case SDLK_s:
+							evt->set_key_down(false);
+							mh->get_next_dir() ^= MD_DOWN;
 							break;
 						default:
 							break;
@@ -255,16 +317,22 @@ int main(int argc, char *argv[]) {
 		
 		if(conf::get<bool>("debug.display_debug_texture")) {
 			e->start_2d_draw();
-			img->draw(720, 720);
+			float ratio = img->get_width()/img->get_height();
+			//float2 screen_size = float2(e->get_width(), e->get_height());
+			//(ratio >= 1.0f) ? img->draw(screen_size.x, screen_size.y*(1.0f/ratio)) : img->draw(screen_size.x*ratio, screen_size.y);
+			(ratio >= 1.0f) ? img->draw(720.0f, 720.0f*(1.0f/ratio)) : img->draw(720.0f*ratio, 720.0f);
 			e->stop_2d_draw();
 		}
 		
-		if(conf::get<bool>("ui.display")) egui->draw();
+		//if(conf::get<bool>("ui.display")) egui->draw();
+		egui->draw();
 
 		e->stop_draw();
 	}
 	
-	//a2e_debug_wnd::close();
+	a2e_debug_wnd::close();
+
+	//delete ttb;
 
 	delete palettes;
 

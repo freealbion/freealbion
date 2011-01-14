@@ -20,10 +20,11 @@
 #ifndef __AR_TRANSTB_H__
 #define __AR_TRANSTB_H__
 
-#include "global.h"
+#include "ar_global.h"
 #include "conf.h"
 #include "gfxconv.h"
 #include "scaling.h"
+#include "xld.h"
 
 class transtb {
 public:

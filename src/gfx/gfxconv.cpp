@@ -19,17 +19,53 @@
 
 #include "gfxconv.h"
 
-const pal* gfxconv::palettes = NULL;
-
-void gfxconv::init(const pal* palettes) {
-	gfxconv::palettes = palettes;
-}
-
-void gfxconv::convert_8to32(const unsigned char* data_8bpp, unsigned int* data_32bpp, const size_t& width, const size_t& height, const size_t& palette_num) {
+void gfxconv::convert_8to32(const unsigned char* data_8bpp, unsigned int* data_32bpp, const size_t& width, const size_t& height, const size_t& palette_num,
+							const size_t palette_shift, const bool overwrite_alpha, const unsigned int replacement_alpha) {
 	const unsigned int* const palette = palettes->get_palette(palette_num);
-	for(size_t i = 0; i < height; i++) {
-		for(size_t j = 0; j < width; j++) {
-			data_32bpp[i*width+j] = palette[data_8bpp[i*width+j]];
+	const vector<size2>& animated_ranges = palettes->get_animated_ranges(palette_num);
+	unsigned char index;
+
+	// apply palette shift
+	const unsigned char* data = data_8bpp;
+	if(palette_shift != 0) {
+		unsigned char* shifted_data = new unsigned char[width*height];
+		memcpy(shifted_data, data, width*height);
+
+		for(vector<size2>::const_iterator ani_range = animated_ranges.begin(); ani_range != animated_ranges.end(); ani_range++) {
+			const size_t range = (ani_range->y - ani_range->x) + 1;
+			for(size_t y = 0; y < height; y++) {
+				for(size_t x = 0; x < width; x++) {
+					index = shifted_data[y*width + x];
+					if(index >= ani_range->x && index <= ani_range->y) {
+						index = ani_range->x + ((range + (ssize_t(index - ani_range->x) - ssize_t(palette_shift % range))) % range);
+						shifted_data[y*width + x] = index;
+					}
+					else shifted_data[y*width + x] = index;
+				}
+			}
 		}
+
+		data = shifted_data;
+	}
+
+	if(!overwrite_alpha) {
+		for(size_t i = 0; i < height; i++) {
+			for(size_t j = 0; j < width; j++) {
+				index = data[i*width+j];
+				data_32bpp[i*width+j] = palette[index];
+			}
+		}
+	}
+	else {
+		for(size_t i = 0; i < height; i++) {
+			for(size_t j = 0; j < width; j++) {
+				index = data[i*width+j];
+				data_32bpp[i*width+j] = (palette[index] & 0xFF000000) == 0 ? replacement_alpha : palette[index];
+			}
+		}
+	}
+
+	if(palette_shift != 0) {
+		delete [] data;
 	}
 }

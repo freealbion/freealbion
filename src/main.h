@@ -20,7 +20,7 @@
 #ifndef __AR_MAIN_H__
 #define __AR_MAIN_H__
 
-#include "global.h"
+#include "ar_global.h"
 #include "conf.h"
 
 #include "albion_ui.h"
@@ -30,6 +30,7 @@
 #include "npcgfx.h"
 #include "player2d.h"
 #include "scaling.h"
+#include "transtb.h"
 
 #include "map_handler.h"
 

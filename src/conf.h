@@ -20,7 +20,7 @@
 #ifndef __AR_CONF_H__
 #define __AR_CONF_H__
 
-#include "global.h"
+#include "ar_global.h"
 
 class conf {
 protected:
