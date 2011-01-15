@@ -31,8 +31,15 @@ map_events::~map_events() {
 	unload();
 }
 
-void map_events::load(const unsigned char* data, const size_t& data_offset, const size2& map_size) {
+void map_events::load(const xld::xld_object* object, const size_t& data_offset, const size2& map_size) {
 	unload();
+	
+	const unsigned char* data = object->data;
+	const size_t length = object->length;
+	if(data_offset >= length) {
+		a2e_error("offset is larger than file size!");
+		return;
+	}
 	
 	// get events
 	size_t offset = data_offset;
@@ -55,8 +62,9 @@ void map_events::load(const unsigned char* data, const size_t& data_offset, cons
 		event_info.back()->event_num = AR_GET_USINT(data, offset);
 		offset += 2;
 		event_info.back()->event_obj = NULL;
+		if(offset >= length) break;
 	}
-	
+
 	// for each (y) line
 	const size_t y_event_count = map_size.y;
 	if(y_event_count == 0xFFFF) {
@@ -66,6 +74,7 @@ void map_events::load(const unsigned char* data, const size_t& data_offset, cons
 	for(size_t i = 0; i < y_event_count; i++) {
 		const size_t line_event_count = AR_GET_USINT(data, offset);
 		offset += 2;
+		if(offset >= length) break;
 		if(line_event_count == 0xFFFF) {
 			a2e_error("invalid row event count!");
 			return; // sth is wrong, break
@@ -89,29 +98,37 @@ void map_events::load(const unsigned char* data, const size_t& data_offset, cons
 	cout << "event info count: " << event_info.size() << endl;
 	
 	// get event data
-	const size_t event_count = AR_GET_USINT(data, offset);
-	offset += 2;
-	if(event_count == 0xFFFF) {
-		a2e_error("invalid event count!");
-		return; // sth is wrong, break
+	if(offset < length) {
+		const size_t event_count = AR_GET_USINT(data, offset);
+		offset += 2;
+		if(offset < length) {
+			if(event_count == 0xFFFF) {
+				a2e_error("invalid event count!");
+				return; // sth is wrong, break
+			}
+		}
+		else {
+			for(size_t i = 0; i < event_count; i++) {
+				events.push_back(new events::event());
+				events.back()->assigned = false;
+				events.back()->type = (events::EVENT_TYPE)(data[offset] & 0xFF); offset++;
+				events.back()->info[0] = data[offset] & 0xFF; offset++;
+				events.back()->info[1] = data[offset] & 0xFF; offset++;
+				events.back()->info[2] = data[offset] & 0xFF; offset++;
+				events.back()->info[3] = data[offset] & 0xFF; offset++;
+				events.back()->info[4] = data[offset] & 0xFF; offset++;
+				events.back()->info[5] = AR_GET_USINT(data, offset);
+				offset += 2;
+				events.back()->info[6] = AR_GET_USINT(data, offset);
+				offset += 2;
+				events.back()->next_event_num = AR_GET_USINT(data, offset);
+				offset += 2;
+				events.back()->next_event = NULL;
+				if(offset >= length) break;
+			}
+		}
 	}
-	for(size_t i = 0; i < event_count; i++) {
-		events.push_back(new events::event());
-		events.back()->assigned = false;
-		events.back()->type = (events::EVENT_TYPE)(data[offset] & 0xFF); offset++;
-		events.back()->info[0] = data[offset] & 0xFF; offset++;
-		events.back()->info[1] = data[offset] & 0xFF; offset++;
-		events.back()->info[2] = data[offset] & 0xFF; offset++;
-		events.back()->info[3] = data[offset] & 0xFF; offset++;
-		events.back()->info[4] = data[offset] & 0xFF; offset++;
-		events.back()->info[5] = AR_GET_USINT(data, offset);
-		offset += 2;
-		events.back()->info[6] = AR_GET_USINT(data, offset);
-		offset += 2;
-		events.back()->next_event_num = AR_GET_USINT(data, offset);
-		offset += 2;
-		events.back()->next_event = NULL;
-	}
+	else a2e_error("offset is larger than file size!");
 	
 	// assign pointers
 	for(vector<map_event_info*>::iterator ei_iter = event_info.begin(); ei_iter != event_info.end(); ei_iter++) {

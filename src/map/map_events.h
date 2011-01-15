@@ -39,7 +39,7 @@ public:
 		events::event* event_obj;
 	};
 	
-	void load(const unsigned char* data, const size_t& data_offset, const size2& map_size);
+	void load(const xld::xld_object* object, const size_t& data_offset, const size2& map_size);
 	void unload();
 
 	const size_t get_event_count() const;

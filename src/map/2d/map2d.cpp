@@ -116,7 +116,7 @@ void map2d::load(const size_t& map_num) {
 	
 	// events
 	const size_t events_offset = map_data_offset + map_data_len;
-	mevents.load(cur_map_data, events_offset, map_size);
+	mevents.load(object, events_offset, map_size);
 
 	// load npc/monster data (has to be done here, b/c we need info that is available only after all events have been loaded)
 	mnpcs = new map_npcs();
