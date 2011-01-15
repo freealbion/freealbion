@@ -251,6 +251,7 @@ void map2d::unload() {
 	npcs.clear();
 	mevents.unload();
 	map_loaded = false;
+	cur_map_num = (~0);
 }
 
 bool map2d::is_2d_map(const size_t& map_num) const {

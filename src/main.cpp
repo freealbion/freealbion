@@ -315,7 +315,7 @@ int main(int argc, char *argv[]) {
 
 		mh->draw();
 		
-		if(conf::get<bool>("debug.display_debug_texture")) {
+		if(conf::get<bool>("debug.display_debug_texture") && img->get_width() > 0 && img->get_height() > 0) {
 			e->start_2d_draw();
 			float ratio = img->get_width()/img->get_height();
 			//float2 screen_size = float2(e->get_width(), e->get_height());

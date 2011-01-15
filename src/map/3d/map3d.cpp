@@ -673,6 +673,7 @@ void map3d::unload() {
 	obj_ani_count = 0;
 	obj_ani_offset = 0;
 	animated_tiles.clear();
+	cur_map_num = (~0);
 
 	if(bg_loaded) {
 		sce->delete_model(bg3d);

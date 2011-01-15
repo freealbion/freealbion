@@ -439,140 +439,149 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		}
 	}
 	cout << ":: creating floors texture " << floors_tex_size << " ..." << endl;
-	floors_tex = albion_texture::create(floors_tex_size, size2(64, 64), palette, floors_tex_info, floor_xlds, tex_filtering);
+	if(floors_tex_size.x > 0 && floors_tex_size.y > 0) {
+		floors_tex = albion_texture::create(floors_tex_size, size2(64, 64), palette, floors_tex_info, floor_xlds, tex_filtering);
+	}
+	else floors_tex = t->get_dummy_texture();
 	//conf::set<a2e_texture>("debug.texture", floors_tex);
 	
 	// walls
-	unsigned int* walls_surface = new unsigned int[walls_tex_size.x*walls_tex_size.y];
-	memset(walls_surface, 0, walls_tex_size.x*walls_tex_size.y*sizeof(unsigned int));
 	size2 tex_offset;
 	float next_y_offset = 0.0f;
-	for(size_t i = 0; i < wall_count; i++) {
-		const xld* wall_tex_xld = (walls[i]->texture < 100 ? wall_xlds[0] : wall_xlds[1]);
-		const size_t wall_tex_num = (walls[i]->texture < 100 ? walls[i]->texture-1 : walls[i]->texture) % 100;
-		const xld::xld_object* wall_tex_data = wall_tex_xld->get_object(wall_tex_num);
-		bool write_zero = ((walls[i]->type & WT_WRITE_OVERLAY_ZERO) != 0);
-
-		//
-		const size2 tile_size = size2(walls[i]->y_size, walls[i]->x_size);
-		const size2 scaled_tile_size = tile_size * 4;
-		unsigned char* wall_data = new unsigned char[tile_size.x*tile_size.y];
-		unsigned int* data_32bpp = new unsigned int[tile_size.x*tile_size.y];
-		unsigned int* scaled_data = new unsigned int[scaled_tile_size.x*scaled_tile_size.y];
-
-		//
-		for(size_t j = 0; j < walls[i]->animation; j++) {
-			memcpy(wall_data, &wall_tex_data->data[j*tile_size.x*tile_size.y], tile_size.x*tile_size.y);
-
-			// add/apply wall overlays
-			for(vector<lab_wall_overlay*>::iterator overlay_iter = walls[i]->overlays.begin(); overlay_iter != walls[i]->overlays.end(); overlay_iter++) {
-				const xld* overlay_tex_xld = ((*overlay_iter)->texture < 100 ? overlay_xlds[0] : ((*overlay_iter)->texture < 200 ? overlay_xlds[1] : overlay_xlds[2]));
-				const size_t overlay_tex_num = ((*overlay_iter)->texture < 100 ? (*overlay_iter)->texture-1 :(*overlay_iter)->texture) % 100;
-				const xld::xld_object* overlay_tex_data = overlay_tex_xld->get_object(overlay_tex_num);
+	if(walls_tex_size.x > 0 && walls_tex_size.y > 0) {
+		unsigned int* walls_surface = new unsigned int[walls_tex_size.x*walls_tex_size.y];
+		memset(walls_surface, 0, walls_tex_size.x*walls_tex_size.y*sizeof(unsigned int));
+		for(size_t i = 0; i < wall_count; i++) {
+			const xld* wall_tex_xld = (walls[i]->texture < 100 ? wall_xlds[0] : wall_xlds[1]);
+			const size_t wall_tex_num = (walls[i]->texture < 100 ? walls[i]->texture-1 : walls[i]->texture) % 100;
+			const xld::xld_object* wall_tex_data = wall_tex_xld->get_object(wall_tex_num);
+			bool write_zero = ((walls[i]->type & WT_WRITE_OVERLAY_ZERO) != 0);
 			
-				for(size_t y = 0; y < (*overlay_iter)->y_size; y++) {
-					const size_t dst_offset = ((*overlay_iter)->y_offset + y)*tile_size.x + (*overlay_iter)->x_offset;
-					const size_t src_offset = y*(*overlay_iter)->x_size;
-					for(size_t x = 0; x < (*overlay_iter)->x_size; x++) {
-						// ignore 0x00 bytes
-						if((write_zero && (*overlay_iter)->write_zero) || overlay_tex_data->data[src_offset + x] > 0) {
-							wall_data[dst_offset + x] = overlay_tex_data->data[src_offset + x];
+			//
+			const size2 tile_size = size2(walls[i]->y_size, walls[i]->x_size);
+			const size2 scaled_tile_size = tile_size * 4;
+			unsigned char* wall_data = new unsigned char[tile_size.x*tile_size.y];
+			unsigned int* data_32bpp = new unsigned int[tile_size.x*tile_size.y];
+			unsigned int* scaled_data = new unsigned int[scaled_tile_size.x*scaled_tile_size.y];
+			
+			//
+			for(size_t j = 0; j < walls[i]->animation; j++) {
+				memcpy(wall_data, &wall_tex_data->data[j*tile_size.x*tile_size.y], tile_size.x*tile_size.y);
+				
+				// add/apply wall overlays
+				for(vector<lab_wall_overlay*>::iterator overlay_iter = walls[i]->overlays.begin(); overlay_iter != walls[i]->overlays.end(); overlay_iter++) {
+					const xld* overlay_tex_xld = ((*overlay_iter)->texture < 100 ? overlay_xlds[0] : ((*overlay_iter)->texture < 200 ? overlay_xlds[1] : overlay_xlds[2]));
+					const size_t overlay_tex_num = ((*overlay_iter)->texture < 100 ? (*overlay_iter)->texture-1 :(*overlay_iter)->texture) % 100;
+					const xld::xld_object* overlay_tex_data = overlay_tex_xld->get_object(overlay_tex_num);
+					
+					for(size_t y = 0; y < (*overlay_iter)->y_size; y++) {
+						const size_t dst_offset = ((*overlay_iter)->y_offset + y)*tile_size.x + (*overlay_iter)->x_offset;
+						const size_t src_offset = y*(*overlay_iter)->x_size;
+						for(size_t x = 0; x < (*overlay_iter)->x_size; x++) {
+							// ignore 0x00 bytes
+							if((write_zero && (*overlay_iter)->write_zero) || overlay_tex_data->data[src_offset + x] > 0) {
+								wall_data[dst_offset + x] = overlay_tex_data->data[src_offset + x];
+							}
 						}
 					}
 				}
+				
+				//
+				unsigned int repl_alpha = 0xFF000000;
+				if(walls[i]->type & WT_CUT_ALPHA) repl_alpha = 0;
+				if(walls[i]->type & WT_TRANSPARENT) {
+					// use 0x80 alpha for now, everything <= 0x7F will be alpha tested
+					repl_alpha = 0x80000000 | (palettes->get_palette(palette)[walls[i]->palette_num] & 0xFFFFFF);
+				}
+				
+				gfxconv::convert_8to32(wall_data, data_32bpp, tile_size.x, tile_size.y, palette, 0, true, repl_alpha);
+				scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, tile_size, scaled_data);
+				
+				// copy data into tiles surface
+				if(tex_offset.x + scaled_tile_size.x > walls_tex_size.x) {
+					tex_offset.x = 0;
+					tex_offset.y = next_y_offset;
+				}
+				if(tex_offset.y + scaled_tile_size.y > next_y_offset) {
+					next_y_offset = tex_offset.y + scaled_tile_size.y;
+				}
+				
+				for(size_t y = 0; y < scaled_tile_size.y; y++) {
+					memcpy(&walls_surface[(tex_offset.y + y) * walls_tex_size.x + tex_offset.x], &scaled_data[y*scaled_tile_size.x], scaled_tile_size.x*sizeof(unsigned int));
+				}
+				
+				walls[i]->tex_coord_begin[j].set(float(tex_offset.x)/float(walls_tex_size.x), float(tex_offset.y)/float(walls_tex_size.y));
+				walls[i]->tex_coord_end[j].set(float(tex_offset.x+scaled_tile_size.x)/float(walls_tex_size.x), float(tex_offset.y+scaled_tile_size.y)/float(walls_tex_size.y));
+				
+				tex_offset.x += scaled_tile_size.x;
 			}
-
-			//
-			unsigned int repl_alpha = 0xFF000000;
-			if(walls[i]->type & WT_CUT_ALPHA) repl_alpha = 0;
-			if(walls[i]->type & WT_TRANSPARENT) {
-				// use 0x80 alpha for now, everything <= 0x7F will be alpha tested
-				repl_alpha = 0x80000000 | (palettes->get_palette(palette)[walls[i]->palette_num] & 0xFFFFFF);
-			}
-
-			gfxconv::convert_8to32(wall_data, data_32bpp, tile_size.x, tile_size.y, palette, 0, true, repl_alpha);
-			scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, tile_size, scaled_data);
-
-			// copy data into tiles surface
-			if(tex_offset.x + scaled_tile_size.x > walls_tex_size.x) {
-				tex_offset.x = 0;
-				tex_offset.y = next_y_offset;
-			}
-			if(tex_offset.y + scaled_tile_size.y > next_y_offset) {
-				next_y_offset = tex_offset.y + scaled_tile_size.y;
-			}
-
-			for(size_t y = 0; y < scaled_tile_size.y; y++) {
-				memcpy(&walls_surface[(tex_offset.y + y) * walls_tex_size.x + tex_offset.x], &scaled_data[y*scaled_tile_size.x], scaled_tile_size.x*sizeof(unsigned int));
-			}
-		
-			walls[i]->tex_coord_begin[j].set(float(tex_offset.x)/float(walls_tex_size.x), float(tex_offset.y)/float(walls_tex_size.y));
-			walls[i]->tex_coord_end[j].set(float(tex_offset.x+scaled_tile_size.x)/float(walls_tex_size.x), float(tex_offset.y+scaled_tile_size.y)/float(walls_tex_size.y));
 			
-			tex_offset.x += scaled_tile_size.x;
+			delete [] data_32bpp;
+			delete [] scaled_data;
+			delete [] wall_data;
 		}
-
-		delete [] data_32bpp;
-		delete [] scaled_data;
-		delete [] wall_data;
+		cout << ":: creating walls texture " << walls_tex_size << " ..." << endl;
+		walls_tex = t->add_texture(walls_surface, walls_tex_size.x, walls_tex_size.y, GL_RGBA8, GL_RGBA, tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		delete [] walls_surface;
+		conf::set<a2e_texture>("debug.texture", walls_tex);
 	}
-	cout << ":: creating walls texture " << walls_tex_size << " ..." << endl;
-	walls_tex = t->add_texture(walls_surface, walls_tex_size.x, walls_tex_size.y, GL_RGBA8, GL_RGBA, tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
-	delete [] walls_surface;
-	conf::set<a2e_texture>("debug.texture", walls_tex);
+	else walls_tex = t->get_dummy_texture();
 
 	// objects
-	unsigned int* objects_surface = new unsigned int[objects_tex_size.x*objects_tex_size.y];
-	memset(objects_surface, 0, objects_tex_size.x*objects_tex_size.y*sizeof(unsigned int));
-	tex_offset = size2(0, 0);
-	next_y_offset = 0.0f;
-	for(size_t i = 0; i < object_info_count; i++) {
-		const xld* obj_tex_xld = (object_infos[i]->texture < 100 ? object_xlds[0] :
-								  (object_infos[i]->texture < 200 ? object_xlds[1] :
-								  (object_infos[i]->texture < 300 ? object_xlds[2] : object_xlds[3])));
-		const size_t obj_tex_num = (object_infos[i]->texture < 100 ? object_infos[i]->texture-1 : object_infos[i]->texture) % 100;
-		const xld::xld_object* obj_tex_data = obj_tex_xld->get_object(obj_tex_num);
-
-		//
-		const size2 tile_size = size2(object_infos[i]->x_size, object_infos[i]->y_size);
-		const size2 scaled_tile_size = tile_size * 4;
-		unsigned int* data_32bpp = new unsigned int[tile_size.x*tile_size.y];
-		unsigned int* scaled_data = new unsigned int[scaled_tile_size.x*scaled_tile_size.y];
-		
-		//
-		for(size_t j = 0; j < object_infos[i]->animation; j++) {
-			if(object_infos[i]->palette_shift > 0) {
-				gfxconv::convert_8to32(obj_tex_data->data, data_32bpp, tile_size.x, tile_size.y, palette, j);
+	if(objects_tex_size.x > 0 && objects_tex_size.y > 0) {
+		unsigned int* objects_surface = new unsigned int[objects_tex_size.x*objects_tex_size.y];
+		memset(objects_surface, 0, objects_tex_size.x*objects_tex_size.y*sizeof(unsigned int));
+		tex_offset = size2(0, 0);
+		next_y_offset = 0.0f;
+		for(size_t i = 0; i < object_info_count; i++) {
+			const xld* obj_tex_xld = (object_infos[i]->texture < 100 ? object_xlds[0] :
+									  (object_infos[i]->texture < 200 ? object_xlds[1] :
+									   (object_infos[i]->texture < 300 ? object_xlds[2] : object_xlds[3])));
+			const size_t obj_tex_num = (object_infos[i]->texture < 100 ? object_infos[i]->texture-1 : object_infos[i]->texture) % 100;
+			const xld::xld_object* obj_tex_data = obj_tex_xld->get_object(obj_tex_num);
+			
+			//
+			const size2 tile_size = size2(object_infos[i]->x_size, object_infos[i]->y_size);
+			const size2 scaled_tile_size = tile_size * 4;
+			unsigned int* data_32bpp = new unsigned int[tile_size.x*tile_size.y];
+			unsigned int* scaled_data = new unsigned int[scaled_tile_size.x*scaled_tile_size.y];
+			
+			//
+			for(size_t j = 0; j < object_infos[i]->animation; j++) {
+				if(object_infos[i]->palette_shift > 0) {
+					gfxconv::convert_8to32(obj_tex_data->data, data_32bpp, tile_size.x, tile_size.y, palette, j);
+				}
+				else gfxconv::convert_8to32(&obj_tex_data->data[j*tile_size.x*tile_size.y], data_32bpp, tile_size.x, tile_size.y, palette);
+				scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, tile_size, scaled_data);
+				
+				// copy data into tiles surface
+				if(tex_offset.x + scaled_tile_size.x > objects_tex_size.x) {
+					tex_offset.x = 0;
+					tex_offset.y = next_y_offset;
+				}
+				if(tex_offset.y + scaled_tile_size.y > next_y_offset) {
+					next_y_offset = tex_offset.y + scaled_tile_size.y;
+				}
+				
+				for(size_t y = 0; y < scaled_tile_size.y; y++) {
+					memcpy(&objects_surface[(tex_offset.y + y) * objects_tex_size.x + tex_offset.x], &scaled_data[y*scaled_tile_size.x], scaled_tile_size.x*sizeof(unsigned int));
+				}
+				
+				object_infos[i]->tex_coord_begin[j].set(float(tex_offset.x)/float(objects_tex_size.x), float(tex_offset.y)/float(objects_tex_size.y));
+				object_infos[i]->tex_coord_end[j].set(float(tex_offset.x+scaled_tile_size.x)/float(objects_tex_size.x), float(tex_offset.y+scaled_tile_size.y)/float(objects_tex_size.y));
+				
+				tex_offset.x += scaled_tile_size.x;
 			}
-			else gfxconv::convert_8to32(&obj_tex_data->data[j*tile_size.x*tile_size.y], data_32bpp, tile_size.x, tile_size.y, palette);
-			scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, tile_size, scaled_data);
-
-			// copy data into tiles surface
-			if(tex_offset.x + scaled_tile_size.x > objects_tex_size.x) {
-				tex_offset.x = 0;
-				tex_offset.y = next_y_offset;
-			}
-			if(tex_offset.y + scaled_tile_size.y > next_y_offset) {
-				next_y_offset = tex_offset.y + scaled_tile_size.y;
-			}
-
-			for(size_t y = 0; y < scaled_tile_size.y; y++) {
-				memcpy(&objects_surface[(tex_offset.y + y) * objects_tex_size.x + tex_offset.x], &scaled_data[y*scaled_tile_size.x], scaled_tile_size.x*sizeof(unsigned int));
-			}
-		
-			object_infos[i]->tex_coord_begin[j].set(float(tex_offset.x)/float(objects_tex_size.x), float(tex_offset.y)/float(objects_tex_size.y));
-			object_infos[i]->tex_coord_end[j].set(float(tex_offset.x+scaled_tile_size.x)/float(objects_tex_size.x), float(tex_offset.y+scaled_tile_size.y)/float(objects_tex_size.y));
-
-			tex_offset.x += scaled_tile_size.x;
+			
+			delete [] data_32bpp;
+			delete [] scaled_data;
 		}
-		
-		delete [] data_32bpp;
-		delete [] scaled_data;
+		cout << ":: creating objects texture " << objects_tex_size << " ..." << endl;
+		objects_tex = t->add_texture(objects_surface, objects_tex_size.x, objects_tex_size.y, GL_RGBA8, GL_RGBA, tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		conf::set<a2e_texture>("debug.texture", objects_tex);
+		delete [] objects_surface;
 	}
-	cout << ":: creating objects texture " << objects_tex_size << " ..." << endl;
-	objects_tex = t->add_texture(objects_surface, objects_tex_size.x, objects_tex_size.y, GL_RGBA8, GL_RGBA, tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
-	conf::set<a2e_texture>("debug.texture", objects_tex);
-	delete [] objects_surface;
+	else objects_tex = t->get_dummy_texture();
 
 	// create material and assign textures
 	lab_fc_material = new a2ematerial(e);
