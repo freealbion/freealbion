@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ public:
 	
 	void open_goto_map_wnd();
 	void close_goto_map_wnd();
-
+	
 protected:
 	map_handler* mh;
 
@@ -46,11 +46,17 @@ protected:
 	gui_button* b_goto_map;
 	gui_input* i_goto_map;
 	gui_list* lb_map_names;
+	gui_text* t_time;
+	gui_text* t_time_value;
 	
 	//
 	void handle_b_goto_map_button(event::GUI_EVENT_TYPE type, GUI_ID id);
 	void handle_i_goto_map_selected(event::GUI_EVENT_TYPE type, GUI_ID id);
 	void handle_lb_map_names_list(event::GUI_EVENT_TYPE type, GUI_ID id);
+	
+	//
+	clock_callback* clock_cb;
+	void clock_tick(size_t ticks);
 
 };
 

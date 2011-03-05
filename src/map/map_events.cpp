@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -100,32 +100,35 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 	// get event data
 	if(offset < length) {
 		const size_t event_count = AR_GET_USINT(data, offset);
-		offset += 2;
-		if(offset < length) {
-			if(event_count == 0xFFFF) {
-				a2e_error("invalid event count!");
-				return; // sth is wrong, break
-			}
+		cout << "event count: " << event_count << endl;
+		if(event_count == 0xFFFF) {
+			a2e_error("invalid event count!");
+			return; // sth is wrong, break
 		}
-		else {
-			for(size_t i = 0; i < event_count; i++) {
-				events.push_back(new events::event());
-				events.back()->assigned = false;
-				events.back()->type = (events::EVENT_TYPE)(data[offset] & 0xFF); offset++;
-				events.back()->info[0] = data[offset] & 0xFF; offset++;
-				events.back()->info[1] = data[offset] & 0xFF; offset++;
-				events.back()->info[2] = data[offset] & 0xFF; offset++;
-				events.back()->info[3] = data[offset] & 0xFF; offset++;
-				events.back()->info[4] = data[offset] & 0xFF; offset++;
-				events.back()->info[5] = AR_GET_USINT(data, offset);
-				offset += 2;
-				events.back()->info[6] = AR_GET_USINT(data, offset);
-				offset += 2;
-				events.back()->next_event_num = AR_GET_USINT(data, offset);
-				offset += 2;
-				events.back()->next_event = NULL;
-				if(offset >= length) break;
-			}
+		
+		offset += 2;
+		if(offset >= length) {
+			a2e_error("invalid event data!");
+			return; // sth is wrong, break
+		}
+		
+		for(size_t i = 0; i < event_count; i++) {
+			events.push_back(new events::event());
+			events.back()->assigned = false;
+			events.back()->type = (events::EVENT_TYPE)(data[offset] & 0xFF); offset++;
+			events.back()->info[0] = data[offset] & 0xFF; offset++;
+			events.back()->info[1] = data[offset] & 0xFF; offset++;
+			events.back()->info[2] = data[offset] & 0xFF; offset++;
+			events.back()->info[3] = data[offset] & 0xFF; offset++;
+			events.back()->info[4] = data[offset] & 0xFF; offset++;
+			events.back()->info[5] = AR_GET_USINT(data, offset);
+			offset += 2;
+			events.back()->info[6] = AR_GET_USINT(data, offset);
+			offset += 2;
+			events.back()->next_event_num = AR_GET_USINT(data, offset);
+			offset += 2;
+			events.back()->next_event = NULL;
+			if(offset >= length) break;
 		}
 	}
 	else a2e_error("offset is larger than file size!");

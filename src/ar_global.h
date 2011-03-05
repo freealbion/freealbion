@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 #include <a2e.h>
 #include "palette.h"
+#include "clock.h"
 using namespace std;
 
 #define APPLICATION_NAME "Albion Remake"
@@ -46,5 +47,6 @@ extern scene* sce;
 extern camera* cam;
 extern pal* palettes;
 extern ext* exts;
+extern ar_clock* clck;
 
 #endif

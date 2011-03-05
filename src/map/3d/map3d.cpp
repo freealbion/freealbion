@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -337,6 +337,7 @@ void map3d::load(const size_t& map_num) {
 			}
 			if(ow_tiles[y*map_size.x + x] >= 101) {
 				const labdata::lab_wall* wall = lab_data->get_wall(ow_tiles[y*map_size.x + x]);
+				if(wall->type & labdata::WT_TRANSPARENT) continue; // TODO: transparent walls
 				if(wall->animation > 1) wall_ani_count+=4; // 4 walls per tile
 
 				wall_count++;
@@ -435,6 +436,7 @@ void map3d::load(const size_t& map_num) {
 			// walls
 			if(ow_tiles[y*map_size.x + x] >= 101) {
 				const labdata::lab_wall* tile_data = lab_data->get_wall(ow_tiles[y*map_size.x + x]);
+				if(tile_data->type & labdata::WT_TRANSPARENT) continue; // TODO: transparent walls
 
 				size_t wall_index = wall_static_num*4;
 				if(tile_data->animation > 1) {
@@ -631,10 +633,6 @@ void map3d::unload() {
 		obj_tc_restrict = NULL;
 		obj_indices = NULL;
 	}
-	if(mnpcs != NULL) {
-		delete mnpcs;
-		mnpcs = NULL;
-	}
 	if(ow_tiles != NULL) {
 		delete ow_tiles;
 		ow_tiles = NULL;
@@ -660,7 +658,17 @@ void map3d::unload() {
 		npcs_indices = NULL;
 		npc_object_count = 0;
 	}
+	
+	//
+	for(vector<npc3d*>::iterator npc_iter = npcs.begin(); npc_iter != npcs.end(); npc_iter++) {
+		delete *npc_iter;
+	}
 	npcs.clear();
+	if(mnpcs != NULL) {
+		delete mnpcs;
+		mnpcs = NULL;
+	}
+	
 	mevents.unload();
 	map_loaded = false;
 	tile_size = std_tile_size;

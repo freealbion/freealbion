@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ public:
 	virtual void draw() const;
 	virtual void handle();
 	virtual void move(const MOVE_DIRECTION& direction);
+	virtual void move(const size2& move_pos);
 	
 protected:
 	map3d* map3d_obj;

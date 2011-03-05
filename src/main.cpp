@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
  *
  * \author flo
  *
- * \date April 2007 - October 2010
+ * \date April 2007 - March 2011
  *
  * Albion Remake
  */
@@ -37,6 +37,8 @@ int main(int argc, char *argv[]) {
 	
 	conf::init();
 	xld::set_xld_path(e->data_path("xld/"));
+	
+	clck = new ar_clock();
 
 	// init class pointers
 	c = e->get_core();
@@ -106,10 +108,10 @@ int main(int argc, char *argv[]) {
 	mh = new map_handler();
 	//mh->load_map(42);
 	//mh->load_map(10);
-	//mh->load_map(50);
+	mh->load_map(50);
 	//mh->load_map(11);
 	//mh->load_map(22);
-	mh->load_map(183);
+	//mh->load_map(183);
 	
 	aui = new albion_ui(mh);
 	aui->open_goto_map_wnd();
@@ -308,6 +310,7 @@ int main(int argc, char *argv[]) {
 			c->reset(&caption);
 		}
 
+		clck->run();
 		mh->handle();
 
 		e->start_draw();

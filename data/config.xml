@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <engine>
-	<screen width="1280" height="720" depth="32" zbuffer="24" stencil="8" fullscreen="0" vsync="0" alpha="1" stereo="0"/>
+	<screen width="1280" height="720" depth="32" zbuffer="24" stencil="8" fullscreen="0" vsync="1" alpha="1" stereo="0"/>
 	<screen_ width="1920" height="1080" depth="32" zbuffer="24" stencil="8" fullscreen="1" vsync="1" alpha="1" stereo="0"/>
 	<screen_ width="360" height="240" depth="32" zbuffer="24" stencil="8" fullscreen="0" vsync="1" alpha="1" stereo="0"/>
 	<screen_ width="1280" height="800" depth="32" zbuffer="24" stencil="8" fullscreen="1" vsync="1" alpha="1" stereo="0"/>

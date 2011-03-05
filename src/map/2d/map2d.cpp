@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -242,13 +242,19 @@ void map2d::unload() {
 		delete [] overlay_tiles;
 		overlay_tiles = NULL;
 	}
+	
+	//
+	for(vector<npc2d*>::iterator npc_iter = npcs.begin(); npc_iter != npcs.end(); npc_iter++) {
+		delete *npc_iter;
+	}
+	npcs.clear();
 	if(mnpcs != NULL) {
 		delete mnpcs;
 		mnpcs = NULL;
 	}
+	
 	layers[0].clear();
 	layers[1].clear();
-	npcs.clear();
 	mevents.unload();
 	map_loaded = false;
 	cur_map_num = (~0);

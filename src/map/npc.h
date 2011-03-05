@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include "ar_global.h"
 #include "map_defines.h"
 #include "map_npcs.h"
+#include "clock.h"
 
 class npc {
 public:
@@ -31,6 +32,7 @@ public:
 	
 	virtual void handle() = 0;
 	virtual void move(const MOVE_DIRECTION& direction) = 0;
+	virtual void move(const size2& move_pos) = 0;
 	
 	virtual void set_pos(const size_t& x, const size_t& y);
 	virtual const size2& get_pos() const;
@@ -58,6 +60,9 @@ protected:
 	bool enabled;
 	
 	virtual void compute_move();
+	
+	virtual void clock_tick_cb(size_t tick);
+	clock_callback* clock_cb;
 	
 };
 

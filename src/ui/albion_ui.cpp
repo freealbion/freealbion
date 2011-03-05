@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,15 +24,31 @@
 #define B_GOTO_MAP_ID 501
 #define I_GOTO_MAP_ID 502
 #define LB_MAP_NAMES_ID 503
+#define T_TIME_ID 504
+#define T_TIME_VALUE_ID 505
 
 /*! albion_ui constructor
  */
 albion_ui::albion_ui(map_handler* mh) : mh(mh) {
+	clock_cb = new clock_callback(this, &albion_ui::clock_tick);
+	clck->add_tick_callback(ar_clock::CCBT_TICK, *clock_cb);
 }
 
 /*! albion_ui destructor
  */
 albion_ui::~albion_ui() {
+	clck->delete_tick_callback(*clock_cb);
+	delete clock_cb;
+}
+
+void albion_ui::clock_tick(size_t ticks) {
+	if(!egui->exists(ALBION_DBG_ID)) return;
+	
+	const size_t hours = ticks / AR_TICKS_PER_HOUR;
+	const size_t mins = floorf(float(ticks % AR_TICKS_PER_HOUR) * 1.25f);
+	const string time_str = (hours < 10 ? "0" : "") + size_t2string(hours) + ":" + (mins < 10 ? "0" : "") + size_t2string(mins);
+	t_time_value->set_text(time_str.c_str());
+	albion_dbg->get_object()->set_redraw(true); // TODO: remove this at a later point (this is necessary right now, b/c the gui is kinda bugged)
 }
 
 void albion_ui::open_goto_map_wnd() {
@@ -42,6 +58,8 @@ void albion_ui::open_goto_map_wnd() {
 	b_goto_map = albion_dbg->get<gui_button>("b_goto_map");
 	i_goto_map = albion_dbg->get<gui_input>("i_goto_map");
 	lb_map_names = albion_dbg->get<gui_list>("lb_map_names");
+	t_time = albion_dbg->get<gui_text>("t_time");
+	t_time_value = albion_dbg->get<gui_text>("t_time_value");
 	evt->add_event_callback(this, &albion_ui::handle_b_goto_map_button, event::BUTTON_PRESSED, b_goto_map->get_id());
 	evt->add_event_callback(this, &albion_ui::handle_i_goto_map_selected, event::INPUT_SELECTED, i_goto_map->get_id());
 	evt->add_event_callback(this, &albion_ui::handle_lb_map_names_list, event::LISTBOX_ITEM_SELECTED, lb_map_names->get_id());

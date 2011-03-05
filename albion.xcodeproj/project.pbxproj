@@ -22,6 +22,7 @@
 		5C58908212690BB00011E96B /* labdata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C58908012690BB00011E96B /* labdata.cpp */; };
 		5C58908612690BBE0011E96B /* events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C58908412690BBE0011E96B /* events.cpp */; };
 		5C71CDD51261F4FA0052A6C2 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C71CDD41261F4FA0052A6C2 /* OpenCL.framework */; };
+		5C7868281322BE51006BEDD5 /* clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C7868261322BE51006BEDD5 /* clock.cpp */; };
 		5C994E131284745700FC928F /* npc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C994E111284745700FC928F /* npc.cpp */; };
 		5C994E17128476EC00FC928F /* npc3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C994E15128476EC00FC928F /* npc3d.cpp */; };
 		5C9B61CD12734AA200CCE465 /* map_objects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9B61CB12734AA100CCE465 /* map_objects.cpp */; };
@@ -74,6 +75,8 @@
 		5C70CF5612CBAFB500F988D3 /* gp_gbuffer_sky.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = gp_gbuffer_sky.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C70CF5B12CBBBBC00F988D3 /* mp_sky.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mp_sky.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C71CDD41261F4FA0052A6C2 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
+		5C7868261322BE51006BEDD5 /* clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clock.cpp; sourceTree = "<group>"; };
+		5C7868271322BE51006BEDD5 /* clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = clock.h; sourceTree = "<group>"; };
 		5C7A454E12CBAA86005C70EE /* gbuffer.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = gbuffer.a2eshd; sourceTree = "<group>"; };
 		5C7A454F12CBAA86005C70EE /* gbuffer_map_objects.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = gbuffer_map_objects.a2eshd; sourceTree = "<group>"; };
 		5C7A455012CBAA86005C70EE /* gbuffer_map_tiles.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = gbuffer_map_tiles.a2eshd; sourceTree = "<group>"; };
@@ -231,6 +234,8 @@
 			children = (
 				5C58908412690BBE0011E96B /* events.cpp */,
 				5C58908512690BBE0011E96B /* events.h */,
+				5C7868261322BE51006BEDD5 /* clock.cpp */,
+				5C7868271322BE51006BEDD5 /* clock.h */,
 			);
 			name = events;
 			path = src/events;
@@ -472,6 +477,7 @@
 				5C994E17128476EC00FC928F /* npc3d.cpp in Sources */,
 				5C28FB38128F0CE200FBDEC1 /* background3d.cpp in Sources */,
 				5C0B62271296E8C100205335 /* map_tiles.cpp in Sources */,
+				5C7868281322BE51006BEDD5 /* clock.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -517,6 +523,12 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-std=c++0x";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-stdlib=libc++",
+				);
+				OTHER_LDFLAGS = "-stdlib=libc++";
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
@@ -534,6 +546,12 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-std=c++0x";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-stdlib=libc++",
+				);
+				OTHER_LDFLAGS = "-stdlib=libc++";
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
@@ -546,6 +564,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CONFIGURATION_BUILD_DIR = bin/;
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;

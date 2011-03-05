@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,11 +27,16 @@ npc::npc() : char_type(CT_NPC) {
 	npc_data = NULL;
 	enabled = true;
 	pos_interp = 0.0f;
+	clock_cb = NULL;
 }
 
 /*! npc destructor
  */
 npc::~npc() {
+	if(clock_cb != NULL) {
+		clck->delete_tick_callback(*clock_cb);
+		delete clock_cb;
+	}
 }
 
 void npc::set_npc_data(const map_npcs::map_npc* npc_data) {
@@ -44,6 +49,20 @@ void npc::set_npc_data(const map_npcs::map_npc* npc_data) {
 		set_pos(0, 0);
 	}
 	else set_pos(npc_data->position[0].x-1, npc_data->position[0].y-1);
+	
+	// if the npc uses a track, add a clock callback
+	if(npc_data->movement_type == MT_TRACK) {
+		if(clock_cb == NULL) {
+			clock_cb = new clock_callback(this, &npc::clock_tick_cb);
+			clck->add_tick_callback(ar_clock::CCBT_TICK, *clock_cb);
+		}
+		time_per_tile = clck->get_ms_per_tick();
+	}
+	else if(npc_data->movement_type == MT_RANDOM && clock_cb != NULL) {
+		clck->delete_tick_callback(*clock_cb);
+		delete clock_cb;
+		clock_cb = NULL;
+	}
 }
 
 void npc::set_pos(const size_t& x, const size_t& y) {
@@ -70,7 +89,7 @@ bool npc::is_enabled() const {
 void npc::compute_move() {
 	if(!enabled) return;
 	
-	// TODO: compute next move
+	// compute next move
 	if(npc_data->movement_type == MT_RANDOM) {
 		// TODO: think of a better method ;)
 		if(SDL_GetTicks() - last_move < time_per_tile) return;
@@ -92,6 +111,17 @@ void npc::compute_move() {
 		move(dir);
 	}
 	else {
-		// TODO: follow track dependent on game time
+		// track movement is handled in clock_tick_cb
 	}
+}
+
+void npc::clock_tick_cb(size_t tick) {
+	if(npc_data->position[tick].x == 0 && npc_data->position[tick].y == 0) {
+		// TODO: better npc disable when not visible!
+		set_pos(0, 0);
+		return;
+	}
+	
+	// follow track dependent on game time (-> tick)
+	move(npc_data->position[tick] - size2(1, 1));
 }

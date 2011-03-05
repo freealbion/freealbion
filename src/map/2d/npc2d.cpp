@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -113,6 +113,22 @@ void npc2d::move(const MOVE_DIRECTION& direction) {
 	if(final_dir & MD_DOWN)  {
 		if(pos.y < map2d_obj->get_size().y-1) next_pos.y++;
 	}
+	
+	// prioritize left/right when selecting the npc state
+	if(final_dir & MD_UP) state = (S_BACK1 & 0xF0) | (state & 0xF);
+	if(final_dir & MD_DOWN) state = (S_FRONT1 & 0xF0) | (state & 0xF);
+	if(final_dir & MD_LEFT) state = (S_LEFT1 & 0xF0) | (state & 0xF);
+	if(final_dir & MD_RIGHT) state = (S_RIGHT1 & 0xF0) | (state & 0xF);
+}
+
+void npc2d::move(const size2& move_pos) {
+	if(!enabled) return;
+	
+	ssize2 dir = ssize2(move_pos) - ssize2(next_pos);
+	size_t final_dir = (dir.x < 0 ? MD_LEFT : (dir.x > 0 ? MD_RIGHT : 0)) | (dir.y < 0 ? MD_UP : (dir.y > 0 ? MD_DOWN : 0));
+	pos = next_pos;
+	next_pos = move_pos;
+	pos_interp = 0.0f;
 	
 	// prioritize left/right when selecting the npc state
 	if(final_dir & MD_UP) state = (S_BACK1 & 0xF0) | (state & 0xF);

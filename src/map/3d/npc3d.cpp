@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2010 Florian Ziesche
+ *  Copyright (C) 2007 - 2011 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -79,4 +79,12 @@ void npc3d::move(const MOVE_DIRECTION& direction) {
 		if(direction & MD_UP) next_pos.y--;
 		if(direction & MD_DOWN) next_pos.y++;
 	}
+}
+
+void npc3d::move(const size2& move_pos) {
+	if(!enabled) return;
+	
+	pos = next_pos;
+	next_pos = move_pos;
+	pos_interp = 0.0f;
 }

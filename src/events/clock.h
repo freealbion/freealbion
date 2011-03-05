@@ -16,31 +16,45 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
- 
-#ifndef __AR_PALETTE_H__
-#define __AR_PALETTE_H__
+
+#ifndef __AR_CLOCK_H__
+#define __AR_CLOCK_H__
 
 #include <a2e.h>
+using namespace std;
 
-/*! @class pal
- *  @brief palette loader
- *  @author flo
- *  
- *  loads the palettes
- */
+#define AR_TICKS_PER_HOUR 48
+#define AR_TICKS_PER_DAY (24*AR_TICKS_PER_HOUR)
 
-class pal {
+typedef functor<void, size_t> clock_callback;
+
+class ar_clock {
 public:
-	pal();
-	~pal();
-
-	const unsigned int* const get_palette(const size_t& num) const;
-	const vector<size2>& get_animated_ranges(const size_t& num) const;
+	ar_clock();
+	~ar_clock();
+	
+	void run();
+	
+	void set_ms_per_tick(const size_t& ms_per_tick);
+	const size_t get_ms_per_tick() const;
+	
+	enum CLOCK_CB_TYPE {
+		CCBT_TICK,
+		CCBT_HOUR,
+		CCBT_DAY,
+	};
+	void add_tick_callback(const CLOCK_CB_TYPE& cb_type, clock_callback& cb);
+	void delete_tick_callback(const clock_callback& cb);
+	
+	//void set_clock_mode(const CLOCK_MODE mode);
 	
 protected:
-	vector<unsigned int*> palettes;
-	vector<vector<size2> > animated_ranges;
-
+	size_t ms_per_tick;
+	size_t last_tick;
+	size_t ticks;
+	
+	multimap<CLOCK_CB_TYPE, clock_callback*> callbacks;
+	
 };
 
 #endif
