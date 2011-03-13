@@ -48,6 +48,7 @@ map3d::map3d(labdata* lab_data, xld* maps1, xld* maps2, xld* maps3) : lab_data(l
 	wall_tc_restrict = NULL;
 	wall_indices = NULL;
 	wall_model = NULL;
+	wall_sides = NULL;
 
 	fc_vertices = NULL;
 	fc_tex_coords = NULL;
@@ -76,6 +77,13 @@ map3d::map3d(labdata* lab_data, xld* maps1, xld* maps2, xld* maps3) : lab_data(l
 	player_light->set_lspecular(0.0f, 0.0f, 0.0f);
 	player_light->set_constant_attenuation(1.0f);
 	player_light->set_linear_attenuation(0.0f);
+	player_light->set_quadratic_attenuation(0.0f);
+#elif 1
+	player_light->set_lambient(0.1f, 0.05f, 0.05f);
+	player_light->set_ldiffuse(0.3f, 0.3f, 0.2f);
+	player_light->set_lspecular(0.2f, 0.15f, 0.1f);
+	player_light->set_constant_attenuation(0.2f);
+	player_light->set_linear_attenuation(0.03f);
 	player_light->set_quadratic_attenuation(0.0f);
 #else // dungeon
 	player_light->set_lambient(0.2f, 0.2f, 0.2f);
@@ -228,7 +236,7 @@ void map3d::load(const size_t& map_num) {
 		npcs.back()->set_npc_data(*npc_iter);
 	}
 	
-	// TODO: create npc objects model
+	// create npc object models
 	size_t npc_count = npcs.size();
 	npc_object_count = 0;
 	for(size_t i = 0; i < npc_count; i++) {
@@ -316,8 +324,36 @@ void map3d::load(const size_t& map_num) {
 	npcs_model->set_material(lab_data->get_object_material());
 	sce->add_model(npcs_model);
 	
+	// compute which wall sides we need
+	wall_sides = new unsigned char[map_size.x*map_size.y];
+	for(size_t y = 0; y < map_size.y; y++) {
+		for(size_t x = 0; x < map_size.x; x++) {
+			if(ow_tiles[y*map_size.x + x] >= 101) {
+				unsigned char& side = wall_sides[y*map_size.x + x];
+				const labdata::lab_wall* wall = lab_data->get_wall(ow_tiles[y*map_size.x + x]);
+				if(wall == NULL) continue;
+				
+				const labdata::lab_wall* walls[] = {
+					(y > 0 ? lab_data->get_wall(ow_tiles[(y-1)*map_size.x + x]) : NULL),				// north
+					(x != map_size.x-1 ? lab_data->get_wall(ow_tiles[y*map_size.x + x+1]) : NULL),		// east
+					(y != map_size.y-1 ? lab_data->get_wall(ow_tiles[(y+1)*map_size.x + x]) : NULL),	// south
+					(x > 0 ? lab_data->get_wall(ow_tiles[y*map_size.x + x-1]) : NULL),					// west
+				};
+				
+				side = 0;
+				for(size_t i = 0; i < 4; i++) {
+					// TODO: does >=0x20 apply to all kinds of transparency?
+					if(walls[i] == NULL ||
+					   (wall->type < 0x20 && walls[i]->type >= 0x20)) {
+						side |= (unsigned char)(1 << i);
+					}
+				}
+			}
+		}
+	}
+	
 	// create map models
-	size_t floor_count = 0, ceiling_count = 0, wall_count = 0, object_count = 0, sub_object_count = 0;
+	size_t floor_count = 0, ceiling_count = 0, wall_count = 0, wall_cutalpha_count = 0, wall_transp_obj_count = 0, wall_transp_count = 0, object_count = 0, sub_object_count = 0;
 	wall_ani_count = 0;
 	fc_ani_count = 0;
 	obj_ani_count = 0;
@@ -337,10 +373,18 @@ void map3d::load(const size_t& map_num) {
 			}
 			if(ow_tiles[y*map_size.x + x] >= 101) {
 				const labdata::lab_wall* wall = lab_data->get_wall(ow_tiles[y*map_size.x + x]);
-				if(wall->type & labdata::WT_TRANSPARENT) continue; // TODO: transparent walls
-				if(wall->animation > 1) wall_ani_count+=4; // 4 walls per tile
-
-				wall_count++;
+				if(wall == NULL) continue;
+				if(wall->type & labdata::WT_TRANSPARENT) wall_transp_obj_count++;
+								
+				unsigned char& side = wall_sides[y*map_size.x + x];
+				for(size_t i = 0; i < 4; i++) {
+					if((side & (unsigned char)(1 << i)) > 0) {
+						if(wall->animation > 1) wall_ani_count++;
+						if(wall->type & labdata::WT_TRANSPARENT) wall_transp_count++;
+						else if(wall->type & labdata::WT_CUT_ALPHA) wall_cutalpha_count++;
+						wall_count++;
+					}
+				}
 			}
 			if(ow_tiles[y*map_size.x + x] > 0 && ow_tiles[y*map_size.x + x] < 101) {
 				const labdata::lab_object* obj = lab_data->get_object(ow_tiles[y*map_size.x + x]);
@@ -353,7 +397,7 @@ void map3d::load(const size_t& map_num) {
 			}
 		}
 	}
-	wall_count *= 4; // 4 walls per tile
+	wall_transp_obj_count *= 2; // transparent walls are double-sided
 	
 	size_t fc_count = floor_count + ceiling_count;
 
@@ -361,10 +405,10 @@ void map3d::load(const size_t& map_num) {
 	wall_vertices = new float3[wall_count*4];
 	wall_tex_coords = new float2[wall_count*4];
 	wall_tc_restrict = new float4[wall_count*4];
-	wall_indices = new index3*[1];
-	wall_indices[0] = new index3[wall_count*2];
-	unsigned int* wall_index_count = new unsigned int[1];
-	wall_index_count[0] = wall_count*2;
+	wall_indices = new index3*[1+wall_transp_obj_count];
+	unsigned int* wall_index_count = new unsigned int[1+wall_transp_obj_count];
+	wall_indices[0] = new index3[(wall_count+wall_cutalpha_count-wall_transp_count)*2];
+	wall_index_count[0] = (wall_count+wall_cutalpha_count-wall_transp_count)*2;
 
 	// floors/ceilings model
 	fc_vertices = new float3[fc_count*4];
@@ -393,6 +437,7 @@ void map3d::load(const size_t& map_num) {
 	obj_ani_offset = (sub_object_count - obj_ani_count)*4;
 	size_t fc_ani_num = 0, wall_ani_num = 0, obj_ani_num = 0;
 	size_t fc_static_num = 0, wall_static_num = 0, obj_static_num = 0;
+	size_t wall_subobj = 0;
 	
 	for(size_t y = 0; y < map_size.y; y++) {
 		for(size_t x = 0; x < map_size.x; x++) {
@@ -405,7 +450,7 @@ void map3d::load(const size_t& map_num) {
 					if(tile_data->animation > 1) {
 						fc_index = fc_ani_offset + fc_ani_num*4;
 						fc_ani_num++;
-						animated_tiles.push_back(make_pair(0, tiles[y*map_size.x + x]));
+						animated_tiles.push_back(make_tuple(0, tiles[y*map_size.x + x], uint2(x, y)));
 					}
 					else fc_static_num++;
 
@@ -436,46 +481,69 @@ void map3d::load(const size_t& map_num) {
 			// walls
 			if(ow_tiles[y*map_size.x + x] >= 101) {
 				const labdata::lab_wall* tile_data = lab_data->get_wall(ow_tiles[y*map_size.x + x]);
-				if(tile_data->type & labdata::WT_TRANSPARENT) continue; // TODO: transparent walls
+				if(tile_data == NULL) continue;
+				
+				const unsigned char& side = wall_sides[y*map_size.x + x];
+				size_t side_count = 0;
+				for(size_t i = 0; i < 4; i++) {
+					if((side & (unsigned char)(1 << i)) != 0) side_count++;
+				}
+				
+				bool transp_wall = false;
+				if(tile_data->type & labdata::WT_TRANSPARENT) {
+					wall_subobj+=2;
+					transp_wall = true;
+					wall_indices[wall_subobj-1] = new index3[side_count*2];
+					wall_index_count[wall_subobj-1] = side_count*2;
+					wall_indices[wall_subobj] = new index3[side_count*2];
+					wall_index_count[wall_subobj] = side_count*2;
+				}
+				
+				if(side_count == 0) continue;
 
 				size_t wall_index = wall_static_num*4;
 				if(tile_data->animation > 1) {
 					wall_index = wall_ani_offset + wall_ani_num*4;
-					wall_ani_num+=4;
-					animated_tiles.push_back(make_pair(1, ow_tiles[y*map_size.x + x]));
+					wall_ani_num+=side_count;
+					animated_tiles.push_back(make_tuple(1, ow_tiles[y*map_size.x + x], uint2(x, y)));
 				}
-				else wall_static_num+=4;
+				else {
+					wall_static_num+=side_count;
+				}
 
 				const float y_size = map_scale.y * float(tile_data->y_size)/8.0f;
 
 				const float2& tc_b = tile_data->tex_coord_begin[0];
 				const float2& tc_e = tile_data->tex_coord_end[0];
-				// TODO: only add necessary walls
+				size_t wall_transp_num = 0;
 				for(size_t i = 0; i < 4; i++) {
+					// only add necessary walls
+					if((side & (unsigned char)(1 << i)) == 0) continue;
+					
 					switch(i) {
-						case 0:
+						case 0: // north
 							wall_vertices[wall_index + 0].set(float(x)*tile_size, y_size, float(y)*tile_size);
 							wall_vertices[wall_index + 1].set(float(x)*tile_size, floor_height, float(y)*tile_size);
 							wall_vertices[wall_index + 2].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size);
 							wall_vertices[wall_index + 3].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size);
 							break;
-						case 1:
+						case 1: // east
+							wall_vertices[wall_index + 0].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size);
+							wall_vertices[wall_index + 1].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size);
+							wall_vertices[wall_index + 2].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size + tile_size);
+							wall_vertices[wall_index + 3].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size + tile_size);
+							break;
+						case 2: // south
 							wall_vertices[wall_index + 0].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size + tile_size);
 							wall_vertices[wall_index + 1].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size + tile_size);
 							wall_vertices[wall_index + 2].set(float(x)*tile_size, y_size, float(y)*tile_size + tile_size);
 							wall_vertices[wall_index + 3].set(float(x)*tile_size, floor_height, float(y)*tile_size + tile_size);
 							break;
-						case 2:
+						case 3: // west
 							wall_vertices[wall_index + 0].set(float(x)*tile_size, y_size, float(y)*tile_size + tile_size);
 							wall_vertices[wall_index + 1].set(float(x)*tile_size, floor_height, float(y)*tile_size + tile_size);
 							wall_vertices[wall_index + 2].set(float(x)*tile_size, y_size, float(y)*tile_size);
 							wall_vertices[wall_index + 3].set(float(x)*tile_size, floor_height, float(y)*tile_size);
-							break;
-						case 3:
-							wall_vertices[wall_index + 0].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size);
-							wall_vertices[wall_index + 1].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size);
-							wall_vertices[wall_index + 2].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size + tile_size);
-							wall_vertices[wall_index + 3].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size + tile_size);
 							break;
 						default: break;
 					}
@@ -490,10 +558,30 @@ void map3d::load(const size_t& map_num) {
 					wall_tc_restrict[wall_index + 2].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
 					wall_tc_restrict[wall_index + 3].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
 				
-					wall_indices[0][wall_num*2].set(wall_index + 1, wall_index + 0, wall_index + 2);
-					wall_indices[0][wall_num*2 + 1].set(wall_index + 2, wall_index + 3, wall_index + 1);
+					if(transp_wall) {
+						// side #1
+						wall_indices[wall_subobj-1][wall_transp_num*2].set(wall_index + 1, wall_index + 0, wall_index + 2);
+						wall_indices[wall_subobj-1][wall_transp_num*2 + 1].set(wall_index + 2, wall_index + 3, wall_index + 1);
+						
+						// side #2
+						wall_indices[wall_subobj][wall_transp_num*2].set(wall_index + 2, wall_index + 0, wall_index + 1);
+						wall_indices[wall_subobj][wall_transp_num*2 + 1].set(wall_index + 1, wall_index + 3, wall_index + 2);
+						
+						wall_transp_num++;
+					}
+					else {
+						wall_indices[0][wall_num*2].set(wall_index + 1, wall_index + 0, wall_index + 2);
+						wall_indices[0][wall_num*2 + 1].set(wall_index + 2, wall_index + 3, wall_index + 1);
+						wall_num++;
+						
+						// draw both sides of an alpha tested wall
+						if(tile_data->type & labdata::WT_CUT_ALPHA) {
+							wall_indices[0][wall_num*2].set(wall_index + 2, wall_index + 0, wall_index + 1);
+							wall_indices[0][wall_num*2 + 1].set(wall_index + 1, wall_index + 3, wall_index + 2);
+							wall_num++;
+						}
+					}
 					
-					wall_num++;
 					wall_index+=4;
 				}
 			}
@@ -506,7 +594,7 @@ void map3d::load(const size_t& map_num) {
 				if(obj->animated) {
 					object_index = obj_ani_offset + obj_ani_num*4;
 					obj_ani_num += obj->sub_object_count;
-					animated_tiles.push_back(make_pair(2, ow_tiles[y*map_size.x + x]));
+					animated_tiles.push_back(make_tuple(2, ow_tiles[y*map_size.x + x], uint2(x, y)));
 				}
 				else object_num += obj->sub_object_count;
 
@@ -578,10 +666,18 @@ void map3d::load(const size_t& map_num) {
 	sce->add_model(fc_tiles_model);
 
 	wall_model = new map_tiles();
-	wall_model->load_from_memory(1, wall_count*4, wall_vertices, wall_tex_coords, wall_index_count, wall_indices);
+	wall_model->load_from_memory(1+wall_transp_obj_count, wall_count*4, wall_vertices, wall_tex_coords, wall_index_count, wall_indices);
 	wall_model->set_tc_restrict(wall_tc_restrict);
 	wall_model->set_material(lab_data->get_wall_material());
 	sce->add_model(wall_model);
+	
+	// make wall sub-objects transparent
+	vector<size_t> transp_subobjs;
+	for(size_t i = 0; i < wall_transp_obj_count; i++) {
+		wall_model->set_transparent(1+i, true);
+		transp_subobjs.push_back(1+i);
+	}
+	lab_data->get_wall_material()->copy_object_mapping(0, transp_subobjs);
 	
 	objects_model = new map_objects();
 	objects_model->load_from_memory(1, sub_object_count*4, obj_vertices, obj_tex_coords, obj_index_count, obj_indices);
@@ -591,6 +687,35 @@ void map3d::load(const size_t& map_num) {
 	sce->add_model(objects_model);
 
 	// don't delete model data, these are taken care of by a2estatic/a2emodel now!
+	
+	// lights (this is only for testing purposes atm)
+	const float half_tile_size = tile_size * 0.5f;
+	for(size_t y = 0; y < map_size.y; y++) {
+		for(size_t x = 0; x < map_size.x; x++) {
+			const unsigned int& tile_obj = ow_tiles[y*map_size.x + x];
+			if(tile_obj > 0 && tile_obj < 101) {
+				if((map_num == 183 || map_num == 135) &&
+				   (tile_obj == 8 || tile_obj == 9 || tile_obj == 10 || tile_obj == 39)) {
+					light* obj_light = new light(e, float(x)*tile_size + half_tile_size, 18.0f, float(y)*tile_size + half_tile_size);
+					obj_light->set_lambient(0.2f, 0.2f, 0.02f);
+					obj_light->set_ldiffuse(0.8f, 0.8f, 0.1f);
+					obj_light->set_lspecular(0.2f, 0.2f, 0.05f);
+					obj_light->set_constant_attenuation(0.0f);
+					/*obj_light->set_linear_attenuation(0.008f);
+					obj_light->set_quadratic_attenuation(0.005f);*/
+					obj_light->set_linear_attenuation(0.06f);
+					obj_light->set_quadratic_attenuation(0.0f);
+					obj_light->set_spot_direction(0.0f, 0.0f, 0.0f);
+					obj_light->set_spot_cutoff(0.0f);
+					obj_light->set_enabled(true);
+					obj_light->set_spot_light(false);
+					sce->add_light(obj_light);
+					scene_lights.push_back(obj_light);
+				}
+			}
+		}
+	}
+	cout << "#lights: " << scene_lights.size() << endl;
 
 	// and finally:
 	map_loaded = true;
@@ -658,6 +783,10 @@ void map3d::unload() {
 		npcs_indices = NULL;
 		npc_object_count = 0;
 	}
+	if(wall_sides != NULL) {
+		delete [] wall_sides;
+		wall_sides = NULL;
+	}
 	
 	//
 	for(vector<npc3d*>::iterator npc_iter = npcs.begin(); npc_iter != npcs.end(); npc_iter++) {
@@ -668,6 +797,12 @@ void map3d::unload() {
 		delete mnpcs;
 		mnpcs = NULL;
 	}
+	
+	for(auto liter = scene_lights.begin(); liter != scene_lights.end(); liter++) {
+		sce->delete_light(*liter);
+		delete *liter;
+	}
+	scene_lights.clear();
 	
 	mevents.unload();
 	map_loaded = false;
@@ -746,22 +881,22 @@ void map3d::handle() {
 		size_t fc_index = 0, fc_ani_num = 0;
 		size_t wall_index = 0, wall_ani_num = 0;
 		size_t obj_index = 0, obj_ani_num = 0;
-		for(vector<pair<unsigned int, unsigned int> >::iterator ani_tile_iter = animated_tiles.begin(); ani_tile_iter != animated_tiles.end(); ani_tile_iter++) {
-			if(ani_tile_iter->first == 0) {
+		for(auto ani_tile_iter = animated_tiles.begin(); ani_tile_iter != animated_tiles.end(); ani_tile_iter++) {
+			if(get<0>(*ani_tile_iter) == 0) {
 				fc_index = fc_ani_offset + fc_ani_num*4;
 				fc_ani_num++;
 			}
-			else if(ani_tile_iter->first == 1) {
+			else if(get<0>(*ani_tile_iter) == 1) {
 				wall_index = wall_ani_offset + wall_ani_num*4;
 				wall_ani_num++;
 			}
-			else if(ani_tile_iter->first == 2) {
+			else if(get<0>(*ani_tile_iter) == 2) {
 				obj_index = obj_ani_offset + obj_ani_num*4;
 			}
 
-			switch(ani_tile_iter->first) {
+			switch(get<0>(*ani_tile_iter)) {
 				case 0: {
-					const labdata::lab_floor* tile_data = lab_data->get_floor(ani_tile_iter->second);
+					const labdata::lab_floor* tile_data = lab_data->get_floor(get<1>(*ani_tile_iter));
 					const float2& tc_b = tile_data->tex_info[tile_data->cur_ani].tex_coord_begin;
 					const float2& tc_e = tile_data->tex_info[tile_data->cur_ani].tex_coord_end;
 					fc_tex_coords[fc_index + 0].set(tc_b.x, tc_b.y);
@@ -776,11 +911,27 @@ void map3d::handle() {
 				}
 				break;
 				case 1: {
-					const labdata::lab_wall* tile_data = lab_data->get_wall(ani_tile_iter->second);
+					const labdata::lab_wall* tile_data = lab_data->get_wall(get<1>(*ani_tile_iter));
+					if(tile_data == NULL) break;
 					const float2& tc_b = tile_data->tex_coord_begin[tile_data->cur_ani];
 					const float2& tc_e = tile_data->tex_coord_end[tile_data->cur_ani];
-
+					
+					const uint2& pos = get<2>(*ani_tile_iter);
+					const unsigned char& side = wall_sides[pos.y*map_size.x + pos.x];
+					size_t side_count = 0;
 					for(size_t i = 0; i < 4; i++) {
+						if((side & (unsigned char)(1 << i)) != 0) side_count++;
+					}
+					if(side_count == 0) {
+						wall_ani_num--; // decrease already increased ani num
+						continue;
+					}
+					else wall_ani_num += side_count-1; // already inc'ed by one
+					
+					for(size_t i = 0; i < 4; i++) {
+						// only add necessary walls
+						if((side & (unsigned char)(1 << i)) == 0) continue;
+						
 						wall_tex_coords[wall_index + 0].set(tc_b.x, tc_e.y);
 						wall_tex_coords[wall_index + 1].set(tc_e.x, tc_e.y);
 						wall_tex_coords[wall_index + 2].set(tc_b.x, tc_b.y);
@@ -792,12 +943,10 @@ void map3d::handle() {
 						wall_tc_restrict[wall_index + 3].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
 						wall_index+=4;
 					}
-
-					wall_ani_num+=3; // already inc'ed by one
 				}
 				break;
 				case 2: {
-					const labdata::lab_object* tile_data = lab_data->get_object(ani_tile_iter->second);
+					const labdata::lab_object* tile_data = lab_data->get_object(get<1>(*ani_tile_iter));
 
 					for(size_t i = 0; i < tile_data->sub_object_count; i++) {
 						const float2& tc_b = tile_data->sub_objects[i]->tex_coord_begin[tile_data->sub_objects[i]->cur_ani];

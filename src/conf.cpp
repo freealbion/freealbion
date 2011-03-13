@@ -109,8 +109,7 @@ void conf::init() {
 	conf::add<bool>("map.collision", true);
 	conf::add<bool>("map.draw_overlay", true);
 	conf::add<bool>("map.draw_underlay", true);
-	
-	conf::add<float>("global.scale", 2.0f); // original scale: 3.0f
+	conf::add<float>("map.scale", 2.0f); // original scale: 3.0f
 	
 	conf::add<bool>("ui.display", true);
 	

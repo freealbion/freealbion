@@ -74,30 +74,22 @@ int main(int argc, char *argv[]) {
 	// initialize the scene
 	sce->set_eye_distance(-0.3f);
 	
-	// add map objects shader
-	map<string, string> ar_shaders;
-	ar_shaders["AR_DR_GBUFFER_MAP_OBJECTS"] = "deferred/gbuffer_map_objects.a2eshd";
-	ar_shaders["AR_DR_GBUFFER_MAP_TILES"] = "deferred/gbuffer_map_tiles.a2eshd";
-	ar_shaders["AR_DR_GBUFFER_SKY"] = "deferred/gbuffer_sky.a2eshd";
-	ar_shaders["AR_IR_GBUFFER_MAP_OBJECTS"] = "inferred/gp_gbuffer_map_objects.a2eshd";
-	ar_shaders["AR_IR_GBUFFER_MAP_TILES"] = "inferred/gp_gbuffer_map_tiles.a2eshd";
-	ar_shaders["AR_IR_GBUFFER_SKY"] = "inferred/gp_gbuffer_sky.a2eshd";
-	ar_shaders["AR_IR_MP_SKY"] = "inferred/mp_sky.a2eshd";
-	ar_shaders["AR_IR_MP_MAP_OBJECTS"] = "inferred/mp_map_objects.a2eshd";
-	ar_shaders["AR_IR_MP_MAP_TILES"] = "inferred/mp_map_tiles.a2eshd";
-
-	a2e_shader* a2e_shd = s->get_a2e_shader();
-	for(map<string, string>::const_iterator ars_iter = ar_shaders.begin(); ars_iter != ar_shaders.end(); ars_iter++) {
-		a2e_shd->add_a2e_shader(ars_iter->first);
-		if(!a2e_shd->load_a2e_shader(ars_iter->first, e->shader_path(ars_iter->second.c_str()), a2e_shd->get_a2e_shader(ars_iter->first))) {
-			a2e_error("couldn't load a2e-shader \"%s\"!", ars_iter->second);
+	// add shaders
+	const string ar_shaders[][2] = {
+		{ "AR_DR_GBUFFER_MAP_OBJECTS", "deferred/gbuffer_map_objects.a2eshd" },
+		{ "AR_DR_GBUFFER_MAP_TILES", "deferred/gbuffer_map_tiles.a2eshd" },
+		{ "AR_DR_GBUFFER_SKY", "deferred/gbuffer_sky.a2eshd" },
+		{ "AR_IR_GBUFFER_MAP_OBJECTS", "inferred/gp_gbuffer_map_objects.a2eshd" },
+		{ "AR_IR_GBUFFER_MAP_TILES", "inferred/gp_gbuffer_map_tiles.a2eshd" },
+		{ "AR_IR_GBUFFER_SKY", "inferred/gp_gbuffer_sky.a2eshd" },
+		{ "AR_IR_MP_SKY", "inferred/mp_sky.a2eshd" },
+		{ "AR_IR_MP_MAP_OBJECTS", "inferred/mp_map_objects.a2eshd" },
+		{ "AR_IR_MP_MAP_TILES", "inferred/mp_map_tiles.a2eshd" },
+	};
+	for(size_t i = 0; i < A2E_ARRAY_LENGTH(ar_shaders); i++) {
+		if(!s->add_a2e_shader(ar_shaders[i][0], ar_shaders[i][1])) {
+			a2e_error("couldn't add a2e-shader \"%s\"!", ar_shaders[i][1]);
 			done = true;
-		}
-		else {
-			if(!a2e_shd->preprocess_and_compile_a2e_shader(a2e_shd->get_a2e_shader(ars_iter->first))) {
-				a2e_error("couldn't preprocess and/or compile a2e-shader \"%s\"!", ars_iter->second);
-				done = true;
-			}
 		}
 	}
 
@@ -108,10 +100,12 @@ int main(int argc, char *argv[]) {
 	mh = new map_handler();
 	//mh->load_map(42);
 	//mh->load_map(10);
-	mh->load_map(50);
+	//mh->load_map(50);
 	//mh->load_map(11);
 	//mh->load_map(22);
 	//mh->load_map(183);
+	mh->load_map(45);
+	//mh->load_map(47);
 	
 	aui = new albion_ui(mh);
 	aui->open_goto_map_wnd();
@@ -125,12 +119,15 @@ int main(int argc, char *argv[]) {
 
 	//transtb* ttb = new transtb();
 	
+	a2e_texture tmp_tex = new texture_object();
+	tmp_tex->width = e->get_width();
+	tmp_tex->height = e->get_height();
 	while(!done) {
-		/*static float gscale = conf::get<float>("global.scale");
+		/*static float gscale = conf::get<float>("map.scale");
 		static float scale_dir = 1.0f;
 		gscale += 0.01f * scale_dir;
 		if(gscale >= 4.0f || gscale <= 1.0f) scale_dir *= -1.0f;
-		conf::set<float>("global.scale", gscale);*/
+		conf::set<float>("map.scale", gscale);*/
 		
 		while(evt->is_event()) {
 			evt->handle_events(evt->get_event().type);
@@ -182,6 +179,22 @@ int main(int argc, char *argv[]) {
 								conf::set<size_t>("debug.npcgfx", conf::get<size_t>("debug.npcgfx")+1);
 								cout << ":: " << conf::get<size_t>("debug.npcgfx") << endl;
 							}
+							break;
+						case SDLK_1:
+							tmp_tex->tex_num = sce->_get_g_buffer()->tex_id[0];
+							conf::set<a2e_texture>("debug.texture", tmp_tex);
+							break;
+						case SDLK_2:
+							tmp_tex->tex_num = sce->_get_g_buffer()->tex_id[1];
+							conf::set<a2e_texture>("debug.texture", tmp_tex);
+							break;
+						case SDLK_3:
+							tmp_tex->tex_num = sce->_get_g_buffer()->tex_id[2];
+							conf::set<a2e_texture>("debug.texture", tmp_tex);
+							break;
+						case SDLK_4:
+							tmp_tex->tex_num = sce->_get_l_buffer()->tex_id[0];
+							conf::set<a2e_texture>("debug.texture", tmp_tex);
 							break;
 						case SDLK_LSHIFT:
 						case SDLK_RSHIFT:
@@ -320,10 +333,18 @@ int main(int argc, char *argv[]) {
 		
 		if(conf::get<bool>("debug.display_debug_texture") && img->get_width() > 0 && img->get_height() > 0) {
 			e->start_2d_draw();
-			float ratio = img->get_width()/img->get_height();
-			//float2 screen_size = float2(e->get_width(), e->get_height());
-			//(ratio >= 1.0f) ? img->draw(screen_size.x, screen_size.y*(1.0f/ratio)) : img->draw(screen_size.x*ratio, screen_size.y);
-			(ratio >= 1.0f) ? img->draw(720.0f, 720.0f*(1.0f/ratio)) : img->draw(720.0f*ratio, 720.0f);
+			size_t draw_width = img->get_width(), draw_height = img->get_height();
+			float ratio = float(draw_width) / float(draw_height);
+			float scale = 1.0f;
+			if(ratio >= 1.0f && draw_width > e->get_width()) {
+				scale = float(e->get_width()) / float(draw_width);
+			}
+			else if(ratio < 1.0f && draw_height > e->get_height()) {
+				scale = float(e->get_height()) / float(draw_height);
+			}
+			draw_width *= scale;
+			draw_height *= scale;
+			img->draw(draw_width, draw_height);
 			e->stop_2d_draw();
 		}
 		
@@ -332,6 +353,7 @@ int main(int argc, char *argv[]) {
 
 		e->stop_draw();
 	}
+	tmp_tex->tex_num = 0;
 	
 	a2e_debug_wnd::close();
 

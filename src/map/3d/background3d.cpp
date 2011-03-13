@@ -19,7 +19,7 @@
 
 #include "background3d.h"
 
-background3d::background3d() : a2estatic(::e, ::s) {
+background3d::background3d() : a2estatic(::e, ::s, ::sce) {
 	bg3d_xld = new xld("3DBCKGR0.XLD");
 	bg_texture = t->get_dummy_texture();
 	cur_bg_num = -1;

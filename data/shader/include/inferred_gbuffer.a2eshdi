@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader_include version="1">
+	<vertex_shader version="120">
+		<variables>
+		</variables>
+		<program>
+
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader version="120">
+		<preprocessor>
+		</preprocessor>
+		<variables>
+			uniform int mask_id;
+		</variables>
+		<program>
+			void check_mask_id() {
+				if(mask_id > 0) {
+					vec2 tiled_frag_coord = mod(floor(gl_FragCoord.xy), 2.0);
+					float cid = tiled_frag_coord.x + tiled_frag_coord.y * 2.0;
+					if(cid != float(mask_id)) discard;
+				}
+			}
+		</program>
+	</fragment_shader>
+</a2e_shader_include>

@@ -71,6 +71,14 @@ protected:
 	unsigned int* ow_tiles;
 	unsigned int* floor_tiles;
 	unsigned int* ceiling_tiles;
+	
+	enum WALL_SIDE {
+		WS_NORTH	= 1 << 0,
+		WS_EAST		= 1 << 1,
+		WS_SOUTH	= 1 << 2,
+		WS_WEST		= 1 << 3,
+	};
+	unsigned char* wall_sides;
 
 	// gl
 	// floors/ceilings
@@ -97,7 +105,9 @@ protected:
 	index3** obj_indices;
 	map_objects* objects_model;
 	
+	// lights
 	light* player_light;
+	vector<light*> scene_lights;
 
 	//
 	bool map_loaded;
@@ -115,8 +125,8 @@ protected:
 	size_t wall_ani_offset;
 	size_t obj_ani_count;
 	size_t obj_ani_offset;
-	// <type, tile number> (type: 0 = floor/ceiling, 1 = wall, 2 = object)
-	vector<pair<unsigned int, unsigned int> > animated_tiles;
+	// <type, tile number, pos> (type: 0 = floor/ceiling, 1 = wall, 2 = object)
+	vector<tuple<unsigned int, unsigned int, uint2> > animated_tiles;
 
 };
 

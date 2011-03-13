@@ -134,6 +134,7 @@
 		5C9C512C1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = en; path = src/osx/en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		5C9C512E1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = en; path = src/osx/en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		5C9C512F1265490700A15B31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = src/osx/Info.plist; sourceTree = "<group>"; };
+		5CDFD7A213248985009459CE /* inferred_gbuffer.a2eshdi */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = inferred_gbuffer.a2eshdi; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5CFFE9201269605A00199C96 /* npc2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = npc2d.cpp; sourceTree = "<group>"; };
 		5CFFE9211269605A00199C96 /* npc2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = npc2d.h; sourceTree = "<group>"; };
 		5CFFE9221269605A00199C96 /* player2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player2d.cpp; sourceTree = "<group>"; };
@@ -274,6 +275,7 @@
 				5C7A455812CBAA86005C70EE /* gbuffer.a2eshdi */,
 				5C7A455912CBAA86005C70EE /* hdr_shrink.a2eshdi */,
 				5C7A455A12CBAA86005C70EE /* inferred.a2eshdi */,
+				5CDFD7A213248985009459CE /* inferred_gbuffer.a2eshdi */,
 				5C7A455B12CBAA86005C70EE /* parallax.a2eshdi */,
 				5C7A455C12CBAA86005C70EE /* sincos_emu.a2eshdi */,
 				5C7A455D12CBAA86005C70EE /* texture2dgrad.a2eshdi */,

@@ -19,7 +19,7 @@
 
 #include "map_tiles.h"
 
-map_tiles::map_tiles() : a2estatic(::e, ::s) {
+map_tiles::map_tiles() : a2estatic(::e, ::s, ::sce) {
 	tc_restrict = NULL;
 	vbo_tc_restrict_id = 0;
 }
@@ -79,8 +79,8 @@ void map_tiles::set_tc_restrict(float4* tc_restrict, GLenum usage) {
 }
 
 const string map_tiles::select_shader(const size_t& draw_mode) const {
-	if(draw_mode == a2emodel::MDM_GEOMETRY_PASS) return "AR_IR_GBUFFER_MAP_TILES";
-	else if(draw_mode == a2emodel::MDM_MATERIAL_PASS) return "AR_IR_MP_MAP_TILES";
+	if(draw_mode == a2emodel::MDM_GEOMETRY_PASS || draw_mode == a2emodel::MDM_GEOMETRY_ALPHA_PASS) return "AR_IR_GBUFFER_MAP_TILES";
+	else if(draw_mode == a2emodel::MDM_MATERIAL_PASS || draw_mode == a2emodel::MDM_MATERIAL_ALPHA_PASS) return "AR_IR_MP_MAP_TILES";
 	return "";
 }
 

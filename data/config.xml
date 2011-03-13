@@ -11,7 +11,9 @@
 	<thread count="0"/> // number of threads to use (0 = use max threads)
 	<server port="1337" max_clients="32"/>
 	<client server="127.0.0.1" port="1337" lis_port="1336" name="Flo"/>
-	<graphic filtering="TRILINEAR" anisotropic="16" anti_aliasing="MSAA4" hdr="0" hdr_rgba16="0"/>
+	<graphic_ filtering="TRILINEAR" anisotropic="16" anti_aliasing="MSAA8" hdr="0" hdr_rgba16="0"/>
+	<graphic filtering="TRILINEAR" anisotropic="16" anti_aliasing="NONE" hdr="0" hdr_rgba16="0"/>
 	<graphic_ filtering="POINT" anisotropic="0" anti_aliasing="NONE" hdr="0" hdr_rgba16="0"/>
 	<graphic_device disabled_extensions="" force_device="" force_vendor=""/>
+	<inferred scale="100" />
 </engine>

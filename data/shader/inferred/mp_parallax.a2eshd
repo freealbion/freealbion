@@ -95,8 +95,7 @@ void main() {
 	// lighting
 	vec3 final_color = light_color.rgb * diff_color.rgb + light_color.a * spec_color.rgb;
 	
-	//final_color = light_color.rgb;
-	gl_FragColor = vec4(final_color, 1.0);
+	gl_FragColor = vec4(final_color * diff_color.a, diff_color.a);
 }
 		</program>
 	</fragment_shader>

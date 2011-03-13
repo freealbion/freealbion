@@ -81,8 +81,8 @@ void map_objects::set_ws_positions(float3* ws_positions, GLenum usage) {
 }
 
 const string map_objects::select_shader(const size_t& draw_mode) const {
-	if(draw_mode == a2emodel::MDM_GEOMETRY_PASS) return "AR_IR_GBUFFER_MAP_OBJECTS";
-	else if(draw_mode == a2emodel::MDM_MATERIAL_PASS) return "AR_IR_MP_MAP_OBJECTS";
+	if(draw_mode == a2emodel::MDM_GEOMETRY_PASS || draw_mode == a2emodel::MDM_GEOMETRY_ALPHA_PASS) return "AR_IR_GBUFFER_MAP_OBJECTS";
+	else if(draw_mode == a2emodel::MDM_MATERIAL_PASS || draw_mode == a2emodel::MDM_MATERIAL_ALPHA_PASS) return "AR_IR_MP_MAP_OBJECTS";
 	return "";
 }
 

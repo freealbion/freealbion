@@ -16,6 +16,7 @@ void inferred_vs() {
 	<fragment_shader version="120">
 		<variables>
 uniform vec2 id;
+uniform int mask_id;
 uniform sampler2D dsf_buffer;
 uniform sampler2D depth_buffer;
 uniform sampler2D light_buffer;
@@ -27,34 +28,50 @@ uniform vec2 texel_size;
 
 varying float out_depth;
 centroid varying vec4 out_position;
+
+const mat4 offsets_x = mat4(
+	vec4(0.0, 0.0, 0.0, 0.0),
+	vec4(-1.0, 0.0, -1.0, 0.0),
+	vec4(0.0, -1.0, 0.0, -1.0),
+	vec4(-1.0, 0.0, -1.0, 0.0)
+);
+const mat4 offsets_y = mat4(
+	vec4(0.0, 0.0, 0.0, 0.0),
+	vec4(0.0, 0.0, -1.0, -1.0),
+	vec4(-1.0, -1.0, 0.0, 0.0),
+	vec4(-1.0, -1.0, 0.0, 0.0)
+);
+
 		</variables>
 		<program>
 vec4 compute_light_color() {
-	vec2 frag_coord = ((out_position.xy/out_position.w) + 1.0) * (screen_size * 0.5);
-	frag_coord.x -= 0.33333;
-	//frag_coord.y += 0.125;
+	vec2 centroid_frag_coord = ((out_position.xy/out_position.w) * 0.5) + 0.5;
+	vec2 screen_coord = centroid_frag_coord * screen_size;
+	vec2 lbuffer_coord = centroid_frag_coord * l_buffer_size;
 	
-	//vec2 tex_coord = gl_FragCoord.xy / screen_size;
-	vec2 tex_coord = frag_coord / screen_size;
-	vec2 lb_tex_coord = tex_coord * l_buffer_size;
+	vec2 tiled_frag_coord = mod(floor(lbuffer_coord.xy), 2.0);
+	int cid = int(tiled_frag_coord.x + tiled_frag_coord.y * 2.0);
+	vec2 offset = vec2(offsets_x[mask_id][cid], offsets_y[mask_id][cid]);
+	
+	float mscale = (mask_id == 0 ? 1.0 : 2.0);
 	vec2 scale = l_buffer_size / screen_size;
 	float norm_depth = out_depth / 1000.0;
 	
 	// compute the 4 sample coordinates
+	// TODO: use cone filter
 	vec2 coords[4];
-	coords[0] = (floor(lb_tex_coord) + 0.5) / l_buffer_size; // upper left
-	coords[1] = vec2(coords[0].x + texel_size.x, coords[0].y); // upper right
-	coords[2] = vec2(coords[0].x, coords[0].y + texel_size.y); // lower left
-	coords[3] = vec2(coords[0].x + texel_size.x, coords[0].y + texel_size.y); // lower right
+	vec2 stexel_size = texel_size * mscale;
+	coords[0] = (floor(lbuffer_coord) + 0.5 + offset) / l_buffer_size; // lower left
+	coords[1] = coords[0] + vec2(stexel_size.x, 0.0); // lower right
+	coords[2] = coords[0] + vec2(0.0, stexel_size.y); // upper left
+	coords[3] = coords[0] + vec2(stexel_size.x, stexel_size.y); // upper right
 	
 	//
 	vec4 light_color = vec4(0.0);
 	vec4 light_vals[4];
 	float valid_sample[4];
-	//const float depth_epsilon = 0.1;
-	//const float epsilon = 0.01; // seems to be okay for now
 	const float depth_epsilon = 0.05;
-	const float epsilon = 0.1; // seems to be okay for now
+	const float epsilon = 0.05; // seems to be okay for now
 	float valid_samples = 0.0;
 	for(int i = 0; i < 4; i++) {
 		vec2 dsf = texture2D(dsf_buffer, coords[i]).rg;
@@ -73,7 +90,7 @@ vec4 compute_light_color() {
 	}
 	
 	// compute weights for bilinear filtering
-	vec2 bilinear_weight = fract(lb_tex_coord) - 0.5*scale;
+	vec2 bilinear_weight = (fract(lbuffer_coord) - 0.5*scale - offset) / mscale;
 	float weights[3];
 	weights[0] = clamp(bilinear_weight.x - valid_sample[0] + valid_sample[1], 0.0, 1.0);
 	weights[1] = clamp(bilinear_weight.x - valid_sample[2] + valid_sample[3], 0.0, 1.0);
@@ -89,7 +106,7 @@ vec4 compute_light_color() {
 		// modify lighting a bit dependent on its intensity
 		light_color.rgb *= (light_color.r+light_color.g+light_color.b)/3.0;
 		light_color.a *= light_color.a;
-		light_color *= 0.75;
+		light_color.rgb *= 0.75;
 	}
 	
 	return light_color;

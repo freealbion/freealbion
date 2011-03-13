@@ -47,7 +47,7 @@ void ar_clock::run() {
 			tick_type = CCBT_DAY;
 		}
 		
-		// and call all callbacks (note: upper_bound gives us and iterator to the first elem of the next ccbt type => end iter)
+		// and call all callbacks (note: upper_bound gives us an iterator to the first elem of the next ccbt type => end iter)
 		multimap<CLOCK_CB_TYPE, clock_callback*>::const_iterator cb_iter = callbacks.begin(), end_iter = callbacks.upper_bound(tick_type);
 		for(; cb_iter != end_iter; cb_iter++) {
 			(*cb_iter->second)(ticks);

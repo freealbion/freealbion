@@ -301,7 +301,7 @@ void map2d::handle() {
 	last_frame_time = SDL_GetTicks();
 	
 	// compute target position (aka map draw offset/position, left top corner)
-	float scaled_tile_size = tile_size * conf::get<float>("global.scale");
+	float scaled_tile_size = tile_size * conf::get<float>("map.scale");
 	normal_player_offset.set(e->get_width() / size_t(scaled_tile_size) / 2, e->get_height() / size_t(scaled_tile_size) / 2);
 	float2 target_position = ssize2(next_position) - ssize2(normal_player_offset);
 	target_position.clamp(float2(0.0f),
@@ -373,7 +373,7 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 	glPushMatrix();
 	glFrontFace(GL_CW);
 
-	const float scale = conf::get<float>("global.scale");
+	const float scale = conf::get<float>("map.scale");
 	const float scaled_tile_size = scale * tile_size;
 
 	static const float snap_factor = 100.0f;
@@ -539,7 +539,7 @@ bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, 
 }
 
 const float map2d::get_tile_size() const {
-	return tile_size * conf::get<float>("global.scale");
+	return tile_size * conf::get<float>("map.scale");
 }
 
 const size_t& map2d::get_palette() const {

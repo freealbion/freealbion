@@ -8,7 +8,7 @@ varying vec3 out_cube_tex_coord;
 		</variables>
 		<program>
 void main() {
-	//inferred_vs();
+	// instead of inferred_vs():
 	out_depth = 0.999999;
 	out_position = gl_Vertex;
 	
@@ -31,7 +31,7 @@ void main() {
 	vec4 diff_color = textureCube(diffuse_texture, out_cube_tex_coord);
 	vec3 final_color = light_color.rgb * diff_color.rgb;
 	
-	gl_FragColor = vec4(final_color, 1.0);
+	gl_FragColor = vec4(final_color * diff_color.a, diff_color.a);
 }
 		</program>
 	</fragment_shader>

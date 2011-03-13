@@ -71,6 +71,7 @@ map_handler::map_handler() {
 	evt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_s);
 	evt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_d);
 	evt->add_event_callback(this, &map_handler::handle_right_click, event::RIGHT_MOUSE_CLICK, 0);
+	evt->add_event_callback(this, &map_handler::handle_right_click, event::KEY_PRESSED, SDLK_x);
 }
 
 map_handler::~map_handler() {
@@ -87,6 +88,7 @@ map_handler::~map_handler() {
 	evt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_s);
 	evt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_d);
 	evt->delete_event_callbacks(this, &map_handler::handle_right_click, event::RIGHT_MOUSE_CLICK, 0);
+	evt->delete_event_callbacks(this, &map_handler::handle_right_click, event::KEY_PRESSED, SDLK_x);
 	
 	delete maps1;
 	delete maps2;

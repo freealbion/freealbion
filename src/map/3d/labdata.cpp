@@ -296,8 +296,9 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		cout << "x: " << (size_t)AR_GET_USINT(data, offset+10) << endl;
 		cout << "y: " << (size_t)AR_GET_USINT(data, offset+12) << endl;
 		cout << "#over: " << (size_t)AR_GET_USINT(data, offset+14) << endl;
-
-		walls.back()->type = data[offset] & 0xFF;
+		
+		//walls.back()->type = data[offset] & 0xFF;
+		walls.back()->type = (data[offset] & 0xFF) & WT_JOINED;
 		offset++;
 		
 		walls.back()->collision = (data[offset] << 16) | (data[offset+1] << 8) | data[offset+2];
@@ -578,7 +579,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		}
 		cout << ":: creating objects texture " << objects_tex_size << " ..." << endl;
 		objects_tex = t->add_texture(objects_surface, objects_tex_size.x, objects_tex_size.y, GL_RGBA8, GL_RGBA, tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
-		conf::set<a2e_texture>("debug.texture", objects_tex);
+		//conf::set<a2e_texture>("debug.texture", objects_tex);
 		delete [] objects_surface;
 	}
 	else objects_tex = t->get_dummy_texture();
@@ -657,8 +658,7 @@ const labdata::lab_floor* labdata::get_floor(const size_t& num) const {
 
 const labdata::lab_wall* labdata::get_wall(const size_t& num) const {
 	if(num < 101 || num-101 > walls.size()) {
-		a2e_error("invalid wall number %u!", num);
-		return walls[0];
+		return NULL;
 	}
 	return walls[num-101];
 }
