@@ -196,6 +196,10 @@ int main(int argc, char *argv[]) {
 							tmp_tex->tex_num = sce->_get_l_buffer()->tex_id[0];
 							conf::set<a2e_texture>("debug.texture", tmp_tex);
 							break;
+						case SDLK_v:
+							cam->set_cam_input(cam->get_cam_input() ^ true);
+							conf::set<bool>("debug.free_cam", cam->get_cam_input());
+							break;
 						case SDLK_LSHIFT:
 						case SDLK_RSHIFT:
 							cam->set_cam_speed(0.2f);

@@ -113,21 +113,21 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 		}
 		
 		for(size_t i = 0; i < event_count; i++) {
-			events.push_back(new events::event());
-			events.back()->assigned = false;
-			events.back()->type = (events::EVENT_TYPE)(data[offset] & 0xFF); offset++;
-			events.back()->info[0] = data[offset] & 0xFF; offset++;
-			events.back()->info[1] = data[offset] & 0xFF; offset++;
-			events.back()->info[2] = data[offset] & 0xFF; offset++;
-			events.back()->info[3] = data[offset] & 0xFF; offset++;
-			events.back()->info[4] = data[offset] & 0xFF; offset++;
-			events.back()->info[5] = AR_GET_USINT(data, offset);
+			mevents.push_back(new events::event());
+			mevents.back()->assigned = false;
+			mevents.back()->type = (events::EVENT_TYPE)(data[offset] & 0xFF); offset++;
+			mevents.back()->info[0] = data[offset] & 0xFF; offset++;
+			mevents.back()->info[1] = data[offset] & 0xFF; offset++;
+			mevents.back()->info[2] = data[offset] & 0xFF; offset++;
+			mevents.back()->info[3] = data[offset] & 0xFF; offset++;
+			mevents.back()->info[4] = data[offset] & 0xFF; offset++;
+			mevents.back()->info[5] = AR_GET_USINT(data, offset);
 			offset += 2;
-			events.back()->info[6] = AR_GET_USINT(data, offset);
+			mevents.back()->info[6] = AR_GET_USINT(data, offset);
 			offset += 2;
-			events.back()->next_event_num = AR_GET_USINT(data, offset);
+			mevents.back()->next_event_num = AR_GET_USINT(data, offset);
 			offset += 2;
-			events.back()->next_event = NULL;
+			mevents.back()->next_event = NULL;
 			if(offset >= length) break;
 		}
 	}
@@ -142,7 +142,7 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 		}
 		(*ei_iter)->event_obj->assigned = true;
 	}
-	for(vector<events::event*>::iterator e_iter = events.begin(); e_iter != events.end(); e_iter++) {
+	for(vector<events::event*>::iterator e_iter = mevents.begin(); e_iter != mevents.end(); e_iter++) {
 		if((*e_iter)->next_event_num != 0xFFFF) {
 			(*e_iter)->next_event = get_event((*e_iter)->next_event_num);
 			if((*e_iter)->next_event == NULL) {
@@ -193,12 +193,12 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 
 void map_events::unload() {
 	event_info.clear();
-	events.clear();
+	mevents.clear();
 	end_offset = 0;
 }
 
 const size_t map_events::get_event_count() const {
-	return events.size();
+	return mevents.size();
 }
 
 const size_t map_events::get_event_info_count() const {
@@ -206,8 +206,8 @@ const size_t map_events::get_event_info_count() const {
 }
 
 events::event* map_events::get_event(const size_t& num) const {
-	if(num >= events.size()) return NULL;
-	return events[num];
+	if(num >= mevents.size()) return NULL;
+	return mevents[num];
 }
 
 map_events::map_event_info* map_events::get_event_info(const size_t& num) const {

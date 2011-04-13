@@ -30,8 +30,6 @@ public:
 	map_objects();
 	virtual ~map_objects();
 	
-	//virtual void draw(const size_t draw_mode = a2emodel::MDM_NORMAL);
-	
 	void set_ws_positions(float3* ws_positions, GLenum usage = GL_STATIC_DRAW);
 	const GLuint& get_vbo_ws_position_id() { return vbo_ws_position_id; }
 

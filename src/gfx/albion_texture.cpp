@@ -25,7 +25,7 @@ albion_texture::albion_texture() {
 albion_texture::~albion_texture() {
 }
 
-a2e_texture albion_texture::create(const size2& texture_size, const size2& tile_size, const size_t& palette, const vector<albion_texture_info*>& tex_info, xld** xlds, const texture_object::TEXTURE_FILTERING filtering) {
+a2e_texture albion_texture::create(const size_t& map_type, const size2& texture_size, const size2& tile_size, const size_t& palette, const vector<albion_texture_info*>& tex_info, xld** xlds, const texture_object::TEXTURE_FILTERING filtering) {
 	if(tex_info.size() == 0) return t->get_dummy_texture();
 	if(texture_size.x == 0 || texture_size.y == 0) return t->get_dummy_texture();
 	if(tile_size.x == 0 || tile_size.y == 0) return t->get_dummy_texture();
@@ -33,7 +33,9 @@ a2e_texture albion_texture::create(const size2& texture_size, const size2& tile_
 	unsigned int* tex_surface = new unsigned int[texture_size.x*texture_size.y];
 	memset(tex_surface, 0, texture_size.x*texture_size.y*sizeof(unsigned int));
 	
-	const size2 scaled_tile_size = tile_size * 4;
+	const scaling::SCALE_TYPE scale_type = conf::get<scaling::SCALE_TYPE>(map_type == 0 ? "map.2d.scale_type" : "map.3d.scale_type");
+	const size_t scale_factor = scaling::get_scale_factor(scale_type);
+	const size2 scaled_tile_size = tile_size * scale_factor;
 	unsigned int* data_32bpp = new unsigned int[tile_size.x*tile_size.y];
 	unsigned int* scaled_data = new unsigned int[scaled_tile_size.x*scaled_tile_size.y];
 	
@@ -49,7 +51,7 @@ a2e_texture albion_texture::create(const size2& texture_size, const size2& tile_
 				const size_t tex_num = (info->tex_num < 100 ? info->tex_num-1 : info->tex_num) % 100;
 				const xld::xld_object* tex_data = tex_xld->get_object(tex_num);
 				gfxconv::convert_8to32(&tex_data->data[info->offset], data_32bpp, tile_size.x, tile_size.y, palette, info->palette_shift);
-				scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, tile_size, scaled_data);
+				scaling::scale(scale_type, data_32bpp, tile_size, scaled_data);
 
 				// copy data into tiles surface
 				const size_t offset_x = (scaled_tile_size.x * i) % texture_size.x;
@@ -67,7 +69,7 @@ a2e_texture albion_texture::create(const size2& texture_size, const size2& tile_
 			const size_t obj_size = tile_size.x * tile_size.y;
 			for(size_t i = 0; i < info->object_count; i++) {
 				gfxconv::convert_8to32(&(info->object->data[info->offset + i*obj_size]), data_32bpp, tile_size.x, tile_size.y, palette, info->palette_shift);
-				scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, tile_size, scaled_data);
+				scaling::scale(scale_type, data_32bpp, tile_size, scaled_data);
 
 				// copy data into tiles surface
 				const size_t offset_x = (scaled_tile_size.x * i) % texture_size.x;
@@ -100,7 +102,7 @@ a2e_texture albion_texture::create(const size2& texture_size, const size2& tile_
 				info->tex_coords.push_back(vector<float2>());
 				for(size_t j = 0; j < animations; j++) {
 					gfxconv::convert_8to32(&(info->object->data[info->offset + i*obj_size]), data_32bpp, tile_size.x, tile_size.y, palette, j);
-					scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, tile_size, scaled_data);
+					scaling::scale(scale_type, data_32bpp, tile_size, scaled_data);
 
 					// copy data into tiles surface
 					const size_t offset_x = (scaled_tile_size.x * tile_num) % texture_size.x;

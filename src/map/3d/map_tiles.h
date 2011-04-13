@@ -29,14 +29,7 @@ public:
 	map_tiles();
 	virtual ~map_tiles();
 	
-	//virtual void draw(const size_t draw_mode = a2emodel::MDM_NORMAL);
-	
-	void set_tc_restrict(float4* tc_restrict, GLenum usage = GL_STATIC_DRAW);
-	const GLuint& get_vbo_tc_restrict_id() { return vbo_tc_restrict_id; }
-
 protected:
-	float4* tc_restrict;
-	GLuint vbo_tc_restrict_id;
 	
 	virtual const string select_shader(const size_t& draw_mode) const;
 	virtual void pre_draw_geometry(gl2shader& shd, size_t& attr_array_mask, size_t& texture_mask);

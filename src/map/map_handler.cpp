@@ -47,8 +47,10 @@ map_handler::map_handler() {
 	cout << "#########" << endl;*/
 
 	//
-	p = new player2d(maps2d, npc_graphics);
-	p->set_pos(9, 8);
+	p2d = new player2d(maps2d, npc_graphics);
+	p2d->set_pos(9, 8);
+	p3d = new player3d(maps3d);
+	p3d->set_pos(0, 0);
 	
 	active_map_type = MT_NONE;
 	
@@ -99,18 +101,25 @@ map_handler::~map_handler() {
 	delete maps3d;
 	delete npc_graphics;
 	delete lab_data;
-	delete p;
+	delete p2d;
+	delete p3d;
 }
 
 void map_handler::handle() {
-	if(next_dir != MD_NONE && (SDL_GetTicks() - last_move) > TIME_PER_TILE) {
-		last_move = SDL_GetTicks();
-		p->move((MOVE_DIRECTION)next_dir);
+	if(active_map_type == MT_2D_MAP) {
+		if(next_dir != MD_NONE && (SDL_GetTicks() - last_move) > TIME_PER_TILE) {
+			last_move = SDL_GetTicks();
+			p2d->move((MOVE_DIRECTION)next_dir);
+		}
+	}
+	else if(active_map_type == MT_3D_MAP) {
+		p3d->move((MOVE_DIRECTION)next_dir);
 	}
 	
 	maps2d->handle();
 	maps3d->handle();
-	p->handle();
+	p2d->handle();
+	p3d->handle();
 }
 
 void map_handler::draw() {
@@ -120,17 +129,17 @@ void map_handler::draw() {
 		glEnable(GL_BLEND);
 	
 		maps2d->draw(MDS_NPCS, NDS_PRE_UNDERLAY);
-		p->draw(NDS_PRE_UNDERLAY);
+		p2d->draw(NDS_PRE_UNDERLAY);
 	
 		if(conf::get<bool>("map.draw_underlay")) maps2d->draw(MDS_UNDERLAY, NDS_NONE);
 	
 		maps2d->draw(MDS_NPCS, NDS_PRE_OVERLAY);
-		p->draw(NDS_PRE_OVERLAY);
+		p2d->draw(NDS_PRE_OVERLAY);
 	
 		if(conf::get<bool>("map.draw_overlay")) maps2d->draw(MDS_OVERLAY, NDS_NONE);
 
 		maps2d->draw(MDS_NPCS, NDS_POST_OVERLAY);
-		p->draw(NDS_POST_OVERLAY);
+		p2d->draw(NDS_POST_OVERLAY);
 
 		// clear depth (so it doesn't interfere with the gui) and draw debug stuff
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -147,7 +156,7 @@ void map_handler::draw() {
 
 void map_handler::load_map(const size_t& map_num) {
 	if(maps2d->is_2d_map(map_num)) {
-		p->set_pos(9, 8);
+		p2d->set_pos(9, 8);
 		maps3d->unload();
 		maps2d->load(map_num);
 		npc_graphics->set_palette(maps2d->get_palette()-1);
@@ -184,7 +193,7 @@ void map_handler::handle_right_click(event::GUI_EVENT_TYPE type, GUI_ID id) {
 }
 
 const size2& map_handler::get_player_position() const {
-	return p->get_pos();
+	return p2d->get_pos();
 }
 
 npcgfx* map_handler::get_npc_graphics() const {

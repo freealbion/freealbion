@@ -27,6 +27,7 @@
 #include "map3d.h"
 #include "npc2d.h"
 #include "player2d.h"
+#include "player3d.h"
 #include "npcgfx.h"
 #include "labdata.h"
 
@@ -60,7 +61,8 @@ protected:
 	map2d* maps2d;
 	map3d* maps3d;
 	npcgfx* npc_graphics;
-	player2d* p;
+	player2d* p2d;
+	player3d* p3d;
 	labdata* lab_data;
 
 	xld* maps1;

@@ -40,22 +40,49 @@ void scaling::init() {
 	////////
 }
 
-void scaling::scale_4x(const SCALE_TYPE scale_type, const unsigned int* input, const size2& input_size, unsigned int* output) {
-	const size2 scaled_size = input_size * 4;
-	
-	if(scale_type == ST_NEAREST) {
-		// cpu/c++ scaling
-		for(size_t y = 0; y < input_size.y; y++) {
-			for(size_t x = 0; x < input_size.x; x++) {
-				for(size_t sy = 0; sy < 4; sy++) {
-					for(size_t sx = 0; sx < 4; sx++) {
-						output[(y*4 + sy) * scaled_size.x + x*4 + sx] = input[y*input_size.x + x];
+size_t scaling::get_scale_factor(const SCALE_TYPE& scale_type) {
+	switch(scale_type) {
+		case ST_NEAREST_1X:
+			return 1;
+		case ST_NEAREST_2X:
+		case ST_HQ2X:
+			return 2;
+		case ST_NEAREST_4X:
+		case ST_HQ4X:
+			return 4;
+		default: break;
+	}
+	return 0;
+}
+
+void scaling::scale(const SCALE_TYPE scale_type, const unsigned int* input, const size2& input_size, unsigned int* output) {
+	// scale
+	switch(scale_type) {
+		case ST_NEAREST_1X:
+			memcpy(output, input, input_size.x*input_size.y*sizeof(unsigned int));
+			break;
+		case ST_NEAREST_2X:
+		case ST_NEAREST_4X: {
+			// cpu/c++ scaling
+			const size_t scale_factor = (scale_type == ST_NEAREST_2X ? 2 : 4);
+			const size_t scale_size_x = input_size.x * scale_factor;
+			for(size_t y = 0; y < input_size.y; y++) {
+				for(size_t x = 0; x < input_size.x; x++) {
+					for(size_t sy = 0; sy < scale_factor; sy++) {
+						for(size_t sx = 0; sx < scale_factor; sx++) {
+							output[(y*scale_factor + sy) * scale_size_x + x*scale_factor + sx] = input[y*input_size.x + x];
+						}
 					}
 				}
 			}
 		}
-	}
-	else {
-		hq4x_32(input, output, input_size);
+		break;
+		case ST_HQ2X:
+			hq2x_32(input, output, input_size);
+			break;
+		case ST_HQ4X:
+			hq4x_32(input, output, input_size);
+			break;
+		default: return;
 	}
 }

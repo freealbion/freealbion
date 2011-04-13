@@ -133,14 +133,14 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		//offset = 40 + i*66;
 
 		//
-		cout << "#" << (i+1) << ": " << endl;
+		/*cout << "#" << (i+1) << ": " << endl;
 		for(size_t x = 0; x < 8; x++) {
 			for(size_t y = 0; y < 8; y++) {
 				cout << (y == 0?"\t":"") << (size_t)data[offset+2+x*8+y] << " ";
 			}
 			cout << endl;
 		}
-		cout << endl << endl;
+		cout << endl << endl;*/
 		//
 		
 		objects.push_back(new lab_object());
@@ -171,28 +171,28 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 
 		cout << "#############" << endl << "## floor #" << i << endl;
 		
-		floors.back()->collision = false;
-		for(unsigned int j = 0; j < 3; j++) {
-			if((data[offset] & 0xFF) != 0) {
-				floors.back()->collision = true;
-			}
-			cout << "collision #" << j << ": " << (size_t)(data[offset] & 0xFF) << endl;
-			offset++;
-		}
+		floors.back()->collision = (COLLISION_TYPE)(data[offset]);
+		cout << "collision : " << hex << (size_t)floors.back()->collision << dec << endl;
+		offset++;
+
+		floors.back()->_unknown_collision = (data[offset] << 8) | (data[offset+1]);
+		cout << "unknown collision: " << hex << (size_t)floors.back()->_unknown_collision << dec << endl;
+		// TODO: additional collision data is used, too!
+		offset+=2; // unknown
 		
-		cout << "unknown #1: " << (size_t)(data[offset] & 0xFF) << endl;
+		cout << "unknown #1: " << hex << (size_t)(data[offset] & 0xFF) << dec << endl;
 		offset++; // unknown
 
 		floors.back()->animation = data[offset] & 0xFF;
 		offset++;
 		
-		cout << "unknown #2: " << (size_t)(data[offset] & 0xFF) << endl;
+		cout << "unknown #2: " << hex << (size_t)(data[offset] & 0xFF) << dec << endl;
 		offset++; // unknown
 
 		floors.back()->tex_num = AR_GET_USINT(data, offset);
 		offset+=2;
-		cout << "unknown #3: " << (size_t)(data[offset] & 0xFF) << endl;
-		cout << "unknown #4: " << (size_t)(data[offset+1] & 0xFF) << endl;
+		cout << "unknown #3: " << hex << (size_t)(data[offset] & 0xFF) << dec << endl;
+		cout << "unknown #4: " << hex << (size_t)(data[offset+1] & 0xFF) << dec << endl;
 		offset+=2; // unknown
 		
 		// check if tile uses colors that are animated ...
@@ -230,16 +230,21 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	offset+=2;
 	for(size_t i = 0; i < object_info_count; i++) {
 		cout << ":object #" << i << ": ";
-		for(size_t x = 0; x < 16; x++) {
+		/*for(size_t x = 0; x < 16; x++) {
 			cout << (size_t)data[offset+x] << ", ";
 		}
-		cout << endl;
+		cout << endl;*/
 
 		object_infos.push_back(new lab_object_info());
 		object_infos.back()->type = data[offset];
 		offset++;
-		object_infos.back()->collision = (data[offset] << 16) | (data[offset+1] << 8) | data[offset+2];
-		offset+=3;
+
+		cout << "collision: " << hex << (size_t)(data[offset] & 0xFF) << " " << (size_t)(data[offset+1] & 0xFF) << " " << (size_t)(data[offset+2] & 0xFF) << dec << endl;
+		object_infos.back()->collision = (COLLISION_TYPE)(data[offset]);
+		offset++;
+
+		object_infos.back()->_unknown_collision = (data[offset] << 8) | data[offset+1];
+		offset+=2;
 
 		object_infos.back()->texture = AR_GET_USINT(data, offset);
 		offset+=2;
@@ -286,28 +291,32 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		walls.push_back(new lab_wall());
 
 		cout << "#############" << endl << "## wall #" << i << endl;
-		cout << "ani: " << (size_t)(data[offset+6] & 0xFF) << endl;
-		cout << "type: " << (size_t)(data[offset] & 0xFF) << endl;
+		/*cout << "ani: " << (size_t)(data[offset+6] & 0xFF) << endl;
+		cout << "type: " << (size_t)(data[offset] & 0xFF) << endl;*/
 		cout << "collision: " << hex << (size_t)((data[offset+1] << 16) | (data[offset+2] << 8) | data[offset+3]) << dec << endl;
-		cout << "tex: " << (size_t)AR_GET_USINT(data, offset+4) << endl;
+		/*cout << "tex: " << (size_t)AR_GET_USINT(data, offset+4) << endl;
 		cout << "type: " << (size_t)(data[offset+7] & 0xFF) << endl;
 		cout << "pal: " << (size_t)(data[offset+8] & 0xFF) << endl;
 		cout << "#9: " << (size_t)(data[offset+9] & 0xFF) << endl;
 		cout << "x: " << (size_t)AR_GET_USINT(data, offset+10) << endl;
 		cout << "y: " << (size_t)AR_GET_USINT(data, offset+12) << endl;
-		cout << "#over: " << (size_t)AR_GET_USINT(data, offset+14) << endl;
+		cout << "#over: " << (size_t)AR_GET_USINT(data, offset+14) << endl;*/
 		
 		//walls.back()->type = data[offset] & 0xFF;
 		walls.back()->type = (data[offset] & 0xFF) & WT_JOINED;
 		offset++;
 		
-		walls.back()->collision = (data[offset] << 16) | (data[offset+1] << 8) | data[offset+2];
-		offset+=3;
+		walls.back()->collision = (COLLISION_TYPE)(data[offset]);
+		offset++;
+
+		walls.back()->_unknown_collision = (data[offset] << 8) | data[offset+1];
+		offset+=2;
 
 		walls.back()->texture = AR_GET_USINT(data, offset);
 		offset+=2;
-
-		walls.back()->animation = data[offset] & 0xFF;
+		
+		walls.back()->wall_animation = data[offset] & 0xFF;
+		walls.back()->animation = walls.back()->wall_animation;
 		offset++;
 		walls.back()->autogfx_type = (AUTOGFX_TYPE)data[offset];
 		offset++;
@@ -328,11 +337,13 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 			walls.back()->overlays.push_back(new lab_wall_overlay());
 			walls.back()->overlays.back()->texture = AR_GET_USINT(data, offset);
 			offset+=2;
-			/*cout << "overlay tex: " << walls.back()->overlays.back()->texture << endl;
+			//cout << "overlay tex: " << walls.back()->overlays.back()->texture << endl;
 			
-			cout << "overlay unknown #1: " << (size_t)(data[offset] & 0xFF) << endl;
-			cout << "overlay unknown #2: " << (size_t)(data[offset+1] & 0xFF) << endl;*/
-			offset++; // unknown
+			walls.back()->overlays.back()->animation = data[offset] & 0xFF;
+			// stupid max for now, might work always though (if not: mulitply)
+			walls.back()->animation = std::max(walls.back()->animation, walls.back()->overlays.back()->animation);
+			//cout << "overlay animation: " << walls.back()->overlays.back()->animation << endl;
+			offset++;
 			
 			walls.back()->overlays.back()->write_zero = (data[offset] == 0);
 			offset++;
@@ -378,9 +389,10 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	// compute texture size dependent on necessary size
 	const size_t max_tex_size = exts->get_max_texture_size();
 	size2 floors_tex_size, walls_tex_size, objects_tex_size;
+	const size_t scale_factor = scaling::get_scale_factor(conf::get<scaling::SCALE_TYPE>("map.3d.scale_type"));
 	
 	// compute floors tex size
-	const size2 floor_size = size2(64, 64) * 4;
+	const size2 floor_size = size2(64, 64) * scale_factor;
 	for(size_t i = 0; i < floor_count; i++) {
 		for(size_t j = 0; j < floors[i]->animation; j++) {
 			floors_tex_size.x += floor_size.x;
@@ -396,7 +408,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	// walls tex size
 	size_t next_y_coord = 0;
 	for(size_t i = 0; i < wall_count; i++) {
-		const size2 wall_size = size2(walls[i]->y_size, walls[i]->x_size)*4;
+		const size2 wall_size = size2(walls[i]->y_size, walls[i]->x_size)*scale_factor;
 		
 		for(size_t j = 0; j < walls[i]->animation; j++) {
 			if(wall_size.y > next_y_coord) next_y_coord = wall_size.y;
@@ -415,7 +427,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	// objects tex size
 	next_y_coord = 0;
 	for(size_t i = 0; i < object_info_count; i++) {
-		const size2 object_size = size2(object_infos[i]->x_size, object_infos[i]->y_size)*4;
+		const size2 object_size = size2(object_infos[i]->x_size, object_infos[i]->y_size)*scale_factor;
 		
 		for(size_t j = 0; j < object_infos[i]->animation; j++) {
 			if(object_size.y > next_y_coord) next_y_coord = object_size.y;
@@ -441,7 +453,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	}
 	cout << ":: creating floors texture " << floors_tex_size << " ..." << endl;
 	if(floors_tex_size.x > 0 && floors_tex_size.y > 0) {
-		floors_tex = albion_texture::create(floors_tex_size, size2(64, 64), palette, floors_tex_info, floor_xlds, tex_filtering);
+		floors_tex = albion_texture::create(MT_3D_MAP, floors_tex_size, size2(64, 64), palette, floors_tex_info, floor_xlds, tex_filtering);
 	}
 	else floors_tex = t->get_dummy_texture();
 	//conf::set<a2e_texture>("debug.texture", floors_tex);
@@ -460,14 +472,14 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 			
 			//
 			const size2 tile_size = size2(walls[i]->y_size, walls[i]->x_size);
-			const size2 scaled_tile_size = tile_size * 4;
+			const size2 scaled_tile_size = tile_size * scale_factor;
 			unsigned char* wall_data = new unsigned char[tile_size.x*tile_size.y];
 			unsigned int* data_32bpp = new unsigned int[tile_size.x*tile_size.y];
 			unsigned int* scaled_data = new unsigned int[scaled_tile_size.x*scaled_tile_size.y];
-			
+						
 			//
 			for(size_t j = 0; j < walls[i]->animation; j++) {
-				memcpy(wall_data, &wall_tex_data->data[j*tile_size.x*tile_size.y], tile_size.x*tile_size.y);
+				memcpy(wall_data, &wall_tex_data->data[(j%walls[i]->wall_animation)*tile_size.x*tile_size.y], tile_size.x*tile_size.y);
 				
 				// add/apply wall overlays
 				for(vector<lab_wall_overlay*>::iterator overlay_iter = walls[i]->overlays.begin(); overlay_iter != walls[i]->overlays.end(); overlay_iter++) {
@@ -475,9 +487,11 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 					const size_t overlay_tex_num = ((*overlay_iter)->texture < 100 ? (*overlay_iter)->texture-1 :(*overlay_iter)->texture) % 100;
 					const xld::xld_object* overlay_tex_data = overlay_tex_xld->get_object(overlay_tex_num);
 					
+					const size_t anim_offset = ((*overlay_iter)->animation > 1 ? (j%(*overlay_iter)->animation)*(*overlay_iter)->x_size*(*overlay_iter)->y_size : 0);
+					
 					for(size_t y = 0; y < (*overlay_iter)->y_size; y++) {
 						const size_t dst_offset = ((*overlay_iter)->y_offset + y)*tile_size.x + (*overlay_iter)->x_offset;
-						const size_t src_offset = y*(*overlay_iter)->x_size;
+						const size_t src_offset = y*(*overlay_iter)->x_size + anim_offset;
 						for(size_t x = 0; x < (*overlay_iter)->x_size; x++) {
 							// ignore 0x00 bytes
 							if((write_zero && (*overlay_iter)->write_zero) || overlay_tex_data->data[src_offset + x] > 0) {
@@ -496,7 +510,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 				}
 				
 				gfxconv::convert_8to32(wall_data, data_32bpp, tile_size.x, tile_size.y, palette, 0, true, repl_alpha);
-				scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, tile_size, scaled_data);
+				scaling::scale(conf::get<scaling::SCALE_TYPE>("map.3d.scale_type"), data_32bpp, tile_size, scaled_data);
 				
 				// copy data into tiles surface
 				if(tex_offset.x + scaled_tile_size.x > walls_tex_size.x) {
@@ -543,7 +557,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 			
 			//
 			const size2 tile_size = size2(object_infos[i]->x_size, object_infos[i]->y_size);
-			const size2 scaled_tile_size = tile_size * 4;
+			const size2 scaled_tile_size = tile_size * scale_factor;
 			unsigned int* data_32bpp = new unsigned int[tile_size.x*tile_size.y];
 			unsigned int* scaled_data = new unsigned int[scaled_tile_size.x*scaled_tile_size.y];
 			
@@ -553,7 +567,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 					gfxconv::convert_8to32(obj_tex_data->data, data_32bpp, tile_size.x, tile_size.y, palette, j);
 				}
 				else gfxconv::convert_8to32(&obj_tex_data->data[j*tile_size.x*tile_size.y], data_32bpp, tile_size.x, tile_size.y, palette);
-				scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, tile_size, scaled_data);
+				scaling::scale(conf::get<scaling::SCALE_TYPE>("map.3d.scale_type"), data_32bpp, tile_size, scaled_data);
 				
 				// copy data into tiles surface
 				if(tex_offset.x + scaled_tile_size.x > objects_tex_size.x) {
@@ -676,7 +690,7 @@ a2ematerial* labdata::get_object_material() const {
 }
 
 void labdata::handle_animations() {
-	if(cur_labdata_num == (~0)) return;
+	if(cur_labdata_num == (~(size_t)0)) return;
 	
 	for(vector<lab_floor*>::iterator floor_iter = floors.begin(); floor_iter != floors.end(); floor_iter++) {
 		if((*floor_iter)->animation > 1) {

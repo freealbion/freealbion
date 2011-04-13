@@ -44,7 +44,7 @@ public:
 	void handle();
 	void draw() const;
 	
-	bool collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const;
+	bool4 collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const;
 
 	// DEBUG: for debugging purposes
 	const ssize3 get_tile() const;
@@ -63,7 +63,6 @@ protected:
 	float3* npcs_vertices;
 	float3* npcs_ws_positions;
 	float2* npcs_tex_coords;
-	float4* npcs_tc_restrict;
 	index3** npcs_indices;
 	size_t npc_object_count;
 	map_objects* npcs_model;
@@ -84,7 +83,6 @@ protected:
 	// floors/ceilings
 	float3* fc_vertices;
 	float2* fc_tex_coords;
-	float4* fc_tc_restrict;
 	index3** fc_indices;
 	size_t fc_tile_count;
 	map_tiles* fc_tiles_model;
@@ -92,7 +90,6 @@ protected:
 	// walls
 	float3* wall_vertices;
 	float2* wall_tex_coords;
-	float4* wall_tc_restrict;
 	index3** wall_indices;
 	size_t wall_tile_count;
 	map_tiles* wall_model;
@@ -101,7 +98,6 @@ protected:
 	float3* obj_vertices;
 	float3* obj_ws_positions;
 	float2* obj_tex_coords;
-	float4* obj_tc_restrict;
 	index3** obj_indices;
 	map_objects* objects_model;
 	

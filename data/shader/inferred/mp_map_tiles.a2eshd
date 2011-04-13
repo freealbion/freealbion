@@ -9,11 +9,9 @@ uniform mat4 local_scale;
 
 attribute vec3 normal;
 attribute vec2 texture_coord;
-attribute vec4 tc_restrict;
 
 varying vec3 out_normal;
 varying vec2 out_tex_coord;
-varying vec4 out_tc_restrict;
 		</variables>
 		<program>
 void main() {
@@ -21,7 +19,6 @@ void main() {
 	
 	out_normal = vec3(transform_mat * vec4(normal, 1.0));
 	out_tex_coord = texture_coord;
-	out_tc_restrict = tc_restrict;
 	
 	inferred_vs();
 	
@@ -34,18 +31,15 @@ void main() {
 		<variables>
 uniform sampler2D diffuse_texture;
 uniform sampler2D specular_texture;
-uniform vec2 diffuse_texel_size;
 
 varying vec3 out_normal;
 varying vec2 out_tex_coord;
-varying vec4 out_tc_restrict;
 		</variables>
 		<program>
 void main() {
-	vec2 tex_coord = clamp(out_tex_coord, out_tc_restrict.xy+diffuse_texel_size, out_tc_restrict.zw-diffuse_texel_size);
-	vec4 diff_color = texture2D(diffuse_texture, tex_coord);
+	vec4 diff_color = texture2D(diffuse_texture, out_tex_coord);
 	if(diff_color.a < 0.5) discard;
-	vec4 spec_color = texture2D(specular_texture, tex_coord);
+	vec4 spec_color = texture2D(specular_texture, out_tex_coord);
 	
 	vec4 light_color = compute_light_color();
 	

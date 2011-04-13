@@ -17,38 +17,33 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_SCALING_H__
-#define __AR_SCALING_H__
+#ifndef __AR_PLAYER3D_H__
+#define __AR_PLAYER3D_H__
 
 #include "ar_global.h"
-#include "core/vector2.h"
+#include "map_defines.h"
+#include "map3d.h"
+#include "npc3d.h"
 
-class scaling {
+/*! @class player
+ *  @brief player class
+ *  @author flo
+ *  
+ *  player class
+ */
+
+class player3d : public npc3d {
 public:
-	static void init();
+	player3d(map3d* map3d_obj);
+	~player3d();
 	
-	enum SCALE_TYPE {
-		ST_NEAREST_1X = 0,
-		ST_NEAREST_2X = 1,
-		ST_HQ2X = 2,
-		ST_NEAREST_4X = 3,
-		ST_HQ4X = 4
-	};
-	static void scale(const SCALE_TYPE scale_type, const unsigned int* input, const size2& input_size, unsigned int* output);
-	static size_t get_scale_factor(const SCALE_TYPE& scale_type);
+	virtual void draw() const;
+	virtual void handle();
+	virtual void move(const MOVE_DIRECTION& direction);
+	virtual void move(const size2& move_pos);
 	
 protected:
-	//static opencl::kernel_object* hq4x;
-	//static cl::NDRange hq4x_range;
-	static unsigned int RGBtoYUV[16777216];
 	
-	static void hq2x_32(const unsigned int* sp, unsigned int* dp, const size2& input_size);
-	static void hq4x_32(const unsigned int* sp, unsigned int* dp, const size2& input_size);
-	static inline int Diff(unsigned int w1, unsigned int w2);
-	
-	scaling() {}
-	~scaling() {}
-	scaling& operator=(const scaling& s);
 };
 
 #endif

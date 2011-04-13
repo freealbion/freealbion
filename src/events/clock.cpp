@@ -70,7 +70,7 @@ void ar_clock::add_tick_callback(const CLOCK_CB_TYPE& cb_type, clock_callback& c
 }
 
 void ar_clock::delete_tick_callback(const clock_callback& cb) {
-	for(multimap<CLOCK_CB_TYPE, clock_callback*>::const_iterator cb_iter = callbacks.begin(); cb_iter != callbacks.end(); cb_iter++) {
+	for(multimap<CLOCK_CB_TYPE, clock_callback*>::iterator cb_iter = callbacks.begin(); cb_iter != callbacks.end(); cb_iter++) {
 		if(cb_iter->second == &cb) {
 			callbacks.erase(cb_iter);
 			return;

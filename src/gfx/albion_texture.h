@@ -66,7 +66,7 @@ public:
 		}
 	};
 
-	static a2e_texture create(const size2& texture_size, const size2& tile_size, const size_t& palette, const vector<albion_texture_info*>& tex_info, xld** xlds, const texture_object::TEXTURE_FILTERING filtering = texture_object::TF_POINT);
+	static a2e_texture create(const size_t& map_type, const size2& texture_size, const size2& tile_size, const size_t& palette, const vector<albion_texture_info*>& tex_info, xld** xlds, const texture_object::TEXTURE_FILTERING filtering = texture_object::TF_POINT);
 
 protected:
 

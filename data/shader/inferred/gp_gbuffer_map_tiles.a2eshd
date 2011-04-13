@@ -9,11 +9,9 @@ uniform mat4 local_scale;
 
 attribute vec3 normal;
 attribute vec2 texture_coord;
-attribute vec4 tc_restrict;
 
 varying vec3 out_normal;
 varying vec2 out_tex_coord;
-varying vec4 out_tc_restrict;
 		</variables>
 		<program>
 void main() {
@@ -21,7 +19,6 @@ void main() {
 	
 	out_normal = vec3(transform_mat * vec4(normal, 1.0));
 	out_tex_coord = texture_coord;
-	out_tc_restrict = tc_restrict;
 	
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 }
@@ -33,18 +30,15 @@ void main() {
 uniform sampler2D diffuse_texture;
 uniform vec2 Nuv;
 uniform vec2 id;
-uniform vec2 diffuse_texel_size;
 
 varying vec3 out_normal;
 varying vec2 out_tex_coord;
-varying vec4 out_tc_restrict;
 		</variables>
 		<program>
 void main() {
 	check_mask_id();
 	
-	vec2 tex_coord = clamp(out_tex_coord, out_tc_restrict.xy+diffuse_texel_size, out_tc_restrict.zw-diffuse_texel_size);
-	if(texture2D(diffuse_texture, tex_coord).a < 0.5) discard;
+	if(texture2D(diffuse_texture, out_tex_coord).a < 0.5) discard;
 	
 	// write to gbuffer
 	gl_FragData[0].rg = encode_normal(out_normal);

@@ -70,7 +70,7 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 	vector<albion_texture::albion_texture_info*> tex_info;
 	tex_info.push_back(&tex_info_obj);
 
-	npc_graphics[npc_num] = albion_texture::create(size2(npc_size.x*4*4, 1024), npc_size, cur_palette, tex_info, NULL, texture_object::TF_TRILINEAR);
+	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, size2(npc_size.x*4*4, 1024), npc_size, cur_palette, tex_info, NULL, texture_object::TF_TRILINEAR);
 }
 
 const a2e_texture& npcgfx::get_npcgfx(const size_t& npc_num) {

@@ -73,7 +73,7 @@ void npc3d::move(const MOVE_DIRECTION& direction) {
 	pos = next_pos;
 	pos_interp = 0.0f;
 
-	if(!map3d_obj->collide(direction, pos, char_type)) {
+	if(!map3d_obj->collide(direction, pos, char_type).x) {
 		if(direction & MD_LEFT) next_pos.x--;
 		if(direction & MD_RIGHT) next_pos.x++;
 		if(direction & MD_UP) next_pos.y--;

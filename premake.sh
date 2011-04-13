@@ -4,17 +4,27 @@ ALBION_OS="unknown"
 ALBION_PLATFORM="x32"
 ALBION_MAKE="make"
 ALBION_MAKE_PLATFORM="32"
+ALBION_ARGS=""
+ALBION_CPU_COUNT=1
 
-case $( uname ) in
-	"Darwin")
+case $( uname | tr [:upper:] [:lower:] ) in
+	"darwin")
 		ALBION_OS="macosx"
+		ALBION_CPU_COUNT=$(sysctl -a | grep 'machdep.cpu.thread_count' | sed -E 's/.*(: )([:digit:]*)/\2/g')
 		;;
-	"Linux")
+	"linux")
 		ALBION_OS="linux"
+		ALBION_CPU_COUNT=$(cat /proc/cpuinfo | grep -m 1 'cpu cores' | sed -E 's/.*(: )([:digit:]*)/\2/g')
 		;;
-	[a-zA-Z0-9]*"BSD")
+	[a-z0-9]*"BSD")
 		ALBION_OS="bsd"
 		ALBION_MAKE="gmake"
+		# TODO: get cpu/thread count on *bsd
+		;;
+	"cygwin"* | "mingw"*)
+		ALBION_OS="windows"
+		ALBION_ARGS="--env cygwin"
+		ALBION_CPU_COUNT=$(env | grep 'NUMBER_OF_PROCESSORS' | sed -E 's/.*=([:digit:]*)/\1/g')
 		;;
 	*)
 		echo "unknown operating system - exiting"
@@ -38,9 +48,10 @@ case $( uname -m ) in
 esac
 
 
-echo "using: premake4 --cc=gcc --os="${ALBION_OS}" gmake"
+echo "using: premake4 --cc=gcc --os="${ALBION_OS}" gmake "${ALBION_ARGS}
 
-premake4 --cc=gcc --os=${ALBION_OS} gmake
+premake4 --cc=gcc --os=${ALBION_OS} gmake ${ALBION_ARGS}
+sed -i -e 's/\${MAKE}/\${MAKE} -j '${ALBION_CPU_COUNT}'/' Makefile
 
 echo ""
 echo "###################################################"

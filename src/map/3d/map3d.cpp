@@ -20,11 +20,6 @@
 #include "map3d.h"
 #include "npc3d.h"
 
-static const float std_tile_size = 16.0f;
-/*static const float tile_size = 16.0f;
-static const float floor_height = 0.0f;
-static const float ceiling_height = tile_size;*/
-
 /*! map3d constructor
  */
 map3d::map3d(labdata* lab_data, xld* maps1, xld* maps2, xld* maps3) : lab_data(lab_data) {
@@ -45,21 +40,18 @@ map3d::map3d(labdata* lab_data, xld* maps1, xld* maps2, xld* maps3) : lab_data(l
 	
 	wall_vertices = NULL;
 	wall_tex_coords = NULL;
-	wall_tc_restrict = NULL;
 	wall_indices = NULL;
 	wall_model = NULL;
 	wall_sides = NULL;
 
 	fc_vertices = NULL;
 	fc_tex_coords = NULL;
-	fc_tc_restrict = NULL;
 	fc_indices = NULL;
 	fc_tiles_model = NULL;
 	
 	obj_vertices = NULL;
 	obj_ws_positions = NULL;
 	obj_tex_coords = NULL;
-	obj_tc_restrict = NULL;
 	obj_indices = NULL;
 	objects_model = NULL;
 
@@ -249,7 +241,6 @@ void map3d::load(const size_t& map_num) {
 	npcs_vertices = new float3[npc_object_count*4];
 	npcs_ws_positions = new float3[npc_object_count*4];
 	npcs_tex_coords = new float2[npc_object_count*4];
-	npcs_tc_restrict = new float4[npc_object_count*4];
 	npcs_indices = new index3*[1];
 	npcs_indices[0] = new index3[npc_object_count*2];
 	unsigned int* npcs_index_count = new unsigned int[1];
@@ -304,11 +295,6 @@ void map3d::load(const size_t& map_num) {
 			npcs_tex_coords[npc_index + 2].set(tc_b.x, tc_b.y);
 			npcs_tex_coords[npc_index + 3].set(tc_b.x, tc_e.y);
 			
-			npcs_tc_restrict[npc_index + 0].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-			npcs_tc_restrict[npc_index + 1].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-			npcs_tc_restrict[npc_index + 2].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-			npcs_tc_restrict[npc_index + 3].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-			
 			npcs_indices[0][npc_index_num*2].set(npc_index + 1, npc_index + 0, npc_index + 2);
 			npcs_indices[0][npc_index_num*2 + 1].set(npc_index + 2, npc_index + 3, npc_index + 1);
 			
@@ -320,7 +306,6 @@ void map3d::load(const size_t& map_num) {
 	npcs_model = new map_objects();
 	npcs_model->load_from_memory(1, npc_object_count*4, npcs_vertices, npcs_tex_coords, npcs_index_count, npcs_indices);
 	npcs_model->set_ws_positions(npcs_ws_positions);
-	npcs_model->set_tc_restrict(npcs_tc_restrict);
 	npcs_model->set_material(lab_data->get_object_material());
 	sce->add_model(npcs_model);
 	
@@ -404,7 +389,6 @@ void map3d::load(const size_t& map_num) {
 	// map model
 	wall_vertices = new float3[wall_count*4];
 	wall_tex_coords = new float2[wall_count*4];
-	wall_tc_restrict = new float4[wall_count*4];
 	wall_indices = new index3*[1+wall_transp_obj_count];
 	unsigned int* wall_index_count = new unsigned int[1+wall_transp_obj_count];
 	wall_indices[0] = new index3[(wall_count+wall_cutalpha_count-wall_transp_count)*2];
@@ -413,7 +397,6 @@ void map3d::load(const size_t& map_num) {
 	// floors/ceilings model
 	fc_vertices = new float3[fc_count*4];
 	fc_tex_coords = new float2[fc_count*4];
-	fc_tc_restrict = new float4[fc_count*4];
 	fc_indices = new index3*[1];
 	fc_indices[0] = new index3[fc_count*2];
 	unsigned int* fc_index_count = new unsigned int[1];
@@ -423,7 +406,6 @@ void map3d::load(const size_t& map_num) {
 	obj_vertices = new float3[sub_object_count*4];
 	obj_ws_positions = new float3[sub_object_count*4];
 	obj_tex_coords = new float2[sub_object_count*4];
-	obj_tc_restrict = new float4[sub_object_count*4];
 	obj_indices = new index3*[1];
 	obj_indices[0] = new index3[sub_object_count*2];
 	unsigned int* obj_index_count = new unsigned int[1];
@@ -466,11 +448,6 @@ void map3d::load(const size_t& map_num) {
 					fc_tex_coords[fc_index + 1].set(tc_e.x, tc_b.y);
 					fc_tex_coords[fc_index + 2].set(tc_e.x, tc_e.y);
 					fc_tex_coords[fc_index + 3].set(tc_b.x, tc_e.y);
-
-					fc_tc_restrict[fc_index + 0].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					fc_tc_restrict[fc_index + 1].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					fc_tc_restrict[fc_index + 2].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					fc_tc_restrict[fc_index + 3].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
 
 					const size2 idx_order = (i == 0 ? size2(2, 0) : size2(0, 2));
 					fc_indices[0][fc_num*2].set(fc_index + idx_order.x, fc_index + 1, fc_index + idx_order.y);
@@ -552,11 +529,6 @@ void map3d::load(const size_t& map_num) {
 					wall_tex_coords[wall_index + 1].set(tc_e.x, tc_e.y);
 					wall_tex_coords[wall_index + 2].set(tc_b.x, tc_b.y);
 					wall_tex_coords[wall_index + 3].set(tc_e.x, tc_b.y);
-					
-					wall_tc_restrict[wall_index + 0].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					wall_tc_restrict[wall_index + 1].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					wall_tc_restrict[wall_index + 2].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					wall_tc_restrict[wall_index + 3].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
 				
 					if(transp_wall) {
 						// side #1
@@ -640,11 +612,6 @@ void map3d::load(const size_t& map_num) {
 					obj_tex_coords[object_index + 1].set(tc_e.x, tc_e.y);
 					obj_tex_coords[object_index + 2].set(tc_b.x, tc_b.y);
 					obj_tex_coords[object_index + 3].set(tc_b.x, tc_e.y);
-					
-					obj_tc_restrict[object_index + 0].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					obj_tc_restrict[object_index + 1].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					obj_tc_restrict[object_index + 2].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					obj_tc_restrict[object_index + 3].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
 				
 					obj_indices[0][obj_static_num*2].set(object_index + 1, object_index + 0, object_index + 2);
 					obj_indices[0][obj_static_num*2 + 1].set(object_index + 2, object_index + 3, object_index + 1);
@@ -661,13 +628,11 @@ void map3d::load(const size_t& map_num) {
 
 	fc_tiles_model = new map_tiles();
 	fc_tiles_model->load_from_memory(1, fc_count*4, fc_vertices, fc_tex_coords, fc_index_count, fc_indices);
-	fc_tiles_model->set_tc_restrict(fc_tc_restrict);
 	fc_tiles_model->set_material(lab_data->get_fc_material());
 	sce->add_model(fc_tiles_model);
 
 	wall_model = new map_tiles();
 	wall_model->load_from_memory(1+wall_transp_obj_count, wall_count*4, wall_vertices, wall_tex_coords, wall_index_count, wall_indices);
-	wall_model->set_tc_restrict(wall_tc_restrict);
 	wall_model->set_material(lab_data->get_wall_material());
 	sce->add_model(wall_model);
 	
@@ -682,12 +647,12 @@ void map3d::load(const size_t& map_num) {
 	objects_model = new map_objects();
 	objects_model->load_from_memory(1, sub_object_count*4, obj_vertices, obj_tex_coords, obj_index_count, obj_indices);
 	objects_model->set_ws_positions(obj_ws_positions);
-	objects_model->set_tc_restrict(obj_tc_restrict);
 	objects_model->set_material(lab_data->get_object_material());
 	sce->add_model(objects_model);
 
 	// don't delete model data, these are taken care of by a2estatic/a2emodel now!
 	
+#if 1
 	// lights (this is only for testing purposes atm)
 	const float half_tile_size = tile_size * 0.5f;
 	for(size_t y = 0; y < map_size.y; y++) {
@@ -701,8 +666,8 @@ void map3d::load(const size_t& map_num) {
 					obj_light->set_ldiffuse(0.8f, 0.8f, 0.1f);
 					obj_light->set_lspecular(0.2f, 0.2f, 0.05f);
 					obj_light->set_constant_attenuation(0.0f);
-					/*obj_light->set_linear_attenuation(0.008f);
-					obj_light->set_quadratic_attenuation(0.005f);*/
+					//obj_light->set_linear_attenuation(0.008f);
+					//obj_light->set_quadratic_attenuation(0.005f);
 					obj_light->set_linear_attenuation(0.06f);
 					obj_light->set_quadratic_attenuation(0.0f);
 					obj_light->set_spot_direction(0.0f, 0.0f, 0.0f);
@@ -716,6 +681,7 @@ void map3d::load(const size_t& map_num) {
 		}
 	}
 	cout << "#lights: " << scene_lights.size() << endl;
+#endif
 
 	// and finally:
 	map_loaded = true;
@@ -732,7 +698,6 @@ void map3d::unload() {
 		// can be NULLed now
 		wall_vertices = NULL;
 		wall_tex_coords = NULL;
-		wall_tc_restrict = NULL;
 		wall_indices = NULL;
 	}
 	if(fc_tiles_model != NULL) {
@@ -743,7 +708,6 @@ void map3d::unload() {
 		// can be NULLed now
 		fc_vertices = NULL;
 		fc_tex_coords = NULL;
-		fc_tc_restrict = NULL;
 		fc_indices = NULL;
 	}
 	if(objects_model != NULL) {
@@ -755,7 +719,6 @@ void map3d::unload() {
 		obj_vertices = NULL;
 		obj_ws_positions = NULL;
 		obj_tex_coords = NULL;
-		obj_tc_restrict = NULL;
 		obj_indices = NULL;
 	}
 	if(ow_tiles != NULL) {
@@ -779,7 +742,6 @@ void map3d::unload() {
 		npcs_vertices = NULL;
 		npcs_ws_positions = NULL;
 		npcs_tex_coords = NULL;
-		npcs_tc_restrict = NULL;
 		npcs_indices = NULL;
 		npc_object_count = 0;
 	}
@@ -903,11 +865,6 @@ void map3d::handle() {
 					fc_tex_coords[fc_index + 1].set(tc_e.x, tc_b.y);
 					fc_tex_coords[fc_index + 2].set(tc_e.x, tc_e.y);
 					fc_tex_coords[fc_index + 3].set(tc_b.x, tc_e.y);
-
-					fc_tc_restrict[fc_index + 0].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					fc_tc_restrict[fc_index + 1].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					fc_tc_restrict[fc_index + 2].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-					fc_tc_restrict[fc_index + 3].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
 				}
 				break;
 				case 1: {
@@ -937,10 +894,6 @@ void map3d::handle() {
 						wall_tex_coords[wall_index + 2].set(tc_b.x, tc_b.y);
 						wall_tex_coords[wall_index + 3].set(tc_e.x, tc_b.y);
 						
-						wall_tc_restrict[wall_index + 0].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-						wall_tc_restrict[wall_index + 1].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-						wall_tc_restrict[wall_index + 2].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-						wall_tc_restrict[wall_index + 3].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
 						wall_index+=4;
 					}
 				}
@@ -957,10 +910,6 @@ void map3d::handle() {
 						obj_tex_coords[obj_index + 2].set(tc_b.x, tc_b.y);
 						obj_tex_coords[obj_index + 3].set(tc_b.x, tc_e.y);
 						
-						obj_tc_restrict[obj_index + 0].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-						obj_tc_restrict[obj_index + 1].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-						obj_tc_restrict[obj_index + 2].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-						obj_tc_restrict[obj_index + 3].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
 						obj_index+=4;
 					}
 
@@ -973,18 +922,12 @@ void map3d::handle() {
 		
 		glBindBuffer(GL_ARRAY_BUFFER, fc_tiles_model->get_vbo_tex_coords());
 		glBufferSubData(GL_ARRAY_BUFFER, fc_ani_offset * 2 * sizeof(float), (fc_ani_count * 4) * 2 * sizeof(float), &fc_tex_coords[fc_ani_offset]);
-		glBindBuffer(GL_ARRAY_BUFFER, fc_tiles_model->get_vbo_tc_restrict_id());
-		glBufferSubData(GL_ARRAY_BUFFER, fc_ani_offset * 4 * sizeof(float), (fc_ani_count * 4) * 4 * sizeof(float), &fc_tc_restrict[fc_ani_offset]);
 		
 		glBindBuffer(GL_ARRAY_BUFFER, wall_model->get_vbo_tex_coords());
 		glBufferSubData(GL_ARRAY_BUFFER, wall_ani_offset * 2 * sizeof(float), (wall_ani_count * 4) * 2 * sizeof(float), &wall_tex_coords[wall_ani_offset]);
-		glBindBuffer(GL_ARRAY_BUFFER, wall_model->get_vbo_tc_restrict_id());
-		glBufferSubData(GL_ARRAY_BUFFER, wall_ani_offset * 4 * sizeof(float), (wall_ani_count * 4) * 4 * sizeof(float), &wall_tc_restrict[wall_ani_offset]);
 
 		glBindBuffer(GL_ARRAY_BUFFER, objects_model->get_vbo_tex_coords());
 		glBufferSubData(GL_ARRAY_BUFFER, obj_ani_offset * 2 * sizeof(float), (obj_ani_count * 4) * 2 * sizeof(float), &obj_tex_coords[obj_ani_offset]);
-		glBindBuffer(GL_ARRAY_BUFFER, objects_model->get_vbo_tc_restrict_id());
-		glBufferSubData(GL_ARRAY_BUFFER, obj_ani_offset * 4 * sizeof(float), (obj_ani_count * 4) * 4 * sizeof(float), &obj_tc_restrict[obj_ani_offset]);
 		
 		// npcs
 		npc_num = 0;
@@ -996,16 +939,10 @@ void map3d::handle() {
 				const float2& tc_b = npc_obj->sub_objects[i]->tex_coord_begin[npc_obj->sub_objects[i]->cur_ani];
 				const float2& tc_e = npc_obj->sub_objects[i]->tex_coord_end[npc_obj->sub_objects[i]->cur_ani];
 				
-				//size_t npc_index = npc_num*4;
 				npcs_tex_coords[npc_index + 0].set(tc_e.x, tc_b.y);
 				npcs_tex_coords[npc_index + 1].set(tc_e.x, tc_e.y);
 				npcs_tex_coords[npc_index + 2].set(tc_b.x, tc_b.y);
 				npcs_tex_coords[npc_index + 3].set(tc_b.x, tc_e.y);
-				
-				npcs_tc_restrict[npc_index + 0].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-				npcs_tc_restrict[npc_index + 1].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-				npcs_tc_restrict[npc_index + 2].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
-				npcs_tc_restrict[npc_index + 3].set(tc_b.x, tc_b.y, tc_e.x, tc_e.y);
 				npc_index+=4;
 			}
 			npc_num++;
@@ -1013,8 +950,6 @@ void map3d::handle() {
 		
 		glBindBuffer(GL_ARRAY_BUFFER, npcs_model->get_vbo_tex_coords());
 		glBufferSubData(GL_ARRAY_BUFFER, 0, (npc_object_count * 4) * 2 * sizeof(float), &npcs_tex_coords[0]);
-		glBindBuffer(GL_ARRAY_BUFFER, npcs_model->get_vbo_tc_restrict_id());
-		glBufferSubData(GL_ARRAY_BUFFER, 0, (npc_object_count * 4) * 4 * sizeof(float), &npcs_tc_restrict[0]);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
@@ -1031,65 +966,100 @@ const ssize3 map3d::get_tile() const {
 	return ret;
 }
 
-bool map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const {
-	if(!map_loaded) return false;
+bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const {
+	if(!map_loaded) return bool4(false);
 	
-	if(!conf::get<bool>("map.collision") && char_type == CT_PLAYER) return false;
+	if(!conf::get<bool>("map.collision") && char_type == CT_PLAYER) return bool4(false);
 	
-	if(cur_position.x >= map_size.x) return true;
-	if(cur_position.y >= map_size.y) return true;
+	if(cur_position.x >= map_size.x) return bool4(true);
+	if(cur_position.y >= map_size.y) return bool4(true);
 	
-	size2 next_position[3];
+	bool4 ret(false);
+	static const size_t max_pos_count = 3;
+	ssize2 next_position[max_pos_count];
+	next_position[0].x = next_position[0].y = -1;
+	next_position[1].x = next_position[1].y = -1;
+	next_position[2].x = next_position[2].y = -1;
 	size_t position_count = 0; // count == 1 if single direction, == 3 if sideways
 	
-	if(direction & MD_LEFT) {
-		if(cur_position.x == 0) return true;
-		next_position[position_count] = size2(cur_position.x-1, cur_position.y);
-		position_count++;
+	if(!((direction & MD_LEFT) && (direction & MD_RIGHT))) {
+		if(direction & MD_LEFT) {
+			if(cur_position.x == 0) {
+				ret.x = true;
+				ret.y = true;
+			}
+			else {
+				next_position[0] = size2(cur_position.x-1, cur_position.y);
+				position_count++;
+			}
+		}
+		else if(direction & MD_RIGHT) {
+			if(cur_position.x+1 >= map_size.x) {
+				ret.x = true;
+				ret.y = true;
+			}
+			else {
+				next_position[0] = size2(cur_position.x+1, cur_position.y);
+				position_count++;
+			}
+		}
 	}
-	if(direction & MD_RIGHT) {
-		if(cur_position.x+1 >= map_size.x) return true;
-		next_position[position_count] = size2(cur_position.x+1, cur_position.y);
-		position_count++;
-	}
-	if(direction & MD_UP) {
-		if(cur_position.y == 0) return true;
-		next_position[position_count] = size2(cur_position.x, cur_position.y-1);
-		position_count++;
-	}
-	if(direction & MD_DOWN) {
-		if(cur_position.y+1 >= map_size.y) return true;
-		next_position[position_count] = size2(cur_position.x, cur_position.y+1);
-		position_count++;
+	
+	if(!((direction & MD_UP) && (direction & MD_DOWN))) {
+		if(direction & MD_UP) {
+			if(cur_position.y == 0) {
+				ret.x = true;
+				ret.z = true;
+			}
+			else {
+				next_position[1] = size2(cur_position.x, cur_position.y-1);
+				position_count++;
+			}
+		}
+		else if(direction & MD_DOWN) {
+			if(cur_position.y+1 >= map_size.y) {
+				ret.x = true;
+				ret.z = true;
+			}
+			else {
+				next_position[1] = size2(cur_position.x, cur_position.y+1);
+				position_count++;
+			}
+		}
 	}
 	
 	// check for sideways movement
 	if(position_count == 2) {
 		if((direction & MD_LEFT) && (direction & MD_UP)) {
-			next_position[position_count] = size2(cur_position.x-1, cur_position.y-1);
+			next_position[2] = size2(cur_position.x-1, cur_position.y-1);
 			position_count++;
 		}
 		else if((direction & MD_LEFT) && (direction & MD_DOWN)) {
-			next_position[position_count] = size2(cur_position.x-1, cur_position.y+1);
+			next_position[2] = size2(cur_position.x-1, cur_position.y+1);
 			position_count++;
 		}
 		else if((direction & MD_RIGHT) && (direction & MD_UP)) {
-			next_position[position_count] = size2(cur_position.x+1, cur_position.y-1);
+			next_position[2] = size2(cur_position.x+1, cur_position.y-1);
 			position_count++;
 		}
 		else if((direction & MD_RIGHT) && (direction & MD_DOWN)) {
-			next_position[position_count] = size2(cur_position.x+1, cur_position.y+1);
+			next_position[2] = size2(cur_position.x+1, cur_position.y+1);
 			position_count++;
 		}
 		
-		if(position_count != 3) {
+		if(position_count != max_pos_count) {
 			a2e_error("impossible movement!");
-			return true;
+			return bool4(true);
 		}
 	}
 	
 	//
-	for(size_t i = 0; i < position_count; i++) {
+	for(size_t i = 0; i < max_pos_count; i++) {
+		if(next_position[i].x == -1 && next_position[i].y == -1) {
+			ret[1+i] = false;
+			continue;
+		}
+		
 		const size_t index = next_position[i].y*map_size.x + next_position[i].x;
 		
 		const labdata::lab_floor* floor_data = NULL;
@@ -1100,23 +1070,34 @@ bool map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, 
 		if(floor_tiles[index] > 0) floor_data = lab_data->get_floor(floor_tiles[index]);
 		if(ceiling_tiles[index] > 0) ceiling_data = lab_data->get_floor(ceiling_tiles[index]);
 		if(ow_tiles[index] >= 101) wall_data = lab_data->get_wall(ow_tiles[index]);
-		if(ow_tiles[index] > 0 && ow_tiles[index] < 101) obj_data = lab_data->get_object(ow_tiles[index]);
+		// TODO: add correct object collision
+		//if(ow_tiles[index] > 0 && ow_tiles[index] < 101) obj_data = lab_data->get_object(ow_tiles[index]);
 		
 		if(floor_data != NULL) {
-			if(floor_data->collision) return true;
+			if(floor_data->collision & labdata::CT_BLOCK) {
+				ret[1+i] = true;
+			}
 		}
 		if(ceiling_data != NULL) {
-			if(ceiling_data->collision) return true;
+			if(ceiling_data->collision & labdata::CT_BLOCK) {
+				ret[1+i] = true;
+			}
 		}
 		if(wall_data != NULL) {
-			if(wall_data->collision > 0) return true;
+			if(wall_data->collision & labdata::CT_BLOCK) {
+				ret[1+i] = true;
+			}
 		}
 		if(obj_data != NULL) {
 			for(size_t so = 0; so < obj_data->sub_object_count; so++) {
-				if(obj_data->sub_objects[so]->collision > 0) return true;
+				if(obj_data->sub_objects[so]->collision & labdata::CT_BLOCK) {
+					ret[1+i] = true;
+				}
 			}
 		}
+		
+		if(ret[1+i]) ret[0] = true;
 	}
 
-	return false;
+	return ret;
 }

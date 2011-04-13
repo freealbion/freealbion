@@ -51,7 +51,7 @@ public:
 	
 protected:
 	vector<map_event_info*> event_info;
-	vector<events::event*> events;
+	vector<events::event*> mevents;
 	
 	size_t end_offset;
 	

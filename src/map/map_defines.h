@@ -32,6 +32,9 @@
 #define TIME_PER_ANIMATION_FRAME (150)
 #define TIME_PER_TILE_ANIMATION_FRAME (100)
 
+static const float std_tile_size = 16.0f;
+static const float std_half_tile_size = std_tile_size/2.0f;
+
 enum NPC_STATE {
 	S_BACK1		= 0x01,
 	S_BACK2		= 0x02,

@@ -67,6 +67,14 @@ public:
 		WT_JOINED = WT_WRITE_OVERLAY_ZERO|WT_CUT_ALPHA|WT_TRANSPARENT,
 	};
 
+	enum COLLISION_TYPE {
+		CT_PASSABLE = 0x00,
+		CT__UNKNOWN1__ = 0x02,
+		CT_BLOCK = 0x08,
+		CT__UNKNOWN2__ = 0x10, // possible "whole tile" <-> "part of tile" distinction (walls <-> objects)?
+		CT_PASSABLE_EVENT = 0x80,
+	};
+
 	struct lab_info {
 		size_t scale_1;
 		size_t scale_2;
@@ -80,17 +88,19 @@ public:
 	};
 	
 	struct lab_floor {
-		bool collision;
+		COLLISION_TYPE collision;
+		unsigned int _unknown_collision; // 2 bytes
 		unsigned int tex_num;
 		unsigned int animation;
 		unsigned int cur_ani;
 		albion_texture::albion_texture_multi_xld* tex_info;
-		lab_floor() : collision(false), tex_num(0), animation(1), cur_ani(0), tex_info(NULL) {}
+		lab_floor() : collision(CT_PASSABLE), tex_num(0), animation(1), cur_ani(0), tex_info(NULL) {}
 	};
 	
 	struct lab_object_info {
 		unsigned char type;
-		unsigned int collision; // 3 bytes
+		COLLISION_TYPE collision;
+		unsigned int _unknown_collision; // 2 bytes
 		unsigned int texture;
 		unsigned int animation;
 		unsigned int x_size;
@@ -117,6 +127,7 @@ public:
 	};
 	
 	struct lab_wall_overlay {
+		unsigned int animation;
 		bool write_zero;
 		unsigned int texture;
 		unsigned int x_size;
@@ -127,10 +138,12 @@ public:
 	
 	struct lab_wall {
 		unsigned int type;
-		unsigned int collision; // 3 bytes
+		COLLISION_TYPE collision;
+		unsigned int _unknown_collision; // 2 bytes
 		AUTOGFX_TYPE autogfx_type;
 		unsigned int texture;
 		unsigned int animation;
+		unsigned int wall_animation;
 		unsigned int palette_num; //?
 		unsigned int x_size;
 		unsigned int y_size;

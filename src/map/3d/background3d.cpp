@@ -40,7 +40,7 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 		return;
 	}
 
-	if(cur_bg_num >= 0 && cur_bg_num != bg_num) {
+	if(cur_bg_num >= 0 && (size_t)cur_bg_num != bg_num) {
 		unload();
 	}
 	cur_bg_num = bg_num;
@@ -55,7 +55,7 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 
 	unsigned int* data_32bpp = new unsigned int[bg_size.x*bg_size.y];
 	gfxconv::convert_8to32(&(obj->data[6]), data_32bpp, bg_size.x, bg_size.y, palette, 0);
-	scaling::scale_4x(scaling::ST_HQ4X, data_32bpp, bg_size, tex_surface);
+	scaling::scale(conf::get<scaling::SCALE_TYPE>("map.3d.scale_type"), data_32bpp, bg_size, tex_surface);
 	delete [] data_32bpp;
 
 	// this is constant for all bg cubemaps
