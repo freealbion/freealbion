@@ -53,7 +53,7 @@ protected:
 
 	map<size_t, a2e_texture> npc_graphics;
 	
-	xld* npcgfx_xlds[4];
+	xld* npcgfx_xlds[6];
 
 	void load_npcgfx(const size_t& npc_num);
 	

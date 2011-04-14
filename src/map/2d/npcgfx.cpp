@@ -27,6 +27,8 @@ npcgfx::npcgfx(const pal* palettes) : palettes(palettes), cur_palette(6) {
 	npcgfx_xlds[1] = new xld("NPCGR1.XLD");
 	npcgfx_xlds[2] = new xld("PARTGR0.XLD");
 	npcgfx_xlds[3] = new xld("TACTICO0.XLD");
+	npcgfx_xlds[4] = new xld("NPCKL0.XLD");
+	npcgfx_xlds[5] = new xld("PARTKL0.XLD");
 }
 
 /*! npcgfx destructor
@@ -37,6 +39,8 @@ npcgfx::~npcgfx() {
 	delete npcgfx_xlds[1];
 	delete npcgfx_xlds[2];
 	delete npcgfx_xlds[3];
+	delete npcgfx_xlds[4];
+	delete npcgfx_xlds[5];
 }
 
 void npcgfx::load_npcgfx(const size_t& npc_num) {
@@ -52,6 +56,12 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 	}
 	else if(npc_num < 400 && (npc_num - 300) < npcgfx_xlds[3]->get_object_count()) {
 		object = npcgfx_xlds[3]->get_object(npc_num - 300);
+	}
+	else if(npc_num < 500 && (npc_num - 400) < npcgfx_xlds[4]->get_object_count()) {
+		object = npcgfx_xlds[4]->get_object(npc_num - 400);
+	}
+	else if(npc_num < 600 && (npc_num - 500) < npcgfx_xlds[5]->get_object_count()) {
+		object = npcgfx_xlds[5]->get_object(npc_num - 500);
 	}
 	
 	if(object == NULL) {
@@ -69,12 +79,17 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 	tex_info_obj.offset = offset;
 	vector<albion_texture::albion_texture_info*> tex_info;
 	tex_info.push_back(&tex_info_obj);
+	
+	size2 texture_size(npc_size.x*4*4, 1024);
+	if(npc_num >= 400 && npc_num < 600) {
+		texture_size.y = npc_size.y*4*(object_count/4);
+	}
 
-	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, size2(npc_size.x*4*4, 1024), npc_size, cur_palette, tex_info, NULL, texture_object::TF_TRILINEAR);
+	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, texture_size, npc_size, cur_palette, tex_info, NULL, texture_object::TF_TRILINEAR);
 }
 
 const a2e_texture& npcgfx::get_npcgfx(const size_t& npc_num) {
-	if(npc_num > 399) {
+	if(npc_num > 599) {
 		a2e_error("invalid npc graphic #%u!", npc_num);
 		//throw exception();
 		return get_npcgfx(0);
@@ -113,11 +128,27 @@ void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame, const float2& 
 		default: npc_frame = 17; break;
 	}
 	
-	float ty = (float(npc_frame / 4) * 48.0f * 4.0f) / 1024.0f;
-	float tx = (float(npc_frame % 4) * 32.0f * 4.0f) / 512.0f;
+	const a2e_texture& tex = get_npcgfx(npc_num);
+	
+	float tx = 0.0f, ty = 0.0f;
+	float2 draw_size, tc_size;
+	if(npc_num < 400) {
+		ty = (float(npc_frame / 4) * 48.0f * 4.0f) / 1024.0f;
+		tx = (float(npc_frame % 4) * 32.0f * 4.0f) / 512.0f;
+		draw_size = float2(32.0f * scale, 48.0f * scale);
+		tc_size = float2(32.0f/128.0f, 48.0f/256.0f);
+	}
+	else if(npc_num >= 400 && npc_num < 600) {
+		if(npc_frame > 11) return; // npckl only has 12 frames
+		
+		ty = (float(npc_frame / 4) / 3.0f);
+		tx = (float(npc_frame % 4) / 4.0f);
+		draw_size = float2(float(tex->width)/4.0f * scale, float(tex->height)/3.0f * scale)/4.0f;
+		tc_size = float2(1.0f/4.0f, 1.0f/3.0f);
+	}
 
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, get_npcgfx(npc_num)->tex());
+	glBindTexture(GL_TEXTURE_2D, tex->tex());
 	glColor3f(1.0f, 1.0f, 1.0f);
 
 	// offset position a bit (prefer player/party)
@@ -126,8 +157,6 @@ void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame, const float2& 
 	if(depth_overwrite != -1.0f) depth_val = depth_overwrite;
 
 	glFrontFace(GL_CCW);
-	float2 draw_size = float2(32.0f * scale, 48.0f * scale);
-	float2 tc_size = float2(32.0f/128.0f, 48.0f/256.0f);
 	glBegin(GL_QUADS);
 		glTexCoord2f(tx, ty);
 		glVertex3f(screen_position.x, screen_position.y, depth_val);

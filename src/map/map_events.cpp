@@ -192,7 +192,7 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 	end_offset = offset;
 	
 	// debug output
-	size_t ix = 0;
+	/*size_t ix = 0;
 	for(vector<map_event_info*>::iterator ei_iter = event_info.begin(); ei_iter != event_info.end(); ei_iter++) {
 		cout << "#" << ix << " (Global: " << (*ei_iter)->global << ")" << endl;
 		cout << "Pos: (" << (*ei_iter)->xpos << ", " << (*ei_iter)->ypos << ")" << endl;
@@ -220,7 +220,7 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 			events::dbg_print_event_info(*e_iter, 0xFFFFFFFF, 0);
 			cout << "----------------------" << endl;
 		}
-	}
+	}*/
 }
 
 void map_events::unload() {

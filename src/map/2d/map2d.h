@@ -28,6 +28,7 @@
 #include "npcgfx.h"
 #include "map_npcs.h"
 #include "map_events.h"
+#include "player2d.h"
 
 /*! @class map2d
  *  @brief displays 2d maps
@@ -63,12 +64,15 @@ public:
 	bool collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const;
 	
 	map_events& get_map_events();
+	
+	void set_player(player2d* player);
 
 	// DEBUG: for debugging purposes
 	tileset::tile_object* get_tile(unsigned int type);
 	unsigned int get_tile_num(unsigned int type);
 
 protected:
+	player2d* p2d;
 	tileset* tilesets;
 	npcgfx* npc_graphics;
 
@@ -139,6 +143,7 @@ protected:
 	ssize2 normal_player_offset;
 
 	bool map_loaded;
+	bool continent_map;
 
 };
 

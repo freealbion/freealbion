@@ -22,11 +22,11 @@
 
 #include "ar_global.h"
 #include "map_defines.h"
-#include "map2d.h"
 #include "npcgfx.h"
 #include "map_npcs.h"
 #include "npc.h"
 
+class map2d;
 class npc2d : public npc {
 public:
 	npc2d(map2d* map2d_obj, npcgfx* npc_graphics);
@@ -36,12 +36,15 @@ public:
 	virtual void handle();
 	virtual void move(const MOVE_DIRECTION& direction);
 	virtual void move(const size2& move_pos);
+	virtual void set_continent(const bool& state);
 
 protected:
 	map2d* map2d_obj;
 	npcgfx* npc_graphics;
 
 	size_t state;
+	
+	bool continent;
 
 };
 

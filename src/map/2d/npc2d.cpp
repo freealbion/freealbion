@@ -18,10 +18,11 @@
  */
 
 #include "npc2d.h"
+#include "map2d.h"
 
 /*! npc2d constructor
  */
-npc2d::npc2d(map2d* map2d_obj, npcgfx* npc_graphics) : npc(), map2d_obj(map2d_obj), npc_graphics(npc_graphics) {
+npc2d::npc2d(map2d* map2d_obj, npcgfx* npc_graphics) : npc(), map2d_obj(map2d_obj), npc_graphics(npc_graphics), continent(false) {
 	state = S_FRONT1;
 }
 
@@ -40,7 +41,9 @@ void npc2d::draw(const NPC_DRAW_STAGE& draw_stage) const {
 	npc_pos = npc_pos*(1.0f-pos_interp) + npc_next_pos*pos_interp;
 	
 	float depth_overwrite = (draw_stage == NDS_PRE_UNDERLAY || draw_stage == NDS_PRE_OVERLAY) ? 0.0f : -1.0f;
-	npc_graphics->draw_npc(npc_data->object_num, (NPC_STATE)state,
+	static const size_t continent_npcgfx_offset = 399;
+	npc_graphics->draw_npc((continent ? continent_npcgfx_offset : 0) + npc_data->object_num,
+						   (NPC_STATE)state,
 						   float2((npc_pos.x)*tile_size, (npc_pos.y - 2.0f)*tile_size),
 						   npc_pos, depth_overwrite);
 }
@@ -135,4 +138,8 @@ void npc2d::move(const size2& move_pos) {
 	if(final_dir & MD_DOWN) state = (S_FRONT1 & 0xF0) | (state & 0xF);
 	if(final_dir & MD_LEFT) state = (S_LEFT1 & 0xF0) | (state & 0xF);
 	if(final_dir & MD_RIGHT) state = (S_RIGHT1 & 0xF0) | (state & 0xF);
+}
+
+void npc2d::set_continent(const bool& state) {
+	continent = state;
 }

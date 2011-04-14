@@ -26,7 +26,7 @@ static const float snap_epsilon = 0.05f;
 /*! map2d constructor
  */
 map2d::map2d(tileset* tilesets, npcgfx* npc_graphics, xld* maps1, xld* maps2, xld* maps3) :
-tilesets(tilesets), npc_graphics(npc_graphics), maps1(maps1), maps2(maps2), maps3(maps3) {
+p2d(NULL), tilesets(tilesets), npc_graphics(npc_graphics), maps1(maps1), maps2(maps2), maps3(maps3) {
 	cur_map_data = NULL;
 	underlay_tiles = NULL;
 	overlay_tiles = NULL;
@@ -89,8 +89,12 @@ void map2d::load(const size_t& map_num) {
 	const size_t header_len = 10;
 	size_t npc_data_len = (size_t)cur_map_data[1];
 	map_size.set(cur_map_data[4], cur_map_data[5]);
-	cur_tileset_num = cur_map_data[6];
+	cur_tileset_num = (size_t)cur_map_data[6];
 	map_palette = (size_t)cur_map_data[8];
+	
+	continent_map = (cur_tileset_num == 1 || cur_tileset_num == 2 || cur_tileset_num == 4); //0,1,3
+	cout << "continent_map? " << continent_map << endl;
+	if(p2d != NULL) p2d->set_continent(continent_map);
 
 	for(size_t i = 0; i < 32; i++) {
 		cout << ((size_t)cur_map_data[i] < 16 ? "0":"") << hex << (size_t)cur_map_data[i] << dec;
@@ -127,6 +131,7 @@ void map2d::load(const size_t& map_num) {
 	for(vector<map_npcs::map_npc*>::const_iterator npc_iter = npc_data.begin(); npc_iter != npc_data.end(); npc_iter++) {
 		npcs.push_back(new npc2d(this, npc_graphics));
 		npcs.back()->set_npc_data(*npc_iter);
+		npcs.back()->set_continent(continent_map);
 	}
 	
 	// create opengl buffers
@@ -563,4 +568,8 @@ map_events& map2d::get_map_events() {
 void map2d::set_initial_position(const size2& init_pos) {
 	set_pos(init_pos.x, init_pos.y);
 	screen_position = compute_target_position();
+}
+
+void map2d::set_player(player2d* player) {
+	p2d = player;
 }

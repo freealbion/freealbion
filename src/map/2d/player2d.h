@@ -22,7 +22,6 @@
 
 #include "ar_global.h"
 #include "map_defines.h"
-#include "map2d.h"
 #include "npcgfx.h"
 #include "npc2d.h"
 
@@ -33,6 +32,7 @@
  *  player class
  */
 
+class map2d;
 class player2d : public npc2d {
 public:
 	player2d(map2d* map2d_obj, npcgfx* npc_graphics);
