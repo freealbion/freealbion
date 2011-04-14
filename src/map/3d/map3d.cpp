@@ -182,7 +182,7 @@ void map3d::load(const size_t& map_num) {
 	float2 map_scale(1.0f, 1.0f);
 	
 	// scale byte 1
-	if(lab_data->get_lab_info()->scale_1 == 0x1) {
+	/*if(lab_data->get_lab_info()->scale_1 == 0x1) {
 		// everything is fine, nothing to see here, move on ...
 	}
 	else if(lab_data->get_lab_info()->scale_1 == 0x2) {
@@ -195,13 +195,15 @@ void map3d::load(const size_t& map_num) {
 		map_scale.y = float(lab_data->get_wall(101)->x_size) / float(lab_data->get_wall(101)->y_size);
 		
 		map_scale.y *= 1.5f;
-	}
+	}*/
 
 	// scale byte 2
-	if(lab_data->get_lab_info()->scale_2 == 0x7) map_scale.y = 2.25f;
+	/*if(lab_data->get_lab_info()->scale_2 == 0x7) map_scale.y = 2.25f;
 	//if(lab_data->get_lab_info()->scale_2 == 0x8) map_scale.y = 1.87f;
 	if(lab_data->get_lab_info()->scale_2 == 0x8) map_scale.y = 1.2f;
-	if(lab_data->get_lab_info()->scale_2 == 0xA) map_scale.x = 2.25f;
+	if(lab_data->get_lab_info()->scale_2 == 0xA) map_scale.x = 2.25f;*/
+	
+	// TODO: apply map scale and new size to all other classes (player3d, collision detection!)
 
 	tile_size = std_tile_size * map_scale.x;
 	ceiling_height = map_scale.y * float(lab_data->get_wall(101)->y_size)/8.0f;
@@ -1100,4 +1102,8 @@ bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position,
 	}
 
 	return ret;
+}
+
+map_events& map3d::get_map_events() {
+	return mevents;
 }

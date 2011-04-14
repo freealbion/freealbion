@@ -28,6 +28,7 @@ npc::npc() : char_type(CT_NPC) {
 	enabled = true;
 	pos_interp = 0.0f;
 	clock_cb = NULL;
+	view_direction = MD_NONE;
 }
 
 /*! npc destructor
@@ -124,4 +125,16 @@ void npc::clock_tick_cb(size_t tick) {
 	
 	// follow track dependent on game time (-> tick)
 	move(npc_data->position[tick] - size2(1, 1));
+}
+
+bool npc::has_moved() const {
+	return moved;
+}
+
+void npc::set_moved(const bool& state) {
+	moved = state;
+}
+
+void npc::set_view_direction(const MOVE_DIRECTION& vdirection) {
+	view_direction = vdirection;
 }

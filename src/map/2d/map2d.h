@@ -54,12 +54,15 @@ public:
 
 
 	void set_pos(const size_t& x, const size_t& y);
+	void set_initial_position(const size2& init_pos);
 	const size2& get_size() const;
 	const float get_tile_size() const;
 	const size_t& get_palette() const;
 	const float2& get_screen_position() const;
 
 	bool collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const;
+	
+	map_events& get_map_events();
 
 	// DEBUG: for debugging purposes
 	tileset::tile_object* get_tile(unsigned int type);
@@ -129,6 +132,7 @@ protected:
 	size_t last_tile_animation;
 
 	//
+	float2 compute_target_position();
 	ssize2 next_position;
 	float2 screen_position;
 	

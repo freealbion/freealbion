@@ -42,6 +42,7 @@ public:
 	virtual void move(const MOVE_DIRECTION& direction);
 	virtual void move(const size2& move_pos);
 	virtual void set_pos(const size_t& x, const size_t& y);
+	virtual void set_view_direction(const MOVE_DIRECTION& vdirection);
 	
 protected:
 	float3 last_pos;

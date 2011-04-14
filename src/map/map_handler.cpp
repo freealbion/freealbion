@@ -106,14 +106,32 @@ map_handler::~map_handler() {
 }
 
 void map_handler::handle() {
+	const events::map_exit_event* me_evt = NULL;
 	if(active_map_type == MT_2D_MAP) {
 		if(next_dir != MD_NONE && (SDL_GetTicks() - last_move) > TIME_PER_TILE) {
 			last_move = SDL_GetTicks();
 			p2d->move((MOVE_DIRECTION)next_dir);
 		}
+		if(p2d->has_moved()) {
+			p2d->set_moved(false);
+			const size2& player_pos = p2d->get_pos();
+			me_evt = maps2d->get_map_events().get_map_exit_event(player_pos);
+		}
 	}
 	else if(active_map_type == MT_3D_MAP) {
 		p3d->move((MOVE_DIRECTION)next_dir);
+		if(p3d->has_moved()) {
+			p3d->set_moved(false);
+			const size2& player_pos = p3d->get_pos();
+			maps3d->get_map_events();
+			me_evt = maps3d->get_map_events().get_map_exit_event(player_pos);
+		}
+	}
+	
+	// map change
+	if(me_evt != NULL) {
+		load_map(me_evt->next_map-100, size2(me_evt->map_x-1, me_evt->map_y-1), me_evt->direction);
+		return;
 	}
 	
 	maps2d->handle();
@@ -154,17 +172,26 @@ void map_handler::draw() {
 	}
 }
 
-void map_handler::load_map(const size_t& map_num) {
+void map_handler::load_map(const size_t& map_num, const size2 player_pos, const MOVE_DIRECTION player_direction) {
 	if(maps2d->is_2d_map(map_num)) {
-		p2d->set_pos(9, 8);
+		// use another default for the 2d player for now
+		size2 ppos2d = player_pos;
+		if(ppos2d.x == 0 && ppos2d.y == 0) {
+			ppos2d.set(9, 8);
+		}
+		p2d->set_pos(ppos2d.x, ppos2d.y);
+		p2d->set_view_direction(player_direction);
 		maps3d->unload();
 		maps2d->load(map_num);
+		maps2d->set_initial_position(ppos2d);
 		npc_graphics->set_palette(maps2d->get_palette()-1);
 		active_map_type = MT_2D_MAP;
 	}
 	else if(maps3d->is_3d_map(map_num)) {
 		maps2d->unload();
 		maps3d->load(map_num);
+		p3d->set_pos(player_pos.x, player_pos.y);
+		p3d->set_view_direction(player_direction);
 		active_map_type = MT_3D_MAP;
 	}
 }

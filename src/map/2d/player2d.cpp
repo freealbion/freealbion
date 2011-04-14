@@ -68,3 +68,30 @@ void player2d::handle() {
 void player2d::compute_move() {
 	// do nothing
 }
+
+void player2d::move(const MOVE_DIRECTION& direction) {
+	npc2d::move(direction);
+	
+	// player moved to the next tile
+	set_moved(true);
+}
+
+void player2d::set_view_direction(const MOVE_DIRECTION& vdirection) {
+	npc2d::set_view_direction(vdirection);
+	
+	switch(vdirection) {
+		case MD_UP:
+			state = S_BACK1;
+			break;
+		case MD_RIGHT:
+			state = S_RIGHT1;
+			break;
+		case MD_DOWN:
+			state = S_FRONT1;
+			break;
+		case MD_LEFT:
+			state = S_LEFT1;
+			break;
+		default: break;
+	}
+}

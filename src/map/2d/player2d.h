@@ -40,6 +40,8 @@ public:
 
 	virtual void draw(const NPC_DRAW_STAGE& draw_stage) const;
 	virtual void handle();
+	virtual void move(const MOVE_DIRECTION& direction);
+	virtual void set_view_direction(const MOVE_DIRECTION& vdirection);
 
 protected:
 	

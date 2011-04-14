@@ -169,30 +169,30 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	for(size_t i = 0; i < floor_count; i++) {
 		floors.push_back(new lab_floor());
 
-		cout << "#############" << endl << "## floor #" << i << endl;
+		//cout << "#############" << endl << "## floor #" << i << endl;
 		
 		floors.back()->collision = (COLLISION_TYPE)(data[offset]);
-		cout << "collision : " << hex << (size_t)floors.back()->collision << dec << endl;
+		//cout << "collision : " << hex << (size_t)floors.back()->collision << dec << endl;
 		offset++;
 
 		floors.back()->_unknown_collision = (data[offset] << 8) | (data[offset+1]);
-		cout << "unknown collision: " << hex << (size_t)floors.back()->_unknown_collision << dec << endl;
+		//cout << "unknown collision: " << hex << (size_t)floors.back()->_unknown_collision << dec << endl;
 		// TODO: additional collision data is used, too!
 		offset+=2; // unknown
 		
-		cout << "unknown #1: " << hex << (size_t)(data[offset] & 0xFF) << dec << endl;
+		//cout << "unknown #1: " << hex << (size_t)(data[offset] & 0xFF) << dec << endl;
 		offset++; // unknown
 
 		floors.back()->animation = data[offset] & 0xFF;
 		offset++;
 		
-		cout << "unknown #2: " << hex << (size_t)(data[offset] & 0xFF) << dec << endl;
+		//cout << "unknown #2: " << hex << (size_t)(data[offset] & 0xFF) << dec << endl;
 		offset++; // unknown
 
 		floors.back()->tex_num = AR_GET_USINT(data, offset);
 		offset+=2;
-		cout << "unknown #3: " << hex << (size_t)(data[offset] & 0xFF) << dec << endl;
-		cout << "unknown #4: " << hex << (size_t)(data[offset+1] & 0xFF) << dec << endl;
+		//cout << "unknown #3: " << hex << (size_t)(data[offset] & 0xFF) << dec << endl;
+		//cout << "unknown #4: " << hex << (size_t)(data[offset+1] & 0xFF) << dec << endl;
 		offset+=2; // unknown
 		
 		// check if tile uses colors that are animated ...
@@ -229,7 +229,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	const size_t object_info_count = AR_GET_USINT(data, offset);
 	offset+=2;
 	for(size_t i = 0; i < object_info_count; i++) {
-		cout << ":object #" << i << ": ";
+		//cout << ":object #" << i << ": ";
 		/*for(size_t x = 0; x < 16; x++) {
 			cout << (size_t)data[offset+x] << ", ";
 		}
@@ -239,7 +239,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		object_infos.back()->type = data[offset];
 		offset++;
 
-		cout << "collision: " << hex << (size_t)(data[offset] & 0xFF) << " " << (size_t)(data[offset+1] & 0xFF) << " " << (size_t)(data[offset+2] & 0xFF) << dec << endl;
+		//cout << "collision: " << hex << (size_t)(data[offset] & 0xFF) << " " << (size_t)(data[offset+1] & 0xFF) << " " << (size_t)(data[offset+2] & 0xFF) << dec << endl;
 		object_infos.back()->collision = (COLLISION_TYPE)(data[offset]);
 		offset++;
 
@@ -290,10 +290,10 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	for(size_t i = 0; i < wall_count; i++) {
 		walls.push_back(new lab_wall());
 
-		cout << "#############" << endl << "## wall #" << i << endl;
+		//cout << "#############" << endl << "## wall #" << i << endl;
 		/*cout << "ani: " << (size_t)(data[offset+6] & 0xFF) << endl;
 		cout << "type: " << (size_t)(data[offset] & 0xFF) << endl;*/
-		cout << "collision: " << hex << (size_t)((data[offset+1] << 16) | (data[offset+2] << 8) | data[offset+3]) << dec << endl;
+		//cout << "collision: " << hex << (size_t)((data[offset+1] << 16) | (data[offset+2] << 8) | data[offset+3]) << dec << endl;
 		/*cout << "tex: " << (size_t)AR_GET_USINT(data, offset+4) << endl;
 		cout << "type: " << (size_t)(data[offset+7] & 0xFF) << endl;
 		cout << "pal: " << (size_t)(data[offset+8] & 0xFF) << endl;

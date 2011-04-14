@@ -37,6 +37,7 @@ void player3d::handle() {
 void player3d::set_pos(const size_t& x, const size_t& y) {
 	npc3d::set_pos(x, y);
 	last_pos.set(x*std_tile_size, -8.0f, y*std_tile_size);
+	cam->set_position(-(last_pos.x+std_half_tile_size), last_pos.y, -(last_pos.z+std_half_tile_size));
 }
 
 void player3d::move(const MOVE_DIRECTION& direction) {
@@ -111,10 +112,36 @@ void player3d::move(const MOVE_DIRECTION& direction) {
 	
 	// set new pos
 	cam->set_position(-new_cam_pos.x, -8.0f, -new_cam_pos.z);
-	pos.set(floorf(new_cam_pos.x/std_tile_size), floorf(new_cam_pos.z/std_tile_size));
 	last_pos = orig_cam_pos;
+	
+	size2 new_pos = size2(floorf(new_cam_pos.x/std_tile_size), floorf(new_cam_pos.z/std_tile_size));
+	if(new_pos.x != pos.x || new_pos.y != pos.y) {
+		// player moved to the next tile
+		set_moved(true);
+	}
+	pos = next_pos = new_pos;
 }
 
 void player3d::move(const size2& move_pos) {
 	return;
+}
+
+void player3d::set_view_direction(const MOVE_DIRECTION& vdirection) {
+	npc3d::set_view_direction(vdirection);
+	
+	switch(vdirection) {
+		case MD_UP:
+			cam->set_rotation(0.0f, 0.0f, 0.0f);
+			break;
+		case MD_RIGHT:
+			cam->set_rotation(0.0f, 90.0f, 0.0f);
+			break;
+		case MD_DOWN:
+			cam->set_rotation(0.0f, 180.0f, 0.0f);
+			break;
+		case MD_LEFT:
+			cam->set_rotation(0.0f, 270.0f, 0.0f);
+			break;
+		default: break;
+	}
 }

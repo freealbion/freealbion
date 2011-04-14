@@ -45,17 +45,22 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 	}
 	cur_bg_num = bg_num;
 	
+	// background image is always scaled up by 4, however, nearest filtering or hq4x may be used
+	const size_t scale_factor = 4;
+	const scaling::SCALE_TYPE conf_scale_type = conf::get<scaling::SCALE_TYPE>("map.3d.scale_type");
+	const scaling::SCALE_TYPE scale_type = (conf_scale_type == scaling::ST_HQ2X || conf_scale_type == scaling::ST_HQ4X ? scaling::ST_HQ4X : scaling::ST_NEAREST_4X);
+	
 	// get background image
 	const xld::xld_object* obj = bg3d_xld->get_object(bg_num);
 	size2 bg_size = size2(AR_GET_USINT(obj->data, 0), AR_GET_USINT(obj->data, 2));
-	size2 texture_size = bg_size*4;
+	size2 texture_size = bg_size * scale_factor;
 
 	unsigned int* tex_surface = new unsigned int[texture_size.x*texture_size.y];
 	memset(tex_surface, 0, texture_size.x*texture_size.y*sizeof(unsigned int));
 
 	unsigned int* data_32bpp = new unsigned int[bg_size.x*bg_size.y];
 	gfxconv::convert_8to32(&(obj->data[6]), data_32bpp, bg_size.x, bg_size.y, palette, 0);
-	scaling::scale(conf::get<scaling::SCALE_TYPE>("map.3d.scale_type"), data_32bpp, bg_size, tex_surface);
+	scaling::scale(scale_type, data_32bpp, bg_size, tex_surface);
 	delete [] data_32bpp;
 
 	// this is constant for all bg cubemaps

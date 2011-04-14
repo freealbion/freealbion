@@ -113,8 +113,8 @@ void conf::init() {
 	conf::add<bool>("map.draw_underlay", true);
 	conf::add<float>("map.scale", 2.0f); // original scale: 3.0f
 	conf::add<scaling::SCALE_TYPE>("map.2d.scale_type", scaling::ST_HQ4X);
-	conf::add<scaling::SCALE_TYPE>("map.3d.scale_type", scaling::ST_HQ4X);
-	//conf::add<scaling::SCALE_TYPE>("map.3d.scale_type", scaling::ST_NEAREST_1X);
+	//conf::add<scaling::SCALE_TYPE>("map.3d.scale_type", scaling::ST_HQ4X);
+	conf::add<scaling::SCALE_TYPE>("map.3d.scale_type", scaling::ST_NEAREST_1X);
 	
 	conf::add<bool>("ui.display", true);
 	

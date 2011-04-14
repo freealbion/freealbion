@@ -34,6 +34,8 @@ tilesets(tilesets), npc_graphics(npc_graphics), maps1(maps1), maps2(maps2), maps
 	map_palette = 0;
 	cur_map_num = (~0);
 	last_tile_animation = SDL_GetTicks();
+	
+	set_initial_position(size2(0, 0));
 
 	mnpcs = NULL;
 }
@@ -297,15 +299,11 @@ void map2d::handle() {
 	//
 	static size_t last_frame_time = SDL_GetTicks();
 	static const float scroll_factor_per_second = 10.0f;
-	float scroll_factor = float(SDL_GetTicks() - last_frame_time)/1000.0f * scroll_factor_per_second;
+	float scroll_factor = std::min(float(SDL_GetTicks() - last_frame_time), 1000.0f)/1000.0f * scroll_factor_per_second;
 	last_frame_time = SDL_GetTicks();
 	
 	// compute target position (aka map draw offset/position, left top corner)
-	float scaled_tile_size = tile_size * conf::get<float>("map.scale");
-	normal_player_offset.set(e->get_width() / size_t(scaled_tile_size) / 2, e->get_height() / size_t(scaled_tile_size) / 2);
-	float2 target_position = ssize2(next_position) - ssize2(normal_player_offset);
-	target_position.clamp(float2(0.0f),
-						  float2(map_size) - float2(e->get_width() / size_t(scaled_tile_size), e->get_height() / size_t(scaled_tile_size)));
+	float2 target_position = compute_target_position();
 	
 	// compute scroll speed depending on distance (speed = 1 - 1/exp(|distance|))
 	float2 pos_diff = target_position - screen_position;
@@ -327,7 +325,6 @@ void map2d::handle() {
 	
 	// set new, scrolled/interpolated screen position
 	screen_position = screen_position + scroll_speed * scroll_factor;
-
 
 	// handle tileset and animations
 	if((SDL_GetTicks() - last_tile_animation) > TIME_PER_TILE_ANIMATION_FRAME) {
@@ -365,6 +362,15 @@ void map2d::handle() {
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
 	}
+}
+
+float2 map2d::compute_target_position() {
+	float scaled_tile_size = tile_size * conf::get<float>("map.scale");
+	normal_player_offset.set(e->get_width() / size_t(scaled_tile_size) / 2, e->get_height() / size_t(scaled_tile_size) / 2);
+	float2 target_position = ssize2(next_position) - ssize2(normal_player_offset);
+	target_position.clamp(float2(0.0f),
+						  float2(map_size) - float2(e->get_width() / size_t(scaled_tile_size), e->get_height() / size_t(scaled_tile_size)));
+	return target_position;
 }
 
 void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_draw_stage) const {
@@ -548,4 +554,13 @@ const size_t& map2d::get_palette() const {
 
 const float2& map2d::get_screen_position() const {
 	return screen_position;
+}
+
+map_events& map2d::get_map_events() {
+	return mevents;
+}
+
+void map2d::set_initial_position(const size2& init_pos) {
+	set_pos(init_pos.x, init_pos.y);
+	screen_position = compute_target_position();
 }

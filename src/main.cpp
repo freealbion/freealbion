@@ -317,7 +317,7 @@ int main(int argc, char *argv[]) {
 				if(tile_info.min_element() >= 0) {
 					caption << " | " << tile_info.x << " " << tile_info.y << " " << tile_info.z;
 				}
-				caption << " | Pos: " << -float3(*e->get_position());
+				caption << " | Pos: " << (float3(-*e->get_position())/std_tile_size).floored();
 			}
 			else if(mh->get_active_map_type() == MT_2D_MAP) {
 				caption << " | Pos: " << mh->get_player_position();

@@ -49,6 +49,8 @@ public:
 	
 	const size_t& get_end_offset() const;
 	
+	const events::map_exit_event* get_map_exit_event(const size2& position) const;
+	
 protected:
 	vector<map_event_info*> event_info;
 	vector<events::event*> mevents;

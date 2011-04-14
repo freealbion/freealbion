@@ -57,7 +57,6 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 		event_info.back()->ypos = 0;
 		event_info.back()->trigger = AR_GET_USINT(data, offset);
 		offset += 2;
-		//if(event_info.back()->trigger & events::ETR_NPC || event_info.back()->trigger & events::ETR_SPEAK) cout << ">> npc or speak event trigger!" << endl;
 		//if(event_info.back()->trigger > 0x1FFF) cout << "unknown event trigger!" << endl;
 		event_info.back()->event_num = AR_GET_USINT(data, offset);
 		offset += 2;
@@ -82,12 +81,12 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 		for(size_t j = 0; j < line_event_count; j++) {
 			event_info.push_back(new map_event_info());
 			event_info.back()->global = false;
-			event_info.back()->xpos = AR_GET_USINT(data, offset);
+			// pos starts @(0, 0)
+			event_info.back()->xpos = AR_GET_USINT(data, offset)-1;
 			offset += 2;
 			event_info.back()->ypos = i;
 			event_info.back()->trigger = AR_GET_USINT(data, offset);
 			offset += 2;
-			//if(event_info.back()->trigger & events::ETR_NPC || event_info.back()->trigger & events::ETR_SPEAK) cout << ">> npc or speak event trigger!" << endl;
 			//if(event_info.back()->trigger > 0x1FFF) cout << "unknown event trigger!" << endl;
 			event_info.back()->event_num = AR_GET_USINT(data, offset);
 			offset += 2;
@@ -95,6 +94,8 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 		}
 	}
 	
+	cout << "----------------------" << endl;
+	cout << "-- Map Events:" << endl;
 	cout << "event info count: " << event_info.size() << endl;
 	
 	// get event data
@@ -113,21 +114,23 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 		}
 		
 		for(size_t i = 0; i < event_count; i++) {
-			mevents.push_back(new events::event());
-			mevents.back()->assigned = false;
-			mevents.back()->type = (events::EVENT_TYPE)(data[offset] & 0xFF); offset++;
-			mevents.back()->info[0] = data[offset] & 0xFF; offset++;
-			mevents.back()->info[1] = data[offset] & 0xFF; offset++;
-			mevents.back()->info[2] = data[offset] & 0xFF; offset++;
-			mevents.back()->info[3] = data[offset] & 0xFF; offset++;
-			mevents.back()->info[4] = data[offset] & 0xFF; offset++;
-			mevents.back()->info[5] = AR_GET_USINT(data, offset);
-			offset += 2;
-			mevents.back()->info[6] = AR_GET_USINT(data, offset);
-			offset += 2;
-			mevents.back()->next_event_num = AR_GET_USINT(data, offset);
-			offset += 2;
-			mevents.back()->next_event = NULL;
+			events::EVENT_TYPE type = (events::EVENT_TYPE)(data[offset] & 0xFF);
+			mevents.push_back(events::create_event(type));
+			events::event* cur_event = mevents.back();
+			
+			// initial data
+			cur_event->assigned = false;
+			cur_event->type = type; offset++;
+			cur_event->info[0] = data[offset] & 0xFF; offset++;
+			cur_event->info[1] = data[offset] & 0xFF; offset++;
+			cur_event->info[2] = data[offset] & 0xFF; offset++;
+			cur_event->info[3] = data[offset] & 0xFF; offset++;
+			cur_event->info[4] = data[offset] & 0xFF; offset++;
+			cur_event->info[5] = AR_GET_USINT(data, offset); offset += 2;
+			cur_event->info[6] = AR_GET_USINT(data, offset); offset += 2;
+			cur_event->next_event_num = AR_GET_USINT(data, offset); offset += 2;
+			cur_event->next_event = NULL;
+			
 			if(offset >= length) break;
 		}
 	}
@@ -136,33 +139,55 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 	// assign pointers
 	for(vector<map_event_info*>::iterator ei_iter = event_info.begin(); ei_iter != event_info.end(); ei_iter++) {
 		(*ei_iter)->event_obj = get_event((*ei_iter)->event_num);
-		if((*ei_iter)->event_obj == NULL) {
-			//a2e_debug("NULL event: %u", (*ei_iter)->event_num);
-			continue;
+		if((*ei_iter)->event_obj != NULL) {
+			(*ei_iter)->event_obj->assigned = true;
 		}
-		(*ei_iter)->event_obj->assigned = true;
 	}
 	for(vector<events::event*>::iterator e_iter = mevents.begin(); e_iter != mevents.end(); e_iter++) {
 		if((*e_iter)->next_event_num != 0xFFFF) {
 			(*e_iter)->next_event = get_event((*e_iter)->next_event_num);
-			if((*e_iter)->next_event == NULL) {
-				//a2e_debug("NULL event: %u", (*e_iter)->next_event_num);
-				continue;
-			}
-			if((*e_iter)->assigned) (*e_iter)->next_event->assigned = true;
 		}
-		/*else if((*e_iter)->type == events::ETY_QUERY) {
-			map_event* next_event = get_event((*e_iter)->info[6]);
-			if(next_event == NULL) continue;
-			if((*e_iter)->assigned) next_event->assigned = true;
-		}*/
+	}
+	
+	// assign event type dependent data
+	events::assign_type_data(mevents);
+	
+	// handle assignment
+	for(vector<events::event*>::iterator e_iter = mevents.begin(); e_iter != mevents.end(); e_iter++) {
+		if((*e_iter)->assigned && (*e_iter)->next_event != NULL) {
+			deque<events::event*> evt_list;
+			evt_list.push_back((*e_iter)->next_event);
+			if((*e_iter)->type == events::ETY_QUERY) {
+				events::event* next_event = ((events::query_event*)(*e_iter))->next_query_event;
+				if(next_event != NULL) {
+					evt_list.push_back(next_event);
+				}
+			}
+			
+			while(!evt_list.empty()) {
+				events::event* cur_evt = evt_list[0];
+				cur_evt->assigned = true;
+				
+				if(cur_evt->next_event != NULL) {
+					evt_list.push_back(cur_evt->next_event);
+				}
+				if(cur_evt->type == events::ETY_QUERY) {
+					events::event* next_event = ((events::query_event*)cur_evt)->next_query_event;
+					if(next_event != NULL) {
+						evt_list.push_back(next_event);
+					}
+				}
+				
+				evt_list.pop_front();
+			}
+		}
 	}
 	
 	cout << "offset: " << offset << endl;
 	end_offset = offset;
 	
 	// debug output
-	/*size_t ix = 0;
+	size_t ix = 0;
 	for(vector<map_event_info*>::iterator ei_iter = event_info.begin(); ei_iter != event_info.end(); ei_iter++) {
 		cout << "#" << ix << " (Global: " << (*ei_iter)->global << ")" << endl;
 		cout << "Pos: (" << (*ei_iter)->xpos << ", " << (*ei_iter)->ypos << ")" << endl;
@@ -172,10 +197,12 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 		unsigned int num = (*ei_iter)->event_num;
 		while(evt_obj != NULL) {
 			events::event* last_event = evt_obj;
-			evt_obj = events::dbg_print_event_info(evt_obj, num);
+			evt_obj = events::dbg_print_event_info(evt_obj, num, 0);
 			num = last_event->next_event_num;
 			if(last_event->type == events::ETY_QUERY) {
-				events::dbg_print_query_event_info(get_event(last_event->info[6]), 1, last_event->info[6]);
+				set<events::event*> handled_queries;
+				handled_queries.insert(last_event);
+				events::dbg_print_query_event_info(((events::query_event*)last_event)->next_query_event, last_event->info[6], handled_queries, 1);
 			}
 		}
 		ix++;
@@ -183,12 +210,12 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 	}
 	
 	cout << "unassigned events:" << endl;
-	for(vector<events::event*>::iterator e_iter = events.begin(); e_iter != events.end(); e_iter++) {
+	for(vector<events::event*>::iterator e_iter = mevents.begin(); e_iter != mevents.end(); e_iter++) {
 		if(!(*e_iter)->assigned) {
-			events::dbg_print_event_info(*e_iter, 0xFFFFFFFF);
+			events::dbg_print_event_info(*e_iter, 0xFFFFFFFF, 0);
 			cout << "----------------------" << endl;
 		}
-	}*/
+	}
 }
 
 void map_events::unload() {
@@ -217,4 +244,32 @@ map_events::map_event_info* map_events::get_event_info(const size_t& num) const 
 
 const size_t& map_events::get_end_offset() const {
 	return end_offset;
+}
+
+const events::map_exit_event* map_events::get_map_exit_event(const size2& position) const {
+	for(auto evt = event_info.begin(); evt != event_info.end(); evt++) {
+		if((*evt)->xpos == position.x && (*evt)->ypos == position.y && (*evt)->event_obj != NULL) {
+			deque<events::event*> evt_list;
+			evt_list.push_back((*evt)->event_obj);
+			while(!evt_list.empty()) {
+				events::event* cur_evt = evt_list[0];
+				
+				// ignore invalid (=0) map numbers (these are used for closed shops, etc.)
+				if(cur_evt->type == events::ETY_MAP_EXIT && ((events::map_exit_event*)cur_evt)->next_map >= 100) {
+					return (events::map_exit_event*)cur_evt;
+				}
+				else if(cur_evt->type == events::ETY_QUERY) {
+					events::event* next_event = ((events::query_event*)cur_evt)->next_query_event;
+					if(next_event != NULL) {
+						evt_list.push_back(next_event);
+					}
+				}
+				
+				if(cur_evt->next_event != NULL) evt_list.push_back(cur_evt->next_event);
+				
+				evt_list.pop_front();
+			}
+		}
+	}
+	return NULL;
 }

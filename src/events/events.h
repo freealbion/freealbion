@@ -78,6 +78,7 @@ public:
 		ETY_DO_SCRIPT
 	};
 	
+	// event structs
 	struct event {
 		EVENT_TYPE type;
 		bool assigned;
@@ -85,12 +86,25 @@ public:
 		unsigned int next_event_num;
 		event* next_event;
 	};
+	struct query_event : event {
+		event* next_query_event; // info[6]
+	};
+	struct map_exit_event : event {
+		unsigned int map_x; // info[0]
+		unsigned int map_y; // info[1]
+		MOVE_DIRECTION direction; // info[2]
+		unsigned int next_map; // info[5]
+	};
+	
+	static event* create_event(const EVENT_TYPE& type);
+	
+	static void assign_type_data(vector<events::event*>& evts);
 	
 	static string event_type_to_str(const EVENT_TYPE& type);
 	static string event_trigger_to_str(const size_t& trigger);
 	
-	static event* dbg_print_event_info(event* evt_obj, unsigned int num);
-	static void dbg_print_query_event_info(event* evt_obj, unsigned int depth, unsigned int num);
+	static event* dbg_print_event_info(event* evt_obj, unsigned int num, unsigned int depth);
+	static void dbg_print_query_event_info(event* evt_obj, unsigned int num, set<events::event*>& handled_queries, unsigned int depth);
 	
 protected:
 	

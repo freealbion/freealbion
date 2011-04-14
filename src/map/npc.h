@@ -38,10 +38,16 @@ public:
 	virtual const size2& get_pos() const;
 	virtual const float2 get_interpolated_pos() const;
 	
+	virtual void set_view_direction(const MOVE_DIRECTION& vdirection);
+	
 	virtual void set_npc_data(const map_npcs::map_npc* npc_data);
 	
 	virtual void set_enabled(const bool& state);
 	virtual bool is_enabled() const;
+	
+	// used for player event handling
+	virtual bool has_moved() const;
+	virtual void set_moved(const bool& state);
 	
 protected:
 	const map_npcs::map_npc* npc_data;
@@ -51,6 +57,7 @@ protected:
 	float pos_interp;
 	
 	CHARACTER_TYPE char_type;
+	MOVE_DIRECTION view_direction;
 	
 	size_t time_per_tile;
 	size_t last_frame;
@@ -58,6 +65,7 @@ protected:
 	size_t last_move;
 	
 	bool enabled;
+	bool moved;
 	
 	virtual void compute_move();
 	

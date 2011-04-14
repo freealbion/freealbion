@@ -29,47 +29,42 @@ events::events() {
 events::~events() {
 }
 
-events::event* events::dbg_print_event_info(events::event* evt_obj, unsigned int num) {
+events::event* events::dbg_print_event_info(events::event* evt_obj, unsigned int num, unsigned int depth) {
 	if(evt_obj == NULL) return NULL;
 	
-	cout << "\t" << event_type_to_str(evt_obj->type) << (evt_obj->assigned ? "" : " (unassigned)") << ":";
+	for(unsigned int i = 0; i < (depth+1); i++) {
+		cout << "\t";
+	}
+	cout << event_type_to_str(evt_obj->type) << " #" << num << (evt_obj->assigned ? "" : " (unassigned)") << ":";
 	string separator = " ";
 	for(unsigned int i = 0; i < 7; i++) {
 		cout << separator << evt_obj->info[i];
 		separator = ", ";
 	}
 	cout << endl;
-	separator = " ";
-	if(evt_obj->type == events::ETY_MAP_EXIT) {
-		cout << "\t" << event_type_to_str(evt_obj->type) << (evt_obj->assigned ? "" : " (unassigned)") << " (#" << num << ")" << ": ";
-		for(unsigned int i = 0; i < 7; i++) {
-			cout << separator << evt_obj->info[i];
-			separator = ", ";
-		}
-		cout << endl;
-	}
 	
 	return evt_obj->next_event;
 }
 
-void events::dbg_print_query_event_info(events::event* evt_obj, unsigned int depth, unsigned int num) {
+void events::dbg_print_query_event_info(events::event* evt_obj, unsigned int num, set<events::event*>& handled_queries, unsigned int depth) {
 	while(evt_obj != NULL) {
-		if(evt_obj->type == events::ETY_MAP_EXIT) {
-			cout << "\t";
-			for(unsigned int i = 0; i < depth; i++) cout << "\t";
-			
-			cout << event_type_to_str(evt_obj->type) << " (#" << num << ")" << ": ";
-			
-			for(unsigned int i = 0; i < 7; i++) {
-				cout << evt_obj->info[i] << ", ";
-			}
-			cout << endl;
-		}
+		dbg_print_event_info(evt_obj, num, depth);
 		if(evt_obj->type == events::ETY_QUERY) {
-			//dbg_print_query_event_info(get_event(evt_obj->info[6]), depth+1, evt_obj->info[6]);
+			if(handled_queries.count(evt_obj) == 0) {
+				handled_queries.insert(evt_obj);
+				if(((query_event*)evt_obj)->next_query_event != NULL) {
+					dbg_print_query_event_info(((query_event*)evt_obj)->next_query_event, evt_obj->info[6], handled_queries, depth+1);
+				}
+			}
+			else {
+				for(unsigned int i = 0; i < (depth+2); i++) {
+					cout << "\t";
+				}
+				cout << "<...>" << endl;
+			}
 		}
 		
-		//event = get_event(event->info[6]);
+		num = evt_obj->next_event_num;
 		evt_obj = evt_obj->next_event;
 	}
 }
@@ -135,3 +130,71 @@ string events::event_trigger_to_str(const size_t& trigger) {
 	return ostr;
 }
 
+events::event* events::create_event(const events::EVENT_TYPE& type) {
+	switch(type) {
+		case ETY_SCRIPT:
+		case ETY_DOOR:
+		case ETY_CHEST:
+		case ETY_TEXT:
+		case ETY_SPINNER:
+		case ETY_TRAP:
+		case ETY_CHANGE_USED_ITEM:
+		case ETY_DATACHANGE:
+		case ETY_CHANGE_ICON:
+		case ETY_ENCOUNTER:
+		case ETY_PLACE_ACTION:
+		case ETY_MODIFY:
+		case ETY_ACTION:
+		case ETY_SIGNAL:
+		case ETY_CLONE_AUTOMAP:
+		case ETY_SOUND:
+		case ETY_START_DIALOGUE:
+		case ETY_CREATE_TRANSPORT:
+		case ETY_EXECUTE:
+		case ETY_REMOVE_PARTY_MEMBER:
+		case ETY_END_DIALOGUE:
+		case ETY_WIPE:
+		case ETY_PLAY_ANIMATION:
+		case ETY_OFFSET:
+		case ETY_PAUSE:
+		case ETY_SIMPLE_CHEST:
+		case ETY_ASK_SURRENDER:
+		case ETY_DO_SCRIPT:
+			return new event();
+		case ETY_QUERY:
+			return new query_event();
+		case ETY_MAP_EXIT:
+			return new map_exit_event();
+		default:
+			break;
+	}
+	a2e_error("unknown event type: %i", type);
+	return new event();
+}
+
+void events::assign_type_data(vector<events::event*>& evts) {
+	// assign event type dependent data
+	for(auto evt = evts.begin(); evt != evts.end(); evt++) {
+		switch((*evt)->type) {
+			case events::ETY_QUERY:
+				((events::query_event*)(*evt))->next_query_event = ((*evt)->info[6] < evts.size() ? evts[(*evt)->info[6]] : NULL);
+				break;
+			case events::ETY_MAP_EXIT: {
+				events::map_exit_event* mevt = (events::map_exit_event*)(*evt);
+				mevt->map_x = (*evt)->info[0];
+				mevt->map_y = (*evt)->info[1];
+				switch((*evt)->info[2]) {
+					case 0: mevt->direction = MD_UP; break;
+					case 1: mevt->direction = MD_RIGHT; break;
+					case 2: mevt->direction = MD_DOWN; break;
+					case 3: mevt->direction = MD_LEFT; break;
+					default: mevt->direction = MD_NONE; break;
+				}
+				mevt->next_map = (*evt)->info[5];
+			}
+			break;
+			default:
+				break;
+		}
+	}
+}

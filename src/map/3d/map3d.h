@@ -45,6 +45,8 @@ public:
 	void draw() const;
 	
 	bool4 collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const;
+	
+	map_events& get_map_events();
 
 	// DEBUG: for debugging purposes
 	const ssize3 get_tile() const;
