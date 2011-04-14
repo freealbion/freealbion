@@ -153,8 +153,11 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 	events::assign_type_data(mevents);
 	
 	// handle assignment
+	set<events::event*> handled_events;
 	for(vector<events::event*>::iterator e_iter = mevents.begin(); e_iter != mevents.end(); e_iter++) {
-		if((*e_iter)->assigned && (*e_iter)->next_event != NULL) {
+		if((*e_iter)->assigned && (*e_iter)->next_event != NULL && handled_events.count(*e_iter) == 0) {
+			handled_events.insert(*e_iter);
+			
 			deque<events::event*> evt_list;
 			evt_list.push_back((*e_iter)->next_event);
 			if((*e_iter)->type == events::ETY_QUERY) {
@@ -168,20 +171,22 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 				events::event* cur_evt = evt_list[0];
 				cur_evt->assigned = true;
 				
-				if(cur_evt->next_event != NULL) {
+				if(cur_evt->next_event != NULL && handled_events.count(cur_evt->next_event) == 0) {
 					evt_list.push_back(cur_evt->next_event);
 				}
 				if(cur_evt->type == events::ETY_QUERY) {
 					events::event* next_event = ((events::query_event*)cur_evt)->next_query_event;
-					if(next_event != NULL) {
+					if(next_event != NULL && handled_events.count(next_event) == 0) {
 						evt_list.push_back(next_event);
 					}
 				}
 				
+				handled_events.insert(cur_evt);
 				evt_list.pop_front();
 			}
 		}
 	}
+	handled_events.clear();
 	
 	cout << "offset: " << offset << endl;
 	end_offset = offset;

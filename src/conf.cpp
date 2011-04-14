@@ -118,7 +118,7 @@ void conf::init() {
 	
 	conf::add<bool>("ui.display", true);
 	
-	conf::add<bool>("debug.player_pos", true);
+	conf::add<bool>("debug.player_pos", false);
 	conf::add<bool>("debug.draw_events", false);
 	conf::add<bool>("debug.display_debug_texture", false);
 	conf::add<size_t>("debug.npcgfx", 200);

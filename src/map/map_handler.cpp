@@ -186,6 +186,10 @@ void map_handler::load_map(const size_t& map_num, const size2 player_pos, const 
 		maps2d->set_initial_position(ppos2d);
 		npc_graphics->set_palette(maps2d->get_palette()-1);
 		active_map_type = MT_2D_MAP;
+		
+		// disable 3d cam input, show cursor again
+		cam->set_mouse_input(false);
+		e->set_cursor_visible(true);
 	}
 	else if(maps3d->is_3d_map(map_num)) {
 		maps2d->unload();
