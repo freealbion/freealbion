@@ -124,7 +124,7 @@ protected:
 	size_t obj_ani_count;
 	size_t obj_ani_offset;
 	// <type, tile number, pos> (type: 0 = floor/ceiling, 1 = wall, 2 = object)
-	vector<tuple<unsigned int, unsigned int, uint2> > animated_tiles;
+	vector<tuple<unsigned int, unsigned int, uint2>> animated_tiles;
 
 };
 

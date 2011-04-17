@@ -213,7 +213,7 @@ void tileset::load(const size_t& num, const size_t& palette) {
 	tilesets[num]->tile_tc_size = float2(64.0f)/float2(tileset_tex_size);
 
 	// create texture
-	cur_tileset_tex = albion_texture::create(MT_2D_MAP, tileset_tex_size, size2(16, 16), palette, tex_info, NULL, texture_object::TF_POINT);
+	cur_tileset_tex = albion_texture::create(MT_2D_MAP, tileset_tex_size, size2(16, 16), palette, tex_info, NULL, albion_texture::TST_NONE, 0, false, texture_object::TF_POINT);
 	//conf::set<a2e_texture>("debug.texture", cur_tileset_tex);
 	tilesets[num]->tileset = cur_tileset_tex;
 	tilesets[num]->tex_coords = &tilesets[num]->tex_info_obj.tex_coords;
@@ -236,7 +236,7 @@ void tileset::load(const size_t& num, const size_t& palette) {
 void tileset::handle_animations(set<unsigned int>& modified_tiles) {
 	if(cur_tileset == NULL) return;
 
-	const vector<vector<float2> >* tex_coords = cur_tileset->tex_coords;
+	const vector<vector<float2>>* tex_coords = cur_tileset->tex_coords;
 	for(unsigned int i = 0; i < (unsigned int)cur_tileset->tile_obj_count; i++) {
 		if(cur_tileset->tiles[i].ani_tiles > 1) {
 			// update num
@@ -272,7 +272,7 @@ const tileset::tileset_object& tileset::get_cur_tileset() const {
 	return *cur_tileset;
 }
 
-const vector<vector<float2> >* tileset::get_tex_coords() const {
+const vector<vector<float2>>* tileset::get_tex_coords() const {
 	return cur_tileset->tex_coords;
 }
 

@@ -191,8 +191,9 @@ protected:
 	xld* object_xlds[4];
 	xld* overlay_xlds[3];
 	xld* wall_xlds[2];
-
+	
 	texture_object::TEXTURE_FILTERING tex_filtering;
+	texture_object::TEXTURE_FILTERING custom_tex_filtering;
 	
 };
 

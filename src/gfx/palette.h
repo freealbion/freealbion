@@ -39,7 +39,7 @@ public:
 	
 protected:
 	vector<unsigned int*> palettes;
-	vector<vector<size2> > animated_ranges;
+	vector<vector<size2>> animated_ranges;
 
 };
 

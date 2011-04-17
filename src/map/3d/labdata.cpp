@@ -23,6 +23,9 @@
  */
 labdata::labdata() {
 	tex_filtering = e->get_filtering();
+	
+	// only use linear filtering (max!) when creating the texture (we'll add custom mip-maps later)
+	custom_tex_filtering = std::min(texture_object::TF_LINEAR, tex_filtering);
 
 	cur_labdata_num = (~0);
 	lab_fc_material = NULL;
@@ -390,9 +393,11 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	const size_t max_tex_size = exts->get_max_texture_size();
 	size2 floors_tex_size, walls_tex_size, objects_tex_size;
 	const size_t scale_factor = scaling::get_scale_factor(conf::get<scaling::SCALE_TYPE>("map.3d.scale_type"));
+	//const size_t aa_spacing_scale = (e->get_anti_aliasing() >= rtt::TAA_MSAA_2 ? 2 : 1);
 	
 	// compute floors tex size
-	const size2 floor_size = size2(64, 64) * scale_factor;
+	const size_t floor_spacing = 16 * scale_factor; // we sadly need that much spacing for floor tiles
+	const size2 floor_size = (size2(64, 64) * scale_factor) + size2(2 * floor_spacing);
 	for(size_t i = 0; i < floor_count; i++) {
 		for(size_t j = 0; j < floors[i]->animation; j++) {
 			floors_tex_size.x += floor_size.x;
@@ -403,12 +408,14 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		}
 	}
 	floors_tex_size.x = max_tex_size;
-	floors_tex_size.y += floor_size.y;
+	floors_tex_size.y += floor_size.y;;
 	
 	// walls tex size
+	const size_t wall_spacing = 16 * scale_factor;
+	const size2 wall_spacing_vec = size2(wall_spacing*2);
 	size_t next_y_coord = 0;
 	for(size_t i = 0; i < wall_count; i++) {
-		const size2 wall_size = size2(walls[i]->y_size, walls[i]->x_size)*scale_factor;
+		const size2 wall_size = size2(walls[i]->y_size, walls[i]->x_size)*scale_factor + wall_spacing_vec;
 		
 		for(size_t j = 0; j < walls[i]->animation; j++) {
 			if(wall_size.y > next_y_coord) next_y_coord = wall_size.y;
@@ -425,9 +432,11 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	walls_tex_size.y += next_y_coord;
 	
 	// objects tex size
+	const size_t object_spacing = 4 * scale_factor; // seems to be enough
+	const size2 object_spacing_vec = size2(object_spacing*2);
 	next_y_coord = 0;
 	for(size_t i = 0; i < object_info_count; i++) {
-		const size2 object_size = size2(object_infos[i]->x_size, object_infos[i]->y_size)*scale_factor;
+		const size2 object_size = size2(object_infos[i]->x_size, object_infos[i]->y_size)*scale_factor + object_spacing_vec;
 		
 		for(size_t j = 0; j < object_infos[i]->animation; j++) {
 			if(object_size.y > next_y_coord) next_y_coord = object_size.y;
@@ -453,10 +462,10 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	}
 	cout << ":: creating floors texture " << floors_tex_size << " ..." << endl;
 	if(floors_tex_size.x > 0 && floors_tex_size.y > 0) {
-		floors_tex = albion_texture::create(MT_3D_MAP, floors_tex_size, size2(64, 64), palette, floors_tex_info, floor_xlds, tex_filtering);
+		floors_tex = albion_texture::create(MT_3D_MAP, floors_tex_size, size2(64, 64), palette, floors_tex_info, floor_xlds, albion_texture::TST_MIRROR, floor_spacing, true, tex_filtering);
 	}
 	else floors_tex = t->get_dummy_texture();
-	//conf::set<a2e_texture>("debug.texture", floors_tex);
+	conf::set<a2e_texture>("debug.texture", floors_tex);
 	
 	// walls
 	size2 tex_offset;
@@ -473,6 +482,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 			//
 			const size2 tile_size = size2(walls[i]->y_size, walls[i]->x_size);
 			const size2 scaled_tile_size = tile_size * scale_factor;
+			const size2 spaced_scaled_tile_size = scaled_tile_size + wall_spacing_vec;
 			unsigned char* wall_data = new unsigned char[tile_size.x*tile_size.y];
 			unsigned int* data_32bpp = new unsigned int[tile_size.x*tile_size.y];
 			unsigned int* scaled_data = new unsigned int[scaled_tile_size.x*scaled_tile_size.y];
@@ -513,22 +523,25 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 				scaling::scale(conf::get<scaling::SCALE_TYPE>("map.3d.scale_type"), data_32bpp, tile_size, scaled_data);
 				
 				// copy data into tiles surface
-				if(tex_offset.x + scaled_tile_size.x > walls_tex_size.x) {
+				if(tex_offset.x + spaced_scaled_tile_size.x > walls_tex_size.x) {
 					tex_offset.x = 0;
 					tex_offset.y = next_y_offset;
 				}
-				if(tex_offset.y + scaled_tile_size.y > next_y_offset) {
-					next_y_offset = tex_offset.y + scaled_tile_size.y;
+				if(tex_offset.y + spaced_scaled_tile_size.y > next_y_offset) {
+					next_y_offset = tex_offset.y + spaced_scaled_tile_size.y;
 				}
 				
 				for(size_t y = 0; y < scaled_tile_size.y; y++) {
-					memcpy(&walls_surface[(tex_offset.y + y) * walls_tex_size.x + tex_offset.x], &scaled_data[y*scaled_tile_size.x], scaled_tile_size.x*sizeof(unsigned int));
+					memcpy(&walls_surface[(tex_offset.y + y + wall_spacing) * walls_tex_size.x + (tex_offset.x + wall_spacing)],
+						   &scaled_data[y*scaled_tile_size.x],
+						   scaled_tile_size.x*sizeof(unsigned int));
 				}
+				albion_texture::add_spacing(walls_surface, walls_tex_size, scaled_data, scaled_tile_size, wall_spacing, albion_texture::TST_MIRROR, tex_offset);
 				
-				walls[i]->tex_coord_begin[j].set(float(tex_offset.x)/float(walls_tex_size.x), float(tex_offset.y)/float(walls_tex_size.y));
-				walls[i]->tex_coord_end[j].set(float(tex_offset.x+scaled_tile_size.x)/float(walls_tex_size.x), float(tex_offset.y+scaled_tile_size.y)/float(walls_tex_size.y));
+				walls[i]->tex_coord_begin[j].set(float(tex_offset.x+wall_spacing)/float(walls_tex_size.x), float(tex_offset.y+wall_spacing)/float(walls_tex_size.y));
+				walls[i]->tex_coord_end[j] = walls[i]->tex_coord_begin[j] + (float2(scaled_tile_size) / float2(walls_tex_size));
 				
-				tex_offset.x += scaled_tile_size.x;
+				tex_offset.x += spaced_scaled_tile_size.x;
 			}
 			
 			delete [] data_32bpp;
@@ -536,7 +549,8 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 			delete [] wall_data;
 		}
 		cout << ":: creating walls texture " << walls_tex_size << " ..." << endl;
-		walls_tex = t->add_texture(walls_surface, walls_tex_size.x, walls_tex_size.y, GL_RGBA8, GL_RGBA, tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		walls_tex = t->add_texture(walls_surface, walls_tex_size.x, walls_tex_size.y, GL_RGBA8, GL_RGBA, custom_tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		albion_texture::build_mipmaps(walls_tex, walls_surface, tex_filtering);
 		delete [] walls_surface;
 		conf::set<a2e_texture>("debug.texture", walls_tex);
 	}
@@ -558,6 +572,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 			//
 			const size2 tile_size = size2(object_infos[i]->x_size, object_infos[i]->y_size);
 			const size2 scaled_tile_size = tile_size * scale_factor;
+			const size2 spaced_scaled_tile_size = scaled_tile_size + object_spacing_vec;
 			unsigned int* data_32bpp = new unsigned int[tile_size.x*tile_size.y];
 			unsigned int* scaled_data = new unsigned int[scaled_tile_size.x*scaled_tile_size.y];
 			
@@ -570,30 +585,34 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 				scaling::scale(conf::get<scaling::SCALE_TYPE>("map.3d.scale_type"), data_32bpp, tile_size, scaled_data);
 				
 				// copy data into tiles surface
-				if(tex_offset.x + scaled_tile_size.x > objects_tex_size.x) {
+				if(tex_offset.x + spaced_scaled_tile_size.x > objects_tex_size.x) {
 					tex_offset.x = 0;
 					tex_offset.y = next_y_offset;
 				}
-				if(tex_offset.y + scaled_tile_size.y > next_y_offset) {
-					next_y_offset = tex_offset.y + scaled_tile_size.y;
+				if(tex_offset.y + spaced_scaled_tile_size.y > next_y_offset) {
+					next_y_offset = tex_offset.y + spaced_scaled_tile_size.y;
 				}
 				
 				for(size_t y = 0; y < scaled_tile_size.y; y++) {
-					memcpy(&objects_surface[(tex_offset.y + y) * objects_tex_size.x + tex_offset.x], &scaled_data[y*scaled_tile_size.x], scaled_tile_size.x*sizeof(unsigned int));
+					memcpy(&objects_surface[(tex_offset.y + y + object_spacing) * objects_tex_size.x + (tex_offset.x + object_spacing)],
+						   &scaled_data[y*scaled_tile_size.x],
+						   scaled_tile_size.x*sizeof(unsigned int));
 				}
+				// no need to add transparent spacing here, since the texture already is transparent
 				
-				object_infos[i]->tex_coord_begin[j].set(float(tex_offset.x)/float(objects_tex_size.x), float(tex_offset.y)/float(objects_tex_size.y));
-				object_infos[i]->tex_coord_end[j].set(float(tex_offset.x+scaled_tile_size.x)/float(objects_tex_size.x), float(tex_offset.y+scaled_tile_size.y)/float(objects_tex_size.y));
+				object_infos[i]->tex_coord_begin[j].set(float(tex_offset.x+object_spacing)/float(objects_tex_size.x), float(tex_offset.y+object_spacing)/float(objects_tex_size.y));
+				object_infos[i]->tex_coord_end[j] = object_infos[i]->tex_coord_begin[j] + (float2(scaled_tile_size) / float2(objects_tex_size));
 				
-				tex_offset.x += scaled_tile_size.x;
+				tex_offset.x += spaced_scaled_tile_size.x;
 			}
 			
 			delete [] data_32bpp;
 			delete [] scaled_data;
 		}
 		cout << ":: creating objects texture " << objects_tex_size << " ..." << endl;
-		objects_tex = t->add_texture(objects_surface, objects_tex_size.x, objects_tex_size.y, GL_RGBA8, GL_RGBA, tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
-		//conf::set<a2e_texture>("debug.texture", objects_tex);
+		objects_tex = t->add_texture(objects_surface, objects_tex_size.x, objects_tex_size.y, GL_RGBA8, GL_RGBA, custom_tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		albion_texture::build_mipmaps(objects_tex, objects_surface, tex_filtering);
+		conf::set<a2e_texture>("debug.texture", objects_tex);
 		delete [] objects_surface;
 	}
 	else objects_tex = t->get_dummy_texture();

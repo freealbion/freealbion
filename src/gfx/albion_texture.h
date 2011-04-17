@@ -37,6 +37,12 @@ public:
 		ATIT_SINGLE_OBJECT,
 		ATIT_SINGLE_OBJECT_PALETTE_SHIFT,
 	};
+	enum TEXTURE_SPACING_TYPE {
+		TST_NONE,
+		TST_MIRROR,
+		TST_TILE,
+		TST_TRANSPARENT
+	};
 	
 	struct albion_texture_info {
 		ALBION_TEXTURE_INFO_TYPE type;
@@ -60,13 +66,17 @@ public:
 		}
 	};
 	struct albion_texture_single_object_ps : public albion_texture_single_object {
-		vector<vector<float2> > tex_coords;
+		vector<vector<float2>> tex_coords;
 		albion_texture_single_object_ps() : albion_texture_single_object(), tex_coords() {
 			type = ATIT_SINGLE_OBJECT_PALETTE_SHIFT;
 		}
 	};
 
-	static a2e_texture create(const size_t& map_type, const size2& texture_size, const size2& tile_size, const size_t& palette, const vector<albion_texture_info*>& tex_info, xld** xlds, const texture_object::TEXTURE_FILTERING filtering = texture_object::TF_POINT);
+	static a2e_texture create(const size_t& map_type, const size2& texture_size, const size2& tile_size, const size_t& palette, const vector<albion_texture_info*>& tex_info, xld** xlds, const TEXTURE_SPACING_TYPE spacing_type = TST_NONE, const size_t spacing_size = 0, bool custom_mipmaps = false, const texture_object::TEXTURE_FILTERING filtering = texture_object::TF_POINT);
+	
+	static void build_mipmaps(const a2e_texture& tex, const unsigned int* tex_data, const texture_object::TEXTURE_FILTERING filtering);
+	
+	static void add_spacing(unsigned int* surface, const size2& texture_size, const unsigned int* tile_data, const size2& tile_size, const size_t& spacing, const TEXTURE_SPACING_TYPE& spacing_type, const size2 offset);
 
 protected:
 

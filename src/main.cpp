@@ -103,10 +103,10 @@ int main(int argc, char *argv[]) {
 	//mh->load_map(50);
 	//mh->load_map(11);
 	//mh->load_map(22);
-	//mh->load_map(183);
+	mh->load_map(183);
 	//mh->load_map(45);
 	//mh->load_map(47);
-	mh->load_map(100);
+	//mh->load_map(100);
 	
 	aui = new albion_ui(mh);
 	aui->open_goto_map_wnd();

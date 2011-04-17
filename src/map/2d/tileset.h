@@ -68,7 +68,7 @@ public:
 		bool loaded;
 		
 		albion_texture::albion_texture_single_object_ps tex_info_obj;
-		const vector<vector<float2> >* tex_coords;
+		const vector<vector<float2>>* tex_coords;
 		float2 tile_tc_size;
 
 		tileset_object() : tile_count(0), tile_data(NULL), tiles(NULL), tile_obj_count(0), tileset(), loaded(false), tex_info_obj(), tex_coords(NULL), tile_tc_size() {}
@@ -81,7 +81,7 @@ public:
 	const tileset_object& get_cur_tileset() const;
 	const TILE_LAYER get_layer_type(const unsigned char& ch) const;
 	const float2 get_tile_tex_coord_size() const;
-	const vector<vector<float2> >* get_tex_coords() const;
+	const vector<vector<float2>>* get_tex_coords() const;
 	
 protected:
 	const pal* palettes;
