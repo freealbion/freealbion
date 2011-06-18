@@ -51,7 +51,7 @@ vec4 compute_light_color() {
 		// compute the offset
 		vec2 tiled_frag_coord = mod(lbuffer_coord_f, 2.0);
 		float cid = tiled_frag_coord.x + tiled_frag_coord.y * 2.0;
-		// since using int arithmetic and offsetting into a const mat4 apparently are to costly,
+		// since using int arithmetic and offsetting into a const mat4 apparently are too costly,
 		// do some nice math magic to get the right offset (mask id down, cid across):
 		// offset x:
 		//		0.0, 0.0, 0.0, 0.0
