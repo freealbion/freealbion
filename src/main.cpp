@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 	//mh->load_map(100);
 	
 	aui = new albion_ui(mh);
-	aui->open_goto_map_wnd();
+	if(conf::get<bool>("ui.display")) aui->open_goto_map_wnd();
 
 	// dbg img
 	image* img = new image(e);
@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) {
 	
 	// debug window
 	a2e_debug_wnd::init(e, eui, s, cam);
+	//a2e_debug_wnd::open();
 
 	//transtb* ttb = new transtb();
 	
@@ -124,12 +125,6 @@ int main(int argc, char *argv[]) {
 	tmp_tex->width = e->get_width();
 	tmp_tex->height = e->get_height();
 	while(!done) {
-		/*static float gscale = conf::get<float>("map.scale");
-		static float scale_dir = 1.0f;
-		gscale += 0.01f * scale_dir;
-		if(gscale >= 4.0f || gscale <= 1.0f) scale_dir *= -1.0f;
-		conf::set<float>("map.scale", gscale);*/
-		
 		while(evt->is_event()) {
 			evt->handle_events(evt->get_event().type);
 			switch(evt->get_event().type) {

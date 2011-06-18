@@ -34,7 +34,7 @@ project "albion"
 	kind "ConsoleApp"
 	language "C++"
 	files { "src/**.h", "src/**.cpp" }
-	platforms { "x32", "x64" }
+	platforms { "x64", "x32" }
 	defines { "A2E_NET_PROTOCOL=TCP_protocol" }
 	targetdir "bin"
 	
@@ -57,8 +57,8 @@ project "albion"
 		else
 			includedirs { "/usr/include/w32api", "/usr/include/w32api/GL" }
 		end
-		includedirs { "/usr/include/freetype2", "/usr/include/libxml2", "/usr/local/include", "/usr/local/include/a2e" }
-		buildoptions { "-Wall -x c++ -fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -Wunused-variable -funroll-loops" }
+		includedirs { "/usr/include/freetype2", "/usr/include/libxml2", "/usr/local/include", "/usr/include/a2e" }
+		buildoptions { "-Wall -x c++ -std=c++0x -fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -Wunused-variable -funroll-loops" }
 		buildoptions { "-msse3" }
 	end
 	

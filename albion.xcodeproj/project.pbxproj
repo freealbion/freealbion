@@ -177,7 +177,15 @@
 		5C9C512C1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = en; path = src/osx/en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		5C9C512E1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = en; path = src/osx/en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		5C9C512F1265490700A15B31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = src/osx/Info.plist; sourceTree = "<group>"; };
+		5CDB6F151379C4B2006033D4 /* particle_compute.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = particle_compute.cl; sourceTree = "<group>"; };
+		5CDB6F171379C4B2006033D4 /* particle_spawn.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = particle_spawn.cl; sourceTree = "<group>"; };
 		5CDFD7A213248985009459CE /* inferred_gbuffer.a2eshdi */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = inferred_gbuffer.a2eshdi; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		5CE00A2513ABB86F00FAE69A /* premake.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = premake.sh; sourceTree = "<group>"; };
+		5CE00A2613ABB86F00FAE69A /* premake4.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = premake4.lua; sourceTree = "<group>"; };
+		5CF2668E1379FA8300B729B0 /* global.clh */ = {isa = PBXFileReference; lastKnownFileType = text; path = global.clh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.opencl; };
+		5CF2668F1379FA8300B729B0 /* particle_init.clh */ = {isa = PBXFileReference; lastKnownFileType = text; path = particle_init.clh; sourceTree = "<group>"; };
+		5CF266901379FF6E00B729B0 /* ir_lighting.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = ir_lighting.cl; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		5CF26691137A063700B729B0 /* matrix.clh */ = {isa = PBXFileReference; lastKnownFileType = text; path = matrix.clh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.opencl; };
 		5CFFE9201269605A00199C96 /* npc2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = npc2d.cpp; sourceTree = "<group>"; };
 		5CFFE9211269605A00199C96 /* npc2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = npc2d.h; sourceTree = "<group>"; };
 		5CFFE9221269605A00199C96 /* player2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player2d.cpp; sourceTree = "<group>"; };
@@ -249,6 +257,8 @@
 		5C06AF9612612D3500405DE8 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				5CE00A2513ABB86F00FAE69A /* premake.sh */,
+				5CE00A2613ABB86F00FAE69A /* premake4.lua */,
 				5C9C511D126548E300A15B31 /* Albion_Remake_Prefix.pch */,
 			);
 			name = "Other Sources";
@@ -305,6 +315,7 @@
 				5C7A455612CBAA86005C70EE /* include */,
 				5C7A454D12CBAA86005C70EE /* deferred */,
 				5C7A455E12CBAA86005C70EE /* inferred */,
+				5CDB6F101379C4B2006033D4 /* kernels */,
 			);
 			name = shader;
 			sourceTree = "<group>";
@@ -456,6 +467,20 @@
 			path = hqx;
 			sourceTree = "<group>";
 		};
+		5CDB6F101379C4B2006033D4 /* kernels */ = {
+			isa = PBXGroup;
+			children = (
+				5CF2668E1379FA8300B729B0 /* global.clh */,
+				5CF26691137A063700B729B0 /* matrix.clh */,
+				5CF2668F1379FA8300B729B0 /* particle_init.clh */,
+				5CDB6F151379C4B2006033D4 /* particle_compute.cl */,
+				5CDB6F171379C4B2006033D4 /* particle_spawn.cl */,
+				5CF266901379FF6E00B729B0 /* ir_lighting.cl */,
+			);
+			name = kernels;
+			path = data/kernels;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -498,6 +523,9 @@
 /* Begin PBXProject section */
 		5C06AF9012612D3400405DE8 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
 			buildConfigurationList = 5C06AF9312612D3400405DE8 /* Build configuration list for PBXProject "albion" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
@@ -646,6 +674,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "A2E_USE_OPENCL=1";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -656,8 +685,7 @@
 					"-stdlib=libc++",
 				);
 				OTHER_LDFLAGS = "-stdlib=libc++";
-				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
 			name = Debug;
@@ -669,6 +697,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = "A2E_USE_OPENCL=1";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -679,8 +708,7 @@
 					"-stdlib=libc++",
 				);
 				OTHER_LDFLAGS = "-stdlib=libc++";
-				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
 			name = Release;
@@ -792,7 +820,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "Albion Remake Lion";
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 				SYMROOT = build;
 				WRAPPER_EXTENSION = app;
 			};
@@ -831,7 +859,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "Albion Remake Lion";
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 				SYMROOT = build;
 				WRAPPER_EXTENSION = app;
 			};

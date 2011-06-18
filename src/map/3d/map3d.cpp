@@ -63,7 +63,7 @@ map3d::map3d(labdata* lab_data, xld* maps1, xld* maps2, xld* maps3) : lab_data(l
 	//
 	player_light = new light(e, 0.0f, 20.0f, 0.0f);
 	
-#if 1 // sun
+#if 0 // sun
 	player_light->set_lambient(1.0f, 1.0f, 1.0f);
 	player_light->set_ldiffuse(0.3f, 0.3f, 0.3f);
 	player_light->set_lspecular(0.0f, 0.0f, 0.0f);

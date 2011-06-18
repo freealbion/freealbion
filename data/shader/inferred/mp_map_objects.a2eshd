@@ -67,10 +67,7 @@ void main() {
 	vec4 spec_color = texture2D(specular_texture, out_tex_coord);
 	
 	vec4 light_color = compute_light_color();
-	
-	////////////////////////////////////////////////////////////////////////////
-	// decode normal
-	//vec3 normal = normalize(out_normal); // TODO: read normal from buffer or compute again (more accurate?)?
+	//vec4 light_color = vec4(0.5);
 	
 	////////////////////////////////////////////////////////////////////////////
 	// lighting

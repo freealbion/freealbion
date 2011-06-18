@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a2e_shader_include version="1">
+	<options list="opaque alpha" />
+
 	<vertex_shader version="120">
 		<variables>
 varying float out_depth;
@@ -16,7 +18,7 @@ void inferred_vs() {
 	<fragment_shader version="120">
 		<variables>
 uniform vec2 id;
-uniform int mask_id;
+uniform float mask_id;
 uniform sampler2D dsf_buffer;
 uniform sampler2D depth_buffer;
 uniform sampler2D light_buffer;
@@ -29,85 +31,131 @@ uniform vec2 texel_size;
 varying float out_depth;
 centroid varying vec4 out_position;
 
-const mat4 offsets_x = mat4(
-	vec4(0.0, 0.0, 0.0, 0.0),
-	vec4(-1.0, 0.0, -1.0, 0.0),
-	vec4(0.0, -1.0, 0.0, -1.0),
-	vec4(-1.0, 0.0, -1.0, 0.0)
-);
-const mat4 offsets_y = mat4(
-	vec4(0.0, 0.0, 0.0, 0.0),
-	vec4(0.0, 0.0, -1.0, -1.0),
-	vec4(-1.0, -1.0, 0.0, 0.0),
-	vec4(-1.0, -1.0, 0.0, 0.0)
-);
-
 		</variables>
 		<program>
 vec4 compute_light_color() {
 	vec2 centroid_frag_coord = ((out_position.xy/out_position.w) * 0.5) + 0.5;
-	vec2 screen_coord = centroid_frag_coord * screen_size;
 	vec2 lbuffer_coord = centroid_frag_coord * l_buffer_size;
+	vec2 lbuffer_coord_f = floor(lbuffer_coord);
 	
-	vec2 tiled_frag_coord = mod(floor(lbuffer_coord.xy), 2.0);
-	int cid = int(tiled_frag_coord.x + tiled_frag_coord.y * 2.0);
-	vec2 offset = vec2(offsets_x[mask_id][cid], offsets_y[mask_id][cid]);
+	<option value="opaque">
+		const float mscale = 1.0;
+		vec2 scale = l_buffer_size / screen_size;
+		vec2 offset = vec2(0.0);
+	</option>
+	<option value="alpha">
+		//
+		const float mscale = 2.0;
+		vec2 scale = l_buffer_size / screen_size;
+		
+		// compute the offset
+		vec2 tiled_frag_coord = mod(lbuffer_coord_f, 2.0);
+		float cid = tiled_frag_coord.x + tiled_frag_coord.y * 2.0;
+		// since using int arithmetic and offsetting into a const mat4 apparently are to costly,
+		// do some nice math magic to get the right offset (mask id down, cid across):
+		// offset x:
+		//		0.0, 0.0, 0.0, 0.0
+		//		-1.0, 0.0, -1.0, 0.0
+		//		0.0, -1.0, 0.0, -1.0
+		//		-1.0, 0.0, -1.0, 0.0
+		// offset y:
+		//		0.0, 0.0, 0.0, 0.0
+		//		0.0, 0.0, -1.0, -1.0
+		//		-1.0, -1.0, 0.0, 0.0
+		//		-1.0, -1.0, 0.0, 0.0
+		float off_x = mask_id + cid;
+		float off_y = (mask_id >= 2.0 ? 1.0 : 0.0) + (cid >= 2.0 ? 1.0 : 0.0);
+		vec2 offset = -mod(vec2(off_x, off_y), 2.0); // offset for id #0 is always 0, so abuse mscale
+	</option>
 	
-	float mscale = (mask_id == 0 ? 1.0 : 2.0);
-	vec2 scale = l_buffer_size / screen_size;
-	float norm_depth = out_depth / 1000.0;
 	
 	// compute the 4 sample coordinates
 	// TODO: use cone filter
 	vec2 coords[4];
 	vec2 stexel_size = texel_size * mscale;
-	coords[0] = (floor(lbuffer_coord) + 0.5 + offset) / l_buffer_size; // lower left
+	coords[0] = (lbuffer_coord_f + 0.5 + offset) / l_buffer_size; // lower left
 	coords[1] = coords[0] + vec2(stexel_size.x, 0.0); // lower right
 	coords[2] = coords[0] + vec2(0.0, stexel_size.y); // upper left
 	coords[3] = coords[0] + vec2(stexel_size.x, stexel_size.y); // upper right
 	
 	//
 	vec4 light_color = vec4(0.0);
+#if 1
 	vec4 light_vals[4];
 	float valid_sample[4];
-	const float depth_epsilon = 0.05;
-	const float epsilon = 0.05; // seems to be okay for now
+#endif
 	float valid_samples = 0.0;
+	const float depth_epsilon = 20.0;
+	const float epsilon = 0.05; // seems to be okay for now
 	for(int i = 0; i < 4; i++) {
+#if 1 // with depth
 		vec2 dsf = texture2D(dsf_buffer, coords[i]).rg;
-		float depth = projection_ab.y / (texture2D(depth_buffer, coords[i]).r - projection_ab.x) / 1000.0;
+		float depth = projection_ab.y / (texture2D(depth_buffer, coords[i]).r - projection_ab.x);
 		
 		vec2 dsf_diff = abs(dsf - id);
-		if(abs(depth - norm_depth) <= depth_epsilon &&
+		if(abs(depth - out_depth) <= depth_epsilon &&
 		   dsf_diff.x <= epsilon &&
 		   dsf_diff.y <= epsilon) {
 			valid_sample[i] = 1.0;
 			valid_samples += 1.0;
 		}
-		else valid_sample[i] = 0.0;
 		
 		light_vals[i] = texture2D(light_buffer, coords[i]);
+#elif 0 // w/o depth
+		vec2 dsf = texture2D(dsf_buffer, coords[i]).rg;
+		
+		vec2 dsf_diff = abs(dsf - id);
+		if(dsf_diff.x <= epsilon &&
+		   dsf_diff.y <= epsilon) {
+			valid_sample[i] = 1.0;
+			valid_samples += 1.0;
+		}
+		
+		light_vals[i] = texture2D(light_buffer, coords[i]);
+#elif 1 // w/o depth + counting
+		vec2 dsf = texture2D(dsf_buffer, coords[i]).rg;
+		
+		vec2 dsf_diff = abs(dsf - id);
+		if(dsf_diff.x <= epsilon &&
+		   dsf_diff.y <= epsilon) {
+			valid_samples += 1.0;
+			light_color += texture2D(light_buffer, coords[i]);
+		}
+#endif
+		
 	}
+	//if(valid_samples == 0.0) discard;
+	
+	// TODO: reduction in a prev stage?
 	
 	// compute weights for bilinear filtering
+
+#if 1
 	vec2 bilinear_weight = (fract(lbuffer_coord) - 0.5*scale - offset) / mscale;
-	float weights[3];
-	weights[0] = clamp(bilinear_weight.x - valid_sample[0] + valid_sample[1], 0.0, 1.0);
-	weights[1] = clamp(bilinear_weight.x - valid_sample[2] + valid_sample[3], 0.0, 1.0);
-	float top_weight = (valid_sample[0] + valid_sample[1]) * 0.5;
-	float bottom_weight = (valid_sample[2] + valid_sample[3]) * 0.5;
-	weights[2] = clamp(bilinear_weight.y - top_weight + bottom_weight, 0.0, 1.0);
+	vec3 weights;
+	valid_sample[0] += valid_sample[1];
+	valid_sample[2] += valid_sample[3];
+	valid_sample[1] = valid_sample[0] - valid_sample[2];
+	valid_sample[1] *= 0.5;
+	weights.x = clamp(bilinear_weight.x - valid_sample[0], 0.0, 1.0);
+	weights.y = clamp(bilinear_weight.x - valid_sample[2], 0.0, 1.0);
+	weights.z = clamp(bilinear_weight.y + valid_sample[1], 0.0, 1.0);
 	
-	light_color = mix(mix(light_vals[0], light_vals[1], weights[0]),
-					  mix(light_vals[2], light_vals[3], weights[1]),
-					  weights[2]);
+	light_color = mix(mix(light_vals[0], light_vals[1], weights.x),
+					  mix(light_vals[2], light_vals[3], weights.y),
+					  weights.z);
+#elif 0
+	light_color = (light_vals[0] + light_vals[1] + light_vals[2] + light_vals[3]) / 4.0;
+#elif 1
+	light_color /= valid_samples;
+#endif
 	
-	if(valid_samples == 0.0) {
+	/*if(valid_samples == 0.0) {
 		// modify lighting a bit dependent on its intensity
 		light_color.rgb *= (light_color.r+light_color.g+light_color.b)/3.0;
 		light_color.a *= light_color.a;
 		light_color.rgb *= 0.75;
-	}
+	}*/
 	
 	return light_color;
 }

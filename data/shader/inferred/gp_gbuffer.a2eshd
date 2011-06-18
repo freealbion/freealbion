@@ -34,9 +34,8 @@ void main() {
 	check_mask_id();
 	
 	// write to gbuffer
-	gl_FragData[0].rg = encode_normal(out_normal);
-	gl_FragData[1].rg = Nuv;
-	gl_FragData[2].rg = id;
+	gl_FragData[0].rgba = vec4(encode_normal(out_normal), Nuv);
+	gl_FragData[1].rgba = vec4(id, 0.0, 0.0);
 }
 		</program>
 	</fragment_shader>

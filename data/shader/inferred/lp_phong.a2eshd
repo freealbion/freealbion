@@ -17,8 +17,8 @@ void main() {
 	
 	<fragment_shader version="120">
 		<variables>
-			uniform sampler2D normal_buffer;
-			uniform sampler2D Nuv_buffer;
+			uniform sampler2D normal_nuv_buffer;
+//			uniform sampler2D Nuv_buffer;
 //			uniform sampler2D dsf_buffer;
 			uniform sampler2D depth_buffer;
 			
@@ -41,8 +41,10 @@ void main() {
 	float depth = texture2D(depth_buffer, tex_coord).r; // in [0, 1]
 														//if(depth >= 1.0) discard;
 	
-	vec2 normal_read = texture2D(normal_buffer, tex_coord).rg;
-	vec2 nuv_read = texture2D(Nuv_buffer, tex_coord).rg;
+	vec4 normal_nuv_read = texture2D(normal_nuv_buffer, tex_coord).rgba;
+	vec2 normal_read = normal_nuv_read.xy;
+	vec2 nuv_read = normal_nuv_read.zw;
+	//vec2 nuv_read = texture2D(Nuv_buffer, tex_coord).rg;
 	//vec2 dsf_read = texture2D(dsf_buffer, tex_coord).rg;
 	
 	////////////////////////////////////////////////////////////////////////////
@@ -64,17 +66,20 @@ void main() {
 	// and again: abs inner sqrt result, b/c of fp inaccuracies
 	normal.xy = normalize(normal_read.xy) * sqrt(abs(1.0 - normal.z * normal.z));
 	
+			
+	////////////////////////////////////////////////////////////////////////////
+	// light independent
+	vec3 view_dir = cam_position - rep_pos;
+	view_dir = normalize(view_dir);
 	
 	////////////////////////////////////////////////////////////////////////////
 	// lighting
 	vec3 light_dir = light_position - rep_pos;
-	vec3 view_dir = cam_position - rep_pos;
 	
 	float dist = length(light_dir);
 	float attenuation = max(1.0 / (light_attenuation.x + (light_attenuation.y * dist) + (light_attenuation.z * dist * dist)), 0.0);
 	
 	light_dir = normalize(light_dir);
-	view_dir = normalize(view_dir);
 	
 	// phong lighting
 	vec4 final_color = vec4(light_ambient * attenuation, 0.0);
@@ -90,6 +95,7 @@ void main() {
 	}
 	
 	gl_FragColor = final_color;
+	//gl_FragColor = vec4(0.4);
 }
 		</program>
 	</fragment_shader>

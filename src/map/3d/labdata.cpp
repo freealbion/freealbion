@@ -408,7 +408,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		}
 	}
 	floors_tex_size.x = max_tex_size;
-	floors_tex_size.y += floor_size.y;;
+	floors_tex_size.y += floor_size.y;
 	
 	// walls tex size
 	const size_t wall_spacing = 16 * scale_factor;

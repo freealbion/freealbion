@@ -66,13 +66,15 @@ void main() {
 			dir /= -steps * dir.z;
 			
 			float diff0;
-			float diff1 = 1.0 - texture2DLod(height_texture, parallax_tex_coord.xy, 0.0).x; // texCoord.z = 1.0 initially
+			//float diff1 = 1.0 - texture2DLod(height_texture, parallax_tex_coord.xy, 0.0).x; // texCoord.z = 1.0 initially
+			float diff1 = 1.0 - texture2D(height_texture, parallax_tex_coord.xy).x; // texCoord.z = 1.0 initially
 			if(diff1 > 0.0) {
 				do {
 					parallax_tex_coord += dir;
 			
 					diff0 = diff1;
-					diff1 = parallax_tex_coord.z - texture2DLod(height_texture, parallax_tex_coord.xy, 0.0).x;
+					//diff1 = parallax_tex_coord.z - texture2DLod(height_texture, parallax_tex_coord.xy, 0.0).x;
+					diff1 = parallax_tex_coord.z - texture2D(height_texture, parallax_tex_coord.xy).x;
 				} while(diff1 > 0.0);
 			
 				parallax_tex_coord.xy += (diff1 / (diff0 - diff1)) * dir.xy;

@@ -28,9 +28,8 @@ void main() {
 	
 	// write to gbuffer
 	vec3 normal = vec3(out_cube_tex_coord.x, -out_cube_tex_coord.y, -out_cube_tex_coord.z);
-	gl_FragData[0].rg = encode_normal(normal);
-	gl_FragData[1].rg = Nuv;
-	gl_FragData[2].rg = id;
+	gl_FragData[0].rgba = vec4(encode_normal(normal), Nuv);
+	gl_FragData[1].rgba = vec4(id, 0.0, 0.0);
 	gl_FragDepth = 0.999999; // must not by 1.0!
 }
 		</program>
