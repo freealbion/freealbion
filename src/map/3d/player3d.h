@@ -35,7 +35,7 @@
 class player3d : public npc3d {
 public:
 	player3d(map3d* map3d_obj);
-	~player3d();
+	virtual ~player3d();
 	
 	virtual void draw() const;
 	virtual void handle();

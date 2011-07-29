@@ -28,7 +28,7 @@
 class npc {
 public:
 	npc();
-	~npc();
+	virtual ~npc();
 	
 	virtual void handle() = 0;
 	virtual void move(const MOVE_DIRECTION& direction) = 0;

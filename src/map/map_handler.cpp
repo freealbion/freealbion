@@ -60,37 +60,37 @@ map_handler::map_handler() {
 	last_key_press = SDL_GetTicks();
 	last_move = SDL_GetTicks();
 	next_dir = MD_NONE;
-	evt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_w);
-	evt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_a);
-	evt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_s);
-	evt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_d);
-	evt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_UP);
-	evt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_DOWN);
-	evt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_LEFT);
-	evt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_RIGHT);
-	evt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_w);
-	evt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_a);
-	evt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_s);
-	evt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_d);
-	evt->add_event_callback(this, &map_handler::handle_right_click, event::RIGHT_MOUSE_CLICK, 0);
-	evt->add_event_callback(this, &map_handler::handle_right_click, event::KEY_PRESSED, SDLK_x);
+	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_w);
+	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_a);
+	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_s);
+	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_d);
+	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_UP);
+	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_DOWN);
+	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_LEFT);
+	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_RIGHT);
+	eevt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_w);
+	eevt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_a);
+	eevt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_s);
+	eevt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_d);
+	eevt->add_event_callback(this, &map_handler::handle_right_click, event::RIGHT_MOUSE_CLICK, 0);
+	eevt->add_event_callback(this, &map_handler::handle_right_click, event::KEY_PRESSED, SDLK_x);
 }
 
 map_handler::~map_handler() {
-	evt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_w);
-	evt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_a);
-	evt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_s);
-	evt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_d);
-	evt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_UP);
-	evt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_DOWN);
-	evt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_LEFT);
-	evt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_RIGHT);
-	evt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_w);
-	evt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_a);
-	evt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_s);
-	evt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_d);
-	evt->delete_event_callbacks(this, &map_handler::handle_right_click, event::RIGHT_MOUSE_CLICK, 0);
-	evt->delete_event_callbacks(this, &map_handler::handle_right_click, event::KEY_PRESSED, SDLK_x);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_w);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_a);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_s);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_d);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_UP);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_DOWN);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_LEFT);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_RIGHT);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_w);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_a);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_s);
+	eevt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_d);
+	eevt->delete_event_callbacks(this, &map_handler::handle_right_click, event::RIGHT_MOUSE_CLICK, 0);
+	eevt->delete_event_callbacks(this, &map_handler::handle_right_click, event::KEY_PRESSED, SDLK_x);
 	
 	delete maps1;
 	delete maps2;
@@ -247,7 +247,7 @@ const MAP_TYPE& map_handler::get_active_map_type() const {
 	return active_map_type;
 }
 
-const MAP_TYPE map_handler::get_map_type(const size_t& map_num) const {
+MAP_TYPE map_handler::get_map_type(const size_t& map_num) const {
 	if(maps2d->is_2d_map(map_num)) return MT_2D_MAP;
 	if(maps3d->is_3d_map(map_num)) return MT_3D_MAP;
 	return MT_NONE;

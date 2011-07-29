@@ -99,7 +99,7 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 	}
 	memset(pixel_data[3], 0, cm_texture_size.x*cm_texture_size.y*sizeof(unsigned int)); // -y = black
 
-	bg_texture = t->add_cubemap_texture((void**)pixel_data, cm_texture_size.x, cm_texture_size.y, GL_RGBA8, GL_RGBA, texture_object::TF_POINT, 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE, NULL);
+	bg_texture = t->add_cubemap_texture((void**)pixel_data, (unsigned int)cm_texture_size.x, (unsigned int)cm_texture_size.y, GL_RGBA8, GL_RGBA, texture_object::TF_TRILINEAR, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE, NULL);
 	
 	delete [] pixel_data;
 	delete [] tex_surface;
@@ -114,6 +114,7 @@ void background3d::draw(const size_t draw_mode) {
 	if(cur_bg_num < 0) return;
 	
 	gl2shader shd = (draw_mode == MDM_GEOMETRY_PASS ? s->get_gl2shader("AR_IR_GBUFFER_SKY") : s->get_gl2shader("AR_IR_MP_SKY"));
+	shd->use("opaque");
 	
 	matrix4f skybox_proj_mat = *e->get_projection_matrix();
 	skybox_proj_mat.transpose();
@@ -127,6 +128,8 @@ void background3d::draw(const size_t draw_mode) {
 	sb_v1 *= IMVP;
 	sb_v2 *= IMVP;
 	
+	shd->uniform("id", float2(0.0f, 0.0f));
+	if(draw_mode == MDM_GEOMETRY_PASS) shd->uniform("Nuv", 16.0f, 16.0f);
 	if(draw_mode == MDM_MATERIAL_PASS) {
 		shd->texture("diffuse_texture", bg_texture);
 		

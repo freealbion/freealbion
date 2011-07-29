@@ -21,7 +21,7 @@
 
 /*! npc3d constructor
  */
-npc3d::npc3d(map3d* map3d_obj) : npc(), map3d_obj(map3d_obj) {
+npc3d::npc3d(map3d* map3d_obj_) : npc(), map3d_obj(map3d_obj_) {
 	time_per_tile = TIME_PER_TILE_NPC3D;
 	state = N3DS_FRONT1;
 	anim_dir = false;

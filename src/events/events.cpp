@@ -174,23 +174,23 @@ events::event* events::create_event(const events::EVENT_TYPE& type) {
 
 void events::assign_type_data(vector<events::event*>& evts) {
 	// assign event type dependent data
-	for(auto evt = evts.begin(); evt != evts.end(); evt++) {
-		switch((*evt)->type) {
+	for(auto& evt : evts) {
+		switch(evt->type) {
 			case events::ETY_QUERY:
-				((events::query_event*)(*evt))->next_query_event = ((*evt)->info[6] < evts.size() ? evts[(*evt)->info[6]] : NULL);
+				((events::query_event*)evt)->next_query_event = (evt->info[6] < evts.size() ? evts[evt->info[6]] : NULL);
 				break;
 			case events::ETY_MAP_EXIT: {
-				events::map_exit_event* mevt = (events::map_exit_event*)(*evt);
-				mevt->map_x = (*evt)->info[0];
-				mevt->map_y = (*evt)->info[1];
-				switch((*evt)->info[2]) {
+				events::map_exit_event* mevt = (events::map_exit_event*)evt;
+				mevt->map_x = evt->info[0];
+				mevt->map_y = evt->info[1];
+				switch(evt->info[2]) {
 					case 0: mevt->direction = MD_UP; break;
 					case 1: mevt->direction = MD_RIGHT; break;
 					case 2: mevt->direction = MD_DOWN; break;
 					case 3: mevt->direction = MD_LEFT; break;
 					default: mevt->direction = MD_NONE; break;
 				}
-				mevt->next_map = (*evt)->info[5];
+				mevt->next_map = evt->info[5];
 			}
 			break;
 			default:

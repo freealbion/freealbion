@@ -79,7 +79,7 @@ public:
 	
 	const tileset_object& get_tileset(const size_t& num) const;
 	const tileset_object& get_cur_tileset() const;
-	const TILE_LAYER get_layer_type(const unsigned char& ch) const;
+	TILE_LAYER get_layer_type(const unsigned char& ch) const;
 	const float2 get_tile_tex_coord_size() const;
 	const vector<vector<float2>>* get_tex_coords() const;
 	

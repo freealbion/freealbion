@@ -22,7 +22,7 @@
 
 /*! map3d constructor
  */
-map3d::map3d(labdata* lab_data, xld* maps1, xld* maps2, xld* maps3) : lab_data(lab_data) {
+map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) : lab_data(lab_data_) {
 	map_xlds[0] = maps1;
 	map_xlds[1] = maps2;
 	map_xlds[2] = maps3;
@@ -63,9 +63,9 @@ map3d::map3d(labdata* lab_data, xld* maps1, xld* maps2, xld* maps3) : lab_data(l
 	//
 	player_light = new light(e, 0.0f, 20.0f, 0.0f);
 	
-#if 0 // sun
+#if 1 // sun
 	player_light->set_lambient(1.0f, 1.0f, 1.0f);
-	player_light->set_ldiffuse(0.3f, 0.3f, 0.3f);
+	player_light->set_ldiffuse(0.0f, 0.0f, 0.0f);
 	player_light->set_lspecular(0.0f, 0.0f, 0.0f);
 	player_light->set_constant_attenuation(1.0f);
 	player_light->set_linear_attenuation(0.0f);
@@ -231,9 +231,9 @@ void map3d::load(const size_t& map_num) {
 	}
 	
 	// create npc object models
-	size_t npc_count = npcs.size();
+	unsigned int npc_count = (unsigned int)npcs.size();
 	npc_object_count = 0;
-	for(size_t i = 0; i < npc_count; i++) {
+	for(unsigned int i = 0; i < npc_count; i++) {
 		const labdata::lab_object* obj = lab_data->get_object(npc_data[i]->object_num);
 		if(obj == NULL) continue;
 		
@@ -248,8 +248,8 @@ void map3d::load(const size_t& map_num) {
 	unsigned int* npcs_index_count = new unsigned int[1];
 	npcs_index_count[0] = npc_object_count*2;
 	
-	size_t npc_index = 0, npc_index_num = 0;
-	for(size_t i = 0; i < npc_count; i++) {
+	unsigned int npc_index = 0, npc_index_num = 0;
+	for(unsigned int i = 0; i < npc_count; i++) {
 		const labdata::lab_object* obj = lab_data->get_object(npc_data[i]->object_num);
 		if(obj == NULL) continue;
 		
@@ -340,7 +340,7 @@ void map3d::load(const size_t& map_num) {
 	}
 	
 	// create map models
-	size_t floor_count = 0, ceiling_count = 0, wall_count = 0, wall_cutalpha_count = 0, wall_transp_obj_count = 0, wall_transp_count = 0, object_count = 0, sub_object_count = 0;
+	unsigned int floor_count = 0, ceiling_count = 0, wall_count = 0, wall_cutalpha_count = 0, wall_transp_obj_count = 0, wall_transp_count = 0, object_count = 0, sub_object_count = 0;
 	wall_ani_count = 0;
 	fc_ani_count = 0;
 	obj_ani_count = 0;
@@ -386,7 +386,7 @@ void map3d::load(const size_t& map_num) {
 	}
 	wall_transp_obj_count *= 2; // transparent walls are double-sided
 	
-	size_t fc_count = floor_count + ceiling_count;
+	unsigned int fc_count = floor_count + ceiling_count;
 
 	// map model
 	wall_vertices = new float3[wall_count*4];
@@ -394,7 +394,7 @@ void map3d::load(const size_t& map_num) {
 	wall_indices = new index3*[1+wall_transp_obj_count];
 	unsigned int* wall_index_count = new unsigned int[1+wall_transp_obj_count];
 	wall_indices[0] = new index3[(wall_count+wall_cutalpha_count-wall_transp_count)*2];
-	wall_index_count[0] = (wall_count+wall_cutalpha_count-wall_transp_count)*2;
+	wall_index_count[0] = (unsigned int)(wall_count+wall_cutalpha_count-wall_transp_count)*2;
 
 	// floors/ceilings model
 	fc_vertices = new float3[fc_count*4];
@@ -402,7 +402,7 @@ void map3d::load(const size_t& map_num) {
 	fc_indices = new index3*[1];
 	fc_indices[0] = new index3[fc_count*2];
 	unsigned int* fc_index_count = new unsigned int[1];
-	fc_index_count[0] = fc_count*2;
+	fc_index_count[0] = (unsigned int)fc_count*2;
 	
 	// map objects
 	obj_vertices = new float3[sub_object_count*4];
@@ -411,26 +411,26 @@ void map3d::load(const size_t& map_num) {
 	obj_indices = new index3*[1];
 	obj_indices[0] = new index3[sub_object_count*2];
 	unsigned int* obj_index_count = new unsigned int[1];
-	obj_index_count[0] = sub_object_count*2;
+	obj_index_count[0] = (unsigned int)sub_object_count*2;
 	
-	size_t fc_num = 0, wall_num = 0, object_num = 0;
+	unsigned int fc_num = 0, wall_num = 0, object_num = 0;
 
 	// set animation offset (this will be used later for updating the texture coordinates)
 	fc_ani_offset = (fc_count - fc_ani_count)*4;
 	wall_ani_offset = (wall_count - wall_ani_count)*4;
 	obj_ani_offset = (sub_object_count - obj_ani_count)*4;
-	size_t fc_ani_num = 0, wall_ani_num = 0, obj_ani_num = 0;
-	size_t fc_static_num = 0, wall_static_num = 0, obj_static_num = 0;
-	size_t wall_subobj = 0;
+	unsigned int fc_ani_num = 0, wall_ani_num = 0, obj_ani_num = 0;
+	unsigned int fc_static_num = 0, wall_static_num = 0, obj_static_num = 0;
+	unsigned int wall_subobj = 0;
 	
-	for(size_t y = 0; y < map_size.y; y++) {
-		for(size_t x = 0; x < map_size.x; x++) {
+	for(unsigned int y = 0; y < (unsigned int)map_size.y; y++) {
+		for(unsigned int x = 0; x < (unsigned int)map_size.x; x++) {
 			// floors/ceilings
 			for(size_t i = 0; i < 2; i++) {
 				const unsigned int* tiles = (i == 0 ? floor_tiles : ceiling_tiles);
 				if(tiles[y*map_size.x + x] > 0) {
 					const labdata::lab_floor* tile_data = lab_data->get_floor(tiles[y*map_size.x + x]);
-					size_t fc_index = fc_static_num*4;
+					unsigned int fc_index = fc_static_num*4;
 					if(tile_data->animation > 1) {
 						fc_index = fc_ani_offset + fc_ani_num*4;
 						fc_ani_num++;
@@ -451,7 +451,7 @@ void map3d::load(const size_t& map_num) {
 					fc_tex_coords[fc_index + 2].set(tc_e.x, tc_e.y);
 					fc_tex_coords[fc_index + 3].set(tc_b.x, tc_e.y);
 
-					const size2 idx_order = (i == 0 ? size2(2, 0) : size2(0, 2));
+					const uint2 idx_order = (i == 0 ? uint2(2, 0) : uint2(0, 2));
 					fc_indices[0][fc_num*2].set(fc_index + idx_order.x, fc_index + 1, fc_index + idx_order.y);
 					fc_indices[0][fc_num*2 + 1].set(fc_index + idx_order.y, fc_index + 3, fc_index + idx_order.x);
 					fc_num++;
@@ -463,7 +463,7 @@ void map3d::load(const size_t& map_num) {
 				if(tile_data == NULL) continue;
 				
 				const unsigned char& side = wall_sides[y*map_size.x + x];
-				size_t side_count = 0;
+				unsigned int side_count = 0;
 				for(size_t i = 0; i < 4; i++) {
 					if((side & (unsigned char)(1 << i)) != 0) side_count++;
 				}
@@ -480,7 +480,7 @@ void map3d::load(const size_t& map_num) {
 				
 				if(side_count == 0) continue;
 
-				size_t wall_index = wall_static_num*4;
+				unsigned int wall_index = wall_static_num*4;
 				if(tile_data->animation > 1) {
 					wall_index = wall_ani_offset + wall_ani_num*4;
 					wall_ani_num+=side_count;
@@ -494,7 +494,7 @@ void map3d::load(const size_t& map_num) {
 
 				const float2& tc_b = tile_data->tex_coord_begin[0];
 				const float2& tc_e = tile_data->tex_coord_end[0];
-				size_t wall_transp_num = 0;
+				unsigned int wall_transp_num = 0;
 				for(size_t i = 0; i < 4; i++) {
 					// only add necessary walls
 					if((side & (unsigned char)(1 << i)) == 0) continue;
@@ -564,7 +564,7 @@ void map3d::load(const size_t& map_num) {
 				const labdata::lab_object* obj = lab_data->get_object(ow_tiles[y*map_size.x + x]);
 				if(obj == NULL) continue;
 
-				size_t object_index = object_num*4;
+				unsigned int object_index = object_num*4;
 				if(obj->animated) {
 					object_index = obj_ani_offset + obj_ani_num*4;
 					obj_ani_num += obj->sub_object_count;
@@ -654,7 +654,7 @@ void map3d::load(const size_t& map_num) {
 
 	// don't delete model data, these are taken care of by a2estatic/a2emodel now!
 	
-#if 1
+#if 0
 	// lights (this is only for testing purposes atm)
 	const float half_tile_size = tile_size * 0.5f;
 	for(size_t y = 0; y < map_size.y; y++) {

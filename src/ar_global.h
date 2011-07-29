@@ -39,7 +39,7 @@ extern gfx* egfx;
 extern gui* egui;
 extern a2eui* eui;
 extern texman* t;
-extern event* evt;
+extern event* eevt;
 extern gui_style* gs;
 extern shader* s;
 extern opencl* ocl;

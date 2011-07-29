@@ -57,7 +57,7 @@ public:
 	void set_pos(const size_t& x, const size_t& y);
 	void set_initial_position(const size2& init_pos);
 	const size2& get_size() const;
-	const float get_tile_size() const;
+	float get_tile_size() const;
 	const size_t& get_palette() const;
 	const float2& get_screen_position() const;
 

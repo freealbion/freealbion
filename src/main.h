@@ -35,7 +35,6 @@
 
 #include "map_handler.h"
 
-image* img;
 map_handler* mh;
 albion_ui* aui;
 

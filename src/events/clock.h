@@ -36,7 +36,7 @@ public:
 	void run();
 	
 	void set_ms_per_tick(const size_t& ms_per_tick);
-	const size_t get_ms_per_tick() const;
+	size_t get_ms_per_tick() const;
 	
 	enum CLOCK_CB_TYPE {
 		CCBT_TICK,

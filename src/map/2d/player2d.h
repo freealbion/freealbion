@@ -36,7 +36,7 @@ class map2d;
 class player2d : public npc2d {
 public:
 	player2d(map2d* map2d_obj, npcgfx* npc_graphics);
-	~player2d();
+	virtual ~player2d();
 
 	virtual void draw(const NPC_DRAW_STAGE& draw_stage) const;
 	virtual void handle();

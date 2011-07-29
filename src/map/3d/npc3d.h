@@ -29,7 +29,7 @@
 class npc3d : public npc {
 public:
 	npc3d(map3d* map3d_obj);
-	~npc3d();
+	virtual ~npc3d();
 	
 	virtual void draw() const;
 	virtual void handle();

@@ -48,7 +48,7 @@ public:
 
 	void close();
 	
-	const size_t get_object_count() const;
+	size_t get_object_count() const;
 	const xld_object* get_object(const size_t& num) const;
 	const vector<xld_object*>& get_objects() const;
 	

@@ -21,7 +21,7 @@
 
 /*! npcgfx constructor
  */
-npcgfx::npcgfx(const pal* palettes) : palettes(palettes), cur_palette(6) {
+npcgfx::npcgfx(const pal* palettes_) : palettes(palettes_), cur_palette(6) {
 	// load npc graphics
 	npcgfx_xlds[0] = new xld("NPCGR0.XLD");
 	npcgfx_xlds[1] = new xld("NPCGR1.XLD");
@@ -74,9 +74,9 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 	const size_t offset = (object_count > 1 ? 6 : 0);
 
 	albion_texture::albion_texture_single_object tex_info_obj;
-	tex_info_obj.object_count = object_count;
+	tex_info_obj.object_count = (unsigned int)object_count;
 	tex_info_obj.object = object;
-	tex_info_obj.offset = offset;
+	tex_info_obj.offset = (unsigned int)offset;
 	vector<albion_texture::albion_texture_info*> tex_info;
 	tex_info.push_back(&tex_info_obj);
 	

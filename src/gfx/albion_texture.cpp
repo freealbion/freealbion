@@ -98,7 +98,6 @@ a2e_texture albion_texture::create(const size_t& map_type, const size2& texture_
 				// check if tile contains animated colors
 				size_t animations = 1;
 				for(vector<size2>::const_iterator ani_range = animated_ranges.begin(); ani_range != animated_ranges.end(); ani_range++) {
-					const size_t obj_size = tile_size.x*tile_size.y;
 					const size_t p_offset = info->offset + i*obj_size;
 					for(size_t p = 0; p < obj_size; p++) {
 						if(info->object->data[p_offset + p] >= ani_range->x && info->object->data[p_offset + p] <= ani_range->y) {
@@ -134,11 +133,11 @@ a2e_texture albion_texture::create(const size_t& map_type, const size2& texture_
 	delete [] scaled_data;
 
 	if(custom_mipmaps) {
-		ret_tex = t->add_texture(tex_surface, texture_size.x, texture_size.y, GL_RGBA8, GL_RGBA, std::min(filtering, texture_object::TF_LINEAR), e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		ret_tex = t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, std::min(filtering, texture_object::TF_LINEAR), e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 		build_mipmaps(ret_tex, tex_surface, filtering);
 	}
 	else {
-		ret_tex = t->add_texture(tex_surface, texture_size.x, texture_size.y, GL_RGBA8, GL_RGBA, filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		ret_tex = t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 	}
 	delete [] tex_surface;
 
@@ -180,8 +179,8 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 				size4 colors(last_data[offset_1 + x], last_data[offset_1 + x + 1],
 							 last_data[offset_2 + x], last_data[offset_2 + x + 1]);
 				unsigned int avg = 0;
-				for(unsigned int c = 0; c < 4; c++) {
-					const size_t shift = c*8;
+				for(unsigned int col = 0; col < 4; col++) {
+					const size_t shift = col*8;
 					size_t ch = (colors.x & (0xFF << shift)) >> shift;
 					ch += (colors.y & (0xFF << shift)) >> shift;
 					ch += (colors.z & (0xFF << shift)) >> shift;
@@ -193,7 +192,7 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 			}
 		}
 		
-		glTexImage2D(GL_TEXTURE_2D, level, tex->internal_format, cur_size.x, cur_size.y, 0, tex->format, tex->type, scaled_data);
+		glTexImage2D(GL_TEXTURE_2D, (unsigned int)level, tex->internal_format, (unsigned int)cur_size.x, (unsigned int)cur_size.y, 0, tex->format, tex->type, scaled_data);
 		
 		if(last_data != tex_data) delete [] last_data;
 		
@@ -202,7 +201,7 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 	}
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, level-1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, (unsigned int)(level-1));
 	
 	if(last_data != tex_data) delete [] last_data;
 }

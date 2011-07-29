@@ -55,13 +55,13 @@ void ar_clock::run() {
 	}
 }
 
-void ar_clock::set_ms_per_tick(const size_t& ms_per_tick) {
-	ar_clock::ms_per_tick = ms_per_tick;
+void ar_clock::set_ms_per_tick(const size_t& ms_per_tick_) {
+	ar_clock::ms_per_tick = ms_per_tick_;
 	ticks = 0;
 	last_tick = SDL_GetTicks();
 }
 
-const size_t ar_clock::get_ms_per_tick() const {
+size_t ar_clock::get_ms_per_tick() const {
 	return ms_per_tick;
 }
 

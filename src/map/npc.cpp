@@ -40,8 +40,8 @@ npc::~npc() {
 	}
 }
 
-void npc::set_npc_data(const map_npcs::map_npc* npc_data) {
-	npc::npc_data = npc_data;
+void npc::set_npc_data(const map_npcs::map_npc* npc_data_) {
+	npc::npc_data = npc_data_;
 	
 	// set start position from map data (-1, b/c we start at 0)
 	if(npc_data->position[0].x == 0 || npc_data->position[0].y == 0) {

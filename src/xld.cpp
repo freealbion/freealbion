@@ -33,8 +33,8 @@ xld::~xld() {
 	close();
 }
 
-void xld::set_xld_path(const string& xld_path) {
-	xld::xld_path = xld_path;
+void xld::set_xld_path(const string& xld_path_) {
+	xld::xld_path = xld_path_;
 }
 
 const string xld::get_xld_path() {
@@ -87,7 +87,7 @@ void xld::close() {
 	objects.clear();
 }
 
-const size_t xld::get_object_count() const {
+size_t xld::get_object_count() const {
 	return objects.size();
 }
 

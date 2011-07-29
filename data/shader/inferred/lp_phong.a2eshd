@@ -95,7 +95,6 @@ void main() {
 	}
 	
 	gl_FragColor = final_color;
-	//gl_FragColor = vec4(0.4);
 }
 		</program>
 	</fragment_shader>

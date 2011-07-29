@@ -21,7 +21,7 @@
 
 /*! tileset constructor
  */
-tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), cur_tileset(NULL) {
+tileset::tileset(const pal* palettes_) : palettes(palettes_), cur_tileset_num(0), cur_tileset(NULL) {
 	// load tilesets
 	icongfx = new xld("ICONGFX0.XLD");
 
@@ -110,7 +110,7 @@ tileset::tileset(const pal* palettes) : palettes(palettes), cur_tileset_num(0), 
 			
 			tilesets[i]->tiles[index].collision = (size_t)object->data[j*8+1];
 			
-			tilesets[i]->tiles[index].upper_bytes = (((size_t)object->data[j*8]) << 24) + (((size_t)object->data[j*8+1]) << 16) + (((size_t)object->data[j*8+2]) << 8) + (size_t)object->data[j*8+3];
+			tilesets[i]->tiles[index].upper_bytes = (unsigned int)((((size_t)object->data[j*8]) << 24) + (((size_t)object->data[j*8+1]) << 16) + (((size_t)object->data[j*8+2]) << 8) + (size_t)object->data[j*8+3]);
 			tilesets[i]->tiles[index].lower_bytes = (object->data[j*8+4] << 24) + (object->data[j*8+5] << 16) + (object->data[j*8+6] << 8) + object->data[j*8+7];
 		}
 	}
@@ -180,7 +180,7 @@ void tileset::load(const size_t& num, const size_t& palette) {
 	delete blklist;*/
 	////////////////////
 	
-	tilesets[num]->tex_info_obj.object_count = tilesets[num]->tile_count;
+	tilesets[num]->tex_info_obj.object_count = (unsigned int)tilesets[num]->tile_count;
 	tilesets[num]->tex_info_obj.object = icongfx->get_object(num);
 	vector<albion_texture::albion_texture_info*> tex_info;
 	tex_info.push_back(&tilesets[num]->tex_info_obj);
@@ -276,7 +276,7 @@ const vector<vector<float2>>* tileset::get_tex_coords() const {
 	return cur_tileset->tex_coords;
 }
 
-const TILE_LAYER tileset::get_layer_type(const unsigned char& ch) const {
+TILE_LAYER tileset::get_layer_type(const unsigned char& ch) const {
 	// TODO: find out what 0x8 is used for
 
 	if(ch == 0) return TL_UNDERLAY;

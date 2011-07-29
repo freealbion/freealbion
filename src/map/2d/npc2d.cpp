@@ -22,7 +22,7 @@
 
 /*! npc2d constructor
  */
-npc2d::npc2d(map2d* map2d_obj, npcgfx* npc_graphics) : npc(), map2d_obj(map2d_obj), npc_graphics(npc_graphics), continent(false) {
+npc2d::npc2d(map2d* map2d_obj_, npcgfx* npc_graphics_) : npc(), map2d_obj(map2d_obj_), npc_graphics(npc_graphics_), continent(false) {
 	state = S_FRONT1;
 }
 
@@ -140,6 +140,6 @@ void npc2d::move(const size2& move_pos) {
 	if(final_dir & MD_RIGHT) state = (S_RIGHT1 & 0xF0) | (state & 0xF);
 }
 
-void npc2d::set_continent(const bool& state) {
-	continent = state;
+void npc2d::set_continent(const bool& state_) {
+	continent = state_;
 }

@@ -30,7 +30,7 @@ class map2d;
 class npc2d : public npc {
 public:
 	npc2d(map2d* map2d_obj, npcgfx* npc_graphics);
-	~npc2d();
+	virtual ~npc2d();
 
 	virtual void draw(const NPC_DRAW_STAGE& draw_stage) const;
 	virtual void handle();

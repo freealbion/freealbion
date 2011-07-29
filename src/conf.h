@@ -33,14 +33,14 @@ protected:
 		
 		static void* create(const T& val) {
 #ifndef DEBUG
-			void* s = malloc(sizeof(T*));
+			void* s_ = malloc(sizeof(T*));
 #else
-			void* s = malloc(sizeof(T*) + sizeof(const char*));
-			((setting<T>*)s)->type_name = typeid(T).name();
+			void* s_ = malloc(sizeof(T*) + sizeof(const char*));
+			((setting<T>*)s_)->type_name = typeid(T).name();
 #endif
-			((setting<T>*)s)->value = new T();
-			*((setting<T>*)s)->value = val;
-			return s;
+			((setting<T>*)s_)->value = new T();
+			*((setting<T>*)s_)->value = val;
+			return s_;
 		}
 		
 		const T& get() {

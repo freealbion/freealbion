@@ -66,7 +66,7 @@ protected:
 	float3* npcs_ws_positions;
 	float2* npcs_tex_coords;
 	index3** npcs_indices;
-	size_t npc_object_count;
+	unsigned int npc_object_count;
 	map_objects* npcs_model;
 	
 	unsigned int* ow_tiles;
@@ -86,14 +86,14 @@ protected:
 	float3* fc_vertices;
 	float2* fc_tex_coords;
 	index3** fc_indices;
-	size_t fc_tile_count;
+	unsigned int fc_tile_count;
 	map_tiles* fc_tiles_model;
 	
 	// walls
 	float3* wall_vertices;
 	float2* wall_tex_coords;
 	index3** wall_indices;
-	size_t wall_tile_count;
+	unsigned int wall_tile_count;
 	map_tiles* wall_model;
 
 	// objects
@@ -116,13 +116,13 @@ protected:
 	float tile_size;
 	
 	//
-	size_t last_tile_animation;
-	size_t fc_ani_count;
-	size_t fc_ani_offset;
-	size_t wall_ani_count;
-	size_t wall_ani_offset;
-	size_t obj_ani_count;
-	size_t obj_ani_offset;
+	unsigned int last_tile_animation;
+	unsigned int fc_ani_count;
+	unsigned int fc_ani_offset;
+	unsigned int wall_ani_count;
+	unsigned int wall_ani_offset;
+	unsigned int obj_ani_count;
+	unsigned int obj_ani_offset;
 	// <type, tile number, pos> (type: 0 = floor/ceiling, 1 = wall, 2 = object)
 	vector<tuple<unsigned int, unsigned int, uint2>> animated_tiles;
 

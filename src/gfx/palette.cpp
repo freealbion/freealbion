@@ -128,7 +128,7 @@ pal::~pal() {
 	palettes.clear();
 }
 
-const unsigned int* const pal::get_palette(const size_t& num) const {
+const unsigned int* pal::get_palette(const size_t& num) const {
 	if(num >= palettes.size()) {
 		a2e_error("invalid palette number %d!", num);
 		return NULL;

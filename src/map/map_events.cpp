@@ -84,7 +84,7 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 			// pos starts @(0, 0)
 			event_info.back()->xpos = AR_GET_USINT(data, offset)-1;
 			offset += 2;
-			event_info.back()->ypos = i;
+			event_info.back()->ypos = (unsigned int)i;
 			event_info.back()->trigger = AR_GET_USINT(data, offset);
 			offset += 2;
 			//if(event_info.back()->trigger > 0x1FFF) cout << "unknown event trigger!" << endl;
@@ -229,11 +229,11 @@ void map_events::unload() {
 	end_offset = 0;
 }
 
-const size_t map_events::get_event_count() const {
+size_t map_events::get_event_count() const {
 	return mevents.size();
 }
 
-const size_t map_events::get_event_info_count() const {
+size_t map_events::get_event_info_count() const {
 	return event_info.size();
 }
 

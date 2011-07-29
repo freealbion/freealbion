@@ -80,15 +80,12 @@ vec4 compute_light_color() {
 	
 	//
 	vec4 light_color = vec4(0.0);
-#if 1
 	vec4 light_vals[4];
 	float valid_sample[4];
-#endif
 	float valid_samples = 0.0;
 	const float depth_epsilon = 20.0;
 	const float epsilon = 0.05; // seems to be okay for now
 	for(int i = 0; i < 4; i++) {
-#if 1 // with depth
 		vec2 dsf = texture2D(dsf_buffer, coords[i]).rg;
 		float depth = projection_ab.y / (texture2D(depth_buffer, coords[i]).r - projection_ab.x);
 		
@@ -101,28 +98,6 @@ vec4 compute_light_color() {
 		}
 		
 		light_vals[i] = texture2D(light_buffer, coords[i]);
-#elif 0 // w/o depth
-		vec2 dsf = texture2D(dsf_buffer, coords[i]).rg;
-		
-		vec2 dsf_diff = abs(dsf - id);
-		if(dsf_diff.x <= epsilon &&
-		   dsf_diff.y <= epsilon) {
-			valid_sample[i] = 1.0;
-			valid_samples += 1.0;
-		}
-		
-		light_vals[i] = texture2D(light_buffer, coords[i]);
-#elif 1 // w/o depth + counting
-		vec2 dsf = texture2D(dsf_buffer, coords[i]).rg;
-		
-		vec2 dsf_diff = abs(dsf - id);
-		if(dsf_diff.x <= epsilon &&
-		   dsf_diff.y <= epsilon) {
-			valid_samples += 1.0;
-			light_color += texture2D(light_buffer, coords[i]);
-		}
-#endif
-		
 	}
 	//if(valid_samples == 0.0) discard;
 	
@@ -130,7 +105,6 @@ vec4 compute_light_color() {
 	
 	// compute weights for bilinear filtering
 
-#if 1
 	vec2 bilinear_weight = (fract(lbuffer_coord) - 0.5*scale - offset) / mscale;
 	vec3 weights;
 	valid_sample[0] += valid_sample[1];
@@ -144,18 +118,14 @@ vec4 compute_light_color() {
 	light_color = mix(mix(light_vals[0], light_vals[1], weights.x),
 					  mix(light_vals[2], light_vals[3], weights.y),
 					  weights.z);
-#elif 0
-	light_color = (light_vals[0] + light_vals[1] + light_vals[2] + light_vals[3]) / 4.0;
-#elif 1
-	light_color /= valid_samples;
-#endif
 	
-	/*if(valid_samples == 0.0) {
+	if(valid_samples == 0.0) {
 		// modify lighting a bit dependent on its intensity
-		light_color.rgb *= (light_color.r+light_color.g+light_color.b)/3.0;
+		//light_color.rgb *= (light_color.r+light_color.g+light_color.b)/3.0;
+		light_color.rgb *= (light_color.r+light_color.g+light_color.b)/2.3;
 		light_color.a *= light_color.a;
-		light_color.rgb *= 0.75;
-	}*/
+		//light_color.rgb *= 0.75;
+	}
 	
 	return light_color;
 }

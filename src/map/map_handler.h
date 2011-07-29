@@ -40,7 +40,7 @@ public:
 	void draw();
 	
 	void load_map(const size_t& map_num, const size2 player_pos = size2(0, 0), const MOVE_DIRECTION player_direction = MD_NONE);
-	const MAP_TYPE get_map_type(const size_t& map_num) const;
+	MAP_TYPE get_map_type(const size_t& map_num) const;
 	
 	//
 	npcgfx* get_npc_graphics() const;

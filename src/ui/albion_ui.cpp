@@ -29,7 +29,7 @@
 
 /*! albion_ui constructor
  */
-albion_ui::albion_ui(map_handler* mh) : mh(mh) {
+albion_ui::albion_ui(map_handler* mh_) : mh(mh_) {
 	clock_cb = new clock_callback(this, &albion_ui::clock_tick);
 	clck->add_tick_callback(ar_clock::CCBT_TICK, *clock_cb);
 }
@@ -60,9 +60,9 @@ void albion_ui::open_goto_map_wnd() {
 	lb_map_names = albion_dbg->get<gui_list>("lb_map_names");
 	t_time = albion_dbg->get<gui_text>("t_time");
 	t_time_value = albion_dbg->get<gui_text>("t_time_value");
-	evt->add_event_callback(this, &albion_ui::handle_b_goto_map_button, event::BUTTON_PRESSED, b_goto_map->get_id());
-	evt->add_event_callback(this, &albion_ui::handle_i_goto_map_selected, event::INPUT_SELECTED, i_goto_map->get_id());
-	evt->add_event_callback(this, &albion_ui::handle_lb_map_names_list, event::LISTBOX_ITEM_SELECTED, lb_map_names->get_id());
+	eevt->add_event_callback(this, &albion_ui::handle_b_goto_map_button, event::BUTTON_PRESSED, b_goto_map->get_id());
+	eevt->add_event_callback(this, &albion_ui::handle_i_goto_map_selected, event::INPUT_SELECTED, i_goto_map->get_id());
+	eevt->add_event_callback(this, &albion_ui::handle_lb_map_names_list, event::LISTBOX_ITEM_SELECTED, lb_map_names->get_id());
 	
 	// position
 	gui_window* wnd = (gui_window*)albion_dbg->get_object();

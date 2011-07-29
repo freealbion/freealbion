@@ -42,8 +42,8 @@ public:
 	void load(const xld::xld_object* object, const size_t& data_offset, const size2& map_size);
 	void unload();
 
-	const size_t get_event_count() const;
-	const size_t get_event_info_count() const;
+	size_t get_event_count() const;
+	size_t get_event_info_count() const;
 	events::event* get_event(const size_t& num) const;
 	map_event_info* get_event_info(const size_t& num) const;
 	

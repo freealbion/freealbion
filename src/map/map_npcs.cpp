@@ -40,7 +40,7 @@ void map_npcs::load(const unsigned char* data, const size_t& event_end_offset) {
 	const size_t npc_count = data[1];
 	size_t offset = 10;
 	for(size_t i = 0; i < npc_count; i++) {
-		const size_t npc_num = data[offset]; offset++;
+		const unsigned int npc_num = data[offset]; offset++;
 		if(npc_num == 0) {
 			offset += 9;
 			continue;

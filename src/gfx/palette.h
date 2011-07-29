@@ -34,7 +34,7 @@ public:
 	pal();
 	~pal();
 
-	const unsigned int* const get_palette(const size_t& num) const;
+	const unsigned int* get_palette(const size_t& num) const;
 	const vector<size2>& get_animated_ranges(const size_t& num) const;
 	
 protected:

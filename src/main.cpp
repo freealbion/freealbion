@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 	// init class pointers
 	c = e->get_core();
 	fio = e->get_file_io();
-	evt = e->get_event();
+	eevt = e->get_event();
 	egfx = e->get_gfx();
 	t = e->get_texman();
 	ocl = e->get_opencl();
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 	gs = egui->get_gui_style();
 
 	// initialize the a2e events
-	evt->init(sevent);
+	eevt->init(sevent);
 
 	// initialize the gui
 	egui->init();
@@ -76,9 +76,6 @@ int main(int argc, char *argv[]) {
 	
 	// add shaders
 	const string ar_shaders[][2] = {
-		{ "AR_DR_GBUFFER_MAP_OBJECTS", "deferred/gbuffer_map_objects.a2eshd" },
-		{ "AR_DR_GBUFFER_MAP_TILES", "deferred/gbuffer_map_tiles.a2eshd" },
-		{ "AR_DR_GBUFFER_SKY", "deferred/gbuffer_sky.a2eshd" },
 		{ "AR_IR_GBUFFER_MAP_OBJECTS", "inferred/gp_gbuffer_map_objects.a2eshd" },
 		{ "AR_IR_GBUFFER_MAP_TILES", "inferred/gp_gbuffer_map_tiles.a2eshd" },
 		{ "AR_IR_GBUFFER_SKY", "inferred/gp_gbuffer_sky.a2eshd" },
@@ -99,11 +96,11 @@ int main(int argc, char *argv[]) {
 
 	mh = new map_handler();
 	//mh->load_map(42);
-	//mh->load_map(10);
+	mh->load_map(10);
 	//mh->load_map(50);
 	//mh->load_map(11);
 	//mh->load_map(22);
-	mh->load_map(183);
+	//mh->load_map(183);
 	//mh->load_map(45);
 	//mh->load_map(47);
 	//mh->load_map(100);
@@ -125,14 +122,14 @@ int main(int argc, char *argv[]) {
 	tmp_tex->width = e->get_width();
 	tmp_tex->height = e->get_height();
 	while(!done) {
-		while(evt->is_event()) {
-			evt->handle_events(evt->get_event().type);
-			switch(evt->get_event().type) {
+		while(eevt->is_event()) {
+			eevt->handle_events(eevt->get_event().type);
+			switch(eevt->get_event().type) {
 				case SDL_QUIT:
 					done = true;
 					break;
 				case SDL_KEYDOWN:
-					switch(evt->get_event().key.keysym.sym) {
+					switch(eevt->get_event().key.keysym.sym) {
 						case SDLK_ESCAPE:
 							done = true;
 							break;
@@ -185,11 +182,15 @@ int main(int argc, char *argv[]) {
 							conf::set<a2e_texture>("debug.texture", tmp_tex);
 							break;
 						case SDLK_3:
-							tmp_tex->tex_num = sce->_get_g_buffer()->tex_id[2];
+							tmp_tex->tex_num = sce->_get_l_buffer()->tex_id[0];
 							conf::set<a2e_texture>("debug.texture", tmp_tex);
 							break;
 						case SDLK_4:
-							tmp_tex->tex_num = sce->_get_l_buffer()->tex_id[0];
+							tmp_tex->tex_num = sce->_get_fxaa_buffer()->tex_id[0];
+							conf::set<a2e_texture>("debug.texture", tmp_tex);
+							break;
+						case SDLK_5:
+							tmp_tex->tex_num = sce->_get_scene_buffer()->tex_id[0];
 							conf::set<a2e_texture>("debug.texture", tmp_tex);
 							break;
 						case SDLK_v:
@@ -202,22 +203,22 @@ int main(int argc, char *argv[]) {
 							break;
 						case SDLK_LEFT:
 						case SDLK_a:
-							evt->set_key_left(true);
+							eevt->set_key_left(true);
 							mh->get_next_dir() |= MD_LEFT;
 							break;
 						case SDLK_RIGHT:
 						case SDLK_d:
-							evt->set_key_right(true);
+							eevt->set_key_right(true);
 							mh->get_next_dir() |= MD_RIGHT;
 							break;
 						case SDLK_UP:
 						case SDLK_w:
-							evt->set_key_up(true);
+							eevt->set_key_up(true);
 							mh->get_next_dir() |= MD_UP;
 							break;
 						case SDLK_DOWN:
 						case SDLK_s:
-							evt->set_key_down(true);
+							eevt->set_key_down(true);
 							mh->get_next_dir() |= MD_DOWN;
 							break;
 						default:
@@ -225,29 +226,29 @@ int main(int argc, char *argv[]) {
 					}
 					break;
 				case SDL_KEYUP:
-					switch(evt->get_event().key.keysym.sym) {
+					switch(eevt->get_event().key.keysym.sym) {
 						case SDLK_LSHIFT:
 						case SDLK_RSHIFT:
 							cam->set_cam_speed(5.0f);
 							break;
 						case SDLK_LEFT:
 						case SDLK_a:
-							evt->set_key_left(false);
+							eevt->set_key_left(false);
 							mh->get_next_dir() ^= MD_LEFT;
 							break;
 						case SDLK_RIGHT:
 						case SDLK_d:
-							evt->set_key_right(false);
+							eevt->set_key_right(false);
 							mh->get_next_dir() ^= MD_RIGHT;
 							break;
 						case SDLK_UP:
 						case SDLK_w:
-							evt->set_key_up(false);
+							eevt->set_key_up(false);
 							mh->get_next_dir() ^= MD_UP;
 							break;
 						case SDLK_DOWN:
 						case SDLK_s:
-							evt->set_key_down(false);
+							eevt->set_key_down(false);
 							mh->get_next_dir() ^= MD_DOWN;
 							break;
 						default:
@@ -344,7 +345,7 @@ int main(int argc, char *argv[]) {
 			}
 			draw_width *= scale;
 			draw_height *= scale;
-			img->draw(draw_width, draw_height);
+			img->draw((unsigned int)draw_width, (unsigned int)draw_height, true);
 			e->stop_2d_draw();
 		}
 		

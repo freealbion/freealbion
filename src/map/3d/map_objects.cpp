@@ -32,8 +32,8 @@ map_objects::~map_objects() {
 	if(glIsBuffer(vbo_ws_position_id)) { glDeleteBuffers(1, &vbo_ws_position_id); }
 }
 
-void map_objects::set_ws_positions(float3* ws_positions, GLenum usage) {
-	map_objects::ws_positions = ws_positions;
+void map_objects::set_ws_positions(float3* ws_positions_, GLenum usage) {
+	map_objects::ws_positions = ws_positions_;
 	
 	glGenBuffers(1, &vbo_ws_position_id);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_ws_position_id);

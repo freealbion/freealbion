@@ -25,8 +25,8 @@ static const float snap_epsilon = 0.05f;
 
 /*! map2d constructor
  */
-map2d::map2d(tileset* tilesets, npcgfx* npc_graphics, xld* maps1, xld* maps2, xld* maps3) :
-p2d(NULL), tilesets(tilesets), npc_graphics(npc_graphics), maps1(maps1), maps2(maps2), maps3(maps3) {
+map2d::map2d(tileset* tilesets_, npcgfx* npc_graphics_, xld* maps1_, xld* maps2_, xld* maps3_) :
+p2d(NULL), tilesets(tilesets_), npc_graphics(npc_graphics_), maps1(maps1_), maps2(maps2_), maps3(maps3_) {
 	cur_map_data = NULL;
 	underlay_tiles = NULL;
 	overlay_tiles = NULL;
@@ -199,7 +199,7 @@ void map2d::load(const size_t& map_num) {
 					layers[i].tex_coords[num*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size.x, tile_obj->tex_coord.y + tile_tc_size.y);
 					layers[i].tex_coords[num*4 + 3].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y + tile_tc_size.y);
 					
-					layers[i].indices[num].set(num*4 + 0, num*4 + 1, num*4 + 2, num*4 + 3);
+					layers[i].indices[num].set((unsigned int)num*4 + 0, (unsigned int)num*4 + 1, (unsigned int)num*4 + 2, (unsigned int)num*4 + 3);
 					layers[i].tile_nums[num] = tile_nums[y*map_size.x + x];
 
 					if(tile_obj->ani_tiles > 1) ani_tile_num++;
@@ -345,15 +345,15 @@ void map2d::handle() {
 			const tileset::tileset_object& tileset_obj = tilesets->get_cur_tileset();
 			for(size_t i = 0; i < 2; i++) {
 				map_layer& cur_layer = layers[i];
-				for(size_t t = cur_layer.ani_offset; t < (cur_layer.index_count/4); t++) {
-					if(modified_tiles.count(cur_layer.tile_nums[t]) > 0) {
-						tile_obj = &(tileset_obj.tiles[cur_layer.tile_nums[t]]);
+				for(size_t tl = cur_layer.ani_offset; tl < (cur_layer.index_count/4); tl++) {
+					if(modified_tiles.count(cur_layer.tile_nums[tl]) > 0) {
+						tile_obj = &(tileset_obj.tiles[cur_layer.tile_nums[tl]]);
 						if(tile_obj->num == 0xFFF) continue;
 					
-						cur_layer.tex_coords[t*4 + 0].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y);
-						cur_layer.tex_coords[t*4 + 1].set(tile_obj->tex_coord.x + tile_tc_size.x, tile_obj->tex_coord.y);
-						cur_layer.tex_coords[t*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size.x, tile_obj->tex_coord.y + tile_tc_size.y);
-						cur_layer.tex_coords[t*4 + 3].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y + tile_tc_size.y);
+						cur_layer.tex_coords[tl*4 + 0].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y);
+						cur_layer.tex_coords[tl*4 + 1].set(tile_obj->tex_coord.x + tile_tc_size.x, tile_obj->tex_coord.y);
+						cur_layer.tex_coords[tl*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size.x, tile_obj->tex_coord.y + tile_tc_size.y);
+						cur_layer.tex_coords[tl*4 + 3].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y + tile_tc_size.y);
 					}
 				}
 
@@ -481,28 +481,28 @@ bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, 
 	if(cur_position.x >= map_size.x) return true;
 	if(cur_position.y >= map_size.y) return true;
 	
-	size2 next_position[6]; // just to be on the safe side ...
+	size2 next_pos[6]; // just to be on the safe side ...
 	size_t position_count = 0;
 	
 	if(direction & MD_LEFT) {
 		if(cur_position.x == 0) return true;
-		next_position[position_count++] = size2(cur_position.x-1, cur_position.y);
+		next_pos[position_count++] = size2(cur_position.x-1, cur_position.y);
 	}
 	if(direction & MD_RIGHT) {
 		if(cur_position.x+2 >= map_size.x) return true;
-		next_position[position_count++] = size2(cur_position.x+2, cur_position.y);
+		next_pos[position_count++] = size2(cur_position.x+2, cur_position.y);
 	}
 	if(direction & MD_UP) {
 		if(cur_position.y == 0) return true;
-		if(position_count > 0) next_position[0].y -= 1; // sideways movement
-		next_position[position_count++] = size2(cur_position.x, cur_position.y-1);
-		next_position[position_count++] = size2(cur_position.x+1, cur_position.y-1);
+		if(position_count > 0) next_pos[0].y -= 1; // sideways movement
+		next_pos[position_count++] = size2(cur_position.x, cur_position.y-1);
+		next_pos[position_count++] = size2(cur_position.x+1, cur_position.y-1);
 	}
 	if(direction & MD_DOWN) {
 		if(cur_position.y+1 >= map_size.y) return true;
-		if(position_count > 0) next_position[0].y += 1;
-		next_position[position_count++] = size2(cur_position.x, cur_position.y+1);
-		next_position[position_count++] = size2(cur_position.x+1, cur_position.y+1);
+		if(position_count > 0) next_pos[0].y += 1;
+		next_pos[position_count++] = size2(cur_position.x, cur_position.y+1);
+		next_pos[position_count++] = size2(cur_position.x+1, cur_position.y+1);
 	}
 	
 	if(position_count == 0 || position_count > 3) {
@@ -513,8 +513,8 @@ bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, 
 	//
 	const tileset::tileset_object& cur_tileset = tilesets->get_cur_tileset();
 	for(size_t p = 0; p < position_count; p++) {
-		const tileset::tile_object& tile_u = cur_tileset.tiles[underlay_tiles[next_position[p].y*map_size.x + next_position[p].x]];
-		const tileset::tile_object& tile_o = cur_tileset.tiles[overlay_tiles[next_position[p].y*map_size.x + next_position[p].x]];
+		const tileset::tile_object& tile_u = cur_tileset.tiles[underlay_tiles[next_pos[p].y*map_size.x + next_pos[p].x]];
+		const tileset::tile_object& tile_o = cur_tileset.tiles[overlay_tiles[next_pos[p].y*map_size.x + next_pos[p].x]];
 		
 		// first, check special types
 		bool collision_override = false;
@@ -549,7 +549,7 @@ bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, 
 	return false;
 }
 
-const float map2d::get_tile_size() const {
+float map2d::get_tile_size() const {
 	return tile_size * conf::get<float>("map.scale");
 }
 

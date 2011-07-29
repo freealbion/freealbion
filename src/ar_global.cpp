@@ -27,7 +27,7 @@ gfx* egfx;
 gui* egui;
 a2eui* eui;
 texman* t;
-event* evt;
+event* eevt;
 gui_style* gs;
 shader* s;
 opencl* ocl;
