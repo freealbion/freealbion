@@ -56,6 +56,14 @@ albion_ui::~albion_ui() {
 }
 
 void albion_ui::run() {
+	// not nice, but it's just bools ...
+	bool map_3d = (mh->get_active_map_type() == MT_3D_MAP);
+	if(compass_dot_img_obj != NULL) {
+		compass_img->set_visible(map_3d);
+		compass_dot_img->set_visible(map_3d);
+	}
+	if(!map_3d) return;
+	
 	// update compass dot every 33ms (~30fps)
 	if(compass_dot_img_obj != NULL && SDL_GetTicks() - dot_timer > 33) {
 		// blinking
