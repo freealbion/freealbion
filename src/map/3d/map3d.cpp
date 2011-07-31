@@ -63,7 +63,7 @@ map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) : lab_data(
 	//
 	player_light = new light(e, 0.0f, 20.0f, 0.0f);
 	
-#if 1 // sun
+#if 0 // sun
 	player_light->set_lambient(1.0f, 1.0f, 1.0f);
 	player_light->set_ldiffuse(0.0f, 0.0f, 0.0f);
 	player_light->set_lspecular(0.0f, 0.0f, 0.0f);
@@ -550,8 +550,12 @@ void map3d::load(const size_t& map_num) {
 						
 						// draw both sides of an alpha tested wall
 						if(tile_data->type & labdata::WT_CUT_ALPHA) {
-							wall_indices[0][wall_num*2].set(wall_index + 2, wall_index + 0, wall_index + 1);
-							wall_indices[0][wall_num*2 + 1].set(wall_index + 1, wall_index + 3, wall_index + 2);
+							wall_indices[0][wall_num*2].set(wall_index + 0,
+															wall_index + 2,
+															wall_index + 1);
+							wall_indices[0][wall_num*2 + 1].set(wall_index + 3,
+																wall_index + 1,
+																wall_index + 2);
 							wall_num++;
 						}
 					}
@@ -654,7 +658,7 @@ void map3d::load(const size_t& map_num) {
 
 	// don't delete model data, these are taken care of by a2estatic/a2emodel now!
 	
-#if 0
+#if 1
 	// lights (this is only for testing purposes atm)
 	const float half_tile_size = tile_size * 0.5f;
 	for(size_t y = 0; y < map_size.y; y++) {
