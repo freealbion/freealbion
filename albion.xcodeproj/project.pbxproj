@@ -7,14 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5C06AFA112612D3500405DE8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFA012612D3500405DE8 /* Cocoa.framework */; };
-		5C06AFDD12612E4800405DE8 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFDB12612E4800405DE8 /* AppKit.framework */; };
-		5C06AFDE12612E4800405DE8 /* liba2ed.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFDC12612E4800405DE8 /* liba2ed.dylib */; };
-		5C06B00D1261336700405DE8 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06B00C1261336700405DE8 /* OpenGL.framework */; };
-		5C06B00F1261336C00405DE8 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06B00E1261336C00405DE8 /* SDL.framework */; };
-		5C0B62271296E8C100205335 /* map_tiles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C0B62251296E8C000205335 /* map_tiles.cpp */; };
-		5C1669E3133F96F100FFF846 /* hq2x.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C1669E2133F96F100FFF846 /* hq2x.cpp */; };
-		5C28FB38128F0CE200FBDEC1 /* background3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C28FB36128F0CE200FBDEC1 /* background3d.cpp */; };
 		5C32C6C61355298C00164662 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50EA126548C100A15B31 /* main.cpp */; };
 		5C32C6C71355298C00164662 /* map2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50ED126548C100A15B31 /* map2d.cpp */; };
 		5C32C6C81355298C00164662 /* npcgfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50EF126548C100A15B31 /* npcgfx.cpp */; };
@@ -51,40 +43,10 @@
 		5C32C6E81355298C00164662 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFDB12612E4800405DE8 /* AppKit.framework */; };
 		5C32C6E91355298C00164662 /* liba2ed.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFDC12612E4800405DE8 /* liba2ed.dylib */; };
 		5C32C6EA1355298C00164662 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFA012612D3500405DE8 /* Cocoa.framework */; };
-		5C52B6341280CB5100E8ED0D /* albion_texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C52B6301280CB5100E8ED0D /* albion_texture.cpp */; };
-		5C52B6351280CB5100E8ED0D /* transtb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C52B6321280CB5100E8ED0D /* transtb.cpp */; };
-		5C52B6431280CE7E00E8ED0D /* ar_global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C52B6411280CE7E00E8ED0D /* ar_global.cpp */; };
-		5C58907D12690BA80011E96B /* map_events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C58907912690BA80011E96B /* map_events.cpp */; };
-		5C58907E12690BA80011E96B /* map_npcs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C58907B12690BA80011E96B /* map_npcs.cpp */; };
-		5C58908212690BB00011E96B /* labdata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C58908012690BB00011E96B /* labdata.cpp */; };
-		5C58908612690BBE0011E96B /* events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C58908412690BBE0011E96B /* events.cpp */; };
-		5C6D6973132C7629007DF2B2 /* player3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C6D6971132C7628007DF2B2 /* player3d.cpp */; };
-		5C71CDD51261F4FA0052A6C2 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C71CDD41261F4FA0052A6C2 /* OpenCL.framework */; };
-		5C7868281322BE51006BEDD5 /* clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C7868261322BE51006BEDD5 /* clock.cpp */; };
-		5C994E131284745700FC928F /* npc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C994E111284745700FC928F /* npc.cpp */; };
-		5C994E17128476EC00FC928F /* npc3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C994E15128476EC00FC928F /* npc3d.cpp */; };
-		5C9B61CD12734AA200CCE465 /* map_objects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9B61CB12734AA100CCE465 /* map_objects.cpp */; };
-		5C9C510E126548C100A15B31 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50EA126548C100A15B31 /* main.cpp */; };
-		5C9C510F126548C100A15B31 /* map2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50ED126548C100A15B31 /* map2d.cpp */; };
-		5C9C5110126548C100A15B31 /* npcgfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50EF126548C100A15B31 /* npcgfx.cpp */; };
-		5C9C5112126548C100A15B31 /* tileset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50F3126548C100A15B31 /* tileset.cpp */; };
-		5C9C5113126548C100A15B31 /* map3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50F6126548C100A15B31 /* map3d.cpp */; };
-		5C9C5114126548C100A15B31 /* map_handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50F9126548C100A15B31 /* map_handler.cpp */; };
-		5C9C5115126548C100A15B31 /* conf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50FB126548C100A15B31 /* conf.cpp */; };
-		5C9C5116126548C100A15B31 /* albion_ui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50FE126548C100A15B31 /* albion_ui.cpp */; };
-		5C9C5117126548C100A15B31 /* gfxconv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C5102126548C100A15B31 /* gfxconv.cpp */; };
-		5C9C5118126548C100A15B31 /* hq4x.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C5105126548C100A15B31 /* hq4x.cpp */; };
-		5C9C5119126548C100A15B31 /* palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C5106126548C100A15B31 /* palette.cpp */; };
-		5C9C511A126548C100A15B31 /* scaling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C5108126548C100A15B31 /* scaling.cpp */; };
-		5C9C511B126548C100A15B31 /* xld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C510A126548C100A15B31 /* xld.cpp */; };
-		5CFC5D1313E46E5200824F9C /* bin_graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CFC5D1213E46E5200824F9C /* bin_graphics.cpp */; };
 		5CFC5D1413E46E5200824F9C /* bin_graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CFC5D1213E46E5200824F9C /* bin_graphics.cpp */; };
-		5CFFE9241269605A00199C96 /* npc2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CFFE9201269605A00199C96 /* npc2d.cpp */; };
-		5CFFE9251269605A00199C96 /* player2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CFFE9221269605A00199C96 /* player2d.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		5C06AF9D12612D3500405DE8 /* Albion Remake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Albion Remake.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C06AFA012612D3500405DE8 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		5C06AFDB12612E4800405DE8 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		5C06AFDC12612E4800405DE8 /* liba2ed.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liba2ed.dylib; path = Developer/SDKs/MacOSX10.6.sdk/usr/local/lib/liba2ed.dylib; sourceTree = SDKROOT; };
@@ -98,7 +60,7 @@
 		5C1873E613E2FC9D00A1F642 /* luma.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = luma.a2eshd; path = ../../../../../um_repos/data/shader/misc/luma.a2eshd; sourceTree = "<group>"; };
 		5C28FB36128F0CE200FBDEC1 /* background3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = background3d.cpp; sourceTree = "<group>"; };
 		5C28FB37128F0CE200FBDEC1 /* background3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = background3d.h; sourceTree = "<group>"; };
-		5C32C6EF1355298C00164662 /* Albion Remake Lion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Albion Remake Lion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C32C6EF1355298C00164662 /* Albion Remake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Albion Remake.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C51E76612CC164F00C4E0EA /* mp_map_objects.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mp_map_objects.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C51E76712CC164F00C4E0EA /* mp_map_tiles.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mp_map_tiles.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C52B6301280CB5100E8ED0D /* albion_texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = albion_texture.cpp; sourceTree = "<group>"; };
@@ -173,6 +135,7 @@
 		5C9C512C1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = en; path = src/osx/en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		5C9C512E1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = en; path = src/osx/en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		5C9C512F1265490700A15B31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = src/osx/Info.plist; sourceTree = "<group>"; };
+		5CAE228813E5E3BE0051B39F /* Albion Remake.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Albion Remake.entitlements"; path = "src/osx/Albion Remake.entitlements"; sourceTree = "<group>"; };
 		5CDB6F151379C4B2006033D4 /* particle_compute.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = particle_compute.cl; sourceTree = "<group>"; };
 		5CDB6F171379C4B2006033D4 /* particle_spawn.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = particle_spawn.cl; sourceTree = "<group>"; };
 		5CDFD7A213248985009459CE /* inferred_gbuffer.a2eshdi */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = inferred_gbuffer.a2eshdi; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
@@ -191,19 +154,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		5C06AF9A12612D3500405DE8 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5C71CDD51261F4FA0052A6C2 /* OpenCL.framework in Frameworks */,
-				5C06B00F1261336C00405DE8 /* SDL.framework in Frameworks */,
-				5C06B00D1261336700405DE8 /* OpenGL.framework in Frameworks */,
-				5C06AFDD12612E4800405DE8 /* AppKit.framework in Frameworks */,
-				5C06AFDE12612E4800405DE8 /* liba2ed.dylib in Frameworks */,
-				5C06AFA112612D3500405DE8 /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		5C32C6E41355298C00164662 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -265,6 +215,7 @@
 		5C06AF9712612D3500405DE8 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5CAE228813E5E3BE0051B39F /* Albion Remake.entitlements */,
 				5C9C512F1265490700A15B31 /* Info.plist */,
 				5C9C51291265490100A15B31 /* InfoPlist.strings */,
 				5C9C512B1265490100A15B31 /* MainMenu.xib */,
@@ -289,8 +240,7 @@
 		5C06AF9E12612D3500405DE8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5C06AF9D12612D3500405DE8 /* Albion Remake.app */,
-				5C32C6EF1355298C00164662 /* Albion Remake Lion.app */,
+				5C32C6EF1355298C00164662 /* Albion Remake.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -469,26 +419,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		5C06AF9C12612D3500405DE8 /* Albion Remake */ = {
+		5C32C6C41355298C00164662 /* Albion Remake */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5C06AFB412612D3500405DE8 /* Build configuration list for PBXNativeTarget "Albion Remake" */;
-			buildPhases = (
-				5C06AF9912612D3500405DE8 /* Sources */,
-				5C06AF9A12612D3500405DE8 /* Frameworks */,
-				5C06AF9B12612D3500405DE8 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "Albion Remake";
-			productName = "Albion Remake";
-			productReference = 5C06AF9D12612D3500405DE8 /* Albion Remake.app */;
-			productType = "com.apple.product-type.application";
-		};
-		5C32C6C41355298C00164662 /* Albion Remake 10.7 */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 5C32C6EC1355298C00164662 /* Build configuration list for PBXNativeTarget "Albion Remake 10.7" */;
+			buildConfigurationList = 5C32C6EC1355298C00164662 /* Build configuration list for PBXNativeTarget "Albion Remake" */;
 			buildPhases = (
 				5C32C6C51355298C00164662 /* Sources */,
 				5C32C6E41355298C00164662 /* Frameworks */,
@@ -498,9 +431,9 @@
 			);
 			dependencies = (
 			);
-			name = "Albion Remake 10.7";
+			name = "Albion Remake";
 			productName = "Albion Remake";
-			productReference = 5C32C6EF1355298C00164662 /* Albion Remake Lion.app */;
+			productReference = 5C32C6EF1355298C00164662 /* Albion Remake.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -523,20 +456,12 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				5C06AF9C12612D3500405DE8 /* Albion Remake */,
-				5C32C6C41355298C00164662 /* Albion Remake 10.7 */,
+				5C32C6C41355298C00164662 /* Albion Remake */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		5C06AF9B12612D3500405DE8 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		5C32C6EB1355298C00164662 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -547,44 +472,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		5C06AF9912612D3500405DE8 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5C9C510E126548C100A15B31 /* main.cpp in Sources */,
-				5C9C510F126548C100A15B31 /* map2d.cpp in Sources */,
-				5C9C5110126548C100A15B31 /* npcgfx.cpp in Sources */,
-				5C9C5112126548C100A15B31 /* tileset.cpp in Sources */,
-				5C9C5113126548C100A15B31 /* map3d.cpp in Sources */,
-				5C9C5114126548C100A15B31 /* map_handler.cpp in Sources */,
-				5C9C5115126548C100A15B31 /* conf.cpp in Sources */,
-				5C9C5116126548C100A15B31 /* albion_ui.cpp in Sources */,
-				5C9C5117126548C100A15B31 /* gfxconv.cpp in Sources */,
-				5C9C5118126548C100A15B31 /* hq4x.cpp in Sources */,
-				5C9C5119126548C100A15B31 /* palette.cpp in Sources */,
-				5C9C511A126548C100A15B31 /* scaling.cpp in Sources */,
-				5C9C511B126548C100A15B31 /* xld.cpp in Sources */,
-				5C58907D12690BA80011E96B /* map_events.cpp in Sources */,
-				5C58907E12690BA80011E96B /* map_npcs.cpp in Sources */,
-				5C58908212690BB00011E96B /* labdata.cpp in Sources */,
-				5C58908612690BBE0011E96B /* events.cpp in Sources */,
-				5CFFE9241269605A00199C96 /* npc2d.cpp in Sources */,
-				5CFFE9251269605A00199C96 /* player2d.cpp in Sources */,
-				5C9B61CD12734AA200CCE465 /* map_objects.cpp in Sources */,
-				5C52B6341280CB5100E8ED0D /* albion_texture.cpp in Sources */,
-				5C52B6351280CB5100E8ED0D /* transtb.cpp in Sources */,
-				5C52B6431280CE7E00E8ED0D /* ar_global.cpp in Sources */,
-				5C994E131284745700FC928F /* npc.cpp in Sources */,
-				5C994E17128476EC00FC928F /* npc3d.cpp in Sources */,
-				5C28FB38128F0CE200FBDEC1 /* background3d.cpp in Sources */,
-				5C0B62271296E8C100205335 /* map_tiles.cpp in Sources */,
-				5C7868281322BE51006BEDD5 /* clock.cpp in Sources */,
-				5C6D6973132C7629007DF2B2 /* player3d.cpp in Sources */,
-				5C1669E3133F96F100FFF846 /* hq2x.cpp in Sources */,
-				5CFC5D1313E46E5200824F9C /* bin_graphics.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		5C32C6C51355298C00164662 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -664,14 +551,11 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = "-std=c++0x";
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-stdlib=libc++",
-				);
-				OTHER_LDFLAGS = "-stdlib=libc++";
+				OTHER_CFLAGS = "";
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = "";
 				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
@@ -687,90 +571,13 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = "-std=c++0x";
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-stdlib=libc++",
-				);
-				OTHER_LDFLAGS = "-stdlib=libc++";
+				OTHER_CFLAGS = "";
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = "";
 				SDKROOT = macosx;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
-			};
-			name = Release;
-		};
-		5C06AFB512612D3500405DE8 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CONFIGURATION_BUILD_DIR = bin/;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_SSE3_EXTENSIONS = YES;
-				GCC_ENABLE_SSE41_EXTENSIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/Albion_Remake_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"A2E_USE_OPENCL=1",
-					PLATFORM_X64,
-				);
-				HEADER_SEARCH_PATHS = (
-					/usr/X11/include,
-					/usr/X11/include/freetype2,
-					/usr/local/include,
-					/usr/local/include/a2e,
-					/usr/include/libxml2,
-				);
-				INFOPLIST_FILE = src/osx/Info.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
-					"$(inherited)",
-				);
-				PRODUCT_NAME = "Albion Remake";
-				SYMROOT = build;
-				WRAPPER_EXTENSION = app;
-			};
-			name = Debug;
-		};
-		5C06AFB612612D3500405DE8 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CONFIGURATION_BUILD_DIR = bin/;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_ENABLE_SSE3_EXTENSIONS = YES;
-				GCC_ENABLE_SSE41_EXTENSIONS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/Albion_Remake_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"A2E_USE_OPENCL=1",
-					PLATFORM_X64,
-				);
-				HEADER_SEARCH_PATHS = (
-					/usr/X11/include,
-					/usr/X11/include/freetype2,
-					/usr/local/include,
-					/usr/local/include/a2e,
-					/usr/include/libxml2,
-				);
-				INFOPLIST_FILE = src/osx/Info.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
-					"$(inherited)",
-				);
-				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_NAME = "Albion Remake";
-				SYMROOT = build;
-				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
 		};
@@ -780,6 +587,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_ENTITLEMENTS = "src/osx/Albion Remake.entitlements";
+				CODE_SIGN_IDENTITY = "";
 				CONFIGURATION_BUILD_DIR = bin/;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -827,7 +636,7 @@
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "Albion Remake Lion";
+				PRODUCT_NAME = "Albion Remake";
 				SDKROOT = macosx;
 				SYMROOT = build;
 				WARNING_CFLAGS = (
@@ -851,6 +660,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_ENTITLEMENTS = "src/osx/Albion Remake.entitlements";
+				CODE_SIGN_IDENTITY = "";
 				CONFIGURATION_BUILD_DIR = bin/;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -897,7 +708,7 @@
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "Albion Remake Lion";
+				PRODUCT_NAME = "Albion Remake";
 				SDKROOT = macosx;
 				SYMROOT = build;
 				WARNING_CFLAGS = (
@@ -927,16 +738,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5C06AFB412612D3500405DE8 /* Build configuration list for PBXNativeTarget "Albion Remake" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				5C06AFB512612D3500405DE8 /* Debug */,
-				5C06AFB612612D3500405DE8 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		5C32C6EC1355298C00164662 /* Build configuration list for PBXNativeTarget "Albion Remake 10.7" */ = {
+		5C32C6EC1355298C00164662 /* Build configuration list for PBXNativeTarget "Albion Remake" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5C32C6ED1355298C00164662 /* Debug */,
