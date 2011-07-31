@@ -465,7 +465,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		floors_tex = albion_texture::create(MT_3D_MAP, floors_tex_size, size2(64, 64), palette, floors_tex_info, floor_xlds, albion_texture::TST_MIRROR, floor_spacing, true, tex_filtering);
 	}
 	else floors_tex = t->get_dummy_texture();
-	conf::set<a2e_texture>("debug.texture", floors_tex);
+	//conf::set<a2e_texture>("debug.texture", floors_tex);
 	
 	// walls
 	size2 tex_offset;
@@ -552,7 +552,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		walls_tex = t->add_texture(walls_surface, (unsigned int)walls_tex_size.x, (unsigned int)walls_tex_size.y, GL_RGBA8, GL_RGBA, custom_tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 		albion_texture::build_mipmaps(walls_tex, walls_surface, tex_filtering);
 		delete [] walls_surface;
-		conf::set<a2e_texture>("debug.texture", walls_tex);
+		//conf::set<a2e_texture>("debug.texture", walls_tex);
 	}
 	else walls_tex = t->get_dummy_texture();
 
@@ -612,7 +612,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		cout << ":: creating objects texture " << objects_tex_size << " ..." << endl;
 		objects_tex = t->add_texture(objects_surface, (unsigned int)objects_tex_size.x, (unsigned int)objects_tex_size.y, GL_RGBA8, GL_RGBA, custom_tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 		albion_texture::build_mipmaps(objects_tex, objects_surface, tex_filtering);
-		conf::set<a2e_texture>("debug.texture", objects_tex);
+		//conf::set<a2e_texture>("debug.texture", objects_tex);
 		delete [] objects_surface;
 	}
 	else objects_tex = t->get_dummy_texture();

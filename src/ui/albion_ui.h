@@ -35,8 +35,13 @@ public:
 	albion_ui(map_handler* mh);
 	~albion_ui();
 	
+	void run();
+	
 	void open_goto_map_wnd();
 	void close_goto_map_wnd();
+	
+	void open_game_ui();
+	void close_game_ui();
 	
 protected:
 	map_handler* mh;
@@ -48,6 +53,25 @@ protected:
 	gui_list* lb_map_names;
 	gui_text* t_time;
 	gui_text* t_time_value;
+	
+	//
+	gui_window* game_ui;
+	image* clock_img_obj;
+	gui_image* clock_img;
+	struct clock_number {
+		image* img;
+		gui_image* gui_img;
+	} clock_numbers[4];
+
+	float2 compass_img_pos;
+	float2 compass_img_size;
+	float2 compass_dot_img_size;
+	image* compass_img_obj;
+	gui_image* compass_img;
+	image* compass_dot_img_obj;
+	gui_image* compass_dot_img;
+	size_t cur_dot_img;
+	size_t dot_timer;
 	
 	//
 	void handle_b_goto_map_button(event::GUI_EVENT_TYPE type, GUI_ID id);

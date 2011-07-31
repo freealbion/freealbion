@@ -19,8 +19,10 @@
 
 #include "gfxconv.h"
 
-void gfxconv::convert_8to32(const unsigned char* data_8bpp, unsigned int* data_32bpp, const size_t& width, const size_t& height, const size_t& palette_num,
-							const size_t palette_shift, const bool overwrite_alpha, const unsigned int replacement_alpha) {
+void gfxconv::convert_8to32(const unsigned char* data_8bpp, unsigned int* data_32bpp,
+							const size_t& width, const size_t& height, 
+							const size_t& palette_num, const size_t palette_shift,
+							const bool overwrite_alpha, const unsigned int replacement_alpha) {
 	const unsigned int* const palette = palettes->get_palette(palette_num);
 	const vector<size2>& animated_ranges = palettes->get_animated_ranges(palette_num);
 	unsigned char index;

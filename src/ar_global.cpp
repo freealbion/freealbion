@@ -19,6 +19,7 @@
 
 
 #include "ar_global.h"
+#include "bin_graphics.h"
 
 engine* e;
 core* c;
@@ -36,3 +37,4 @@ camera* cam;
 pal* palettes;
 ext* exts;
 ar_clock* clck;
+bin_graphics* bin_gfx;

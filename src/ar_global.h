@@ -49,4 +49,7 @@ extern pal* palettes;
 extern ext* exts;
 extern ar_clock* clck;
 
+class bin_graphics;
+extern bin_graphics* bin_gfx;
+
 #endif

@@ -93,20 +93,24 @@ int main(int argc, char *argv[]) {
 	// load/init stuff
 	palettes = new pal();
 	scaling::init();
+	bin_gfx = new bin_graphics();
 
 	mh = new map_handler();
 	//mh->load_map(42);
-	mh->load_map(10);
+	//mh->load_map(10);
 	//mh->load_map(50);
 	//mh->load_map(11);
 	//mh->load_map(22);
-	//mh->load_map(183);
+	mh->load_map(183);
 	//mh->load_map(45);
 	//mh->load_map(47);
 	//mh->load_map(100);
-	
+
 	aui = new albion_ui(mh);
-	if(conf::get<bool>("ui.display")) aui->open_goto_map_wnd();
+	if(conf::get<bool>("ui.display")) {
+		aui->open_goto_map_wnd();
+		aui->open_game_ui();
+	}
 
 	// dbg img
 	image* img = new image(e);
@@ -139,8 +143,14 @@ int main(int argc, char *argv[]) {
 							break;
 						case SDLK_g:
 							conf::set<bool>("ui.display", conf::get<bool>("ui.display") ^ true);
-							if(conf::get<bool>("ui.display")) aui->open_goto_map_wnd();
-							else aui->close_goto_map_wnd();
+							if(conf::get<bool>("ui.display")) {
+								aui->open_goto_map_wnd();
+								aui->open_game_ui();
+							}
+							else {
+								aui->close_goto_map_wnd();
+								aui->close_game_ui();
+							}
 							break;
 						case SDLK_c:
 							conf::set<bool>("map.collision", conf::get<bool>("map.collision") ^ true);
@@ -329,6 +339,7 @@ int main(int argc, char *argv[]) {
 
 		e->start_draw();
 		egui->handle_gui();
+		aui->run();
 
 		mh->draw();
 		
@@ -361,6 +372,7 @@ int main(int argc, char *argv[]) {
 	//delete ttb;
 
 	delete palettes;
+	delete bin_gfx;
 
 	delete img;
 	delete aui;

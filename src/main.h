@@ -32,6 +32,7 @@
 #include "scaling.h"
 #include "transtb.h"
 #include "clock.h"
+#include "bin_graphics.h"
 
 #include "map_handler.h"
 

@@ -31,8 +31,10 @@
 
 class gfxconv {
 public:
-	static void convert_8to32(const unsigned char* data_8bpp, unsigned int* data_32bpp, const size_t& width, const size_t& height, const size_t& palette_num,
-							  const size_t palette_shift = 0, const bool overwrite_alpha = false, const unsigned int replacement_alpha = 0);
+	static void convert_8to32(const unsigned char* data_8bpp, unsigned int* data_32bpp,
+							  const size_t& width, const size_t& height,
+							  const size_t& palette_num, const size_t palette_shift = 0,
+							  const bool overwrite_alpha = false, const unsigned int replacement_alpha = 0);
 	
 protected:
 	gfxconv() {}
