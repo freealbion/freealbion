@@ -105,7 +105,17 @@ protected:
 	
 	// lights
 	light* player_light;
+	light* sun_light;
+	float sun_distance;
 	vector<light*> scene_lights;
+	struct light_info {
+		float3 ambient;
+		float3 diffuse;
+		float3 specular;
+		float3 attenuation;
+	};
+	// TODO: add different types
+	vector<light_info*> light_infos;
 
 	//
 	bool map_loaded;
@@ -125,6 +135,10 @@ protected:
 	unsigned int obj_ani_offset;
 	// <type, tile number, pos> (type: 0 = floor/ceiling, 1 = wall, 2 = object)
 	vector<tuple<unsigned int, unsigned int, uint2>> animated_tiles;
+	
+	//
+	clock_callback* clock_cb;
+	void clock_tick(size_t ticks);
 
 };
 

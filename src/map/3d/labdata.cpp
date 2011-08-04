@@ -72,6 +72,26 @@ labdata::labdata() {
 	overlay_xlds[2] = new xld("3DOVERL2.XLD");
 	wall_xlds[0] = new xld("3DWALLS0.XLD");
 	wall_xlds[1] = new xld("3DWALLS1.XLD");
+	
+	// init light object info	
+	// beloveno (203), umajo (206)
+	{
+		auto ls = new set<unsigned int>();
+		ls->insert(8);
+		ls->insert(9);
+		ls->insert(10);
+		ls->insert(39);
+		light_sets.push_back(ls);
+		light_objects[203] = ls;
+		light_objects[206] = ls;
+	}
+	// nakiridaani (109)
+	{
+		auto ls = new set<unsigned int>();
+		ls->insert(22);
+		light_sets.push_back(ls);
+		light_objects[109] = ls;
+	}
 }
 
 /*! labdata destructor
@@ -95,6 +115,13 @@ labdata::~labdata() {
 	delete overlay_xlds[2];
 	delete wall_xlds[0];
 	delete wall_xlds[1];
+	
+	//
+	for(auto& ls : light_sets) {
+		delete ls;
+	}
+	light_sets.clear();
+	light_objects.clear();
 }
 
 void labdata::load(const size_t& labdata_num, const size_t& palette) {
@@ -737,4 +764,8 @@ void labdata::handle_animations() {
 			}
 		}
 	}
+}
+
+const map<unsigned int, set<unsigned int>*>& labdata::get_light_objects() const {
+	return light_objects;
 }

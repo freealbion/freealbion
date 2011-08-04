@@ -14,6 +14,7 @@ case $( uname | tr [:upper:] [:lower:] ) in
 		;;
 	"linux")
 		ALBION_OS="linux"
+		ALBION_ARGS="--clang"
 		ALBION_CPU_COUNT=$(cat /proc/cpuinfo | grep -m 1 'cpu cores' | sed -E 's/.*(: )([:digit:]*)/\2/g')
 		;;
 	[a-z0-9]*"BSD")
@@ -21,9 +22,14 @@ case $( uname | tr [:upper:] [:lower:] ) in
 		ALBION_MAKE="gmake"
 		# TODO: get cpu/thread count on *bsd
 		;;
-	"cygwin"* | "mingw"*)
+	"cygwin"*)
 		ALBION_OS="windows"
 		ALBION_ARGS="--env cygwin"
+		ALBION_CPU_COUNT=$(env | grep 'NUMBER_OF_PROCESSORS' | sed -E 's/.*=([:digit:]*)/\1/g')
+		;;
+	"mingw"*)
+		ALBION_OS="windows"
+		ALBION_ARGS="--env mingw"
 		ALBION_CPU_COUNT=$(env | grep 'NUMBER_OF_PROCESSORS' | sed -E 's/.*=([:digit:]*)/\1/g')
 		;;
 	*)

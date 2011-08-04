@@ -24,7 +24,7 @@
  *
  * \author flo
  *
- * \date April 2007 - March 2011
+ * \date April 2007 - August 2011
  *
  * Albion Remake
  */
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 	img->set_scaling(true);
 	
 	// debug window
-	a2e_debug_wnd::init(e, eui, s, cam);
+	a2e_debug_wnd::init(e, eui, s, ocl, cam);
 	//a2e_debug_wnd::open();
 
 	//transtb* ttb = new transtb();

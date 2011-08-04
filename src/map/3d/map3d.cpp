@@ -60,22 +60,23 @@ map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) : lab_data(
 	bg3d = new background3d();
 	bg_loaded = false;
 
-	//
+	// player
 	player_light = new light(e, 0.0f, 20.0f, 0.0f);
 	
-#if 0 // sun
-	player_light->set_lambient(1.0f, 1.0f, 1.0f);
-	player_light->set_ldiffuse(0.0f, 0.0f, 0.0f);
-	player_light->set_lspecular(0.0f, 0.0f, 0.0f);
-	player_light->set_constant_attenuation(1.0f);
-	player_light->set_linear_attenuation(0.0f);
-	player_light->set_quadratic_attenuation(0.0f);
-#elif 1
+#if 0
 	player_light->set_lambient(0.1f, 0.05f, 0.05f);
 	player_light->set_ldiffuse(0.3f, 0.3f, 0.2f);
 	player_light->set_lspecular(0.2f, 0.15f, 0.1f);
 	player_light->set_constant_attenuation(0.2f);
 	player_light->set_linear_attenuation(0.03f);
+	player_light->set_quadratic_attenuation(0.0f);
+#elif 1
+	//player_light->set_lambient(0.8f, 0.8f, 0.8f);
+	player_light->set_lambient(0.4f, 0.4f, 0.4f);
+	player_light->set_ldiffuse(0.2f, 0.2f, 0.2f);
+	player_light->set_lspecular(0.0f, 0.0f, 0.0f);
+	player_light->set_constant_attenuation(1.0f);
+	player_light->set_linear_attenuation(0.0f);
 	player_light->set_quadratic_attenuation(0.0f);
 #else // dungeon
 	player_light->set_lambient(0.2f, 0.2f, 0.2f);
@@ -92,14 +93,50 @@ map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) : lab_data(
 	player_light->set_enabled(true);
 	player_light->set_spot_light(false);
 	sce->add_light(player_light);
+	
+	// sun (TODO: better values)
+	sun_light = new light(e, 0.0f, 100.0f, 0.0f);
+	//sun_light->set_lambient(1.0f, 1.0f, 1.0f);
+	sun_light->set_lambient(0.1f, 0.1f, 0.1f);
+	sun_light->set_ldiffuse(0.5f, 0.5f, 0.5f);
+	sun_light->set_lspecular(0.5f, 0.5f, 0.5f);
+	sun_light->set_constant_attenuation(1.0f);
+	sun_light->set_linear_attenuation(0.0f);
+	sun_light->set_quadratic_attenuation(0.0f);
+	sun_light->set_spot_direction(0.0f, 0.0f, 0.0f);
+	sun_light->set_spot_cutoff(0.0f);
+	sun_light->set_enabled(true);
+	sun_light->set_spot_light(false);
+	sce->add_light(sun_light);
+	sun_distance = 100.0f;
+	
+	//
+	light_infos.push_back(new light_info());
+	light_infos.back()->ambient.set(0.2f, 0.2f, 0.02f);
+	light_infos.back()->diffuse.set(0.8f, 0.8f, 0.1f);
+	light_infos.back()->specular.set(0.2f, 0.2f, 0.05f);
+	light_infos.back()->attenuation.set(0.0f, 0.06f, 0.0f);
+	
+	//
+	clock_cb = new clock_callback(this, &map3d::clock_tick);
+	clck->add_tick_callback(ar_clock::CCBT_TICK, *clock_cb);
 }
 
 /*! map3d destructor
  */
 map3d::~map3d() {
+	clck->delete_tick_callback(*clock_cb);
+	delete clock_cb;
+	
 	delete player_light;
+	delete sun_light;
 	delete bg3d;
 	unload();
+	
+	for(auto& li : light_infos) {
+		delete li;
+	}
+	light_infos.clear();
 }
 
 void map3d::load(const size_t& map_num) {
@@ -367,8 +404,14 @@ void map3d::load(const size_t& map_num) {
 				for(size_t i = 0; i < 4; i++) {
 					if((side & (unsigned char)(1 << i)) > 0) {
 						if(wall->animation > 1) wall_ani_count++;
+						
 						if(wall->type & labdata::WT_TRANSPARENT) wall_transp_count++;
-						else if(wall->type & labdata::WT_CUT_ALPHA) wall_cutalpha_count++;
+						else if(wall->type & labdata::WT_CUT_ALPHA) {
+							wall_cutalpha_count++;
+							wall_count++;
+							if(wall->animation > 1) wall_ani_count++;
+						}
+						
 						wall_count++;
 					}
 				}
@@ -468,10 +511,12 @@ void map3d::load(const size_t& map_num) {
 					if((side & (unsigned char)(1 << i)) != 0) side_count++;
 				}
 				
+				bool cut_alpha_wall = (tile_data->type & labdata::WT_CUT_ALPHA);
 				bool transp_wall = false;
 				if(tile_data->type & labdata::WT_TRANSPARENT) {
 					wall_subobj+=2;
 					transp_wall = true;
+					cut_alpha_wall = false; // mutually exclusive
 					wall_indices[wall_subobj-1] = new index3[side_count*2];
 					wall_index_count[wall_subobj-1] = side_count*2;
 					wall_indices[wall_subobj] = new index3[side_count*2];
@@ -485,9 +530,15 @@ void map3d::load(const size_t& map_num) {
 					wall_index = wall_ani_offset + wall_ani_num*4;
 					wall_ani_num+=side_count;
 					animated_tiles.push_back(make_tuple(1, ow_tiles[y*map_size.x + x], uint2(x, y)));
+					if(cut_alpha_wall) {
+						wall_ani_num+=side_count;
+					}
 				}
 				else {
 					wall_static_num+=side_count;
+					if(cut_alpha_wall) {
+						wall_static_num+=side_count;
+					}
 				}
 
 				const float y_size = map_scale.y * float(tile_data->y_size)/8.0f;
@@ -495,72 +546,78 @@ void map3d::load(const size_t& map_num) {
 				const float2& tc_b = tile_data->tex_coord_begin[0];
 				const float2& tc_e = tile_data->tex_coord_end[0];
 				unsigned int wall_transp_num = 0;
-				for(size_t i = 0; i < 4; i++) {
-					// only add necessary walls
-					if((side & (unsigned char)(1 << i)) == 0) continue;
-					
-					switch(i) {
-						case 0: // north
-							wall_vertices[wall_index + 0].set(float(x)*tile_size, y_size, float(y)*tile_size);
-							wall_vertices[wall_index + 1].set(float(x)*tile_size, floor_height, float(y)*tile_size);
-							wall_vertices[wall_index + 2].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size);
-							wall_vertices[wall_index + 3].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size);
-							break;
-						case 1: // east
-							wall_vertices[wall_index + 0].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size);
-							wall_vertices[wall_index + 1].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size);
-							wall_vertices[wall_index + 2].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size + tile_size);
-							wall_vertices[wall_index + 3].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size + tile_size);
-							break;
-						case 2: // south
-							wall_vertices[wall_index + 0].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size + tile_size);
-							wall_vertices[wall_index + 1].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size + tile_size);
-							wall_vertices[wall_index + 2].set(float(x)*tile_size, y_size, float(y)*tile_size + tile_size);
-							wall_vertices[wall_index + 3].set(float(x)*tile_size, floor_height, float(y)*tile_size + tile_size);
-							break;
-						case 3: // west
-							wall_vertices[wall_index + 0].set(float(x)*tile_size, y_size, float(y)*tile_size + tile_size);
-							wall_vertices[wall_index + 1].set(float(x)*tile_size, floor_height, float(y)*tile_size + tile_size);
-							wall_vertices[wall_index + 2].set(float(x)*tile_size, y_size, float(y)*tile_size);
-							wall_vertices[wall_index + 3].set(float(x)*tile_size, floor_height, float(y)*tile_size);
-							break;
-						default: break;
-					}
-
-					wall_tex_coords[wall_index + 0].set(tc_b.x, tc_e.y);
-					wall_tex_coords[wall_index + 1].set(tc_e.x, tc_e.y);
-					wall_tex_coords[wall_index + 2].set(tc_b.x, tc_b.y);
-					wall_tex_coords[wall_index + 3].set(tc_e.x, tc_b.y);
-				
-					if(transp_wall) {
-						// side #1
-						wall_indices[wall_subobj-1][wall_transp_num*2].set(wall_index + 1, wall_index + 0, wall_index + 2);
-						wall_indices[wall_subobj-1][wall_transp_num*2 + 1].set(wall_index + 2, wall_index + 3, wall_index + 1);
+				for(size_t cut_alpha_side = 0; cut_alpha_side < (cut_alpha_wall ? 2 : 1); cut_alpha_side++) {
+					for(size_t i = 0; i < 4; i++) {
+						// only add necessary walls
+						if((side & (unsigned char)(1 << i)) == 0) continue;
 						
-						// side #2
-						wall_indices[wall_subobj][wall_transp_num*2].set(wall_index + 2, wall_index + 0, wall_index + 1);
-						wall_indices[wall_subobj][wall_transp_num*2 + 1].set(wall_index + 1, wall_index + 3, wall_index + 2);
+						switch(i) {
+							case 0: // north
+								wall_vertices[wall_index + 0].set(float(x)*tile_size, y_size, float(y)*tile_size);
+								wall_vertices[wall_index + 1].set(float(x)*tile_size, floor_height, float(y)*tile_size);
+								wall_vertices[wall_index + 2].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size);
+								wall_vertices[wall_index + 3].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size);
+								break;
+							case 1: // east
+								wall_vertices[wall_index + 0].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size);
+								wall_vertices[wall_index + 1].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size);
+								wall_vertices[wall_index + 2].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size + tile_size);
+								wall_vertices[wall_index + 3].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size + tile_size);
+								break;
+							case 2: // south
+								wall_vertices[wall_index + 0].set(float(x)*tile_size + tile_size, y_size, float(y)*tile_size + tile_size);
+								wall_vertices[wall_index + 1].set(float(x)*tile_size + tile_size, floor_height, float(y)*tile_size + tile_size);
+								wall_vertices[wall_index + 2].set(float(x)*tile_size, y_size, float(y)*tile_size + tile_size);
+								wall_vertices[wall_index + 3].set(float(x)*tile_size, floor_height, float(y)*tile_size + tile_size);
+								break;
+							case 3: // west
+								wall_vertices[wall_index + 0].set(float(x)*tile_size, y_size, float(y)*tile_size + tile_size);
+								wall_vertices[wall_index + 1].set(float(x)*tile_size, floor_height, float(y)*tile_size + tile_size);
+								wall_vertices[wall_index + 2].set(float(x)*tile_size, y_size, float(y)*tile_size);
+								wall_vertices[wall_index + 3].set(float(x)*tile_size, floor_height, float(y)*tile_size);
+								break;
+							default: break;
+						}
 						
-						wall_transp_num++;
-					}
-					else {
-						wall_indices[0][wall_num*2].set(wall_index + 1, wall_index + 0, wall_index + 2);
-						wall_indices[0][wall_num*2 + 1].set(wall_index + 2, wall_index + 3, wall_index + 1);
-						wall_num++;
+						wall_tex_coords[wall_index + 0].set(tc_b.x, tc_e.y);
+						wall_tex_coords[wall_index + 1].set(tc_e.x, tc_e.y);
+						wall_tex_coords[wall_index + 2].set(tc_b.x, tc_b.y);
+						wall_tex_coords[wall_index + 3].set(tc_e.x, tc_b.y);
 						
-						// draw both sides of an alpha tested wall
-						if(tile_data->type & labdata::WT_CUT_ALPHA) {
-							wall_indices[0][wall_num*2].set(wall_index + 0,
-															wall_index + 2,
-															wall_index + 1);
-							wall_indices[0][wall_num*2 + 1].set(wall_index + 3,
+						if(transp_wall) {
+							// side #1
+							wall_indices[wall_subobj-1][wall_transp_num*2].set(wall_index + 1, wall_index + 0, wall_index + 2);
+							wall_indices[wall_subobj-1][wall_transp_num*2 + 1].set(wall_index + 2, wall_index + 3, wall_index + 1);
+							
+							// side #2
+							wall_indices[wall_subobj][wall_transp_num*2].set(wall_index + 2, wall_index + 0, wall_index + 1);
+							wall_indices[wall_subobj][wall_transp_num*2 + 1].set(wall_index + 1, wall_index + 3, wall_index + 2);
+							
+							wall_transp_num++;
+						}
+						else {
+							// draw both sides of an alpha tested wall
+							if(cut_alpha_side == 0) {
+								wall_indices[0][wall_num*2].set(wall_index + 1,
+																wall_index + 0,
+																wall_index + 2);
+								wall_indices[0][wall_num*2 + 1].set(wall_index + 2,
+																	wall_index + 3,
+																	wall_index + 1);
+							}
+							else {
+								wall_indices[0][wall_num*2].set(wall_index + 0,
 																wall_index + 1,
 																wall_index + 2);
+								wall_indices[0][wall_num*2 + 1].set(wall_index + 1,
+																	wall_index + 3,
+																	wall_index + 2);
+							}
 							wall_num++;
 						}
+						
+						wall_index+=4;
 					}
-					
-					wall_index+=4;
 				}
 			}
 			// objects
@@ -658,36 +715,47 @@ void map3d::load(const size_t& map_num) {
 
 	// don't delete model data, these are taken care of by a2estatic/a2emodel now!
 	
-#if 1
-	// lights (this is only for testing purposes atm)
-	const float half_tile_size = tile_size * 0.5f;
-	for(size_t y = 0; y < map_size.y; y++) {
-		for(size_t x = 0; x < map_size.x; x++) {
-			const unsigned int& tile_obj = ow_tiles[y*map_size.x + x];
-			if(tile_obj > 0 && tile_obj < 101) {
-				if((map_num == 183 || map_num == 135) &&
-				   (tile_obj == 8 || tile_obj == 9 || tile_obj == 10 || tile_obj == 39)) {
-					light* obj_light = new light(e, float(x)*tile_size + half_tile_size, 18.0f, float(y)*tile_size + half_tile_size);
-					obj_light->set_lambient(0.2f, 0.2f, 0.02f);
-					obj_light->set_ldiffuse(0.8f, 0.8f, 0.1f);
-					obj_light->set_lspecular(0.2f, 0.2f, 0.05f);
-					obj_light->set_constant_attenuation(0.0f);
-					//obj_light->set_linear_attenuation(0.008f);
-					//obj_light->set_quadratic_attenuation(0.005f);
-					obj_light->set_linear_attenuation(0.06f);
-					obj_light->set_quadratic_attenuation(0.0f);
-					obj_light->set_spot_direction(0.0f, 0.0f, 0.0f);
-					obj_light->set_spot_cutoff(0.0f);
-					obj_light->set_enabled(true);
-					obj_light->set_spot_light(false);
-					sce->add_light(obj_light);
-					scene_lights.push_back(obj_light);
+	
+	if(conf::get<bool>("map.3d.object_lights")) {
+		// add lights specific for this map and labdata
+		// TODO: labdata #
+		const auto& light_objects = lab_data->get_light_objects();
+		if(light_objects.count((unsigned int)cur_labdata_num) > 0) {
+			const auto& light_objs = light_objects.find((unsigned int)cur_labdata_num)->second;
+			const float half_tile_size = tile_size * 0.5f;
+			for(size_t y = 0; y < map_size.y; y++) {
+				for(size_t x = 0; x < map_size.x; x++) {
+					const unsigned int& tile_obj = ow_tiles[y*map_size.x + x];
+					if(tile_obj > 0 && tile_obj < 101) {
+						if(light_objs->count(tile_obj) > 0) {
+							light* obj_light = new light(e, float(x)*tile_size + half_tile_size, 18.0f, float(y)*tile_size + half_tile_size);
+							light_info* linfo = light_infos[0];
+							obj_light->set_lambient(linfo->ambient.x,
+													linfo->ambient.y,
+													linfo->ambient.z);
+							obj_light->set_ldiffuse(linfo->diffuse.x,
+													linfo->diffuse.y,
+													linfo->diffuse.z);
+							obj_light->set_lspecular(linfo->specular.x,
+													 linfo->specular.y,
+													 linfo->specular.z);
+							obj_light->set_constant_attenuation(linfo->attenuation.x);
+							obj_light->set_linear_attenuation(linfo->attenuation.y);
+							obj_light->set_quadratic_attenuation(linfo->attenuation.z);
+							obj_light->set_spot_direction(0.0f, 0.0f, 0.0f);
+							obj_light->set_spot_cutoff(0.0f);
+							obj_light->set_enabled(true);
+							obj_light->set_spot_light(false);
+							sce->add_light(obj_light);
+							scene_lights.push_back(obj_light);
+						}
+					}
 				}
 			}
 		}
+		cout << "#lights: " << scene_lights.size() << endl;
 	}
-	cout << "#lights: " << scene_lights.size() << endl;
-#endif
+	sun_distance = (float(map_size.x) / 2.0f) * std_tile_size;
 
 	// and finally:
 	map_loaded = true;
@@ -806,10 +874,30 @@ void map3d::draw() const {
 	if(!map_loaded) return;
 }
 
+void map3d::clock_tick(size_t ticks) {
+	// sun movement
+	static const size_t sun_rise = 7*AR_TICKS_PER_HOUR;
+	static const size_t sun_set = 21*AR_TICKS_PER_HOUR;
+	static const size_t sun_up = sun_set - sun_rise;
+	static const float fsun_up = float(sun_up);
+	if(ticks >= sun_rise && ticks <= sun_set) {
+		// we're moving on top of the x axis
+		// also: let's just pretend we're on the equator
+		const size_t progression = ticks - sun_rise;
+		const float norm_progression = float(progression) / fsun_up;
+		sun_light->set_position((sun_distance - norm_progression * sun_distance) * 2.0f,
+								sinf(DEG2RAD(norm_progression * 180.0f)) * sun_distance,
+								float(map_size.y) * std_tile_size / 2.0f);
+	}
+	else {
+		sun_light->set_position(0.0f, -100000.0f, 0.0f);
+	}
+}
+
 void map3d::handle() {
 	if(!map_loaded) return;
 
-	// attach light to camera for now (TODO: better method?)
+	// attach player light to camera for now
 	float3 player_pos = -float3(*e->get_position());
 	player_light->set_position(player_pos);
 	

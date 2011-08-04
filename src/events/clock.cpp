@@ -18,10 +18,12 @@
  */
 
 #include "clock.h"
+#include "conf.h"
 
 /*! clock constructor
  */
-ar_clock::ar_clock() : ms_per_tick(400), last_tick(SDL_GetTicks()), ticks(0) {
+ar_clock::ar_clock() : ms_per_tick(20), last_tick(SDL_GetTicks()),
+ticks(conf::get<size_t>("map.hour") * AR_TICKS_PER_HOUR) {
 	// 2d map: 395-416.6ms per tick -> use 400ms
 }
 

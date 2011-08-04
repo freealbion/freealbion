@@ -164,6 +164,7 @@ public:
 	a2ematerial* get_fc_material() const;
 	a2ematerial* get_wall_material() const;
 	a2ematerial* get_object_material() const;
+	const map<unsigned int, set<unsigned int>*>& get_light_objects() const;
 
 	void handle_animations();
 	
@@ -194,6 +195,10 @@ protected:
 	
 	texture_object::TEXTURE_FILTERING tex_filtering;
 	texture_object::TEXTURE_FILTERING custom_tex_filtering;
+	
+	// light object numbers for each labdata
+	map<unsigned int, set<unsigned int>*> light_objects;
+	vector<set<unsigned int>*> light_sets;
 	
 };
 

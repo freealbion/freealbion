@@ -117,6 +117,8 @@ void conf::init() {
 	//conf::add<scaling::SCALE_TYPE>("map.3d.scale_type", scaling::ST_HQ2X);
 	//conf::add<scaling::SCALE_TYPE>("map.3d.scale_type", scaling::ST_NEAREST_4X);
 	conf::add<scaling::SCALE_TYPE>("map.3d.scale_type", scaling::ST_NEAREST_1X);
+	conf::add<bool>("map.3d.object_lights", false);
+	conf::add<size_t>("map.hour", 8);
 	
 	conf::add<bool>("ui.display", false);
 	

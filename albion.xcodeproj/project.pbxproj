@@ -56,11 +56,11 @@
 		5C0B62261296E8C000205335 /* map_tiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_tiles.h; sourceTree = "<group>"; };
 		5C1669E2133F96F100FFF846 /* hq2x.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hq2x.cpp; sourceTree = "<group>"; };
 		5C1669E5133F985800FFF846 /* hqx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hqx.h; sourceTree = "<group>"; };
-		5C1873E513E2FC9D00A1F642 /* fxaa3.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = fxaa3.a2eshd; path = ../../../../../um_repos/data/shader/misc/fxaa3.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C1873E613E2FC9D00A1F642 /* luma.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = luma.a2eshd; path = ../../../../../um_repos/data/shader/misc/luma.a2eshd; sourceTree = "<group>"; };
 		5C28FB36128F0CE200FBDEC1 /* background3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = background3d.cpp; sourceTree = "<group>"; };
 		5C28FB37128F0CE200FBDEC1 /* background3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = background3d.h; sourceTree = "<group>"; };
 		5C32C6EF1355298C00164662 /* Albion Remake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Albion Remake.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C34B58713E8E85E004E705F /* fxaa3.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = fxaa3.a2eshd; path = data/shader/misc/fxaa3.a2eshd; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C51E76612CC164F00C4E0EA /* mp_map_objects.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mp_map_objects.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C51E76712CC164F00C4E0EA /* mp_map_tiles.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mp_map_tiles.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C52B6301280CB5100E8ED0D /* albion_texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = albion_texture.cpp; sourceTree = "<group>"; };
@@ -140,7 +140,7 @@
 		5CDB6F171379C4B2006033D4 /* particle_spawn.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = particle_spawn.cl; sourceTree = "<group>"; };
 		5CDFD7A213248985009459CE /* inferred_gbuffer.a2eshdi */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = inferred_gbuffer.a2eshdi; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5CE00A2513ABB86F00FAE69A /* premake.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = premake.sh; sourceTree = "<group>"; };
-		5CE00A2613ABB86F00FAE69A /* premake4.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = premake4.lua; sourceTree = "<group>"; };
+		5CE00A2613ABB86F00FAE69A /* premake4.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = premake4.lua; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
 		5CF2668E1379FA8300B729B0 /* global.clh */ = {isa = PBXFileReference; lastKnownFileType = text; path = global.clh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.opencl; };
 		5CF2668F1379FA8300B729B0 /* particle_init.clh */ = {isa = PBXFileReference; lastKnownFileType = text; path = particle_init.clh; sourceTree = "<group>"; };
 		5CF266901379FF6E00B729B0 /* ir_lighting.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = ir_lighting.cl; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
@@ -278,7 +278,7 @@
 				5C7A455B12CBAA86005C70EE /* parallax.a2eshdi */,
 				5C7A455C12CBAA86005C70EE /* sincos_emu.a2eshdi */,
 				5C7A455D12CBAA86005C70EE /* texture2dgrad.a2eshdi */,
-				5C1873E513E2FC9D00A1F642 /* fxaa3.a2eshd */,
+				5C34B58713E8E85E004E705F /* fxaa3.a2eshd */,
 				5C1873E613E2FC9D00A1F642 /* luma.a2eshd */,
 			);
 			name = include;

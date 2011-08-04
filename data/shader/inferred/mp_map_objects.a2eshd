@@ -67,7 +67,6 @@ void main() {
 	vec4 spec_color = texture2D(specular_texture, out_tex_coord);
 	
 	vec4 light_color = compute_light_color();
-	//vec4 light_color = vec4(0.5);
 	
 	////////////////////////////////////////////////////////////////////////////
 	// lighting
