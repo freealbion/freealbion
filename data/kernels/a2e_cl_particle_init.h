@@ -2,12 +2,16 @@
 #ifndef __PARTICLE_INIT_CLH__
 #define __PARTICLE_INIT_CLH__
 
-#include "global.clh"
+#include "a2e_cl_global.h"
 
+float2 sincos_f2(const float val);
 float2 sincos_f2(const float val) {
 	return (float2)(sin(val), cos(val));
 }
 
+void AUTO_VEC_HINT init_particles(float8* ret, uint* kernel_seed,
+								  const uint type, const float spawn_rate_ts, const float living_time, const uint particle_count, const float velocity,
+								  const float4 angle, const float4 extents, const float4 direction, const float4 position_offset);
 void AUTO_VEC_HINT init_particles(float8* ret, uint* kernel_seed,
 								  const uint type, const float spawn_rate_ts, const float living_time, const uint particle_count, const float velocity,
 								  const float4 angle, const float4 extents, const float4 direction, const float4 position_offset) {
@@ -26,7 +30,7 @@ void AUTO_VEC_HINT init_particles(float8* ret, uint* kernel_seed,
 		case 1: { // sphere emitter
 			float theta = 2.0f * A2E_PI * sfrand_0_1(kernel_seed); // 0 <= theta <= 2pi
 			float u = sfrand_m1_1(kernel_seed);
-			float squ = sqrt(1.0f - u*u);
+			//float squ = sqrt(1.0f - u*u);
 			position = (float4)(cos(theta) * u, sin(theta) * u, u, 0.0f);
 			
 			float scale = sfrand_m1_1(kernel_seed); // "z"/scale inside sphere

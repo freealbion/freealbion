@@ -33,7 +33,7 @@ const string map_tiles::select_shader(const size_t& draw_mode) const {
 
 void map_tiles::pre_draw_geometry(gl2shader& shd, size_t& attr_array_mask, size_t& texture_mask) {
 	pre_draw_material(shd, attr_array_mask, texture_mask);
-	attr_array_mask |= VA_TEXTURE_COORD;
+	attr_array_mask |= VA_TEXTURE_COORD | VA_NORMAL;
 	texture_mask |= a2ematerial::TT_DIFFUSE;
 }
 

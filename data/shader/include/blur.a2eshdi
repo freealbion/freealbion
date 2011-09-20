@@ -2,13 +2,14 @@
 <a2e_shader_include version="1">
 	<vertex_shader>
 		<variables>
-attribute vec2 texture_coord;
-varying vec2 tex_coord;
+in vec2 in_vertex;
+in vec2 in_tex_coord;
+out vec2 tex_coord;
 		</variables>
 		<program>
 void main() {
-	gl_Position = gl_Vertex;
-	tex_coord = texture_coord;
+	gl_Position = vec4(in_vertex.x, in_vertex.y, 0.0, 1.0);
+	tex_coord = in_tex_coord;
 }
 		</program>
 	</vertex_shader>

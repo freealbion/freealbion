@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader_include version="1">
+	<vertex_shader>
+		<variables>
+in vec3 in_vertex;
+		</variables>
+		<program>
+		</program>
+	</vertex_shader>
+
+	<fragment_shader>
+		<preprocessor>
+		</preprocessor>
+		<variables>
+out vec4 frag_color;
+		</variables>
+		<program>
+		</program>
+	</fragment_shader>
+</a2e_shader_include>

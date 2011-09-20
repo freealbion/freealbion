@@ -157,7 +157,7 @@ void map2d::load(const size_t& map_num) {
 		// allocate memory and fill data
 		layers[i].vertices = new float3[tile_count*4];
 		layers[i].tex_coords = new float2[tile_count*4];
-		layers[i].indices = new index4[tile_count];
+		layers[i].indices = new index3[tile_count*2];
 		layers[i].tile_nums = new unsigned int[tile_count];
 		layers[i].ani_offset = tile_count-ani_tile_count;
 
@@ -199,7 +199,8 @@ void map2d::load(const size_t& map_num) {
 					layers[i].tex_coords[num*4 + 2].set(tile_obj->tex_coord.x + tile_tc_size.x, tile_obj->tex_coord.y + tile_tc_size.y);
 					layers[i].tex_coords[num*4 + 3].set(tile_obj->tex_coord.x, tile_obj->tex_coord.y + tile_tc_size.y);
 					
-					layers[i].indices[num].set((unsigned int)num*4 + 0, (unsigned int)num*4 + 1, (unsigned int)num*4 + 2, (unsigned int)num*4 + 3);
+					layers[i].indices[num*2].set((unsigned int)num*4 + 0, (unsigned int)num*4 + 1, (unsigned int)num*4 + 2);
+					layers[i].indices[num*2 + 1].set((unsigned int)num*4 + 0, (unsigned int)num*4 + 2, (unsigned int)num*4 + 3);
 					layers[i].tile_nums[num] = tile_nums[y*map_size.x + x];
 
 					if(tile_obj->ani_tiles > 1) ani_tile_num++;
@@ -219,11 +220,11 @@ void map2d::load(const size_t& map_num) {
 		
 		glGenBuffers(1, &layers[i].indices_vbo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, layers[i].indices_vbo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, tile_count * 4 * sizeof(unsigned int), layers[i].indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, tile_count * 2 * sizeof(index3), layers[i].indices, GL_STATIC_DRAW);
 		
 		cout << ":: #tiles for layer " << i << ": " << tile_count << endl;
 		
-		layers[i].index_count = tile_count * 4;
+		layers[i].index_count = tile_count;
 	}
 	
 	//
@@ -289,7 +290,7 @@ bool map2d::is_2d_map(const size_t& map_num) const {
 // TODO: write correct/nice windows roundf
 #ifdef __WINDOWS__
 #ifndef roundf
-#define roundf(x) (x > 0.0 ? floorf(x + 0.5f) : ceilf(x - 0.5f))
+#define roundf(x) (x > 0.0f ? floorf(x + 0.5f) : ceilf(x - 0.5f))
 #endif
 #endif
 
@@ -345,7 +346,7 @@ void map2d::handle() {
 			const tileset::tileset_object& tileset_obj = tilesets->get_cur_tileset();
 			for(size_t i = 0; i < 2; i++) {
 				map_layer& cur_layer = layers[i];
-				for(size_t tl = cur_layer.ani_offset; tl < (cur_layer.index_count/4); tl++) {
+				for(size_t tl = cur_layer.ani_offset; tl < cur_layer.index_count; tl++) {
 					if(modified_tiles.count(cur_layer.tile_nums[tl]) > 0) {
 						tile_obj = &(tileset_obj.tiles[cur_layer.tile_nums[tl]]);
 						if(tile_obj->num == 0xFFF) continue;
@@ -357,7 +358,7 @@ void map2d::handle() {
 					}
 				}
 
-				size_t update_size = (cur_layer.index_count - cur_layer.ani_offset*4);
+				size_t update_size = (cur_layer.index_count - cur_layer.ani_offset)*4;
 				if(update_size == 0) continue;
 
 				glBindBuffer(GL_ARRAY_BUFFER, cur_layer.tex_coords_vbo);
@@ -381,8 +382,9 @@ float2 map2d::compute_target_position() {
 void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_draw_stage) const {
 	if(!map_loaded) return;
 
-	glPushMatrix();
-	glFrontFace(GL_CW);
+	e->push_modelview_matrix();
+	matrix4f* mvm = e->get_modelview_matrix();
+	matrix4f* pm = e->get_projection_matrix();
 
 	const float scale = conf::get<float>("map.scale");
 	const float scaled_tile_size = scale * tile_size;
@@ -392,41 +394,32 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 	snapped_position.x = roundf(snapped_position.x);
 	snapped_position.y = roundf(snapped_position.y);
 	snapped_position = snapped_position / snap_factor;
-	glTranslatef(-snapped_position.x * scaled_tile_size, -snapped_position.y * scaled_tile_size, 0.0f);
+	*mvm *= matrix4f().translate(-snapped_position.x * scaled_tile_size,
+								 -snapped_position.y * scaled_tile_size,
+								 0.0f);
 
 	if(draw_stage == MDS_UNDERLAY || draw_stage == MDS_OVERLAY) {
-		glScalef(scale, scale, 1.0f);
-		glColor3f(1.0f, 1.0f, 1.0f);
+		*mvm = matrix4f().scale(scale, scale, 1.0f) * *mvm; // *reversed order
 
 		const tileset::tileset_object& tileset_obj = tilesets->get_cur_tileset();
 		const map_layer& cur_layer = (draw_stage == MDS_UNDERLAY ? layers[0] : layers[1]);
 		
-		glActiveTexture(GL_TEXTURE0);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, tileset_obj.tileset->tex());
-		
-		glBindBuffer(GL_ARRAY_BUFFER, cur_layer.vertices_vbo);
-		glVertexPointer(3, GL_FLOAT, 0, NULL);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		
-		glClientActiveTexture(GL_TEXTURE0);
-		glBindBuffer(GL_ARRAY_BUFFER, cur_layer.tex_coords_vbo);
-		glTexCoordPointer(2, GL_FLOAT, 0, NULL);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		gl2shader shd = s->get_gl2shader("SIMPLE");
+		shd->use("textured");
+		shd->uniform("mvpm", *mvm * *pm);
+		shd->texture("tex", tileset_obj.tileset->tex());
+		shd->attribute_array("in_vertex", cur_layer.vertices_vbo, 3, GL_FLOAT);
+		shd->attribute_array("in_tex_coord", cur_layer.tex_coords_vbo, 2, GL_FLOAT);
 		
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cur_layer.indices_vbo);
-		glDrawElements(GL_QUADS, (GLsizei)cur_layer.index_count, GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_TRIANGLES, (GLsizei)cur_layer.index_count*6, GL_UNSIGNED_INT, NULL);
 		
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_VERTEX_ARRAY);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		
-		glActiveTexture(GL_TEXTURE0);
-		glDisable(GL_TEXTURE_2D);
 	}
 	else if(draw_stage == MDS_NPCS) {
 		// draw npcs
+		*e->get_mvp_matrix() = *mvm * *pm;
 		for(vector<npc2d*>::const_iterator npc_iter = npcs.begin(); npc_iter != npcs.end(); npc_iter++) {
 			(*npc_iter)->draw(npc_draw_stage);
 		}
@@ -434,17 +427,17 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 	else if(draw_stage == MDS_DEBUG) {
 		// draw events onto the map
 		if(conf::get<bool>("debug.draw_events")) {
-			glScalef(scale, scale, 1.0f);
-			glColor3f(1.0f, 1.0f, 1.0f);
-
-			glDisable(GL_TEXTURE_2D);
-			glFrontFace(GL_CCW);
+			*mvm *= matrix4f().scale(scale, scale, 1.0f);
+			*mvm *= matrix4f().translate(-snapped_position.x * scaled_tile_size,
+										 -snapped_position.y * scaled_tile_size,
+										 0.0f);
+			*e->get_mvp_matrix() = *mvm * *pm;
 
 			gfx::rect evt_rect;
 			for(size_t i = 0; i < mevents.get_event_info_count(); i++) {
 				const map_events::map_event_info* cur_evt = mevents.get_event_info(i);
 					
-				evt_rect.x1 = (cur_evt->xpos - 1) * tile_size + tile_size/2 - 3;
+				evt_rect.x1 = cur_evt->xpos * tile_size + tile_size/2 - 3;
 				evt_rect.y1 = cur_evt->ypos * tile_size + tile_size/2 - 3;
 				evt_rect.x2 = evt_rect.x1 + 6;
 				evt_rect.y2 = evt_rect.y1 + 6;
@@ -453,8 +446,7 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 		}
 	}
 
-	glFrontFace(GL_CCW);
-	glPopMatrix();
+	e->pop_modelview_matrix();
 }
 
 tileset::tile_object* map2d::get_tile(unsigned int type) {

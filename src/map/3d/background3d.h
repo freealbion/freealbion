@@ -31,17 +31,24 @@ public:
 	background3d();
 	virtual ~background3d();
 	
-	virtual void draw(const size_t draw_mode = a2emodel::MDM_NORMAL);
+	virtual void draw(const size_t draw_mode = 0);
 
 	void load(const size_t& bg_num, const size_t& palette);
 	void unload();
 	a2e_texture& get_bg_texture();
+	
+	void set_light_color(const float3& color);
 
 protected:
 	const xld* bg3d_xld;
 
 	a2e_texture bg_texture;
 	ssize_t cur_bg_num;
+	
+	GLuint vbo_fs_triangle;
+	GLuint vbo_fs_coords;
+	
+	float3 light_color;
 
 };
 

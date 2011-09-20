@@ -1,0 +1,14 @@
+.DS_Store
+*.xld
+*.dat
+*.txt
+*.exe
+*.so
+*.o
+*.dll
+*.000
+Makefile
+albion.make
+*.sln
+*.suo
+*.vcxproj

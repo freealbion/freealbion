@@ -1,25 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a2e_shader version="1">
-	<vertex_shader version="120">
+	<vertex_shader>
 		<variables>
-varying vec2 tex_coord;
+in vec2 in_vertex;
+out vec2 tex_coord;
 		</variables>
 		<program>
 void main() {
-	gl_Position = gl_Vertex;
-	tex_coord = gl_Vertex.xy * 0.5 + 0.5;
+	gl_Position = vec4(in_vertex.x, in_vertex.y, 0.0, 1.0);
+	tex_coord = in_vertex * 0.5 + 0.5;
 }
 		</program>
 	</vertex_shader>
 
-	<fragment_shader version="120">
+	<fragment_shader>
 		<preprocessor>
-#extension GL_EXT_gpu_shader4 : enable
-
-#define FXAA_GLSL_120 1
-#define FXAA_GLSL_130 0
-#define FXAA_PC 1
-#define FXAA_FAST_PIXEL_OFFSET 1
 #define FXAA_GATHER4_ALPHA 0
 
 /*============================================================================
@@ -221,20 +216,6 @@ void main() {
 // 0 = Off.
 //
 #define FXAA_GREEN_AS_LUMA 0
-#endif
-/*--------------------------------------------------------------------------*/
-#ifndef FXAA_EARLY_EXIT
-//
-// Controls algorithm's early exit path.
-// On PS3 turning this ON adds 2 cycles to the shader.
-// On 360 turning this OFF adds 10ths of a millisecond to the shader.
-// Turning this off on console will result in a more blurry image.
-// So this defaults to on.
-//
-// 1 = On.
-// 0 = Off.
-//
-#define FXAA_EARLY_EXIT 0
 #endif
 /*--------------------------------------------------------------------------*/
 #ifndef FXAA_DISCARD
@@ -489,7 +470,7 @@ void main() {
  API PORTING
  
  ============================================================================*/
-#if (FXAA_GLSL_120 == 1) || (FXAA_GLSL_130 == 1)
+
 #define FxaaBool bool
 #define FxaaDiscard discard
 #define FxaaFloat float
@@ -503,42 +484,9 @@ void main() {
 #define FxaaInt2 ivec2
 #define FxaaSat(x) clamp(x, 0.0, 1.0)
 #define FxaaTex sampler2D
-#else
-#define FxaaBool bool
-#define FxaaDiscard clip(-1)
-#define FxaaFloat float
-#define FxaaFloat2 float2
-#define FxaaFloat3 float3
-#define FxaaFloat4 float4
-#define FxaaHalf half
-#define FxaaHalf2 half2
-#define FxaaHalf3 half3
-#define FxaaHalf4 half4
-#define FxaaSat(x) saturate(x)
-#endif
+
 /*--------------------------------------------------------------------------*/
-#if (FXAA_GLSL_120 == 1)
-// Requires,
-//  #version 120
-// And at least,
-//  #extension GL_EXT_gpu_shader4 : enable
-//  (or set FXAA_FAST_PIXEL_OFFSET 1 to work like DX9)
-#define FxaaTexTop(t, p) texture2DLod(t, p, 0.0)
-#if (FXAA_FAST_PIXEL_OFFSET == 1)
-#define FxaaTexOff(t, p, o, r) texture2DLodOffset(t, p, 0.0, o)
-#else
-#define FxaaTexOff(t, p, o, r) texture2DLod(t, p + (o * r), 0.0)
-#endif
-#if (FXAA_GATHER4_ALPHA == 1)
-// use #extension GL_ARB_gpu_shader5 : enable
-#define FxaaTexAlpha4(t, p) textureGather(t, p, 3)
-#define FxaaTexOffAlpha4(t, p, o) textureGatherOffset(t, p, o, 3)
-#define FxaaTexGreen4(t, p) textureGather(t, p, 1)
-#define FxaaTexOffGreen4(t, p, o) textureGatherOffset(t, p, o, 1)
-#endif
-#endif
-/*--------------------------------------------------------------------------*/
-#if (FXAA_GLSL_130 == 1)
+
 // Requires "#version 130" or better
 #define FxaaTexTop(t, p) textureLod(t, p, 0.0)
 #define FxaaTexOff(t, p, o, r) textureLodOffset(t, p, 0.0, o)
@@ -548,7 +496,6 @@ void main() {
 #define FxaaTexOffAlpha4(t, p, o) textureGatherOffset(t, p, o, 3)
 #define FxaaTexGreen4(t, p) textureGather(t, p, 1)
 #define FxaaTexOffGreen4(t, p, o) textureGatherOffset(t, p, o, 1)
-#endif
 #endif
 
 
@@ -990,63 +937,64 @@ FxaaFloat4 FxaaPixelShader(
 		<variables>
 uniform sampler2D src_buffer;
 uniform vec2 texel_size;
-varying vec2 tex_coord;
+in vec2 tex_coord;
+out vec4 frag_color;
 		</variables>
 		<program>
 void main() {
-	gl_FragColor = FxaaPixelShader(// Use noperspective interpolation here (turn off perspective interpolation).
-								   // {xy} = center of pixel
-								   tex_coord,
-								   //
-								   // Input color texture.
-								   // {rgb_} = color in linear or perceptual color space
-								   // if (FXAA_GREEN_AS_LUMA == 0)
-								   //     {___a} = luma in perceptual color space (not linear)
-								   src_buffer,
-								   //
-								   // Only used on FXAA Quality.
-								   // This must be from a constant/uniform.
-								   // {x_} = 1.0/screenWidthInPixels
-								   // {_y} = 1.0/screenHeightInPixels
-								   texel_size,
-								   //
-								   // Only used on FXAA Quality.
-								   // This used to be the FXAA_QUALITY__SUBPIX define.
-								   // It is here now to allow easier tuning.
-								   // Choose the amount of sub-pixel aliasing removal.
-								   // This can effect sharpness.
-								   //   1.00 - upper limit (softer)
-								   //   0.75 - default amount of filtering
-								   //   0.50 - lower limit (sharper, less sub-pixel aliasing removal)
-								   //   0.25 - almost off
-								   //   0.00 - completely off
-								   0.75,
-								   //
-								   // Only used on FXAA Quality.
-								   // This used to be the FXAA_QUALITY__EDGE_THRESHOLD define.
-								   // It is here now to allow easier tuning.
-								   // The minimum amount of local contrast required to apply algorithm.
-								   //   0.333 - too little (faster)
-								   //   0.250 - low quality
-								   //   0.166 - default
-								   //   0.125 - high quality 
-								   //   0.063 - overkill (slower)
-								   0.125,
-								   //
-								   // Only used on FXAA Quality.
-								   // This used to be the FXAA_QUALITY__EDGE_THRESHOLD_MIN define.
-								   // It is here now to allow easier tuning.
-								   // Trims the algorithm from processing darks.
-								   //   0.0833 - upper limit (default, the start of visible unfiltered edges)
-								   //   0.0625 - high quality (faster)
-								   //   0.0312 - visible limit (slower)
-								   // Special notes when using FXAA_GREEN_AS_LUMA,
-								   //   Likely want to set this to zero.
-								   //   As colors that are mostly not-green
-								   //   will appear very dark in the green channel!
-								   //   Tune by looking at mostly non-green content,
-								   //   then start at zero and increase until aliasing is a problem.
-								   0.0833);
+	frag_color = FxaaPixelShader(// Use noperspective interpolation here (turn off perspective interpolation).
+								 // {xy} = center of pixel
+								 tex_coord,
+								 //
+								 // Input color texture.
+								 // {rgb_} = color in linear or perceptual color space
+								 // if (FXAA_GREEN_AS_LUMA == 0)
+								 //     {___a} = luma in perceptual color space (not linear)
+								 src_buffer,
+								 //
+								 // Only used on FXAA Quality.
+								 // This must be from a constant/uniform.
+								 // {x_} = 1.0/screenWidthInPixels
+								 // {_y} = 1.0/screenHeightInPixels
+								 texel_size,
+								 //
+								 // Only used on FXAA Quality.
+								 // This used to be the FXAA_QUALITY__SUBPIX define.
+								 // It is here now to allow easier tuning.
+								 // Choose the amount of sub-pixel aliasing removal.
+								 // This can effect sharpness.
+								 //   1.00 - upper limit (softer)
+								 //   0.75 - default amount of filtering
+								 //   0.50 - lower limit (sharper, less sub-pixel aliasing removal)
+								 //   0.25 - almost off
+								 //   0.00 - completely off
+								 0.75,
+								 //
+								 // Only used on FXAA Quality.
+								 // This used to be the FXAA_QUALITY__EDGE_THRESHOLD define.
+								 // It is here now to allow easier tuning.
+								 // The minimum amount of local contrast required to apply algorithm.
+								 //   0.333 - too little (faster)
+								 //   0.250 - low quality
+								 //   0.166 - default
+								 //   0.125 - high quality 
+								 //   0.063 - overkill (slower)
+								 0.125,
+								 //
+								 // Only used on FXAA Quality.
+								 // This used to be the FXAA_QUALITY__EDGE_THRESHOLD_MIN define.
+								 // It is here now to allow easier tuning.
+								 // Trims the algorithm from processing darks.
+								 //   0.0833 - upper limit (default, the start of visible unfiltered edges)
+								 //   0.0625 - high quality (faster)
+								 //   0.0312 - visible limit (slower)
+								 // Special notes when using FXAA_GREEN_AS_LUMA,
+								 //   Likely want to set this to zero.
+								 //   As colors that are mostly not-green
+								 //   will appear very dark in the green channel!
+								 //   Tune by looking at mostly non-green content,
+								 //   then start at zero and increase until aliasing is a problem.
+								 0.0833);
 }
 		</program>
 	</fragment_shader>

@@ -19,6 +19,9 @@
 
 #include "map3d.h"
 #include "npc3d.h"
+#include "object_light.h"
+
+static const float tile_size = std_tile_size;
 
 /*! map3d constructor
  */
@@ -27,7 +30,6 @@ map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) : lab_data(
 	map_xlds[1] = maps2;
 	map_xlds[2] = maps3;
 
-	tile_size = std_tile_size;
 	map_loaded = false;
 	cur_map_num = (~0);
 	mnpcs = NULL;
@@ -56,66 +58,28 @@ map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) : lab_data(
 	objects_model = NULL;
 
 	last_tile_animation = SDL_GetTicks();
+	object_light_ani_time = SDL_GetTicks();
 
 	bg3d = new background3d();
 	bg_loaded = false;
 
 	// player
-	player_light = new light(e, 0.0f, 20.0f, 0.0f);
+	player_light = new object_light<object_light_type::TORCH>(float3(0.0f, 20.0f, 0.0f));
 	
-#if 0
-	player_light->set_lambient(0.1f, 0.05f, 0.05f);
-	player_light->set_ldiffuse(0.3f, 0.3f, 0.2f);
-	player_light->set_lspecular(0.2f, 0.15f, 0.1f);
-	player_light->set_constant_attenuation(0.2f);
-	player_light->set_linear_attenuation(0.03f);
-	player_light->set_quadratic_attenuation(0.0f);
-#elif 1
-	//player_light->set_lambient(0.8f, 0.8f, 0.8f);
-	player_light->set_lambient(0.4f, 0.4f, 0.4f);
-	player_light->set_ldiffuse(0.2f, 0.2f, 0.2f);
-	player_light->set_lspecular(0.0f, 0.0f, 0.0f);
-	player_light->set_constant_attenuation(1.0f);
-	player_light->set_linear_attenuation(0.0f);
-	player_light->set_quadratic_attenuation(0.0f);
-#else // dungeon
-	player_light->set_lambient(0.2f, 0.2f, 0.2f);
-	player_light->set_ldiffuse(1.0f, 1.0f, 1.0f);
-	//player_light->set_lspecular(1.0f, 1.0f, 1.0f);
-	player_light->set_lspecular(0.1f, 0.1f, 0.1f);
-	player_light->set_constant_attenuation(0.2f);
-	player_light->set_linear_attenuation(0.04f);
-	player_light->set_quadratic_attenuation(0.0f);
-#endif
-	
-	player_light->set_spot_direction(0.0f, 0.0f, 0.0f);
-	player_light->set_spot_cutoff(0.0f);
-	player_light->set_enabled(true);
-	player_light->set_spot_light(false);
-	sce->add_light(player_light);
-	
-	// sun (TODO: better values)
+	// sun
 	sun_light = new light(e, 0.0f, 100.0f, 0.0f);
-	//sun_light->set_lambient(1.0f, 1.0f, 1.0f);
-	sun_light->set_lambient(0.1f, 0.1f, 0.1f);
-	sun_light->set_ldiffuse(0.5f, 0.5f, 0.5f);
-	sun_light->set_lspecular(0.5f, 0.5f, 0.5f);
-	sun_light->set_constant_attenuation(1.0f);
-	sun_light->set_linear_attenuation(0.0f);
-	sun_light->set_quadratic_attenuation(0.0f);
-	sun_light->set_spot_direction(0.0f, 0.0f, 0.0f);
-	sun_light->set_spot_cutoff(0.0f);
-	sun_light->set_enabled(true);
-	sun_light->set_spot_light(false);
+	sun_light->set_type(light::LT_DIRECTIONAL);
 	sce->add_light(sun_light);
 	sun_distance = 100.0f;
-	
-	//
-	light_infos.push_back(new light_info());
-	light_infos.back()->ambient.set(0.2f, 0.2f, 0.02f);
-	light_infos.back()->diffuse.set(0.8f, 0.8f, 0.1f);
-	light_infos.back()->specular.set(0.2f, 0.2f, 0.05f);
-	light_infos.back()->attenuation.set(0.0f, 0.06f, 0.0f);
+	SDL_Surface* sun_light_tex = IMG_Load(e->data_path("sun_light.png"));
+	sun_color_table.reserve(sun_light_tex->w);
+	for(int i = 0; i < sun_light_tex->w; i++) {
+		unsigned char* color = ((unsigned char*)sun_light_tex->pixels) + i*4;
+		sun_color_table.push_back(float3(*(color+2), *(color+1), *color) / 255.0f);
+	}
+	SDL_FreeSurface(sun_light_tex);
+	active_sun_light = false;
+	sun_light->set_enabled(active_sun_light);
 	
 	//
 	clock_cb = new clock_callback(this, &map3d::clock_tick);
@@ -132,11 +96,6 @@ map3d::~map3d() {
 	delete sun_light;
 	delete bg3d;
 	unload();
-	
-	for(auto& li : light_infos) {
-		delete li;
-	}
-	light_infos.clear();
 }
 
 void map3d::load(const size_t& map_num) {
@@ -185,10 +144,14 @@ void map3d::load(const size_t& map_num) {
 
 	if(lab_data->get_lab_info()->background != 0) {
 		bg3d->load(lab_data->get_lab_info()->background-1, map_palette-1);
+		active_sun_light = true;
 	}
-	else bg3d->unload();
-	sce->add_model(bg3d);
+	else {
+		bg3d->unload();
+		active_sun_light = false;
+	}
 	bg_loaded = true;
+	sun_light->set_enabled(active_sun_light);
 
 	//
 	/*
@@ -198,7 +161,7 @@ void map3d::load(const size_t& map_num) {
 		A = x streckung (*2.25), kein einfluss auf objekte?
 	*/
 	const float floor_height = 0.0f;
-	float ceiling_height = tile_size;
+	float ceiling_height = std_tile_size;
 	/*switch(lab_data->get_lab_info()->scale_2) {
 		case 0x7:
 			ceiling_height *= 2.0f;
@@ -242,7 +205,7 @@ void map3d::load(const size_t& map_num) {
 	
 	// TODO: apply map scale and new size to all other classes (player3d, collision detection!)
 
-	tile_size = std_tile_size * map_scale.x;
+	//tile_size = std_tile_size * map_scale.x;
 	ceiling_height = map_scale.y * float(lab_data->get_wall(101)->y_size)/8.0f;
 
 	// get tiles
@@ -718,7 +681,6 @@ void map3d::load(const size_t& map_num) {
 	
 	if(conf::get<bool>("map.3d.object_lights")) {
 		// add lights specific for this map and labdata
-		// TODO: labdata #
 		const auto& light_objects = lab_data->get_light_objects();
 		if(light_objects.count((unsigned int)cur_labdata_num) > 0) {
 			const auto& light_objs = light_objects.find((unsigned int)cur_labdata_num)->second;
@@ -727,35 +689,22 @@ void map3d::load(const size_t& map_num) {
 				for(size_t x = 0; x < map_size.x; x++) {
 					const unsigned int& tile_obj = ow_tiles[y*map_size.x + x];
 					if(tile_obj > 0 && tile_obj < 101) {
-						if(light_objs->count(tile_obj) > 0) {
-							light* obj_light = new light(e, float(x)*tile_size + half_tile_size, 18.0f, float(y)*tile_size + half_tile_size);
-							light_info* linfo = light_infos[0];
-							obj_light->set_lambient(linfo->ambient.x,
-													linfo->ambient.y,
-													linfo->ambient.z);
-							obj_light->set_ldiffuse(linfo->diffuse.x,
-													linfo->diffuse.y,
-													linfo->diffuse.z);
-							obj_light->set_lspecular(linfo->specular.x,
-													 linfo->specular.y,
-													 linfo->specular.z);
-							obj_light->set_constant_attenuation(linfo->attenuation.x);
-							obj_light->set_linear_attenuation(linfo->attenuation.y);
-							obj_light->set_quadratic_attenuation(linfo->attenuation.z);
-							obj_light->set_spot_direction(0.0f, 0.0f, 0.0f);
-							obj_light->set_spot_cutoff(0.0f);
-							obj_light->set_enabled(true);
-							obj_light->set_spot_light(false);
-							sce->add_light(obj_light);
-							scene_lights.push_back(obj_light);
+						const auto& lobj = light_objs->find(tile_obj);
+						if(lobj != light_objs->end()) {
+							// TODO: y dependent on map height
+							object_lights.push_back(object_light_base::create(lobj->second, float3(float(x)*tile_size + half_tile_size, 18.0f, float(y)*tile_size + half_tile_size)));
 						}
 					}
 				}
 			}
 		}
-		cout << "#lights: " << scene_lights.size() << endl;
+		cout << "#lights: " << object_lights.size() << endl;
 	}
+	object_light_ani_time = SDL_GetTicks();
 	sun_distance = (float(map_size.x) / 2.0f) * std_tile_size;
+	
+	// render this at the end (faster since it'll only write the pixels that are really necessary)
+	sce->add_model(bg3d);
 
 	// and finally:
 	map_loaded = true;
@@ -834,15 +783,13 @@ void map3d::unload() {
 		mnpcs = NULL;
 	}
 	
-	for(auto liter = scene_lights.begin(); liter != scene_lights.end(); liter++) {
-		sce->delete_light(*liter);
-		delete *liter;
+	for(auto& ol : object_lights) {
+		delete ol;
 	}
-	scene_lights.clear();
+	object_lights.clear();
 	
 	mevents.unload();
 	map_loaded = false;
-	tile_size = std_tile_size;
 
 	last_tile_animation = SDL_GetTicks();
 	fc_ani_count = 0;
@@ -875,22 +822,36 @@ void map3d::draw() const {
 }
 
 void map3d::clock_tick(size_t ticks) {
-	// sun movement
-	static const size_t sun_rise = 7*AR_TICKS_PER_HOUR;
-	static const size_t sun_set = 21*AR_TICKS_PER_HOUR;
+	if(!active_sun_light) return;
+	
+	// sun movement and coloring
+	static const size_t sun_rise_hour = 7;
+	static const size_t sun_set_hour = 21;
+	static const size_t sun_rise = sun_rise_hour*AR_TICKS_PER_HOUR;
+	static const size_t sun_set = sun_set_hour*AR_TICKS_PER_HOUR;
 	static const size_t sun_up = sun_set - sun_rise;
 	static const float fsun_up = float(sun_up);
 	if(ticks >= sun_rise && ticks <= sun_set) {
+		sun_light->set_enabled(true);
+		
 		// we're moving on top of the x axis
 		// also: let's just pretend we're on the equator
+		// and position the sun at one end of the map
 		const size_t progression = ticks - sun_rise;
 		const float norm_progression = float(progression) / fsun_up;
 		sun_light->set_position((sun_distance - norm_progression * sun_distance) * 2.0f,
 								sinf(DEG2RAD(norm_progression * 180.0f)) * sun_distance,
-								float(map_size.y) * std_tile_size / 2.0f);
+								float(map_size.y) * std_tile_size);
+		
+		// set sun light color
+		// intensity = 1 - (x - 0.5)^2 / 0.8
+		const float intensity = 1.0f - (norm_progression - 0.5f)*(norm_progression - 0.5f)*1.25f;
+		sun_light->set_color(intensity * sun_color_table[size_t(norm_progression * float(sun_color_table.size()))]);
+		sun_light->set_ambient(sun_light->get_color() * 0.25f);
+		bg3d->set_light_color(sun_light->get_color());
 	}
 	else {
-		sun_light->set_position(0.0f, -100000.0f, 0.0f);
+		sun_light->set_enabled(false);
 	}
 }
 
@@ -898,8 +859,16 @@ void map3d::handle() {
 	if(!map_loaded) return;
 
 	// attach player light to camera for now
-	float3 player_pos = -float3(*e->get_position());
-	player_light->set_position(player_pos);
+	player_light->set_position(-float3(*e->get_position()));
+	
+	// update/animate object lights
+	const unsigned int& ani_time_diff = SDL_GetTicks() - object_light_ani_time;
+	if(ani_time_diff > 0) {
+		object_light_ani_time += ani_time_diff;
+		for(auto& ol : object_lights) {
+			ol->animate(ani_time_diff);
+		}
+	}
 	
 	// handle npcs
 	const vector<map_npcs::map_npc*>& npc_data = mnpcs->get_npcs();

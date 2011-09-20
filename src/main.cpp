@@ -48,13 +48,13 @@ int main(int argc, char *argv[]) {
 	t = e->get_texman();
 	ocl = e->get_opencl();
 	exts = e->get_ext();
+	s = e->get_shader();
 	
 	conf::add<a2e_texture>("debug.texture", t->get_dummy_texture());
 	
-	s = new shader(e);
-	sce = new scene(e, s);
+	sce = new scene(e);
 	cam = new camera(e);
-	egui = new gui(e, s);
+	egui = new gui(e);
 	eui = new a2eui(e, egui);
 	gs = egui->get_gui_style();
 
@@ -78,7 +78,6 @@ int main(int argc, char *argv[]) {
 	const string ar_shaders[][2] = {
 		{ "AR_IR_GBUFFER_MAP_OBJECTS", "inferred/gp_gbuffer_map_objects.a2eshd" },
 		{ "AR_IR_GBUFFER_MAP_TILES", "inferred/gp_gbuffer_map_tiles.a2eshd" },
-		{ "AR_IR_GBUFFER_SKY", "inferred/gp_gbuffer_sky.a2eshd" },
 		{ "AR_IR_MP_SKY", "inferred/mp_sky.a2eshd" },
 		{ "AR_IR_MP_MAP_OBJECTS", "inferred/mp_map_objects.a2eshd" },
 		{ "AR_IR_MP_MAP_TILES", "inferred/mp_map_tiles.a2eshd" },
@@ -111,10 +110,6 @@ int main(int argc, char *argv[]) {
 		aui->open_goto_map_wnd();
 		aui->open_game_ui();
 	}
-
-	// dbg img
-	image* img = new image(e);
-	img->set_scaling(true);
 	
 	// debug window
 	a2e_debug_wnd::init(e, eui, s, ocl, cam);
@@ -122,7 +117,7 @@ int main(int argc, char *argv[]) {
 
 	//transtb* ttb = new transtb();
 	
-	a2e_texture tmp_tex = new texture_object();
+	a2e_texture tmp_tex(new texture_object());
 	tmp_tex->width = e->get_width();
 	tmp_tex->height = e->get_height();
 	while(!done) {
@@ -169,7 +164,6 @@ int main(int argc, char *argv[]) {
 							break;
 						case SDLK_q:
 							conf::set<bool>("debug.display_debug_texture", conf::get<bool>("debug.display_debug_texture") ^ true);
-							img->set_texture((a2e_texture&)conf::get<a2e_texture>("debug.texture"));
 							break;
 						case SDLK_n:
 							if(conf::get<size_t>("debug.npcgfx") > 0) {
@@ -184,28 +178,42 @@ int main(int argc, char *argv[]) {
 							}
 							break;
 						case SDLK_1:
-							tmp_tex->tex_num = sce->_get_g_buffer()->tex_id[0];
+							tmp_tex->tex_num = sce->_get_g_buffer(0)->tex_id[0];
 							conf::set<a2e_texture>("debug.texture", tmp_tex);
 							break;
 						case SDLK_2:
-							tmp_tex->tex_num = sce->_get_g_buffer()->tex_id[1];
+							tmp_tex->tex_num = sce->_get_g_buffer(1)->tex_id[0];
 							conf::set<a2e_texture>("debug.texture", tmp_tex);
 							break;
 						case SDLK_3:
-							tmp_tex->tex_num = sce->_get_l_buffer()->tex_id[0];
+							tmp_tex->tex_num = sce->_get_g_buffer(1)->tex_id[1];
 							conf::set<a2e_texture>("debug.texture", tmp_tex);
 							break;
 						case SDLK_4:
-							tmp_tex->tex_num = sce->_get_fxaa_buffer()->tex_id[0];
+							tmp_tex->tex_num = sce->_get_l_buffer(0)->tex_id[0];
 							conf::set<a2e_texture>("debug.texture", tmp_tex);
 							break;
 						case SDLK_5:
+							tmp_tex->tex_num = sce->_get_l_buffer(1)->tex_id[0];
+							conf::set<a2e_texture>("debug.texture", tmp_tex);
+							break;
+						case SDLK_6:
+							tmp_tex->tex_num = sce->_get_fxaa_buffer()->tex_id[0];
+							conf::set<a2e_texture>("debug.texture", tmp_tex);
+							break;
+						case SDLK_7:
 							tmp_tex->tex_num = sce->_get_scene_buffer()->tex_id[0];
 							conf::set<a2e_texture>("debug.texture", tmp_tex);
 							break;
 						case SDLK_v:
 							cam->set_cam_input(cam->get_cam_input() ^ true);
 							conf::set<bool>("debug.free_cam", cam->get_cam_input());
+							break;
+						case SDLK_MINUS:
+							clck->set_ticks(((clck->get_ticks() + AR_TICKS_PER_DAY) - AR_TICKS_PER_HOUR/4) % AR_TICKS_PER_DAY);
+							break;
+						case SDLK_PLUS:
+							clck->set_ticks(((clck->get_ticks() + AR_TICKS_PER_DAY) + AR_TICKS_PER_HOUR/4) % AR_TICKS_PER_DAY);
 							break;
 						case SDLK_LSHIFT:
 						case SDLK_RSHIFT:
@@ -325,6 +333,7 @@ int main(int argc, char *argv[]) {
 					caption << " | " << tile_info.x << " " << tile_info.y << " " << tile_info.z;
 				}
 				caption << " | Pos: " << (float3(-*e->get_position())/std_tile_size).floored();
+				caption << " | Cam: " << float3(-*e->get_position());
 			}
 			else if(mh->get_active_map_type() == MT_2D_MAP) {
 				caption << " | Pos: " << mh->get_player_position();
@@ -343,21 +352,27 @@ int main(int argc, char *argv[]) {
 
 		mh->draw();
 		
-		if(conf::get<bool>("debug.display_debug_texture") && img->get_width() > 0 && img->get_height() > 0) {
-			e->start_2d_draw();
-			size_t draw_width = img->get_width(), draw_height = img->get_height();
-			float ratio = float(draw_width) / float(draw_height);
-			float scale = 1.0f;
-			if(ratio >= 1.0f && draw_width > e->get_width()) {
-				scale = float(e->get_width()) / float(draw_width);
+		if(conf::get<bool>("debug.display_debug_texture")) {
+			a2e_texture tex = conf::get<a2e_texture>("debug.texture");
+			if(tex->width > 0 && tex->height > 0) {
+				e->start_2d_draw();
+				size_t draw_width = tex->width, draw_height = tex->height;
+				float ratio = float(draw_width) / float(draw_height);
+				float scale = 1.0f;
+				if(ratio >= 1.0f && draw_width > e->get_width()) {
+					scale = float(e->get_width()) / float(draw_width);
+				}
+				else if(ratio < 1.0f && draw_height > e->get_height()) {
+					scale = float(e->get_height()) / float(draw_height);
+				}
+				draw_width *= scale;
+				draw_height *= scale;
+				egfx->draw_textured_color_rectangle(gfx::rect(0, 0, (unsigned int)draw_width, (unsigned int)draw_height),
+													coord(0.0f, 1.0f), coord(1.0f, 0.0f),
+													float4(1.0f, 1.0f, 1.0f, 0.0f), float4(0.0f, 0.0f, 0.0f, 1.0f),
+													conf::get<a2e_texture>("debug.texture")->tex());
+				e->stop_2d_draw();
 			}
-			else if(ratio < 1.0f && draw_height > e->get_height()) {
-				scale = float(e->get_height()) / float(draw_height);
-			}
-			draw_width *= scale;
-			draw_height *= scale;
-			img->draw((unsigned int)draw_width, (unsigned int)draw_height, true);
-			e->stop_2d_draw();
 		}
 		
 		//if(conf::get<bool>("ui.display")) egui->draw();
@@ -374,13 +389,11 @@ int main(int argc, char *argv[]) {
 	delete palettes;
 	delete bin_gfx;
 
-	delete img;
 	delete aui;
 	delete eui;
 	delete egui;
 	delete sce;
 	delete cam;
-	delete s;
 	delete e;
 
 	return 0;

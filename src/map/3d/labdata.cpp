@@ -18,6 +18,7 @@
  */
 
 #include "labdata.h"
+#include "object_light.h"
 
 /*! labdata constructor
  */
@@ -76,21 +77,35 @@ labdata::labdata() {
 	// init light object info	
 	// beloveno (203), umajo (206)
 	{
-		auto ls = new set<unsigned int>();
-		ls->insert(8);
-		ls->insert(9);
-		ls->insert(10);
-		ls->insert(39);
+		auto ls = new map<unsigned int, object_light_type>();
+		ls->insert(make_pair(8, object_light_type::STREET_LAMP));
+		ls->insert(make_pair(9, object_light_type::STREET_LAMP));
+		ls->insert(make_pair(10, object_light_type::STREET_LAMP));
+		ls->insert(make_pair(39, object_light_type::GLOWING_LAMP));
 		light_sets.push_back(ls);
 		light_objects[203] = ls;
 		light_objects[206] = ls;
 	}
 	// nakiridaani (109)
 	{
-		auto ls = new set<unsigned int>();
-		ls->insert(22);
+		auto ls = new map<unsigned int, object_light_type>();
+		ls->insert(make_pair(22, object_light_type::GLOWING_LAMP));
 		light_sets.push_back(ls);
 		light_objects[109] = ls;
+	}
+	// nak dungeons (106)
+	{
+		auto ls = new map<unsigned int, object_light_type>();
+		//ls->insert(make_pair(0, object_light_type::FIREFLY)); // TODO: moving objects
+		ls->insert(make_pair(32, object_light_type::GLOWING_GRABBER));
+		ls->insert(make_pair(51, object_light_type::ARGIM));
+		ls->insert(make_pair(9, object_light_type::LIVING_WALL));
+		ls->insert(make_pair(10, object_light_type::LIVING_WALL));
+		ls->insert(make_pair(11, object_light_type::LIVING_WALL));
+		ls->insert(make_pair(12, object_light_type::LIVING_WALL));
+		ls->insert(make_pair(13, object_light_type::LIVING_WALL));
+		light_sets.push_back(ls);
+		light_objects[106] = ls;
 	}
 }
 
@@ -280,7 +295,6 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		offset+=2;
 
 		object_infos.back()->animation = data[offset] & 0xFF;
-		//cout << "object ani: " << object_infos.back()->animation << endl;
 		offset++;
 
 		offset++; // unknown (animation?)
@@ -367,12 +381,10 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 			walls.back()->overlays.push_back(new lab_wall_overlay());
 			walls.back()->overlays.back()->texture = AR_GET_USINT(data, offset);
 			offset+=2;
-			//cout << "overlay tex: " << walls.back()->overlays.back()->texture << endl;
 			
 			walls.back()->overlays.back()->animation = data[offset] & 0xFF;
 			// stupid max for now, might work always though (if not: mulitply)
 			walls.back()->animation = std::max(walls.back()->animation, walls.back()->overlays.back()->animation);
-			//cout << "overlay animation: " << walls.back()->overlays.back()->animation << endl;
 			offset++;
 			
 			walls.back()->overlays.back()->write_zero = (data[offset] == 0);
@@ -386,9 +398,6 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 			offset+=2;
 			walls.back()->overlays.back()->x_size = AR_GET_USINT(data, offset);
 			offset+=2;
-			
-			//cout << "overlay x: " << walls.back()->overlays.back()->x_size << endl;
-			//cout << "overlay y: " << walls.back()->overlays.back()->y_size << endl;
 		}
 		
 		walls.back()->tex_coord_begin = new float2[walls.back()->animation];
@@ -766,6 +775,6 @@ void labdata::handle_animations() {
 	}
 }
 
-const map<unsigned int, set<unsigned int>*>& labdata::get_light_objects() const {
+const map<unsigned int, labdata::light_info_container*>& labdata::get_light_objects() const {
 	return light_objects;
 }

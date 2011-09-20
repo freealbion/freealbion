@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a2e_shader version="1">
-	<vertex_shader version="120">
+	<vertex_shader>
 		<variables>
-varying vec2 tex_coord;
+in vec2 in_vertex;
+out vec2 tex_coord;
 		</variables>
 		<program>
 void main() {
-	gl_Position = gl_Vertex;
-	tex_coord = gl_Vertex.xy * 0.5 + 0.5;
+	gl_Position = vec4(in_vertex.x, in_vertex.y, 0.0, 1.0);
+	tex_coord = in_vertex * 0.5 + 0.5;
 }
 		</program>
 	</vertex_shader>
 	
-	<fragment_shader version="120">
+	<fragment_shader>
 		<variables>
 uniform sampler2D src_buffer;
-varying vec2 tex_coord;
+in vec2 tex_coord;
+out vec4 frag_color;
 		</variables>
 		<program>
 void main() {
-	vec4 color = texture2D(src_buffer, tex_coord);
+	vec4 color = texture(src_buffer, tex_coord);
 	const vec3 luma_vec = vec3(0.2126, 0.7152, 0.0722);
-	gl_FragColor = vec4(color.xyz, dot(color.xyz, luma_vec));
+	frag_color = vec4(color.xyz, dot(color.xyz, luma_vec));
 }
 		</program>
 	</fragment_shader>

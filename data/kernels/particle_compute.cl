@@ -1,5 +1,5 @@
 
-#include "global.clh"
+#include "a2e_cl_global.h"
 
 __kernel AUTO_VEC_HINT void particle_compute(const float time_passed, const float living_time, const uint particle_count, const float4 gravity,
 											 __global float4* pos_time_buffer, __global float4* dir_buffer) {

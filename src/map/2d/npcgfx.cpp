@@ -147,56 +147,19 @@ void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame, const float2& 
 		tc_size = float2(1.0f/4.0f, 1.0f/3.0f);
 	}
 
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, tex->tex());
-	glColor3f(1.0f, 1.0f, 1.0f);
-
 	// offset position a bit (prefer player/party)
 	float depth_val = (position.y - (npc_num < 200 ? 0.2f : 0.1f))/255.0f;
 	// depth overwrite
 	if(depth_overwrite != -1.0f) depth_val = depth_overwrite;
 
-	glFrontFace(GL_CCW);
-	glBegin(GL_QUADS);
-		glTexCoord2f(tx, ty);
-		glVertex3f(screen_position.x, screen_position.y, depth_val);
-		glTexCoord2f(tx, ty + tc_size.y);
-		glVertex3f(screen_position.x, screen_position.y + draw_size.y, depth_val);
-		glTexCoord2f(tx + tc_size.x, ty + tc_size.y);
-		glVertex3f(screen_position.x + draw_size.x, screen_position.y + draw_size.y, depth_val);
-		glTexCoord2f(tx + tc_size.x, ty);
-		glVertex3f(screen_position.x + draw_size.x, screen_position.y, depth_val);
-	glEnd();
-
-	// --leave this here for the moment
-	/*float3 depth_vals = float3(
-		(position.y-2.0f)/255.0f,
-		(position.y-1.0f)/255.0f,
-		(position.y)/255.0f);
-	if(depth_overwrite != -1.0f) depth_vals = float3(depth_overwrite);
-
-	float draw_offset;
-	float tex_offset;
-	float2 tex_coord;
-	float2 draw_size = float2(32.0f * scale, 16.0f * scale);
-	for(size_t i = 0; i < 3; i++) {
-		draw_offset = float(i) * 16.0f * scale;
-		tex_offset = (16.0f*float(i))/256.0f;
-		tex_coord.set(32.0f/128.0f, (16.0f*float(i+1))/256.0f);
-
-		glBegin(GL_QUADS);
-			glTexCoord2f(tx, ty + tex_offset);
-			glVertex3f(screen_position.x, screen_position.y + draw_offset, depth_vals[i]);
-			glTexCoord2f(tx, ty + tex_coord.y);
-			glVertex3f(screen_position.x, screen_position.y + draw_size.y + draw_offset, depth_vals[i]);
-			glTexCoord2f(tx + tex_coord.x, ty + tex_coord.y);
-			glVertex3f(screen_position.x + draw_size.x, screen_position.y + draw_size.y + draw_offset, depth_vals[i]);
-			glTexCoord2f(tx + tex_coord.x, ty + tex_offset);
-			glVertex3f(screen_position.x + draw_size.x, screen_position.y + draw_offset, depth_vals[i]);
-		glEnd();
-	}*/
-
-	glDisable(GL_TEXTURE_2D);
+	egfx->draw_textured_depth_rectangle(gfx::rect(screen_position.x,
+												  screen_position.y,
+												  screen_position.x + draw_size.x,
+												  screen_position.y + draw_size.y),
+										coord(tx, ty),
+										coord(tx + tc_size.x, ty + tc_size.y),
+										depth_val,
+										tex->tex());
 }
 
 void npcgfx::clear() {

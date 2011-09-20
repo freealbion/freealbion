@@ -23,10 +23,28 @@ background3d::background3d() : a2estatic(::e, ::s, ::sce) {
 	bg3d_xld = new xld("3DBCKGR0.XLD");
 	bg_texture = t->get_dummy_texture();
 	cur_bg_num = -1;
+	light_color = float3(0.0f);
+	
+	const float fullscreen_triangle[] = { 0.0f, 2.0f, -3.0f, -1.0f, 3.0f, -1.0f };
+	const float _dummy_coords[] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	
+	glGenBuffers(1, &vbo_fs_triangle);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_fs_triangle);
+	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float2), fullscreen_triangle, GL_STATIC_DRAW);
+	
+	glGenBuffers(1, &vbo_fs_coords);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_fs_coords);
+	// only allocate the necessary memory (init with dummy data)
+	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float3), _dummy_coords, GL_STREAM_DRAW);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 background3d::~background3d() {
 	delete bg3d_xld;
+	
+	if(glIsBuffer(vbo_fs_triangle)) glDeleteBuffers(1, &vbo_fs_triangle);
+	if(glIsBuffer(vbo_fs_coords)) glDeleteBuffers(1, &vbo_fs_coords);
 }
 
 void background3d::unload() {
@@ -113,37 +131,42 @@ a2e_texture& background3d::get_bg_texture() {
 void background3d::draw(const size_t draw_mode) {
 	if(cur_bg_num < 0) return;
 	
-	gl2shader shd = (draw_mode == MDM_GEOMETRY_PASS ? s->get_gl2shader("AR_IR_GBUFFER_SKY") : s->get_gl2shader("AR_IR_MP_SKY"));
-	shd->use("opaque");
+	// we will write directly into the final material pass, so no geometry
+	// and light pass are necessary (-> return)
+	if(draw_mode != MDM_MATERIAL_PASS) return;
+	
+	gl2shader shd = s->get_gl2shader("AR_IR_MP_SKY");
 	
 	matrix4f skybox_proj_mat = *e->get_projection_matrix();
-	skybox_proj_mat.transpose();
-	matrix4f IMVP = skybox_proj_mat * matrix4f().rotate_x(e->get_rotation()->x) * matrix4f().rotate_y(-e->get_rotation()->y);
+	matrix4f IMVP = matrix4f().rotate_y(-e->get_rotation()->y) * matrix4f().rotate_x(e->get_rotation()->x) * skybox_proj_mat;
 	IMVP.invert();
 	
-	float3 sb_v0 = float3(0.0f, 2.0f, 1.0f);
-	float3 sb_v1 = float3(3.0f, -1.0f, 1.0f);
-	float3 sb_v2 = float3(-3.0f, -1.0f, 1.0f);
-	sb_v0 *= IMVP;
-	sb_v1 *= IMVP;
-	sb_v2 *= IMVP;
+	float3 sb_tc[3] = {
+		float3(0.0f, 2.0f, 1.0f),
+		float3(3.0f, -1.0f, 1.0f),
+		float3(-3.0f, -1.0f, 1.0f)
+	};
+	sb_tc[0] *= IMVP;
+	sb_tc[1] *= IMVP;
+	sb_tc[2] *= IMVP;
 	
-	shd->uniform("id", float2(0.0f, 0.0f));
-	if(draw_mode == MDM_GEOMETRY_PASS) shd->uniform("Nuv", 16.0f, 16.0f);
-	if(draw_mode == MDM_MATERIAL_PASS) {
-		shd->texture("diffuse_texture", bg_texture);
-		
-		ir_mp_setup(shd);
-	}
+	shd->texture("diffuse_texture", bg_texture);
+	shd->uniform("light_color", light_color);
 	
-	glBegin(GL_TRIANGLES);
-	glTexCoord3fv(&sb_v0.x);
-	glVertex4f(0.0f, 2.0f, 1.0f, 1.0f);
-	glTexCoord3fv(&sb_v1.x);
-	glVertex4f(-3.0f, -1.0f, 1.0f, 1.0f);
-	glTexCoord3fv(&sb_v2.x);
-	glVertex4f(3.0f, -1.0f, 1.0f, 1.0f);
-	glEnd();
+	// update coords buffer
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_fs_coords);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float3)*3, sb_tc);
+	
+	//
+	shd->attribute_array("in_vertex", vbo_fs_triangle, 2, GL_FLOAT);
+	shd->attribute_array("in_cube_tex_coord", vbo_fs_coords, 3, GL_FLOAT);
+	
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 	
 	shd->disable();
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void background3d::set_light_color(const float3& color) {
+	light_color = color;
 }

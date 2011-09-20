@@ -29,6 +29,9 @@
 #define AUTO_VEC_HINT __attribute__((vec_type_hint(float4)))
 
 // all props go to iñigo quilez: http://iquilezles.org/www/articles/sfrand/sfrand.htm
+float sfrand_0_1(uint* seed);
+float sfrand_m1_1(uint* seed);
+
 // this results in a random number in [0, 1]
 float sfrand_0_1(uint* seed) {
 	float res;

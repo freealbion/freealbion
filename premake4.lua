@@ -38,7 +38,7 @@ project "albion"
 	language "C++"
 	files { "src/**.h", "src/**.cpp" }
 	platforms { "x64", "x32" }
-	defines { "A2E_NET_PROTOCOL=TCP_protocol" }
+	defines { "A2E_NET_PROTOCOL=TCP_protocol", "A2E_USE_OPENCL" }
 	targetdir "bin"
 	
 	-- scan args
@@ -86,34 +86,34 @@ project "albion"
 		end
 		if(mingw) then
 			defines { "__WINDOWS__", "MINGW" }
-			includedirs { "/mingw/include/GL" }
+			includedirs { "/mingw/include/GL", "/mingw/include/CL" }
 			libdirs { "/usr/lib", "/usr/local/lib" }
 			buildoptions { "-Wno-unknown-pragmas" }
 		end
 	end
 	
 	if(os.is("linux") or os.is("bsd") or win_unixenv) then
-		libdirs { os.findlib("ftgl"), os.findlib("xml2"), os.findlib("a2e") }
+		libdirs { os.findlib("xml2"), os.findlib("a2e") }
 		if(not win_unixenv) then
-			links { "GL", "SDL_net", "SDL_image", "ftgl", "xml2" }
+			links { "GL", "SDL_net", "SDL_image", "xml2" }
 			libdirs { os.findlib("SDL"), os.findlib("SDL_net"), os.findlib("SDL_image") }
 			buildoptions { "`sdl-config --cflags`" }
 			linkoptions { "`sdl-config --libs`" }
 		elseif(cygwin) then
 			-- link against windows opengl libs on cygwin
-			links { "opengl32", "SDL_net.dll", "SDL_image.dll", "ftgl.dll", "xml2" }
+			links { "opengl32", "SDL_net.dll", "SDL_image.dll", "xml2" }
 			libdirs { "/lib/w32api" }
 			buildoptions { "`sdl-config --cflags | sed -E 's/-Dmain=SDL_main//g'`" }
 			linkoptions { "`sdl-config --libs | sed -E 's/(-lmingw32|-mwindows)//g'`" }
 		elseif(mingw) then
 			-- link against windows opengl libs on mingw
-			links { "opengl32", "glu32", "SDL_net", "SDL_image", "ftgl", "libxml2" }
+			links { "opengl32", "glu32", "SDL_net", "SDL_image", "libxml2" }
 			buildoptions { "`sdl-config --cflags | sed -E 's/-Dmain=SDL_main//g'`" }
 			linkoptions { "`sdl-config --libs`" }
 		end
 		
 		-- find all necessary headers (in case they aren't in /usr/include)
-		local include_files = { "SDL.h", "SDL_net.h", "lua.h" }
+		local include_files = { "SDL.h", "SDL_net.h" }
 		for i = 1, table.maxn(include_files) do
 			if((not os.isfile("/usr/include/"..include_files[i])) and
 			   (not os.isfile("/usr/local/include/"..include_files[i]))) then
@@ -131,7 +131,7 @@ project "albion"
 	end
 	
 	if(os.is("windows") and not win_unixenv) then
-		links { "opengl32", "glu32", "odbc32", "odbccp32", "SDL", "SDLmain", "SDL_net", "SDL_image", "ftgl", "libxml2", "vcomp", "OpenCL" }
+		links { "opengl32", "glu32", "odbc32", "odbccp32", "SDL", "SDLmain", "SDL_net", "SDL_image", "libxml2", "vcomp", "OpenCL" }
 		defines { "__WINDOWS__", "_CONSOLE", "A2E_IMPORTS", "_CRT_SECURE_NO_DEPRECATE" }
 		flags { "NoMinimalRebuild", "NoEditAndContinue" }
 		buildoptions { "/Zi /MP8" }

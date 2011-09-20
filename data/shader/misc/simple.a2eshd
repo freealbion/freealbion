@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<includes>global</includes>
+	<options list="# colored textured texture_mul_color texture_madd_color" />
+
+	<vertex_shader>
+		<variables>
+<option value="colored">
+in vec4 in_color;
+out vec4 out_color;
+</option>
+
+<option value="textured texture_mul_color texture_madd_color">
+in vec2 in_tex_coord;
+out vec2 tex_coord;
+</option>
+
+uniform mat4 mvpm;
+		</variables>
+		<program>
+void main() {
+	gl_Position = mvpm * vec4(in_vertex, 1.0);
+	
+	<option value="colored">
+	out_color = in_color;
+	</option>
+	
+	<option value="textured texture_mul_color texture_madd_color">
+	tex_coord = in_tex_coord;
+	</option>
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<variables>
+<option value="# texture_mul_color texture_madd_color">
+uniform vec4 in_color;
+</option>
+
+<option value="colored">
+in vec4 out_color;
+</option>
+
+<option value="textured texture_mul_color texture_madd_color">
+uniform sampler2D tex;
+in vec2 tex_coord;
+</option>
+
+<option value="texture_madd_color">
+uniform vec4 add_color;
+</option>
+		</variables>
+		<program>
+void main() {
+	<option value="#">
+	vec4 color = in_color;
+	</option>
+	
+	<option value="colored">
+	vec4 color = out_color;
+	</option>
+	
+	<option value="textured">
+	vec4 color = texture(tex, tex_coord);
+	</option>
+	
+	<option value="texture_mul_color texture_madd_color">
+	vec4 tex_color = texture(tex, tex_coord);
+	vec4 color = in_color * tex_color;
+	</option>
+	<option value="texture_madd_color">
+	color += add_color;
+	</option>
+	
+	frag_color = vec4(color.rgb * color.a, color.a);
+}
+		</program>
+	</fragment_shader>
+	
+</a2e_shader>

@@ -1,6 +1,6 @@
 
-#include "global.clh"
-#include "particle_init.clh"
+#include "a2e_cl_global.h"
+#include "a2e_cl_particle_init.h"
 
 // this is used for both the initial particle spawning and the particle respawning
 
@@ -24,7 +24,7 @@ __kernel AUTO_VEC_HINT void particle_respawn
 	
 #ifndef A2E_PARTICLE_INIT
 	float4 pos_time = pos_time_buffer[particle_num];
-	float4 dir_vel = dir_buffer[particle_num];
+	//float4 dir_vel = dir_buffer[particle_num];
 	float particle_time = pos_time.w;
 	if(particle_time > 0.0f) return;
 	

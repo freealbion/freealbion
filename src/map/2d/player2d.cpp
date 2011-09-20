@@ -48,19 +48,6 @@ void player2d::draw(const NPC_DRAW_STAGE& draw_stage) const {
 						   float2((player_pos.x - screen_position.x)*tile_size,
 								  (player_pos.y - 2.0f - screen_position.y)*tile_size),
 						   player_pos, depth_overwrite);
-
-	if(conf::get<bool>("debug.player_pos")) {
-		gfx::rect dbg_rect;
-		dbg_rect.x1 = (player_pos.x - screen_position.x)*tile_size;
-		dbg_rect.y1 = (player_pos.y - screen_position.y)*tile_size;
-		dbg_rect.x2 = dbg_rect.x1 + tile_size;
-		dbg_rect.y2 = dbg_rect.y1 + tile_size;
-		glPushMatrix();
-		glTranslatef(0.0f, 0.0f, 1.0f);
-		egfx->draw_rectangle(&dbg_rect, 0xFF0000);
-		glEnable(GL_BLEND);
-		glPopMatrix();
-	}
 }
 
 void player2d::handle() {

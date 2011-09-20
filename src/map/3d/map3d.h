@@ -32,6 +32,8 @@
 #include "background3d.h"
 
 class npc3d;
+class object_light_base;
+
 class map3d {
 public:
 	map3d(labdata* lab_data, xld* maps1, xld* maps2, xld* maps3);
@@ -104,18 +106,13 @@ protected:
 	map_objects* objects_model;
 	
 	// lights
-	light* player_light;
+	object_light_base* player_light;
 	light* sun_light;
 	float sun_distance;
-	vector<light*> scene_lights;
-	struct light_info {
-		float3 ambient;
-		float3 diffuse;
-		float3 specular;
-		float3 attenuation;
-	};
-	// TODO: add different types
-	vector<light_info*> light_infos;
+	bool active_sun_light;
+	vector<float3> sun_color_table;
+	vector<object_light_base*> object_lights;
+	unsigned int object_light_ani_time;
 
 	//
 	bool map_loaded;
@@ -123,7 +120,6 @@ protected:
 	size_t cur_labdata_num;
 	size2 map_size;
 	size_t map_palette;
-	float tile_size;
 	
 	//
 	unsigned int last_tile_animation;

@@ -100,7 +100,7 @@ protected:
 		GLuint indices_vbo;
 		float3* vertices;
 		float2* tex_coords;
-		index4* indices;
+		index3* indices;
 		unsigned int* tile_nums;
 		size_t index_count;
 		size_t ani_offset;

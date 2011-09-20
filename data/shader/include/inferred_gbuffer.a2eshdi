@@ -2,30 +2,45 @@
 <a2e_shader_include version="1">
 	<options list="opaque alpha" />
 
-	<vertex_shader version="120">
-		<variables>
-		</variables>
-		<program>
-
-		</program>
-	</vertex_shader>
-	
-	<fragment_shader version="120">
+	<fragment_shader>
 		<preprocessor>
 		</preprocessor>
 		<variables>
 			<option value="alpha">
-				uniform float mask_id;
+uniform float mask_id;
+uniform vec2 id;
+out vec4 frag_color_2;
 			</option>
 		</variables>
 		<program>
-			void check_mask_id() {
-				<option value="alpha">
-					vec2 tiled_frag_coord = mod(floor(gl_FragCoord.xy), 2.0);
-					float cid = tiled_frag_coord.x + tiled_frag_coord.y * 2.0;
-					if(cid != mask_id) discard;
-				</option>
-			}
+vec2 encode_normal(vec3 in_normal) {
+	// encode normal (thank you martin mittring ;))
+	
+	vec3 normal = normalize(in_normal);
+	
+	// note: to work around general compiler optimizations/assumptions and floating point
+	// inaccuracies, add an epsilon to normal.xy (in case it's (0,0)) and the final result
+	// and also abs() the inner sqrt result (in case normal.z is slightly off)
+	const float epsilon = 0.00001;
+	vec2 enormal = normalize(normal.xy+vec2(epsilon)) * sqrt(abs(normal.z * 0.5 + 0.5));
+	return (enormal + vec2(epsilon));
+}
+
+void check_mask_id() {
+	<option value="alpha">
+	vec2 tiled_frag_coord = mod(floor(gl_FragCoord.xy), 2.0);
+	float cid = tiled_frag_coord.x + tiled_frag_coord.y * 2.0;
+	if(cid != mask_id) discard;
+	</option>
+}
+
+void write_gbuffer(vec3 normal, vec2 Nuv) {
+	frag_color = vec4(encode_normal(normal), Nuv);
+	
+	<option value="alpha">
+	frag_color_2 = vec4(id, 1.0, 1.0);
+	</option>
+}
 		</program>
 	</fragment_shader>
 </a2e_shader_include>

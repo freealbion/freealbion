@@ -96,11 +96,13 @@ void albion_ui::clock_tick(size_t ticks) {
 	t_time_value->set_text(time_str.c_str());
 	albion_dbg->get_object()->set_redraw(true); // TODO: remove this at a later point (this is necessary right now, b/c the gui is kinda bugged)
 	
-	clock_numbers[0].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + hours/10)));
-	clock_numbers[1].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + hours%10)));
-	clock_numbers[2].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + mins/10)));
-	clock_numbers[3].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + mins%10)));
-	game_ui->set_redraw(true);
+	if(game_ui != NULL) {
+		clock_numbers[0].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + hours/10)));
+		clock_numbers[1].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + hours%10)));
+		clock_numbers[2].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + mins/10)));
+		clock_numbers[3].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + mins%10)));
+		game_ui->set_redraw(true);
+	}
 }
 
 void albion_ui::open_game_ui() {
@@ -354,8 +356,8 @@ void albion_ui::open_goto_map_wnd() {
 		{ 273, "Händlerin Kounos" },
 		{ 274, "Darios" },
 		{ 275, "Gasthaus Kounos" },
-		{ 276, "Nahrungshandel Dolo" },
-		{ 277, "Kontos Labyrinth 3D" },
+		{ 276, "Kontos Labyrinth 3D Upper" },
+		{ 277, "Kontos Labyrinth 3D Lower" },
 		{ 278, "Waffenladen Nadje" },
 		{ 279, "Magiergilde Srimalinar" },
 		{ 280, "Arrim" },

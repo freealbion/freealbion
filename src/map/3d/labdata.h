@@ -29,6 +29,7 @@
 #include "conf.h"
 #include "albion_texture.h"
 
+enum class object_light_type;
 class labdata {
 public:
 	labdata();
@@ -164,7 +165,9 @@ public:
 	a2ematerial* get_fc_material() const;
 	a2ematerial* get_wall_material() const;
 	a2ematerial* get_object_material() const;
-	const map<unsigned int, set<unsigned int>*>& get_light_objects() const;
+	
+	typedef map<unsigned int, object_light_type> light_info_container;
+	const map<unsigned int, light_info_container*>& get_light_objects() const;
 
 	void handle_animations();
 	
@@ -197,8 +200,8 @@ protected:
 	texture_object::TEXTURE_FILTERING custom_tex_filtering;
 	
 	// light object numbers for each labdata
-	map<unsigned int, set<unsigned int>*> light_objects;
-	vector<set<unsigned int>*> light_sets;
+	map<unsigned int, light_info_container*> light_objects;
+	vector<light_info_container*> light_sets;
 	
 };
 

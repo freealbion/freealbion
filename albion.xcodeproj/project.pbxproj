@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5C2E8091141C61DF00C4A0EE /* object_light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C2E8090141C61DF00C4A0EE /* object_light.cpp */; };
 		5C32C6C61355298C00164662 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50EA126548C100A15B31 /* main.cpp */; };
 		5C32C6C71355298C00164662 /* map2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50ED126548C100A15B31 /* map2d.cpp */; };
 		5C32C6C81355298C00164662 /* npcgfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C9C50EF126548C100A15B31 /* npcgfx.cpp */; };
@@ -43,6 +44,7 @@
 		5C32C6E81355298C00164662 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFDB12612E4800405DE8 /* AppKit.framework */; };
 		5C32C6E91355298C00164662 /* liba2ed.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFDC12612E4800405DE8 /* liba2ed.dylib */; };
 		5C32C6EA1355298C00164662 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFA012612D3500405DE8 /* Cocoa.framework */; };
+		5CA6D2B1141A25AE00551A6B /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5CA6D2B0141A25AE00551A6B /* SDL_image.framework */; };
 		5CFC5D1413E46E5200824F9C /* bin_graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CFC5D1213E46E5200824F9C /* bin_graphics.cpp */; };
 /* End PBXBuildFile section */
 
@@ -56,9 +58,17 @@
 		5C0B62261296E8C000205335 /* map_tiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_tiles.h; sourceTree = "<group>"; };
 		5C1669E2133F96F100FFF846 /* hq2x.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hq2x.cpp; sourceTree = "<group>"; };
 		5C1669E5133F985800FFF846 /* hqx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hqx.h; sourceTree = "<group>"; };
-		5C1873E613E2FC9D00A1F642 /* luma.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = luma.a2eshd; path = ../../../../../um_repos/data/shader/misc/luma.a2eshd; sourceTree = "<group>"; };
 		5C28FB36128F0CE200FBDEC1 /* background3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = background3d.cpp; sourceTree = "<group>"; };
 		5C28FB37128F0CE200FBDEC1 /* background3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = background3d.h; sourceTree = "<group>"; };
+		5C2951FA140031EE003C6E13 /* a2e_cl_global.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = a2e_cl_global.h; sourceTree = "<group>"; };
+		5C2951FB140031EE003C6E13 /* a2e_cl_matrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = a2e_cl_matrix.h; sourceTree = "<group>"; };
+		5C2951FC140031EE003C6E13 /* a2e_cl_particle_init.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = a2e_cl_particle_init.h; sourceTree = "<group>"; };
+		5C2C927D140AE70B00AC808C /* blurline3.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = blurline3.a2eshd; path = data/shader/misc/blurline3.a2eshd; sourceTree = "<group>"; };
+		5C2C927E140AE70B00AC808C /* blurline5.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = blurline5.a2eshd; path = data/shader/misc/blurline5.a2eshd; sourceTree = "<group>"; };
+		5C2C9284140AE70B00AC808C /* luma.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = luma.a2eshd; path = data/shader/misc/luma.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		5C2C9286140AE73B00AC808C /* simple.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text; name = simple.a2eshd; path = data/shader/misc/simple.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		5C2E8090141C61DF00C4A0EE /* object_light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = object_light.cpp; sourceTree = "<group>"; };
+		5C2E8093141C61EB00C4A0EE /* object_light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = object_light.h; sourceTree = "<group>"; };
 		5C32C6EF1355298C00164662 /* Albion Remake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Albion Remake.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C34B58713E8E85E004E705F /* fxaa3.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = fxaa3.a2eshd; path = data/shader/misc/fxaa3.a2eshd; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C51E76612CC164F00C4E0EA /* mp_map_objects.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mp_map_objects.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
@@ -77,27 +87,23 @@
 		5C58908112690BB00011E96B /* labdata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = labdata.h; sourceTree = "<group>"; };
 		5C58908412690BBE0011E96B /* events.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = events.cpp; sourceTree = "<group>"; };
 		5C58908512690BBE0011E96B /* events.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = events.h; sourceTree = "<group>"; };
+		5C6A50B0140D84BE00EA5C1A /* particle_draw_ocl.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = particle_draw_ocl.a2eshd; path = data/shader/particle/particle_draw_ocl.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		5C6A50B5140DB1BD00EA5C1A /* global.a2eshdi */ = {isa = PBXFileReference; lastKnownFileType = text; path = global.a2eshdi; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C6D6971132C7628007DF2B2 /* player3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player3d.cpp; sourceTree = "<group>"; };
 		5C6D6972132C7629007DF2B2 /* player3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player3d.h; sourceTree = "<group>"; };
 		5C70CF5412CBAFB500F988D3 /* gp_gbuffer_map_objects.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = gp_gbuffer_map_objects.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C70CF5512CBAFB500F988D3 /* gp_gbuffer_map_tiles.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = gp_gbuffer_map_tiles.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
-		5C70CF5612CBAFB500F988D3 /* gp_gbuffer_sky.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = gp_gbuffer_sky.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C70CF5B12CBBBBC00F988D3 /* mp_sky.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mp_sky.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C71CDD41261F4FA0052A6C2 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
 		5C7868261322BE51006BEDD5 /* clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clock.cpp; sourceTree = "<group>"; };
 		5C7868271322BE51006BEDD5 /* clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = clock.h; sourceTree = "<group>"; };
 		5C7A455712CBAA86005C70EE /* blur.a2eshdi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = blur.a2eshdi; sourceTree = "<group>"; };
-		5C7A455812CBAA86005C70EE /* gbuffer.a2eshdi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = gbuffer.a2eshdi; sourceTree = "<group>"; };
-		5C7A455912CBAA86005C70EE /* hdr_shrink.a2eshdi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = hdr_shrink.a2eshdi; sourceTree = "<group>"; };
 		5C7A455A12CBAA86005C70EE /* inferred.a2eshdi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = inferred.a2eshdi; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
-		5C7A455B12CBAA86005C70EE /* parallax.a2eshdi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = parallax.a2eshdi; sourceTree = "<group>"; };
-		5C7A455C12CBAA86005C70EE /* sincos_emu.a2eshdi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = sincos_emu.a2eshdi; sourceTree = "<group>"; };
-		5C7A455D12CBAA86005C70EE /* texture2dgrad.a2eshdi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = texture2dgrad.a2eshdi; sourceTree = "<group>"; };
 		5C7A455F12CBAA86005C70EE /* gp_gbuffer.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = gp_gbuffer.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
-		5C7A456012CBAA86005C70EE /* gp_gbuffer_parallax.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = gp_gbuffer_parallax.a2eshd; sourceTree = "<group>"; };
-		5C7A456112CBAA86005C70EE /* lp_phong.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = lp_phong.a2eshd; sourceTree = "<group>"; };
-		5C7A456212CBAA86005C70EE /* mp_diffuse.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = mp_diffuse.a2eshd; sourceTree = "<group>"; };
-		5C7A456312CBAA86005C70EE /* mp_parallax.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = mp_parallax.a2eshd; sourceTree = "<group>"; };
+		5C7A456012CBAA86005C70EE /* gp_gbuffer_parallax.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = gp_gbuffer_parallax.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		5C7A456112CBAA86005C70EE /* lp_phong.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = lp_phong.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		5C7A456212CBAA86005C70EE /* mp_diffuse.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = mp_diffuse.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		5C7A456312CBAA86005C70EE /* mp_parallax.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = mp_parallax.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C994E111284745700FC928F /* npc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = npc.cpp; sourceTree = "<group>"; };
 		5C994E121284745700FC928F /* npc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = npc.h; sourceTree = "<group>"; };
 		5C994E15128476EC00FC928F /* npc3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = npc3d.cpp; sourceTree = "<group>"; };
@@ -135,16 +141,14 @@
 		5C9C512C1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = en; path = src/osx/en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		5C9C512E1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = en; path = src/osx/en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		5C9C512F1265490700A15B31 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = src/osx/Info.plist; sourceTree = "<group>"; };
+		5CA6D2B0141A25AE00551A6B /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_image.framework; path = Library/Frameworks/SDL_image.framework; sourceTree = SDKROOT; };
 		5CAE228813E5E3BE0051B39F /* Albion Remake.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Albion Remake.entitlements"; path = "src/osx/Albion Remake.entitlements"; sourceTree = "<group>"; };
 		5CDB6F151379C4B2006033D4 /* particle_compute.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = particle_compute.cl; sourceTree = "<group>"; };
 		5CDB6F171379C4B2006033D4 /* particle_spawn.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = particle_spawn.cl; sourceTree = "<group>"; };
 		5CDFD7A213248985009459CE /* inferred_gbuffer.a2eshdi */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = inferred_gbuffer.a2eshdi; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5CE00A2513ABB86F00FAE69A /* premake.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = premake.sh; sourceTree = "<group>"; };
 		5CE00A2613ABB86F00FAE69A /* premake4.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = premake4.lua; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
-		5CF2668E1379FA8300B729B0 /* global.clh */ = {isa = PBXFileReference; lastKnownFileType = text; path = global.clh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.opencl; };
-		5CF2668F1379FA8300B729B0 /* particle_init.clh */ = {isa = PBXFileReference; lastKnownFileType = text; path = particle_init.clh; sourceTree = "<group>"; };
 		5CF266901379FF6E00B729B0 /* ir_lighting.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = ir_lighting.cl; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
-		5CF26691137A063700B729B0 /* matrix.clh */ = {isa = PBXFileReference; lastKnownFileType = text; path = matrix.clh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.opencl; };
 		5CFC5D1213E46E5200824F9C /* bin_graphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bin_graphics.cpp; sourceTree = "<group>"; };
 		5CFC5D1613E46E5C00824F9C /* bin_graphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bin_graphics.h; sourceTree = "<group>"; };
 		5CFFE9201269605A00199C96 /* npc2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = npc2d.cpp; sourceTree = "<group>"; };
@@ -158,6 +162,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5CA6D2B1141A25AE00551A6B /* SDL_image.framework in Frameworks */,
 				5C32C6E51355298C00164662 /* OpenCL.framework in Frameworks */,
 				5C32C6E61355298C00164662 /* SDL.framework in Frameworks */,
 				5C32C6E71355298C00164662 /* OpenGL.framework in Frameworks */,
@@ -227,6 +232,7 @@
 		5C06AF9812612D3500405DE8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5CA6D2B0141A25AE00551A6B /* SDL_image.framework */,
 				5C71CDD41261F4FA0052A6C2 /* OpenCL.framework */,
 				5C06B00E1261336C00405DE8 /* SDL.framework */,
 				5C06B00C1261336700405DE8 /* OpenGL.framework */,
@@ -245,6 +251,18 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		5C2C927A140AE6CC00AC808C /* misc */ = {
+			isa = PBXGroup;
+			children = (
+				5C2C927D140AE70B00AC808C /* blurline3.a2eshd */,
+				5C2C927E140AE70B00AC808C /* blurline5.a2eshd */,
+				5C2C9284140AE70B00AC808C /* luma.a2eshd */,
+				5C34B58713E8E85E004E705F /* fxaa3.a2eshd */,
+				5C2C9286140AE73B00AC808C /* simple.a2eshd */,
+			);
+			name = misc;
+			sourceTree = "<group>";
+		};
 		5C58908312690BBE0011E96B /* events */ = {
 			isa = PBXGroup;
 			children = (
@@ -257,10 +275,20 @@
 			path = src/events;
 			sourceTree = SOURCE_ROOT;
 		};
+		5C6A50AE140D84AC00EA5C1A /* particle */ = {
+			isa = PBXGroup;
+			children = (
+				5C6A50B0140D84BE00EA5C1A /* particle_draw_ocl.a2eshd */,
+			);
+			name = particle;
+			sourceTree = "<group>";
+		};
 		5C7A454B12CBA9BC005C70EE /* shader */ = {
 			isa = PBXGroup;
 			children = (
+				5C2C927A140AE6CC00AC808C /* misc */,
 				5C7A455612CBAA86005C70EE /* include */,
+				5C6A50AE140D84AC00EA5C1A /* particle */,
 				5C7A455E12CBAA86005C70EE /* inferred */,
 				5CDB6F101379C4B2006033D4 /* kernels */,
 			);
@@ -271,15 +299,9 @@
 			isa = PBXGroup;
 			children = (
 				5C7A455712CBAA86005C70EE /* blur.a2eshdi */,
-				5C7A455812CBAA86005C70EE /* gbuffer.a2eshdi */,
-				5C7A455912CBAA86005C70EE /* hdr_shrink.a2eshdi */,
 				5C7A455A12CBAA86005C70EE /* inferred.a2eshdi */,
 				5CDFD7A213248985009459CE /* inferred_gbuffer.a2eshdi */,
-				5C7A455B12CBAA86005C70EE /* parallax.a2eshdi */,
-				5C7A455C12CBAA86005C70EE /* sincos_emu.a2eshdi */,
-				5C7A455D12CBAA86005C70EE /* texture2dgrad.a2eshdi */,
-				5C34B58713E8E85E004E705F /* fxaa3.a2eshd */,
-				5C1873E613E2FC9D00A1F642 /* luma.a2eshd */,
+				5C6A50B5140DB1BD00EA5C1A /* global.a2eshdi */,
 			);
 			name = include;
 			path = data/shader/include;
@@ -290,7 +312,6 @@
 			children = (
 				5C70CF5412CBAFB500F988D3 /* gp_gbuffer_map_objects.a2eshd */,
 				5C70CF5512CBAFB500F988D3 /* gp_gbuffer_map_tiles.a2eshd */,
-				5C70CF5612CBAFB500F988D3 /* gp_gbuffer_sky.a2eshd */,
 				5C7A455F12CBAA86005C70EE /* gp_gbuffer.a2eshd */,
 				5C7A456012CBAA86005C70EE /* gp_gbuffer_parallax.a2eshd */,
 				5C7A456112CBAA86005C70EE /* lp_phong.a2eshd */,
@@ -357,6 +378,8 @@
 				5C9C50F7126548C100A15B31 /* map3d.h */,
 				5C6D6971132C7628007DF2B2 /* player3d.cpp */,
 				5C6D6972132C7629007DF2B2 /* player3d.h */,
+				5C2E8090141C61DF00C4A0EE /* object_light.cpp */,
+				5C2E8093141C61EB00C4A0EE /* object_light.h */,
 			);
 			path = 3d;
 			sourceTree = "<group>";
@@ -405,9 +428,9 @@
 		5CDB6F101379C4B2006033D4 /* kernels */ = {
 			isa = PBXGroup;
 			children = (
-				5CF2668E1379FA8300B729B0 /* global.clh */,
-				5CF26691137A063700B729B0 /* matrix.clh */,
-				5CF2668F1379FA8300B729B0 /* particle_init.clh */,
+				5C2951FA140031EE003C6E13 /* a2e_cl_global.h */,
+				5C2951FB140031EE003C6E13 /* a2e_cl_matrix.h */,
+				5C2951FC140031EE003C6E13 /* a2e_cl_particle_init.h */,
 				5CDB6F151379C4B2006033D4 /* particle_compute.cl */,
 				5CDB6F171379C4B2006033D4 /* particle_spawn.cl */,
 				5CF266901379FF6E00B729B0 /* ir_lighting.cl */,
@@ -507,6 +530,7 @@
 				5C32C6E21355298C00164662 /* player3d.cpp in Sources */,
 				5C32C6E31355298C00164662 /* hq2x.cpp in Sources */,
 				5CFC5D1413E46E5200824F9C /* bin_graphics.cpp in Sources */,
+				5C2E8091141C61DF00C4A0EE /* object_light.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -585,6 +609,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_ENTITLEMENTS = "src/osx/Albion Remake.entitlements";
@@ -658,6 +683,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_ENTITLEMENTS = "src/osx/Albion Remake.entitlements";

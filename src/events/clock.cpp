@@ -22,9 +22,10 @@
 
 /*! clock constructor
  */
-ar_clock::ar_clock() : ms_per_tick(20), last_tick(SDL_GetTicks()),
+ar_clock::ar_clock() : ms_per_tick(400), last_tick(SDL_GetTicks()),
 ticks(conf::get<size_t>("map.hour") * AR_TICKS_PER_HOUR) {
 	// 2d map: 395-416.6ms per tick -> use 400ms
+	// fast: 20ms
 }
 
 /*! clock destructor
@@ -78,4 +79,12 @@ void ar_clock::delete_tick_callback(const clock_callback& cb) {
 			return;
 		}
 	}
+}
+
+void ar_clock::set_ticks(const size_t& ticks_) {
+	ticks = ticks_;
+}
+
+size_t ar_clock::get_ticks() const {
+	return ticks;
 }
