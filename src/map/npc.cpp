@@ -66,6 +66,11 @@ void npc::set_npc_data(const map_npcs::map_npc* npc_data_) {
 	}
 }
 
+unsigned int npc::get_object_num() const {
+	if(npc_data == NULL) return 0;
+	return npc_data->object_num;
+}
+
 void npc::set_pos(const size_t& x, const size_t& y) {
 	pos.set(x, y);
 	next_pos.set(x, y);

@@ -20,7 +20,36 @@
 #include "object_light.h"
 #include "conf.h"
 #include "map_defines.h"
+#include "npc.h"
+#include "npc3d.h"
 
+//// object light base functions
+void object_light_base::handle() {
+	if(n == NULL || l == NULL) return;
+	
+	npc3d* n3d = (npc3d*)n;
+	const float y_size = n3d->get_y_scale()/32.0f;
+	float3 offset = n3d->get_offset()/32.0f;
+	offset.y *= -1.0f;
+	offset.z += y_size;
+	
+	const float2 interp_pos = n->get_interpolated_pos();
+	position.set(interp_pos.x * std_tile_size + offset.x,
+				 offset.z,
+				 offset.y + (interp_pos.y+1.0f) * std_tile_size);
+	original.position = position;
+	l->set_position(position);
+}
+
+void object_light_base::track(npc* n_) {
+	if(n != NULL) {
+		((npc3d*)n)->set_object_light(NULL);
+	}
+	n = n_;
+	((npc3d*)n)->set_object_light(this);
+}
+
+//// object light type specific functions
 #define __OBJECT_LIGHT_CASE_CREATE(type) \
 case object_light_type::type: return new object_light<object_light_type::type>(position);
 
@@ -93,11 +122,10 @@ template <> void object_light<object_light_type::PILLAR>::animate(const size_t& 
 	// TODO
 }
 
-template <> object_light<object_light_type::FIREFLY>::object_light(const float3& position_) : object_light_base(position_, float3(1.0f), std_tile_size*1.0f) {
-	// TODO
+template <> object_light<object_light_type::FIREFLY>::object_light(const float3& position_) : object_light_base(position_, float3(0.9f, 0.9f, 0.1f), std_tile_size*2.0f) {
 }
 template <> void object_light<object_light_type::FIREFLY>::animate(const size_t& time) {
-	// TODO
+	// TODO: glow or not?
 }
 
 template <> object_light<object_light_type::FEAR>::object_light(const float3& position_) : object_light_base(position_, float3(1.0f), std_tile_size*1.0f) {

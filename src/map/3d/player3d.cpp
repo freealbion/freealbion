@@ -31,7 +31,6 @@ void player3d::draw() const {
 }
 
 void player3d::handle() {
-	// TODO: !
 }
 
 void player3d::set_pos(const size_t& x, const size_t& y) {

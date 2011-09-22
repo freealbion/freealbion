@@ -58,9 +58,10 @@ F(ARGIM) \
 F(GLOWING_GRABBER) \
 F(LIVING_WALL)
 
+class npc;
 class object_light_base {
 public:
-	object_light_base(const float3& position_, const float3& color_, const float& radius_) : position(position_), color(color_), radius(radius_), step(rand()%10000), direction(1.0f), l(new light(e, position_.x, position_.y, position_.z)) {
+	object_light_base(const float3& position_, const float3& color_, const float& radius_) : position(position_), color(color_), radius(radius_), step(rand()%10000), direction(1.0f), l(new light(e, position_.x, position_.y, position_.z)), n(NULL) {
 		l->set_color(color);
 		l->set_radius(radius);
 		sce->add_light(l);
@@ -79,6 +80,7 @@ public:
 	static object_light_base* create(const object_light_type& type, const float3& position);
 	
 	virtual void animate(const size_t& time) = 0;
+	virtual void handle();
 	
 	virtual void set_position(const float3& position_) {
 		position = position_;
@@ -92,6 +94,7 @@ public:
 			l->set_enabled(state);
 		}
 	}
+	virtual void track(npc* n_);
 	
 protected:
 	float3 position;
@@ -100,6 +103,7 @@ protected:
 	unsigned int step;
 	float direction;
 	light* l;
+	npc* n;
 	
 	struct {
 		float3 position;

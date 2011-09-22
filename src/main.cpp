@@ -99,8 +99,8 @@ int main(int argc, char *argv[]) {
 	//mh->load_map(10);
 	//mh->load_map(50);
 	//mh->load_map(11);
-	//mh->load_map(22);
-	mh->load_map(183);
+	mh->load_map(22);
+	//mh->load_map(183);
 	//mh->load_map(45);
 	//mh->load_map(47);
 	//mh->load_map(100);
@@ -375,7 +375,6 @@ int main(int argc, char *argv[]) {
 			}
 		}
 		
-		//if(conf::get<bool>("ui.display")) egui->draw();
 		egui->draw();
 
 		e->stop_draw();

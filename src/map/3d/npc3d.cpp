@@ -18,10 +18,11 @@
  */
 
 #include "npc3d.h"
+#include "object_light.h"
 
 /*! npc3d constructor
  */
-npc3d::npc3d(map3d* map3d_obj_) : npc(), map3d_obj(map3d_obj_) {
+npc3d::npc3d(map3d* map3d_obj_) : npc(), map3d_obj(map3d_obj_), l(NULL) {
 	time_per_tile = TIME_PER_TILE_NPC3D;
 	state = N3DS_FRONT1;
 	anim_dir = false;
@@ -35,8 +36,6 @@ npc3d::~npc3d() {
 void npc3d::draw() const {
 	if(!enabled) return;
 	if(npc_data == NULL) return;
-	
-	// TODO: !!!
 }
 
 void npc3d::handle() {
@@ -87,4 +86,26 @@ void npc3d::move(const size2& move_pos) {
 	pos = next_pos;
 	next_pos = move_pos;
 	pos_interp = 0.0f;
+}
+
+void npc3d::set_object_light(object_light_base* l_) {
+	l = l_;
+}
+
+void npc3d::set_enabled(const bool& state_) {
+	npc::set_enabled(state_);
+	if(l == NULL) return;
+	l->set_enabled(state_);
+}
+
+float3 npc3d::get_offset() const {
+	const labdata::lab_object* obj = map3d_obj->get_active_lab_data()->get_object(npc_data->object_num);
+	if(obj == NULL) return float3(0.0f);
+	return obj->offset[0];
+}
+
+float npc3d::get_y_scale() const {
+	const labdata::lab_object* obj = map3d_obj->get_active_lab_data()->get_object(npc_data->object_num);
+	if(obj == NULL) return 0.0f;
+	return obj->sub_objects[0]->y_scale;
 }

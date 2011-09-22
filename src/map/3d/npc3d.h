@@ -36,8 +36,14 @@ public:
 	virtual void move(const MOVE_DIRECTION& direction);
 	virtual void move(const size2& move_pos);
 	
+	virtual void set_object_light(object_light_base* l);
+	virtual void set_enabled(const bool& state);
+	virtual float3 get_offset() const;
+	virtual float get_y_scale() const;
+	
 protected:
 	map3d* map3d_obj;
+	object_light_base* l;
 	
 	size_t state;
 	bool anim_dir; // 0 = +, 1 = -

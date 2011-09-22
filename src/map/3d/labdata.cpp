@@ -96,7 +96,7 @@ labdata::labdata() {
 	// nak dungeons (106)
 	{
 		auto ls = new map<unsigned int, object_light_type>();
-		//ls->insert(make_pair(0, object_light_type::FIREFLY)); // TODO: moving objects
+		ls->insert(make_pair(31, object_light_type::FIREFLY));
 		ls->insert(make_pair(32, object_light_type::GLOWING_GRABBER));
 		ls->insert(make_pair(51, object_light_type::ARGIM));
 		ls->insert(make_pair(9, object_light_type::LIVING_WALL));

@@ -684,6 +684,8 @@ void map3d::load(const size_t& map_num) {
 		const auto& light_objects = lab_data->get_light_objects();
 		if(light_objects.count((unsigned int)cur_labdata_num) > 0) {
 			const auto& light_objs = light_objects.find((unsigned int)cur_labdata_num)->second;
+			
+			// objects
 			const float half_tile_size = tile_size * 0.5f;
 			for(size_t y = 0; y < map_size.y; y++) {
 				for(size_t x = 0; x < map_size.x; x++) {
@@ -692,9 +694,24 @@ void map3d::load(const size_t& map_num) {
 						const auto& lobj = light_objs->find(tile_obj);
 						if(lobj != light_objs->end()) {
 							// TODO: y dependent on map height
-							object_lights.push_back(object_light_base::create(lobj->second, float3(float(x)*tile_size + half_tile_size, 18.0f, float(y)*tile_size + half_tile_size)));
+							// use ceiling_height for now
+							object_lights.push_back(object_light_base::create(lobj->second, float3(float(x)*tile_size + half_tile_size, ceiling_height * 0.8f, float(y)*tile_size + half_tile_size)));
 						}
 					}
+				}
+			}
+			
+			// npcs
+			for(auto& n : npcs) {
+				const unsigned int obj_num = n->get_object_num();
+				if(obj_num == 0) continue;
+				const auto& lobj = light_objs->find(obj_num);
+				if(lobj != light_objs->end()) {
+					// TODO: look above
+					object_light_base* l = object_light_base::create(lobj->second, float3(0.0f, ceiling_height * 0.8f, 0.0f));
+					l->track(n);
+					l->set_enabled(n->is_enabled());
+					object_lights.push_back(l);
 				}
 			}
 		}
@@ -866,6 +883,7 @@ void map3d::handle() {
 	if(ani_time_diff > 0) {
 		object_light_ani_time += ani_time_diff;
 		for(auto& ol : object_lights) {
+			ol->handle();
 			ol->animate(ani_time_diff);
 		}
 	}
@@ -1167,4 +1185,8 @@ bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position,
 
 map_events& map3d::get_map_events() {
 	return mevents;
+}
+
+labdata* map3d::get_active_lab_data() const {
+	return lab_data;
 }

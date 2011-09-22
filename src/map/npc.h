@@ -41,6 +41,7 @@ public:
 	virtual void set_view_direction(const MOVE_DIRECTION& vdirection);
 	
 	virtual void set_npc_data(const map_npcs::map_npc* npc_data);
+	virtual unsigned int get_object_num() const;
 	
 	virtual void set_enabled(const bool& state);
 	virtual bool is_enabled() const;
