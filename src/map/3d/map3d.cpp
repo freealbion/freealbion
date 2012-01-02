@@ -375,6 +375,7 @@ void map3d::load(const size_t& map_num) {
 						if(wall->type & labdata::WT_TRANSPARENT) {
 							wall_transp_count++;
 							wall_count++;
+							if(wall->animation > 1) wall_ani_count++;
 						}
 						else if(wall->type & labdata::WT_CUT_ALPHA) {
 							wall_cutalpha_count++;
@@ -406,8 +407,8 @@ void map3d::load(const size_t& map_num) {
 	wall_tex_coords = new float2[wall_count*4];
 	wall_indices = new index3*[1+wall_transp_obj_count];
 	unsigned int* wall_index_count = new unsigned int[1+wall_transp_obj_count];
-	wall_indices[0] = new index3[(wall_count+wall_cutalpha_count-wall_transp_count)*2];
-	wall_index_count[0] = (unsigned int)(wall_count+wall_cutalpha_count-wall_transp_count)*2;
+	wall_indices[0] = new index3[(wall_count - wall_transp_count*2)*2];
+	wall_index_count[0] = (unsigned int)(wall_count - wall_transp_count*2)*2;
 
 	// floors/ceilings model
 	fc_vertices = new float3[fc_count*4];
@@ -486,7 +487,6 @@ void map3d::load(const size_t& map_num) {
 				if(tile_data->type & labdata::WT_TRANSPARENT) {
 					wall_subobj+=2;
 					transp_wall = true;
-					//cut_alpha_wall = false; // mutually exclusive
 					alpha_wall = true;
 					wall_indices[wall_subobj-1] = new index3[side_count*2];
 					wall_index_count[wall_subobj-1] = side_count*2;
@@ -978,16 +978,21 @@ void map3d::handle() {
 					}
 					else wall_ani_num += side_count-1; // already inc'ed by one
 					
-					for(size_t i = 0; i < 4; i++) {
-						// only add necessary walls
-						if((side & (unsigned char)(1 << i)) == 0) continue;
-						
-						wall_tex_coords[wall_index + 0].set(tc_b.x, tc_e.y);
-						wall_tex_coords[wall_index + 1].set(tc_e.x, tc_e.y);
-						wall_tex_coords[wall_index + 2].set(tc_b.x, tc_b.y);
-						wall_tex_coords[wall_index + 3].set(tc_e.x, tc_b.y);
-						
-						wall_index+=4;
+					bool alpha_wall = (tile_data->type & (labdata::WT_CUT_ALPHA | labdata::WT_TRANSPARENT));
+					if(alpha_wall) wall_ani_num += side_count;
+					
+					for(size_t alpha_side = 0; alpha_side < (alpha_wall ? 2 : 1); alpha_side++) {
+						for(size_t i = 0; i < 4; i++) {
+							// only add necessary walls
+							if((side & (unsigned char)(1 << i)) == 0) continue;
+							
+							wall_tex_coords[wall_index + 0].set(tc_b.x, tc_e.y);
+							wall_tex_coords[wall_index + 1].set(tc_e.x, tc_e.y);
+							wall_tex_coords[wall_index + 2].set(tc_b.x, tc_b.y);
+							wall_tex_coords[wall_index + 3].set(tc_e.x, tc_b.y);
+							
+							wall_index+=4;
+						}
 					}
 				}
 				break;

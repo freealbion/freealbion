@@ -27,7 +27,7 @@
 #include "palette.h"
 #include "clock.h"
 
-#define APPLICATION_NAME "Albion Remake"
+#define APPLICATION_NAME "Albion Remake PR1"
 
 #ifdef __WINDOWS__
 #pragma warning(disable: 4244)
