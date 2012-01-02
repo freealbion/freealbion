@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,12 +26,14 @@
 #include "map_defines.h"
 #include "albion_texture.h"
 
+#include <scene/model/a2estatic.h>
+
 class background3d : public a2estatic {
 public:
 	background3d();
 	virtual ~background3d();
 	
-	virtual void draw(const size_t draw_mode = 0);
+	virtual void draw(const DRAW_MODE draw_mode);
 
 	void load(const size_t& bg_num, const size_t& palette);
 	void unload();
@@ -44,6 +46,7 @@ protected:
 
 	a2e_texture bg_texture;
 	ssize_t cur_bg_num;
+	ssize_t cur_bg_palette;
 	
 	GLuint vbo_fs_triangle;
 	GLuint vbo_fs_coords;

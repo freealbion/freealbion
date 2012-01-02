@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,16 +18,20 @@
  */
 
 #include "main.h"
+#include <a2e.h>
 
 /*!
  * \mainpage
  *
  * \author flo
  *
- * \date April 2007 - August 2011
+ * \date April 2007 - January 2012
  *
  * Albion Remake
  */
+
+//
+static a2e_texture debug_tex;
 
 int main(int argc, char *argv[]) {
 	// initialize the engine
@@ -41,7 +45,6 @@ int main(int argc, char *argv[]) {
 	clck = new ar_clock();
 
 	// init class pointers
-	c = e->get_core();
 	fio = e->get_file_io();
 	eevt = e->get_event();
 	egfx = e->get_gfx();
@@ -54,22 +57,15 @@ int main(int argc, char *argv[]) {
 	
 	sce = new scene(e);
 	cam = new camera(e);
-	egui = new gui(e);
-	eui = new a2eui(e, egui);
-	gs = egui->get_gui_style();
-
-	// initialize the a2e events
-	eevt->init(sevent);
-
-	// initialize the gui
-	egui->init();
 
 	// initialize the camera
 	cam->set_position(0.0f, -80.0f, 0.0f);
 	cam->set_rotation(0.0f, 90.0f+45.0f, 0.0f);
-	cam->set_mouse_input(false);
 	cam->set_rotation_speed(300.0f);
 	cam->set_cam_speed(5.0f);
+	cam->set_mouse_input(false);
+	cam->set_keyboard_input(true);
+	cam->set_wasd_input(true);
 
 	// initialize the scene
 	sce->set_eye_distance(-0.3f);
@@ -88,6 +84,14 @@ int main(int argc, char *argv[]) {
 			done = true;
 		}
 	}
+	
+	// add event handlers
+	event::handler key_handler_fnctr(&key_handler);
+	eevt->add_event_handler(key_handler_fnctr, EVENT_TYPE::KEY_DOWN, EVENT_TYPE::KEY_UP, EVENT_TYPE::KEY_PRESSED);
+	event::handler mouse_handler_fnctr(&mouse_handler);
+	eevt->add_event_handler(mouse_handler_fnctr, EVENT_TYPE::MOUSE_RIGHT_CLICK);
+	event::handler quit_handler_fnctr(&quit_handler);
+	eevt->add_event_handler(quit_handler_fnctr, EVENT_TYPE::QUIT);
 
 	// load/init stuff
 	palettes = new pal();
@@ -95,15 +99,20 @@ int main(int argc, char *argv[]) {
 	bin_gfx = new bin_graphics();
 
 	mh = new map_handler();
-	//mh->load_map(42);
-	//mh->load_map(10);
-	//mh->load_map(50);
-	//mh->load_map(11);
-	mh->load_map(22);
-	//mh->load_map(183);
-	//mh->load_map(45);
-	//mh->load_map(47);
-	//mh->load_map(100);
+	size_t inital_map_num = 99; // shortcut map
+	if(argc > 1) {
+		const string map_num_str = argv[1];
+		if(!map_num_str.empty()) {
+			const size_t arg_map_num = string2size_t(map_num_str);
+			if(mh->get_map_type(arg_map_num) != MT_NONE) {
+				inital_map_num = arg_map_num;
+			}
+			else {
+				a2e_error("invalid map number or map type!");
+			}
+		}
+	}
+	mh->load_map(inital_map_num);
 
 	aui = new albion_ui(mh);
 	if(conf::get<bool>("ui.display")) {
@@ -111,172 +120,21 @@ int main(int argc, char *argv[]) {
 		aui->open_game_ui();
 	}
 	
-	// debug window
-	a2e_debug_wnd::init(e, eui, s, ocl, cam);
-	//a2e_debug_wnd::open();
-
-	//transtb* ttb = new transtb();
+	cam->set_keyboard_input(conf::get<bool>("debug.free_cam"));
 	
-	a2e_texture tmp_tex(new texture_object());
-	tmp_tex->width = e->get_width();
-	tmp_tex->height = e->get_height();
+	// debug window
+	//a2e_debug_wnd::init(e, eui, s, ocl, cam);
+	//a2e_debug_wnd::open();
+	
+	// for debugging purposes
+	debug_tex = a2e_texture(new texture_object());
+	debug_tex->width = e->get_width();
+	debug_tex->height = e->get_height();
+	
+	// main loop
 	while(!done) {
-		while(eevt->is_event()) {
-			eevt->handle_events(eevt->get_event().type);
-			switch(eevt->get_event().type) {
-				case SDL_QUIT:
-					done = true;
-					break;
-				case SDL_KEYDOWN:
-					switch(eevt->get_event().key.keysym.sym) {
-						case SDLK_ESCAPE:
-							done = true;
-							break;
-						case SDLK_CARET:
-							if(!a2e_debug_wnd::is_open()) a2e_debug_wnd::open();
-							else a2e_debug_wnd::close();
-							break;
-						case SDLK_g:
-							conf::set<bool>("ui.display", conf::get<bool>("ui.display") ^ true);
-							if(conf::get<bool>("ui.display")) {
-								aui->open_goto_map_wnd();
-								aui->open_game_ui();
-							}
-							else {
-								aui->close_goto_map_wnd();
-								aui->close_game_ui();
-							}
-							break;
-						case SDLK_c:
-							conf::set<bool>("map.collision", conf::get<bool>("map.collision") ^ true);
-							break;
-						case SDLK_t:
-							conf::set<bool>("debug.player_pos", conf::get<bool>("debug.player_pos") ^ true);
-							break;
-						case SDLK_u:
-							conf::set<bool>("map.draw_underlay", conf::get<bool>("map.draw_underlay") ^ true);
-							break;
-						case SDLK_o:
-							conf::set<bool>("map.draw_overlay", conf::get<bool>("map.draw_overlay") ^ true);
-							break;
-						case SDLK_e:
-							conf::set<bool>("debug.draw_events", conf::get<bool>("debug.draw_events") ^ true);
-							break;
-						case SDLK_q:
-							conf::set<bool>("debug.display_debug_texture", conf::get<bool>("debug.display_debug_texture") ^ true);
-							break;
-						case SDLK_n:
-							if(conf::get<size_t>("debug.npcgfx") > 0) {
-								conf::set<size_t>("debug.npcgfx", conf::get<size_t>("debug.npcgfx")-1);
-								cout << ":: " << conf::get<size_t>("debug.npcgfx") << endl;
-							}
-							break;
-						case SDLK_m:
-							if(conf::get<size_t>("debug.npcgfx") < 209) {
-								conf::set<size_t>("debug.npcgfx", conf::get<size_t>("debug.npcgfx")+1);
-								cout << ":: " << conf::get<size_t>("debug.npcgfx") << endl;
-							}
-							break;
-						case SDLK_1:
-							tmp_tex->tex_num = sce->_get_g_buffer(0)->tex_id[0];
-							conf::set<a2e_texture>("debug.texture", tmp_tex);
-							break;
-						case SDLK_2:
-							tmp_tex->tex_num = sce->_get_g_buffer(1)->tex_id[0];
-							conf::set<a2e_texture>("debug.texture", tmp_tex);
-							break;
-						case SDLK_3:
-							tmp_tex->tex_num = sce->_get_g_buffer(1)->tex_id[1];
-							conf::set<a2e_texture>("debug.texture", tmp_tex);
-							break;
-						case SDLK_4:
-							tmp_tex->tex_num = sce->_get_l_buffer(0)->tex_id[0];
-							conf::set<a2e_texture>("debug.texture", tmp_tex);
-							break;
-						case SDLK_5:
-							tmp_tex->tex_num = sce->_get_l_buffer(1)->tex_id[0];
-							conf::set<a2e_texture>("debug.texture", tmp_tex);
-							break;
-						case SDLK_6:
-							tmp_tex->tex_num = sce->_get_fxaa_buffer()->tex_id[0];
-							conf::set<a2e_texture>("debug.texture", tmp_tex);
-							break;
-						case SDLK_7:
-							tmp_tex->tex_num = sce->_get_scene_buffer()->tex_id[0];
-							conf::set<a2e_texture>("debug.texture", tmp_tex);
-							break;
-						case SDLK_v:
-							cam->set_cam_input(cam->get_cam_input() ^ true);
-							conf::set<bool>("debug.free_cam", cam->get_cam_input());
-							break;
-						case SDLK_MINUS:
-							clck->set_ticks(((clck->get_ticks() + AR_TICKS_PER_DAY) - AR_TICKS_PER_HOUR/4) % AR_TICKS_PER_DAY);
-							break;
-						case SDLK_PLUS:
-							clck->set_ticks(((clck->get_ticks() + AR_TICKS_PER_DAY) + AR_TICKS_PER_HOUR/4) % AR_TICKS_PER_DAY);
-							break;
-						case SDLK_LSHIFT:
-						case SDLK_RSHIFT:
-							cam->set_cam_speed(0.2f);
-							break;
-						case SDLK_LEFT:
-						case SDLK_a:
-							eevt->set_key_left(true);
-							mh->get_next_dir() |= MD_LEFT;
-							break;
-						case SDLK_RIGHT:
-						case SDLK_d:
-							eevt->set_key_right(true);
-							mh->get_next_dir() |= MD_RIGHT;
-							break;
-						case SDLK_UP:
-						case SDLK_w:
-							eevt->set_key_up(true);
-							mh->get_next_dir() |= MD_UP;
-							break;
-						case SDLK_DOWN:
-						case SDLK_s:
-							eevt->set_key_down(true);
-							mh->get_next_dir() |= MD_DOWN;
-							break;
-						default:
-						break;
-					}
-					break;
-				case SDL_KEYUP:
-					switch(eevt->get_event().key.keysym.sym) {
-						case SDLK_LSHIFT:
-						case SDLK_RSHIFT:
-							cam->set_cam_speed(5.0f);
-							break;
-						case SDLK_LEFT:
-						case SDLK_a:
-							eevt->set_key_left(false);
-							mh->get_next_dir() ^= MD_LEFT;
-							break;
-						case SDLK_RIGHT:
-						case SDLK_d:
-							eevt->set_key_right(false);
-							mh->get_next_dir() ^= MD_RIGHT;
-							break;
-						case SDLK_UP:
-						case SDLK_w:
-							eevt->set_key_up(false);
-							mh->get_next_dir() ^= MD_UP;
-							break;
-						case SDLK_DOWN:
-						case SDLK_s:
-							eevt->set_key_down(false);
-							mh->get_next_dir() ^= MD_DOWN;
-							break;
-						default:
-							break;
-					}
-					break;
-				default:
-				break;
-			}
-		}
+		// event handling
+		eevt->handle_events();
 		
 		// stop drawing if window is inactive
 		if(!(SDL_GetWindowFlags(e->get_window()) & SDL_WINDOW_INPUT_FOCUS)) {
@@ -296,22 +154,22 @@ int main(int argc, char *argv[]) {
 				
 				tbytes << mh->get_tile(0)->upper_bytes;
 				byte_strs[0] = tbytes.str();
-				c->reset(&tbytes);
+				core::reset(&tbytes);
 				tbytes << mh->get_tile(0)->lower_bytes;
 				byte_strs[1] = tbytes.str();
-				c->reset(&tbytes);
+				core::reset(&tbytes);
 				tbytes << mh->get_tile(1)->upper_bytes;
 				byte_strs[2] = tbytes.str();
-				c->reset(&tbytes);
+				core::reset(&tbytes);
 				tbytes << mh->get_tile(1)->lower_bytes;
 				byte_strs[3] = tbytes.str();
-				c->reset(&tbytes);
+				core::reset(&tbytes);
 				tbytes << mh->get_tile_num(0);
 				byte_strs[4] = tbytes.str();
-				c->reset(&tbytes);
+				core::reset(&tbytes);
 				tbytes << mh->get_tile_num(1);
 				byte_strs[5] = tbytes.str();
-				c->reset(&tbytes);
+				core::reset(&tbytes);
 
 				for(size_t i = 0; i < 6; i++) {
 					size_t add_zeros = 8 - byte_strs[i].length();
@@ -340,14 +198,13 @@ int main(int argc, char *argv[]) {
 			}
 
 			e->set_caption(caption.str().c_str());
-			c->reset(&caption);
+			core::reset(&caption);
 		}
 
 		clck->run();
 		mh->handle();
 
 		e->start_draw();
-		egui->handle_gui();
 		aui->run();
 
 		mh->draw();
@@ -375,25 +232,173 @@ int main(int argc, char *argv[]) {
 			}
 		}
 		
-		egui->draw();
+		aui->draw();
 
 		e->stop_draw();
 	}
-	tmp_tex->tex_num = 0;
+	debug_tex->tex_num = 0;
 	
-	a2e_debug_wnd::close();
-
-	//delete ttb;
+	//a2e_debug_wnd::close();
 
 	delete palettes;
 	delete bin_gfx;
 
 	delete aui;
-	delete eui;
-	delete egui;
 	delete sce;
 	delete cam;
 	delete e;
 
 	return 0;
+}
+
+
+bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
+	// cast correctly
+	if(type == EVENT_TYPE::KEY_DOWN) {
+		const shared_ptr<key_down_event>& key_evt = (shared_ptr<key_down_event>&)obj;
+		switch(key_evt->key) {
+			case SDLK_LSHIFT:
+			case SDLK_RSHIFT:
+				cam->set_cam_speed(0.2f);
+				break;
+			default:
+				return false;
+		}
+	}
+	else if(type == EVENT_TYPE::KEY_UP) {
+		const shared_ptr<key_up_event>& key_evt = (shared_ptr<key_up_event>&)obj;
+		switch(key_evt->key) {
+			case SDLK_LSHIFT:
+			case SDLK_RSHIFT:
+				cam->set_cam_speed(5.0f);
+				break;
+			default:
+				return false;
+		}
+	}
+	else { // EVENT_TYPE::KEY_PRESSED
+		const shared_ptr<key_pressed_event>& key_evt = (shared_ptr<key_pressed_event>&)obj;
+		switch(key_evt->key) {
+			case SDLK_ESCAPE:
+				done = true;
+				break;
+			/*case SDLK_CARET:
+				if(!a2e_debug_wnd::is_open()) a2e_debug_wnd::open();
+				else a2e_debug_wnd::close();
+				break;*/
+			case SDLK_g:
+				conf::set<bool>("ui.display", conf::get<bool>("ui.display") ^ true);
+				if(conf::get<bool>("ui.display")) {
+					aui->open_goto_map_wnd();
+					aui->open_game_ui();
+				}
+				else {
+					aui->close_goto_map_wnd();
+					aui->close_game_ui();
+				}
+				break;
+			case SDLK_c:
+				conf::set<bool>("map.collision", conf::get<bool>("map.collision") ^ true);
+				break;
+			case SDLK_t:
+				conf::set<bool>("debug.player_pos", conf::get<bool>("debug.player_pos") ^ true);
+				break;
+			case SDLK_u:
+				conf::set<bool>("map.draw_underlay", conf::get<bool>("map.draw_underlay") ^ true);
+				break;
+			case SDLK_o:
+				conf::set<bool>("map.draw_overlay", conf::get<bool>("map.draw_overlay") ^ true);
+				break;
+			case SDLK_e:
+				conf::set<bool>("debug.draw_events", conf::get<bool>("debug.draw_events") ^ true);
+				break;
+			case SDLK_q:
+				conf::set<bool>("debug.display_debug_texture", conf::get<bool>("debug.display_debug_texture") ^ true);
+				break;
+			case SDLK_n:
+				if(conf::get<size_t>("debug.npcgfx") > 0) {
+					conf::set<size_t>("debug.npcgfx", conf::get<size_t>("debug.npcgfx")-1);
+					cout << ":: " << conf::get<size_t>("debug.npcgfx") << endl;
+				}
+				break;
+			case SDLK_m:
+				if(conf::get<size_t>("debug.npcgfx") < 209) {
+					conf::set<size_t>("debug.npcgfx", conf::get<size_t>("debug.npcgfx")+1);
+					cout << ":: " << conf::get<size_t>("debug.npcgfx") << endl;
+				}
+				break;
+			case SDLK_r:
+				cam->set_position(0.0f, -8.0f, 0.0f);
+				cam->set_rotation(0.0f, 90.0f+45.0f, 0.0f);
+				break;
+			case SDLK_1:
+				debug_tex->tex_num = sce->_get_g_buffer(0)->tex_id[0];
+				conf::set<a2e_texture>("debug.texture", debug_tex);
+				break;
+			case SDLK_2:
+				debug_tex->tex_num = sce->_get_g_buffer(1)->tex_id[0];
+				conf::set<a2e_texture>("debug.texture", debug_tex);
+				break;
+			case SDLK_3:
+				debug_tex->tex_num = sce->_get_g_buffer(1)->tex_id[1];
+				conf::set<a2e_texture>("debug.texture", debug_tex);
+				break;
+			case SDLK_4:
+				debug_tex->tex_num = sce->_get_l_buffer(0)->tex_id[0];
+				conf::set<a2e_texture>("debug.texture", debug_tex);
+				break;
+			case SDLK_5:
+				debug_tex->tex_num = sce->_get_l_buffer(1)->tex_id[0];
+				conf::set<a2e_texture>("debug.texture", debug_tex);
+				break;
+			case SDLK_6:
+				debug_tex->tex_num = sce->_get_fxaa_buffer()->tex_id[0];
+				conf::set<a2e_texture>("debug.texture", debug_tex);
+				break;
+			case SDLK_7:
+				debug_tex->tex_num = sce->_get_scene_buffer()->tex_id[0];
+				conf::set<a2e_texture>("debug.texture", debug_tex);
+				break;
+			case SDLK_v:
+				cam->set_keyboard_input(cam->get_keyboard_input() ^ true);
+				conf::set<bool>("debug.free_cam", cam->get_keyboard_input());
+				break;
+			case SDLK_MINUS:
+			case SDLK_KP_MINUS:
+				clck->set_ticks(((clck->get_ticks() + AR_TICKS_PER_DAY) - AR_TICKS_PER_HOUR/4) % AR_TICKS_PER_DAY);
+				break;
+			case SDLK_PLUS:
+			case SDLK_KP_PLUS:
+				clck->set_ticks(((clck->get_ticks() + AR_TICKS_PER_DAY) + AR_TICKS_PER_HOUR/4) % AR_TICKS_PER_DAY);
+				break;
+			case SDLK_F18:
+			case SDLK_9:
+				e->reload_shaders();
+				break;
+			case SDLK_F19:
+			case SDLK_0:
+				e->reload_kernels();
+				break;
+			case SDLK_F7:
+				mh->load_map(99);
+				break;
+			default:
+				return false;
+		}
+	}
+	return true;
+}
+
+bool mouse_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
+	if(type == EVENT_TYPE::MOUSE_RIGHT_CLICK) {
+		const bool cur_state = cam->get_mouse_input();
+		cam->set_mouse_input(cur_state ^ true);
+		e->set_cursor_visible(cur_state);
+	}
+	return true;
+}
+
+bool quit_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
+	done = true;
+	return true;
 }

@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,9 +37,9 @@ protected:
 	float3* ws_positions;
 	GLuint vbo_ws_position_id;
 	
-	virtual const string select_shader(const size_t& draw_mode) const;
-	virtual void pre_draw_geometry(gl2shader& shd, size_t& attr_array_mask, size_t& texture_mask);
-	virtual void pre_draw_material(gl2shader& shd, size_t& attr_array_mask, size_t& texture_mask);
+	virtual const string select_shader(const DRAW_MODE& draw_mode) const;
+	virtual void pre_draw_geometry(gl3shader& shd, size_t& attr_array_mask, size_t& texture_mask);
+	virtual void pre_draw_material(gl3shader& shd, size_t& attr_array_mask, size_t& texture_mask);
 
 };
 

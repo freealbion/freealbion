@@ -7,6 +7,12 @@ ALBION_MAKE_PLATFORM="32"
 ALBION_ARGS=""
 ALBION_CPU_COUNT=1
 
+if [[ $# > 0 && $1 == "gcc" ]]; then
+	ALBION_ARGS="--gcc"
+else
+	ALBION_ARGS="--clang"
+fi
+
 case $( uname | tr [:upper:] [:lower:] ) in
 	"darwin")
 		ALBION_OS="macosx"
@@ -43,10 +49,12 @@ case $( uname -m ) in
 	"i386"|"i486"|"i586"|"i686")
 		ALBION_PLATFORM="x32"
 		ALBION_MAKE_PLATFORM="32"
+		ALBION_ARGS+=" --platform x32"
 		;;
 	"x86_64"|"amd64")
 		ALBION_PLATFORM="x64"
 		ALBION_MAKE_PLATFORM="64"
+		ALBION_ARGS+=" --platform x64"
 		;;
 	*)
 		echo "unknown architecture - using "${ALBION_PLATFORM}

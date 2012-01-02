@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,14 +20,11 @@
 #ifndef __AR_PALETTE_H__
 #define __AR_PALETTE_H__
 
-#include <a2e.h>
+#include <vector>
+using namespace std;
 
-/*! @class pal
- *  @brief palette loader
- *  @author flo
- *  
- *  loads the palettes
- */
+template <typename T> class vector2;
+typedef vector2<size_t> size2;
 
 class pal {
 public:

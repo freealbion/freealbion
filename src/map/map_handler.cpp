@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,8 +18,10 @@
  */
 
 #include "map_handler.h"
+#include <scene/camera.h>
+#include <scene/scene.h>
 
-map_handler::map_handler() {
+map_handler::map_handler() : key_handler_fnctr(this, &map_handler::key_handler) {
 	// load maps
 	maps1 = new xld("MAPDATA1.XLD");
 	maps2 = new xld("MAPDATA2.XLD");
@@ -59,38 +61,13 @@ map_handler::map_handler() {
 	//
 	last_key_press = SDL_GetTicks();
 	last_move = SDL_GetTicks();
-	next_dir = MD_NONE;
-	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_w);
-	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_a);
-	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_s);
-	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_d);
-	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_UP);
-	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_DOWN);
-	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_LEFT);
-	eevt->add_event_callback(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_RIGHT);
-	eevt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_w);
-	eevt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_a);
-	eevt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_s);
-	eevt->add_event_callback(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_d);
-	eevt->add_event_callback(this, &map_handler::handle_right_click, event::RIGHT_MOUSE_CLICK, 0);
-	eevt->add_event_callback(this, &map_handler::handle_right_click, event::KEY_PRESSED, SDLK_x);
+	AtomicSet(&next_dir, MD_NONE);
+	
+	eevt->add_event_handler(key_handler_fnctr, EVENT_TYPE::KEY_DOWN, EVENT_TYPE::KEY_UP);
 }
 
 map_handler::~map_handler() {
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_w);
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_a);
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_s);
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_d);
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_UP);
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_DOWN);
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_LEFT);
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_down, event::KEY_DOWN, SDLK_RIGHT);
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_w);
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_a);
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_s);
-	eevt->delete_event_callbacks(this, &map_handler::handle_key_up, event::KEY_PRESSED, SDLK_d);
-	eevt->delete_event_callbacks(this, &map_handler::handle_right_click, event::RIGHT_MOUSE_CLICK, 0);
-	eevt->delete_event_callbacks(this, &map_handler::handle_right_click, event::KEY_PRESSED, SDLK_x);
+	// TODO: remove event handler
 	
 	delete maps1;
 	delete maps2;
@@ -105,24 +82,82 @@ map_handler::~map_handler() {
 	delete p3d;
 }
 
+bool map_handler::key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
+	if(conf::get<bool>("debug.free_cam") &&
+	   active_map_type == MT_3D_MAP) {
+		return false;
+	}
+	
+	if(type == EVENT_TYPE::KEY_DOWN) {
+		const shared_ptr<key_down_event>& key_evt = (shared_ptr<key_down_event>&)obj;
+		switch(key_evt->key) {
+			case SDLK_LEFT:
+			case SDLK_a:
+				AtomicOR(&next_dir, MD_LEFT);
+				break;
+			case SDLK_RIGHT:
+			case SDLK_d:
+				AtomicOR(&next_dir, MD_RIGHT);
+				break;
+			case SDLK_UP:
+			case SDLK_w:
+				AtomicOR(&next_dir, MD_UP);
+				break;
+			case SDLK_DOWN:
+			case SDLK_s:
+				AtomicOR(&next_dir, MD_DOWN);
+				break;
+			default:
+				return false;
+		}
+	}
+	else if(type == EVENT_TYPE::KEY_UP) {
+		const shared_ptr<key_up_event>& key_evt = (shared_ptr<key_up_event>&)obj;
+		switch(key_evt->key) {
+			case SDLK_LEFT:
+			case SDLK_a:
+				AtomicAND(&next_dir, ~MD_LEFT);
+				break;
+			case SDLK_RIGHT:
+			case SDLK_d:
+				AtomicAND(&next_dir, ~MD_RIGHT);
+				break;
+			case SDLK_UP:
+			case SDLK_w:
+				AtomicAND(&next_dir, ~MD_UP);
+				break;
+			case SDLK_DOWN:
+			case SDLK_s:
+				AtomicAND(&next_dir, ~MD_DOWN);
+				break;
+			default:
+				return false;
+		}
+	}
+	else return false;
+	return true;
+}
+
 void map_handler::handle() {
 	const events::map_exit_event* me_evt = NULL;
+	const MOVE_DIRECTION cur_next_dir = (MOVE_DIRECTION)AtomicGet(&next_dir);
+	size2 player_pos(0, 0);
 	if(active_map_type == MT_2D_MAP) {
-		if(next_dir != MD_NONE && (SDL_GetTicks() - last_move) > TIME_PER_TILE) {
+		if(cur_next_dir != MD_NONE && (SDL_GetTicks() - last_move) > TIME_PER_TILE) {
 			last_move = SDL_GetTicks();
-			p2d->move((MOVE_DIRECTION)next_dir);
+			p2d->move(cur_next_dir);
 		}
 		if(p2d->has_moved()) {
 			p2d->set_moved(false);
-			const size2& player_pos = p2d->get_pos();
+			player_pos = p2d->get_pos();
 			me_evt = maps2d->get_map_events().get_map_exit_event(player_pos);
 		}
 	}
 	else if(active_map_type == MT_3D_MAP) {
-		p3d->move((MOVE_DIRECTION)next_dir);
+		p3d->move(cur_next_dir);
 		if(p3d->has_moved()) {
 			p3d->set_moved(false);
-			const size2& player_pos = p3d->get_pos();
+			player_pos = p3d->get_pos();
 			maps3d->get_map_events();
 			me_evt = maps3d->get_map_events().get_map_exit_event(player_pos);
 		}
@@ -130,7 +165,12 @@ void map_handler::handle() {
 	
 	// map change
 	if(me_evt != NULL) {
-		load_map(me_evt->next_map-100, size2(me_evt->map_x-1, me_evt->map_y-1), me_evt->direction);
+		size2 map_pos = size2(me_evt->map_x-1, me_evt->map_y-1);
+		// the map change event pos might be (0, 0), in which case the player pos should be used
+		if(me_evt->map_x == 0 || me_evt->map_y == 0) {
+			map_pos = player_pos;
+		}
+		load_map(me_evt->next_map-100, map_pos, me_evt->direction);
 		return;
 	}
 	
@@ -143,7 +183,6 @@ void map_handler::handle() {
 void map_handler::draw() {
 	if(active_map_type == MT_2D_MAP) {
 		e->start_2d_draw();
-		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 	
 		maps2d->draw(MDS_NPCS, NDS_PRE_UNDERLAY);
@@ -198,29 +237,9 @@ void map_handler::load_map(const size_t& map_num, const size2 player_pos, const 
 		p3d->set_view_direction(player_direction);
 		active_map_type = MT_3D_MAP;
 	}
-}
-
-void map_handler::handle_key_down(event::GUI_EVENT_TYPE type, GUI_ID id) {
-	last_key_press = SDL_GetTicks();
 	
-	/*switch(id) {
-		default:
-			break;
-	}*/
-}
-
-void map_handler::handle_key_up(event::GUI_EVENT_TYPE type, GUI_ID id) {
-	/*switch(id) {
-		default:
-			break;
-	}*/
-}
-
-void map_handler::handle_right_click(event::GUI_EVENT_TYPE type, GUI_ID id) {
-	if(active_map_type == MT_3D_MAP) {
-		cam->set_mouse_input(cam->get_mouse_input() ^ true);
-		e->set_cursor_visible(cam->get_mouse_input() ^ true);
-	}
+	// reset move direction
+	AtomicSet(&next_dir, MD_NONE);
 }
 
 const size2& map_handler::get_player_position() const {
@@ -253,7 +272,7 @@ MAP_TYPE map_handler::get_map_type(const size_t& map_num) const {
 	return MT_NONE;
 }
 
-void map_handler::debug_draw() {
+void map_handler::debug_draw(const DRAW_MODE) {
 	if(conf::get<bool>("debug.player_pos")) {
 		ssize3 tile_info = get_3d_tile();
 		if(tile_info.min_element() >= 0) {
@@ -266,8 +285,4 @@ void map_handler::debug_draw() {
 			egfx->draw_bbox(&box, 0x7FFF0000);
 		}
 	}
-}
-
-size_t& map_handler::get_next_dir() {
-	return next_dir;
 }

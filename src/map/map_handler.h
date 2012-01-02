@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -47,14 +47,13 @@ public:
 	
 	//
 	const size2& get_player_position() const;
-	size_t& get_next_dir();
 	
 	// DEBUG: for debugging purposes
 	tileset::tile_object* get_tile(unsigned int type);
 	unsigned int get_tile_num(unsigned int type);
 	const MAP_TYPE& get_active_map_type() const;
 	const ssize3 get_3d_tile() const;
-	void debug_draw();
+	void debug_draw(const DRAW_MODE);
 
 protected:
 	tileset* tilesets;
@@ -72,10 +71,9 @@ protected:
 	//
 	size_t last_key_press;
 	size_t last_move;
-	size_t next_dir;
-	void handle_key_down(event::GUI_EVENT_TYPE type, GUI_ID id);
-	void handle_key_up(event::GUI_EVENT_TYPE type, GUI_ID id);
-	void handle_right_click(event::GUI_EVENT_TYPE type, GUI_ID id);
+	atomic_t next_dir;
+	event::handler key_handler_fnctr;
+	bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj);
 	
 	MAP_TYPE active_map_type;
 

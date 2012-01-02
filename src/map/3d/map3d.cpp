@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -71,11 +71,15 @@ map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) : lab_data(
 	sun_light->set_type(light::LT_DIRECTIONAL);
 	sce->add_light(sun_light);
 	sun_distance = 100.0f;
-	SDL_Surface* sun_light_tex = IMG_Load(e->data_path("sun_light.png"));
+	SDL_Surface* sun_light_tex = IMG_Load(e->data_path("sun_light.png").c_str());
 	sun_color_table.reserve(sun_light_tex->w);
+	const int bpp = (int)sun_light_tex->format->BytesPerPixel;
 	for(int i = 0; i < sun_light_tex->w; i++) {
-		unsigned char* color = ((unsigned char*)sun_light_tex->pixels) + i*4;
-		sun_color_table.push_back(float3(*(color+2), *(color+1), *color) / 255.0f);
+		unsigned char* color = ((unsigned char*)sun_light_tex->pixels) + i*bpp;
+		const float r = *(color + (sun_light_tex->format->Rshift / 8));
+		const float g = *(color + (sun_light_tex->format->Gshift / 8));
+		const float b = *(color + (sun_light_tex->format->Bshift / 8));
+		sun_color_table.push_back(float3(r, g, b) / 255.0f);
 	}
 	SDL_FreeSurface(sun_light_tex);
 	active_sun_light = false;
@@ -139,9 +143,9 @@ void map3d::load(const size_t& map_num) {
 	ow_tiles = new unsigned int[map_size.x*map_size.y];
 	floor_tiles = new unsigned int[map_size.x*map_size.y];
 	ceiling_tiles = new unsigned int[map_size.x*map_size.y];
-
+	
 	lab_data->load((cur_labdata_num < 100 ? cur_labdata_num-1 : cur_labdata_num), map_palette-1);
-
+	
 	if(lab_data->get_lab_info()->background != 0) {
 		bg3d->load(lab_data->get_lab_info()->background-1, map_palette-1);
 		active_sun_light = true;
@@ -368,7 +372,10 @@ void map3d::load(const size_t& map_num) {
 					if((side & (unsigned char)(1 << i)) > 0) {
 						if(wall->animation > 1) wall_ani_count++;
 						
-						if(wall->type & labdata::WT_TRANSPARENT) wall_transp_count++;
+						if(wall->type & labdata::WT_TRANSPARENT) {
+							wall_transp_count++;
+							wall_count++;
+						}
 						else if(wall->type & labdata::WT_CUT_ALPHA) {
 							wall_cutalpha_count++;
 							wall_count++;
@@ -474,12 +481,13 @@ void map3d::load(const size_t& map_num) {
 					if((side & (unsigned char)(1 << i)) != 0) side_count++;
 				}
 				
-				bool cut_alpha_wall = (tile_data->type & labdata::WT_CUT_ALPHA);
+				bool alpha_wall = (tile_data->type & labdata::WT_CUT_ALPHA);
 				bool transp_wall = false;
 				if(tile_data->type & labdata::WT_TRANSPARENT) {
 					wall_subobj+=2;
 					transp_wall = true;
-					cut_alpha_wall = false; // mutually exclusive
+					//cut_alpha_wall = false; // mutually exclusive
+					alpha_wall = true;
 					wall_indices[wall_subobj-1] = new index3[side_count*2];
 					wall_index_count[wall_subobj-1] = side_count*2;
 					wall_indices[wall_subobj] = new index3[side_count*2];
@@ -493,13 +501,13 @@ void map3d::load(const size_t& map_num) {
 					wall_index = wall_ani_offset + wall_ani_num*4;
 					wall_ani_num+=side_count;
 					animated_tiles.push_back(make_tuple(1, ow_tiles[y*map_size.x + x], uint2(x, y)));
-					if(cut_alpha_wall) {
+					if(alpha_wall) {
 						wall_ani_num+=side_count;
 					}
 				}
 				else {
 					wall_static_num+=side_count;
-					if(cut_alpha_wall) {
+					if(alpha_wall) {
 						wall_static_num+=side_count;
 					}
 				}
@@ -508,8 +516,8 @@ void map3d::load(const size_t& map_num) {
 
 				const float2& tc_b = tile_data->tex_coord_begin[0];
 				const float2& tc_e = tile_data->tex_coord_end[0];
-				unsigned int wall_transp_num = 0;
-				for(size_t cut_alpha_side = 0; cut_alpha_side < (cut_alpha_wall ? 2 : 1); cut_alpha_side++) {
+				for(size_t alpha_side = 0; alpha_side < (alpha_wall ? 2 : 1); alpha_side++) {
+					unsigned int wall_transp_num = 0;
 					for(size_t i = 0; i < 4; i++) {
 						// only add necessary walls
 						if((side & (unsigned char)(1 << i)) == 0) continue;
@@ -547,20 +555,22 @@ void map3d::load(const size_t& map_num) {
 						wall_tex_coords[wall_index + 2].set(tc_b.x, tc_b.y);
 						wall_tex_coords[wall_index + 3].set(tc_e.x, tc_b.y);
 						
+						// draw both sides of an transparent or alpha tested wall
 						if(transp_wall) {
-							// side #1
-							wall_indices[wall_subobj-1][wall_transp_num*2].set(wall_index + 1, wall_index + 0, wall_index + 2);
-							wall_indices[wall_subobj-1][wall_transp_num*2 + 1].set(wall_index + 2, wall_index + 3, wall_index + 1);
-							
-							// side #2
-							wall_indices[wall_subobj][wall_transp_num*2].set(wall_index + 2, wall_index + 0, wall_index + 1);
-							wall_indices[wall_subobj][wall_transp_num*2 + 1].set(wall_index + 1, wall_index + 3, wall_index + 2);
-							
+							if(alpha_side == 0) {
+								// side #1
+								wall_indices[wall_subobj-1][wall_transp_num*2].set(wall_index + 1, wall_index + 0, wall_index + 2);
+								wall_indices[wall_subobj-1][wall_transp_num*2 + 1].set(wall_index + 2, wall_index + 3, wall_index + 1);
+							}
+							else {
+								// side #2
+								wall_indices[wall_subobj][wall_transp_num*2].set(wall_index + 2, wall_index + 0, wall_index + 1);
+								wall_indices[wall_subobj][wall_transp_num*2 + 1].set(wall_index + 1, wall_index + 3, wall_index + 2);
+							}
 							wall_transp_num++;
 						}
 						else {
-							// draw both sides of an alpha tested wall
-							if(cut_alpha_side == 0) {
+							if(alpha_side == 0) {
 								wall_indices[0][wall_num*2].set(wall_index + 1,
 																wall_index + 0,
 																wall_index + 2);
@@ -863,11 +873,13 @@ void map3d::clock_tick(size_t ticks) {
 		// set sun light color
 		// intensity = 1 - (x - 0.5)^2 / 0.8
 		const float intensity = 1.0f - (norm_progression - 0.5f)*(norm_progression - 0.5f)*1.25f;
-		sun_light->set_color(intensity * sun_color_table[size_t(norm_progression * float(sun_color_table.size()))]);
-		sun_light->set_ambient(sun_light->get_color() * 0.25f);
-		bg3d->set_light_color(sun_light->get_color());
+		const float3 sun_light_color = float3(intensity * sun_color_table[size_t(norm_progression * float(sun_color_table.size()))]).clamped(0.0f, 1.0f);
+		sun_light->set_color(sun_light_color);
+		sun_light->set_ambient(sun_light_color * 0.25f);
+		bg3d->set_light_color(sun_light_color);
 	}
 	else {
+		bg3d->set_light_color(float3(0.0f));
 		sun_light->set_enabled(false);
 	}
 }

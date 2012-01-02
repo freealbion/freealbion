@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 
 #include "map2d.h"
 #include "npc2d.h"
+#include <engine.h>
+#include <rendering/shader.h>
 
 static const float tile_size = 16.0f; // ^= 16 px, original size
 static const float snap_epsilon = 0.05f;
@@ -404,7 +406,7 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 		const tileset::tileset_object& tileset_obj = tilesets->get_cur_tileset();
 		const map_layer& cur_layer = (draw_stage == MDS_UNDERLAY ? layers[0] : layers[1]);
 		
-		gl2shader shd = s->get_gl2shader("SIMPLE");
+		gl3shader shd = s->get_gl3shader("SIMPLE");
 		shd->use("textured");
 		shd->uniform("mvpm", *mvm * *pm);
 		shd->texture("tex", tileset_obj.tileset->tex());

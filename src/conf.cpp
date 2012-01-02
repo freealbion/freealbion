@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,9 @@
 
 #include "conf.h"
 #include "scaling.h"
+#include <engine.h>
+#include <rendering/texture_object.h>
+#include <core/xml.h>
 
 //
 map<string, void*> conf::settings;
@@ -106,25 +109,38 @@ CONF_TYPES(CONF_DEFINE_ADD_FUNCS)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 
+scaling::SCALE_TYPE get_scale_type(const string& str);
+scaling::SCALE_TYPE get_scale_type(const string& str) {
+	if(str == "1x") return scaling::ST_NEAREST_1X;
+	else if(str == "2x") return scaling::ST_NEAREST_2X;
+	else if(str == "4x") return scaling::ST_NEAREST_4X;
+	else if(str == "hq2x") return scaling::ST_HQ2X;
+	else if(str == "hq4x") return scaling::ST_HQ4X;
+	return scaling::ST_NEAREST_1X;
+}
+
 void conf::init() {
+	const xml::xml_doc& config_doc = e->get_config_doc();
+	
 	// add misc conf settings
-	conf::add<bool>("map.collision", true);
+	conf::add<bool>("map.collision", config_doc.get<bool>("config.albion.map.collision", true));
 	conf::add<bool>("map.draw_overlay", true);
 	conf::add<bool>("map.draw_underlay", true);
 	conf::add<float>("map.scale", 2.0f); // original scale: 3.0f
-	conf::add<scaling::SCALE_TYPE>("map.2d.scale_type", scaling::ST_HQ4X);
-	conf::add<scaling::SCALE_TYPE>("map.3d.scale_type", scaling::ST_HQ4X);
-	//conf::add<scaling::SCALE_TYPE>("map.3d.scale_type", scaling::ST_HQ2X);
-	//conf::add<scaling::SCALE_TYPE>("map.3d.scale_type", scaling::ST_NEAREST_4X);
-	//conf::add<scaling::SCALE_TYPE>("map.3d.scale_type", scaling::ST_NEAREST_1X);
-	conf::add<bool>("map.3d.object_lights", true);
-	conf::add<size_t>("map.hour", 8);
+	conf::add<scaling::SCALE_TYPE>("map.2d.scale_type",
+								   get_scale_type(config_doc.get<string>("config.albion.map.scale_2d",
+																		 "hq4x")));
+	conf::add<scaling::SCALE_TYPE>("map.3d.scale_type",
+								   get_scale_type(config_doc.get<string>("config.albion.map.scale_3d",
+																		 "hq4x")));
+	conf::add<bool>("map.3d.object_lights", config_doc.get<bool>("config.albion.map.object_lights", true));
+	conf::add<size_t>("map.hour", config_doc.get<size_t>("config.albion.map.hour", 8) % 24);
 	
-	conf::add<bool>("ui.display", false);
+	conf::add<bool>("ui.display", true);
 	
 	conf::add<bool>("debug.player_pos", false);
 	conf::add<bool>("debug.draw_events", false);
 	conf::add<bool>("debug.display_debug_texture", false);
-	conf::add<size_t>("debug.npcgfx", 200);
-	conf::add<bool>("debug.free_cam", true);
+	conf::add<size_t>("debug.npcgfx", config_doc.get<size_t>("config.albion.debug.player_gfx", 200));
+	conf::add<bool>("debug.free_cam", config_doc.get<bool>("config.albion.debug.free_cam", false));
 }

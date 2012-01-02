@@ -21,7 +21,9 @@ out vec4 frag_color;
 		</variables>
 		<program>
 void main() {
-	vec4 color = texture(src_buffer, tex_coord);
+	// this should be done per texel (-> point filtering)
+	ivec2 itex_coord = ivec2(vec2(textureSize(src_buffer, 0)) * tex_coord);
+	vec4 color = texelFetch(src_buffer, itex_coord, 0);
 	const vec3 luma_vec = vec3(0.2126, 0.7152, 0.0722);
 	frag_color = vec4(color.xyz, dot(color.xyz, luma_vec));
 }

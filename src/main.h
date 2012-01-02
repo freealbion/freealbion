@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -41,9 +41,12 @@ albion_ui* aui;
 
 bool done = false;
 
-SDL_Event sevent;
-
 stringstream caption;
 stringstream tmp;
+
+// prototypes
+bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj);
+bool mouse_handler(EVENT_TYPE type, shared_ptr<event_object> obj);
+bool quit_handler(EVENT_TYPE type, shared_ptr<event_object> obj);
 
 #endif

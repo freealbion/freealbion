@@ -42,7 +42,6 @@
 		5C32C6E61355298C00164662 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06B00E1261336C00405DE8 /* SDL.framework */; };
 		5C32C6E71355298C00164662 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06B00C1261336700405DE8 /* OpenGL.framework */; };
 		5C32C6E81355298C00164662 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFDB12612E4800405DE8 /* AppKit.framework */; };
-		5C32C6E91355298C00164662 /* liba2ed.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFDC12612E4800405DE8 /* liba2ed.dylib */; };
 		5C32C6EA1355298C00164662 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFA012612D3500405DE8 /* Cocoa.framework */; };
 		5CA6D2B1141A25AE00551A6B /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5CA6D2B0141A25AE00551A6B /* SDL_image.framework */; };
 		5CFC5D1413E46E5200824F9C /* bin_graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CFC5D1213E46E5200824F9C /* bin_graphics.cpp */; };
@@ -51,13 +50,14 @@
 /* Begin PBXFileReference section */
 		5C06AFA012612D3500405DE8 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		5C06AFDB12612E4800405DE8 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		5C06AFDC12612E4800405DE8 /* liba2ed.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liba2ed.dylib; path = Developer/SDKs/MacOSX10.6.sdk/usr/local/lib/liba2ed.dylib; sourceTree = SDKROOT; };
 		5C06B00C1261336700405DE8 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		5C06B00E1261336C00405DE8 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Developer/SDKs/MacOSX10.6.sdk/Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
 		5C0B62251296E8C000205335 /* map_tiles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = map_tiles.cpp; sourceTree = "<group>"; };
 		5C0B62261296E8C000205335 /* map_tiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_tiles.h; sourceTree = "<group>"; };
 		5C1669E2133F96F100FFF846 /* hq2x.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hq2x.cpp; sourceTree = "<group>"; };
 		5C1669E5133F985800FFF846 /* hqx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hqx.h; sourceTree = "<group>"; };
+		5C22ECCE1445ED56006025F1 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = data/config.xml; sourceTree = "<group>"; };
+		5C22ECD01445F2B0006025F1 /* config.dtd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.dtd; path = data/dtd/config.dtd; sourceTree = "<group>"; };
 		5C28FB36128F0CE200FBDEC1 /* background3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = background3d.cpp; sourceTree = "<group>"; };
 		5C28FB37128F0CE200FBDEC1 /* background3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = background3d.h; sourceTree = "<group>"; };
 		5C2951FA140031EE003C6E13 /* a2e_cl_global.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = a2e_cl_global.h; sourceTree = "<group>"; };
@@ -69,7 +69,7 @@
 		5C2C9286140AE73B00AC808C /* simple.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text; name = simple.a2eshd; path = data/shader/misc/simple.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C2E8090141C61DF00C4A0EE /* object_light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = object_light.cpp; sourceTree = "<group>"; };
 		5C2E8093141C61EB00C4A0EE /* object_light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = object_light.h; sourceTree = "<group>"; };
-		5C32C6EF1355298C00164662 /* Albion Remake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Albion Remake.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C32C6EF1355298C00164662 /* Albion Remaked.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Albion Remaked.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C34B58713E8E85E004E705F /* fxaa3.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = fxaa3.a2eshd; path = data/shader/misc/fxaa3.a2eshd; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C51E76612CC164F00C4E0EA /* mp_map_objects.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mp_map_objects.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C51E76712CC164F00C4E0EA /* mp_map_tiles.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mp_map_tiles.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
@@ -91,6 +91,7 @@
 		5C6A50B5140DB1BD00EA5C1A /* global.a2eshdi */ = {isa = PBXFileReference; lastKnownFileType = text; path = global.a2eshdi; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C6D6971132C7628007DF2B2 /* player3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player3d.cpp; sourceTree = "<group>"; };
 		5C6D6972132C7629007DF2B2 /* player3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player3d.h; sourceTree = "<group>"; };
+		5C6E2D2A14AA25C300FBD924 /* downsample.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = downsample.a2eshd; path = data/shader/misc/downsample.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C70CF5412CBAFB500F988D3 /* gp_gbuffer_map_objects.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = gp_gbuffer_map_objects.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C70CF5512CBAFB500F988D3 /* gp_gbuffer_map_tiles.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = gp_gbuffer_map_tiles.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C70CF5B12CBBBBC00F988D3 /* mp_sky.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mp_sky.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
@@ -167,7 +168,6 @@
 				5C32C6E61355298C00164662 /* SDL.framework in Frameworks */,
 				5C32C6E71355298C00164662 /* OpenGL.framework in Frameworks */,
 				5C32C6E81355298C00164662 /* AppKit.framework in Frameworks */,
-				5C32C6E91355298C00164662 /* liba2ed.dylib in Frameworks */,
 				5C32C6EA1355298C00164662 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -225,6 +225,8 @@
 				5C9C51291265490100A15B31 /* InfoPlist.strings */,
 				5C9C512B1265490100A15B31 /* MainMenu.xib */,
 				5C9C512D1265490100A15B31 /* Credits.rtf */,
+				5C22ECCE1445ED56006025F1 /* config.xml */,
+				5C22ECD01445F2B0006025F1 /* config.dtd */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -238,7 +240,6 @@
 				5C06B00C1261336700405DE8 /* OpenGL.framework */,
 				5C06AFDB12612E4800405DE8 /* AppKit.framework */,
 				5C06AFA012612D3500405DE8 /* Cocoa.framework */,
-				5C06AFDC12612E4800405DE8 /* liba2ed.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -246,7 +247,7 @@
 		5C06AF9E12612D3500405DE8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5C32C6EF1355298C00164662 /* Albion Remake.app */,
+				5C32C6EF1355298C00164662 /* Albion Remaked.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -259,6 +260,7 @@
 				5C2C9284140AE70B00AC808C /* luma.a2eshd */,
 				5C34B58713E8E85E004E705F /* fxaa3.a2eshd */,
 				5C2C9286140AE73B00AC808C /* simple.a2eshd */,
+				5C6E2D2A14AA25C300FBD924 /* downsample.a2eshd */,
 			);
 			name = misc;
 			sourceTree = "<group>";
@@ -456,7 +458,7 @@
 			);
 			name = "Albion Remake";
 			productName = "Albion Remake";
-			productReference = 5C32C6EF1355298C00164662 /* Albion Remake.app */;
+			productReference = 5C32C6EF1355298C00164662 /* Albion Remaked.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -612,13 +614,15 @@
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN__EXIT_TIME_DESTRUCTORS = NO;
+				CLANG_X86_VECTOR_INSTRUCTIONS = sse4.1;
 				CODE_SIGN_ENTITLEMENTS = "src/osx/Albion Remake.entitlements";
 				CODE_SIGN_IDENTITY = "";
 				CONFIGURATION_BUILD_DIR = bin/;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SSE41_EXTENSIONS = YES;
 				GCC_MODEL_TUNING = G5;
@@ -637,6 +641,7 @@
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
 				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_PEDANTIC = NO;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
@@ -648,7 +653,7 @@
 					/usr/X11/include,
 					/usr/X11/include/freetype2,
 					/usr/local/include,
-					/usr/local/include/a2e,
+					/usr/local/include/a2elight,
 					/usr/include/libxml2,
 				);
 				INFOPLIST_FILE = src/osx/Info.plist;
@@ -660,8 +665,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "Albion Remake";
+				OTHER_LDFLAGS = "-la2elightd";
+				PRODUCT_NAME = "Albion Remaked";
 				SDKROOT = macosx;
 				SYMROOT = build;
 				WARNING_CFLAGS = (
@@ -674,6 +679,8 @@
 					"-Wlogical-op-parentheses",
 					"-Wnull-arithmetic",
 					"-Wno-unused-parameter",
+					"-Wno-ignored-qualifiers",
+					"-Wdangling-else",
 				);
 				WRAPPER_EXTENSION = app;
 			};
@@ -686,12 +693,14 @@
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN__EXIT_TIME_DESTRUCTORS = NO;
+				CLANG_X86_VECTOR_INSTRUCTIONS = sse4.1;
 				CODE_SIGN_ENTITLEMENTS = "src/osx/Albion Remake.entitlements";
 				CODE_SIGN_IDENTITY = "";
 				CONFIGURATION_BUILD_DIR = bin/;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SSE41_EXTENSIONS = YES;
 				GCC_MODEL_TUNING = G5;
@@ -709,6 +718,7 @@
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
 				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_PEDANTIC = NO;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
@@ -720,7 +730,7 @@
 					/usr/X11/include,
 					/usr/X11/include/freetype2,
 					/usr/local/include,
-					/usr/local/include/a2e,
+					/usr/local/include/a2elight,
 					/usr/include/libxml2,
 				);
 				INFOPLIST_FILE = src/osx/Info.plist;
@@ -733,7 +743,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-la2elight";
 				PRODUCT_NAME = "Albion Remake";
 				SDKROOT = macosx;
 				SYMROOT = build;
@@ -747,6 +757,8 @@
 					"-Wlogical-op-parentheses",
 					"-Wnull-arithmetic",
 					"-Wno-unused-parameter",
+					"-Wno-ignored-qualifiers",
+					"-Wdangling-else",
 				);
 				WRAPPER_EXTENSION = app;
 			};

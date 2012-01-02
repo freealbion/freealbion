@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  */
 
 #include "player3d.h"
+#include <scene/camera.h>
 
 player3d::player3d(map3d* map3d_obj) : npc3d(map3d_obj) {
 	char_type = CT_PLAYER;
@@ -35,19 +36,24 @@ void player3d::handle() {
 
 void player3d::set_pos(const size_t& x, const size_t& y) {
 	npc3d::set_pos(x, y);
-	last_pos.set(x*std_tile_size, -8.0f, y*std_tile_size);
-	cam->set_position(-(last_pos.x+std_half_tile_size), last_pos.y, -(last_pos.z+std_half_tile_size));
+	last_pos.set(x*std_tile_size + std_half_tile_size,
+				 -8.0f, 
+				 y*std_tile_size + std_half_tile_size);
+	cam->set_position(-last_pos.x, last_pos.y, -last_pos.z);
+	
+	// reset timer (so the player won't move one complete tile in the next move)
+	last_move = SDL_GetTicks();
 }
 
-void player3d::move(const MOVE_DIRECTION& direction) {
+void player3d::move(const MOVE_DIRECTION direction) {
 	if(conf::get<bool>("debug.free_cam")) return;
 	
 	// handle player
-	const float3 orig_cam_pos = -(*cam->get_position());
+	const float3 orig_cam_pos = -(cam->get_position());
 	float3 new_cam_pos = orig_cam_pos;
 	float3 cam_pos = orig_cam_pos;
 	float3 cam_offset(0.0f);
-	float3 cam_rot = *cam->get_rotation();
+	float3 cam_rot = cam->get_rotation();
 
 	// allow player to move two tiles per second ...
 	float cam_speed = (TILES_PER_SECOND_NPC3D * 2.0f * float(SDL_GetTicks() - last_move)/1000.0f) * std_tile_size;
@@ -56,23 +62,23 @@ void player3d::move(const MOVE_DIRECTION& direction) {
 	
 	// compute new camera position
 	if(direction & MD_RIGHT) {
-		cam_offset.x -= (float)sin((cam_rot.y - 90.0f) * PIOVER180) * cam_speed;
-		cam_offset.z += (float)cos((cam_rot.y - 90.0f) * PIOVER180) * cam_speed;
+		cam_offset.x -= (float)sin((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
+		cam_offset.z += (float)cos((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
 	}
 	
 	if(direction & MD_LEFT) {
-		cam_offset.x += (float)sin((cam_rot.y - 90.0f) * PIOVER180) * cam_speed;
-		cam_offset.z -= (float)cos((cam_rot.y - 90.0f) * PIOVER180) * cam_speed;
+		cam_offset.x += (float)sin((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
+		cam_offset.z -= (float)cos((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
 	}
 	
 	if(direction & MD_UP) {
-		cam_offset.x += (float)sin(cam_rot.y * PIOVER180) * cam_speed;
-		cam_offset.z -= (float)cos(cam_rot.y * PIOVER180) * cam_speed;
+		cam_offset.x += (float)sin(cam_rot.y * _PIDIV180) * cam_speed;
+		cam_offset.z -= (float)cos(cam_rot.y * _PIDIV180) * cam_speed;
 	}
 	
 	if(direction & MD_DOWN) {
-		cam_offset.x -= (float)sin(cam_rot.y * PIOVER180) * cam_speed;
-		cam_offset.z += (float)cos(cam_rot.y * PIOVER180) * cam_speed;
+		cam_offset.x -= (float)sin(cam_rot.y * _PIDIV180) * cam_speed;
+		cam_offset.z += (float)cos(cam_rot.y * _PIDIV180) * cam_speed;
 	}
 	
 	cam_pos += cam_offset;

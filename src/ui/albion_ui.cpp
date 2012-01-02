@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 #include "albion_ui.h"
 #include "bin_graphics.h"
+#include <gui/image.h>
 
 // ui defines
 #define ALBION_DBG_ID 500
@@ -39,11 +40,11 @@
 
 /*! albion_ui constructor
  */
-albion_ui::albion_ui(map_handler* mh_) : mh(mh_) {
+albion_ui::albion_ui(map_handler* mh_) : mh(mh_), game_ui_opened(false), game_ui_loaded(false) {
 	clock_cb = new clock_callback(this, &albion_ui::clock_tick);
 	clck->add_tick_callback(ar_clock::CCBT_TICK, *clock_cb);
 	
-	game_ui = NULL;
+	//game_ui = NULL;
 	compass_dot_img_obj = NULL;
 	cur_dot_img = 0;
 }
@@ -51,17 +52,23 @@ albion_ui::albion_ui(map_handler* mh_) : mh(mh_) {
 /*! albion_ui destructor
  */
 albion_ui::~albion_ui() {
+	game_ui_opened = false;
 	clck->delete_tick_callback(*clock_cb);
 	delete clock_cb;
+	
+	if(game_ui_loaded) {
+		delete clock_img_obj;
+		for(size_t i = 0; i < 4; i++) {
+			delete clock_numbers[i].img;
+		}
+		delete compass_img_obj;
+		delete compass_dot_img_obj;
+	}
 }
 
 void albion_ui::run() {
 	// not nice, but it's just bools ...
 	bool map_3d = (mh->get_active_map_type() == MT_3D_MAP);
-	if(compass_dot_img_obj != NULL) {
-		compass_img->set_visible(map_3d);
-		compass_dot_img->set_visible(map_3d);
-	}
 	if(!map_3d) return;
 	
 	// update compass dot every 33ms (~30fps)
@@ -73,44 +80,69 @@ void albion_ui::run() {
 		
 		// position
 		const float y_rot = 180.0f - e->get_rotation()->y;
-		float2 dot_pos(sinf(DEG2RAD(y_rot)), cosf(DEG2RAD(y_rot)));
-		dot_pos *= (compass_img_size.x / 2.0f) - compass_dot_img_size.x*0.8f;
-		dot_pos = compass_img_pos + compass_img_size/2.0f + dot_pos - compass_dot_img_size/2.0f;
-		gfx::rect* dot_rect = compass_dot_img->get_rectangle();
-		dot_rect->x1 = dot_pos.x;
-		dot_rect->y1 = dot_pos.y;
-		dot_rect->x2 = dot_pos.x + compass_dot_img_size.x;
-		dot_rect->y2 = dot_pos.y + compass_dot_img_size.y;
-		compass_dot_img->set_rectangle(dot_rect);
-		
-		game_ui->set_redraw(true);
+		compass_dot_img_pos = float2(sinf(DEG2RAD(y_rot)), cosf(DEG2RAD(y_rot)));
+		compass_dot_img_pos *= (compass_img_size.x / 2.0f) - compass_dot_img_size.x*0.8f;
+		compass_dot_img_pos = compass_img_pos + compass_img_size/2.0f + compass_dot_img_pos - compass_dot_img_size/2.0f;
 	}
+}
+
+void albion_ui::draw() {
+	if(!game_ui_opened) return;
+	
+	e->start_2d_draw();
+	glEnable(GL_BLEND);
+	
+	// draw the clock
+	egfx->draw_textured_rectangle(gfx::rect(clock_img_pos.x, clock_img_pos.y, clock_img_pos.x+clock_img_size.x, clock_img_pos.y+clock_img_size.y),
+										coord(0.0f, 0.0f), coord(1.0f, 1.0f),
+										clock_img_obj->get_texture()->tex());
+	for(size_t i = 0; i < 4; i++) {
+		egfx->draw_textured_rectangle(gfx::rect(clock_numbers[i].num_pos.x,
+												clock_numbers[i].num_pos.y,
+												clock_numbers[i].num_pos.x+clock_num_size.x,
+												clock_numbers[i].num_pos.y+clock_num_size.y),
+									  coord(0.0f, 0.0f), coord(1.0f, 1.0f),
+									  clock_numbers[i].img->get_texture()->tex());
+	}
+	
+	// draw the compass (only on 3d maps)
+	bool map_3d = (mh->get_active_map_type() == MT_3D_MAP);
+	if(map_3d) {
+		egfx->draw_textured_rectangle(gfx::rect(compass_img_pos.x, compass_img_pos.y,
+												compass_img_pos.x+compass_img_size.x,
+												compass_img_pos.y+compass_img_size.y),
+									  coord(0.0f, 0.0f), coord(1.0f, 1.0f),
+									  compass_img_obj->get_texture()->tex());
+		egfx->draw_textured_rectangle(gfx::rect(compass_dot_img_pos.x, compass_dot_img_pos.y,
+												compass_dot_img_pos.x+compass_dot_img_size.x,
+												compass_dot_img_pos.y+compass_dot_img_size.y),
+									  coord(0.0f, 0.0f), coord(1.0f, 1.0f),
+									  compass_dot_img_obj->get_texture()->tex());
+	}
+	
+	glDisable(GL_BLEND);
+	e->stop_2d_draw();
 }
 
 void albion_ui::clock_tick(size_t ticks) {
-	if(!egui->exists(ALBION_DBG_ID)) return;
+	if(!game_ui_opened) return;
 	
 	const size_t hours = ticks / AR_TICKS_PER_HOUR;
 	const size_t mins = floorf(float(ticks % AR_TICKS_PER_HOUR) * 1.25f);
-	const string time_str = (hours < 10 ? "0" : "") + size_t2string(hours) + ":" + (mins < 10 ? "0" : "") + size_t2string(mins);
-	t_time_value->set_text(time_str.c_str());
-	albion_dbg->get_object()->set_redraw(true); // TODO: remove this at a later point (this is necessary right now, b/c the gui is kinda bugged)
 	
-	if(game_ui != NULL) {
-		clock_numbers[0].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + hours/10)));
-		clock_numbers[1].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + hours%10)));
-		clock_numbers[2].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + mins/10)));
-		clock_numbers[3].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + mins%10)));
-		game_ui->set_redraw(true);
-	}
+	clock_numbers[0].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + hours/10)));
+	clock_numbers[1].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + hours%10)));
+	clock_numbers[2].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + mins/10)));
+	clock_numbers[3].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + mins%10)));
 }
 
 void albion_ui::open_game_ui() {
-	if(egui->exists(GAME_UI_ID)) return;
+	if(game_ui_opened) return;
+	game_ui_opened = true;
+	
+	if(game_ui_loaded) return;
 	
 	float2 wnd_size(e->get_width()/12, e->get_height());
-	game_ui = egui->get_object<gui_window>(egui->add_object<gui_window>(GAME_UI_ID, NO_WINDOW_ID, UNINIT_ID));
-	game_ui->init(egfx->pnt_to_rect(0, 0, wnd_size.x, wnd_size.y), "", false, false);
 	
 	// clock
 	clock_img_obj = new image(e);
@@ -119,32 +151,26 @@ void albion_ui::open_game_ui() {
 	clock_img_obj->set_texture(clock_tex);
 	clock_img_obj->set_gui_img(true);
 	
-	float2 clock_img_pos(wnd_size.x * 0.05f, wnd_size.y * 0.31f);
-	float2 clock_img_size(wnd_size.x * 0.9f, 0.0f);
+	clock_img_pos = float2(wnd_size.x * 0.05f, wnd_size.y * 0.31f);
+	clock_img_size = float2(wnd_size.x * 0.9f, 0.0f);
 	float img_scale = clock_img_size.x / float(clock_tex->width);
 	clock_img_size.y = img_scale * float(clock_tex->height);
 	
-	clock_img = egui->get_object<gui_image>(egui->add_object<gui_image>(GAME_CLOCK_IMG_ID, GAME_UI_ID));
-	clock_img->init(egfx->pnt_to_rect(clock_img_pos.x, clock_img_pos.y, clock_img_pos.x+clock_img_size.x, clock_img_pos.y+clock_img_size.y), NULL, clock_img_obj);
-	
 	// clock numbers
 	a2e_texture& clock_num_tex = bin_gfx->get_bin_graphic(bin_graphics::CLOCK_NUM_0);
-	float2 num_size(clock_num_tex->width, clock_num_tex->height);
-	num_size *= img_scale;
-	float x_per_num = (clock_img_size.x - num_size.x*4.0f) / 4.0f;
+	clock_num_size = float2(clock_num_tex->width, clock_num_tex->height);
+	clock_num_size *= img_scale;
+	float x_per_num = (clock_img_size.x - clock_num_size.x*4.0f) / 4.0f;
 	for(size_t i = 0; i < 4; i++) {
 		clock_numbers[i].img = new image(e);
 		clock_numbers[i].img->set_scaling(true);
 		clock_numbers[i].img->set_texture(clock_num_tex);
 		clock_numbers[i].img->set_gui_img(true);
 		
-		float2 num_pos(clock_img_pos);
-		num_pos += float2(num_size.x * float(i),
-						  clock_img_size.y/2.0f - num_size.y*0.3333f);
-		num_pos.x += x_per_num * (i < 2 ? 1.0f : 2.0f);
-		
-		clock_numbers[i].gui_img = egui->get_object<gui_image>(egui->add_object<gui_image>(GAME_CLOCK_NUM_0_IMG_ID+i, GAME_UI_ID));
-		clock_numbers[i].gui_img->init(egfx->pnt_to_rect(num_pos.x, num_pos.y, num_pos.x+num_size.x, num_pos.y+num_size.y), NULL, clock_numbers[i].img);
+		clock_numbers[i].num_pos = float2(clock_img_pos);
+		clock_numbers[i].num_pos += float2(clock_num_size.x * float(i),
+										   clock_img_size.y/2.0f - clock_num_size.y*0.3333f);
+		clock_numbers[i].num_pos.x += x_per_num * (i < 2 ? 1.0f : 2.0f);
 	}
 	
 	// compass
@@ -165,30 +191,20 @@ void albion_ui::open_game_ui() {
 	compass_img_size.y = compass_img_scale * float(compass_tex->height);
 	compass_dot_img_size = float2(compass_img_scale * compass_dot_tex->width,
 								  compass_img_scale * compass_dot_tex->height);
-	
-	compass_img = egui->get_object<gui_image>(egui->add_object<gui_image>(GAME_COMPASS_IMG_ID, GAME_UI_ID));
-	compass_img->init(egfx->pnt_to_rect(compass_img_pos.x, compass_img_pos.y,
-										compass_img_pos.x+compass_img_size.x,
-										compass_img_pos.y+compass_img_size.y),
-					  NULL, compass_img_obj);
-	
-	compass_dot_img = egui->get_object<gui_image>(egui->add_object<gui_image>(GAME_COMPASS_DOT_IMG_ID,
-																			  GAME_UI_ID));
-	compass_dot_img->init(egfx->pnt_to_rect(compass_img_pos.x, compass_img_pos.y,
-											compass_img_pos.x+compass_dot_img_size.x,
-											compass_img_pos.y+compass_dot_img_size.y),
-					  NULL, compass_dot_img_obj);
+	compass_dot_img_pos = float2(compass_img_pos.x, compass_img_pos.y);
+
 	dot_timer = SDL_GetTicks();
+	
+	game_ui_loaded = true;
 }
 
 void albion_ui::close_game_ui(){
-	if(game_ui == NULL) return;
-	game_ui->set_deleted(true);
-	compass_dot_img_obj = NULL;
+	if(!game_ui_opened) return;
+	game_ui_opened = false;
 }
 
 void albion_ui::open_goto_map_wnd() {
-	if(egui->exists(ALBION_DBG_ID)) return;
+	/*if(egui->exists(ALBION_DBG_ID)) return;
 	
 	albion_dbg = eui->load(e->data_path("albion_dbg.a2ui"), e->get_width()-1, 0, false, true, 0, 0, 0);
 	b_goto_map = albion_dbg->get<gui_button>("b_goto_map");
@@ -401,7 +417,7 @@ void albion_ui::open_goto_map_wnd() {
 			default: break;
 		}
 		lb_map_names->add_item(item_str.c_str());
-	}
+	}*/
 
 	//
 #if 0
@@ -451,10 +467,10 @@ void albion_ui::open_goto_map_wnd() {
 }
 
 void albion_ui::close_goto_map_wnd() {
-	eui->close(albion_dbg);
+	//eui->close(albion_dbg);
 }
 
-void albion_ui::handle_b_goto_map_button(event::GUI_EVENT_TYPE type, GUI_ID id) {
+/*void albion_ui::handle_b_goto_map_button(event::GUI_EVENT_TYPE type, GUI_ID id) {
 	string map_num_str = "";
 
 	if(*i_goto_map->get_text() != "" && *i_goto_map->get_text() != "go to map ...") {
@@ -479,4 +495,4 @@ void albion_ui::handle_i_goto_map_selected(event::GUI_EVENT_TYPE type, GUI_ID id
 }
 
 void albion_ui::handle_lb_map_names_list(event::GUI_EVENT_TYPE type, GUI_ID id) {
-}
+}*/

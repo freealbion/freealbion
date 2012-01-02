@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ void player2d::compute_move() {
 	// do nothing
 }
 
-void player2d::move(const MOVE_DIRECTION& direction) {
+void player2d::move(const MOVE_DIRECTION direction) {
 	npc2d::move(direction);
 	
 	// player moved to the next tile

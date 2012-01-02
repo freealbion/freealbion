@@ -17,10 +17,15 @@
 #pragma OPENCL EXTENSION cl_nv_compiler_options : enable
 #endif
 
-#ifndef __APPLE__
-#pragma OPENCL EXTENSION cl_khr_gl_sharing : enable
-#else
+#ifdef __APPLE__
 #pragma OPENCL EXTENSION cl_APPLE_gl_sharing : enable
+#else
+
+// note: amd devices support this, but don't expose the extension and won't compile if this is enabled
+#if !defined(AMD)
+#pragma OPENCL EXTENSION cl_khr_gl_sharing : enable
+#endif
+
 #endif
 
 #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable

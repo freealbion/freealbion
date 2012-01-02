@@ -17,7 +17,7 @@ out vec3 out_normal;
 void main() {
 	mat4 transform_mat = local_scale * local_mview;
 	
-	out_normal = vec3(transform_mat * vec4(normal, 1.0));
+	out_normal = mat3(transform_mat) * normal;
 	
 	gl_Position = mvpm * vec4(in_vertex, 1.0);
 }

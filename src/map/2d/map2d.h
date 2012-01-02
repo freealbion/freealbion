@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include "map_npcs.h"
 #include "map_events.h"
 #include "player2d.h"
+#include <rendering/gl_funcs.h>
 
 /*! @class map2d
  *  @brief displays 2d maps

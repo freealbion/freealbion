@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ background3d::background3d() : a2estatic(::e, ::s, ::sce) {
 	bg3d_xld = new xld("3DBCKGR0.XLD");
 	bg_texture = t->get_dummy_texture();
 	cur_bg_num = -1;
+	cur_bg_palette = -1;
 	light_color = float3(0.0f);
 	
 	const float fullscreen_triangle[] = { 0.0f, 2.0f, -3.0f, -1.0f, 3.0f, -1.0f };
@@ -50,6 +51,7 @@ background3d::~background3d() {
 void background3d::unload() {
 	if(cur_bg_num >= 0) t->delete_texture(bg_texture);
 	cur_bg_num = -1;
+	cur_bg_palette = -1;
 }
 
 void background3d::load(const size_t& bg_num, const size_t& palette) {
@@ -57,11 +59,17 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 		a2e_error("invalid background number #%u!", bg_num);
 		return;
 	}
-
-	if(cur_bg_num >= 0 && (size_t)cur_bg_num != bg_num) {
+	
+	if(cur_bg_num >= 0) {
+		if((size_t)cur_bg_num == bg_num && (size_t)cur_bg_palette == palette) {
+			// bg is the same and already loaded -> return
+			return;
+		}
+		// else: this is a different background, unload and load new one
 		unload();
 	}
 	cur_bg_num = bg_num;
+	cur_bg_palette = palette;
 	
 	// background image is always scaled up by 4, however, nearest filtering or hq4x may be used
 	const size_t scale_factor = 4;
@@ -83,7 +91,7 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 
 	// this is constant for all bg cubemaps
 	const size2 cm_texture_size = size2(texture_size.x*2, texture_size.x*2);
-
+	
 	// allocate pixel data memory
 	unsigned int** pixel_data = new unsigned int*[6];
 	for(size_t i = 0; i < 6; i++) pixel_data[i] = new unsigned int[cm_texture_size.x*cm_texture_size.y];
@@ -116,9 +124,10 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 		}
 	}
 	memset(pixel_data[3], 0, cm_texture_size.x*cm_texture_size.y*sizeof(unsigned int)); // -y = black
-
+	
 	bg_texture = t->add_cubemap_texture((void**)pixel_data, (unsigned int)cm_texture_size.x, (unsigned int)cm_texture_size.y, GL_RGBA8, GL_RGBA, texture_object::TF_TRILINEAR, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE, NULL);
 	
+	for(size_t i = 0; i < 6; i++) delete [] pixel_data[i];
 	delete [] pixel_data;
 	delete [] tex_surface;
 	//conf::set<a2e_texture>("debug.texture", bg_texture);
@@ -128,14 +137,14 @@ a2e_texture& background3d::get_bg_texture() {
 	return bg_texture;
 }
 
-void background3d::draw(const size_t draw_mode) {
+void background3d::draw(const DRAW_MODE draw_mode) {
 	if(cur_bg_num < 0) return;
 	
 	// we will write directly into the final material pass, so no geometry
 	// and light pass are necessary (-> return)
-	if(draw_mode != MDM_MATERIAL_PASS) return;
+	if(draw_mode != DRAW_MODE::MATERIAL_PASS) return;
 	
-	gl2shader shd = s->get_gl2shader("AR_IR_MP_SKY");
+	gl3shader shd = s->get_gl3shader("AR_IR_MP_SKY");
 	
 	matrix4f skybox_proj_mat = *e->get_projection_matrix();
 	matrix4f IMVP = matrix4f().rotate_y(-e->get_rotation()->y) * matrix4f().rotate_x(e->get_rotation()->x) * skybox_proj_mat;

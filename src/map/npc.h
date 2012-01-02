@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ public:
 	virtual ~npc();
 	
 	virtual void handle() = 0;
-	virtual void move(const MOVE_DIRECTION& direction) = 0;
+	virtual void move(const MOVE_DIRECTION direction) = 0;
 	virtual void move(const size2& move_pos) = 0;
 	
 	virtual void set_pos(const size_t& x, const size_t& y);

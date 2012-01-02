@@ -1,18 +1,44 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<engine>
-	<screen width="1280" height="720" depth="32" zbuffer="24" stencil="8" fullscreen="0" vsync="0" alpha="1" stereo="0"/>
-	<screen_ width="1920" height="1080" depth="32" zbuffer="24" stencil="8" fullscreen="0" vsync="1" alpha="1" stereo="0"/>
-	<screen_ width="1920" height="1080" depth="32" zbuffer="24" stencil="8" fullscreen="1" vsync="1" alpha="1" stereo="0"/>
-	<screen_ width="1680" height="1050" depth="32" zbuffer="24" stencil="8" fullscreen="0" vsync="1" alpha="1" stereo="0"/>
-	<screen_ width="1440" height="900" depth="32" zbuffer="24" stencil="8" fullscreen="1" vsync="1" alpha="1" stereo="0"/>
-	<gui style="CLEARLOOKS" color_scheme="CLEARLOOKS" shadow_type="1"/> // shadow_type: 0=shadows disabled, 1=32 blur passes, 2=64 blur passes
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE config PUBLIC "-//A2E/config" "config.dtd">
+<config>
+	<!-- screen resolution and fullscreen/vsync settings (stereo serves no purpose right now) -->
+	<screen width="1280" height="720" fullscreen="0" vsync="1" stereo="0"/>
+	<!-- you might want to change the field of view, but near/far should remain at 1/1000 -->
+	<projection fov="72.0" near="1.0" far="1000.0"/>
+	<!-- there should be no need to change these -->
 	<input key_repeat="0" ldouble_click="10" mdouble_click="10" rdouble_click="10"/>
+	<!-- this will sleep the program for the specified amount of milliseconds after each rendered frame -->
 	<sleep time="0"/>
-	<thread count="0"/> // number of threads to use (0 = use max threads)
-	<server port="1337" max_clients="32"/>
-	<client server="127.0.0.1" port="1337" lis_port="1336" name="Flo"/>
-	<graphic_ filtering="POINT" anisotropic="0" anti_aliasing="NONE" hdr="0" hdr_rgba16="0"/>
-	<graphic filtering="TRILINEAR" anisotropic="16" anti_aliasing="FXAA" hdr="0" hdr_rgba16="0"/>
+	<!--
+	 filtering options: POINT, LINEAR, BILINEAR, TRILINEAR
+	 anisotropic options: 0 (disabled), 1 - 16
+	 anti_aliasing options: NONE, FXAA, 2xSSAA, 4/3xSSAA+FXAA, 2xSSAA+FXAA (others are currently unsupported)
+	-->
+	<graphic filtering="TRILINEAR" anisotropic="16" anti_aliasing="4/3xSSAA+FXAA"/>
+	<!--
+	 this sets the scale of the geometry and light buffer:
+	 0 = 50%, 1 = 62.5%, 2 = 75%, 3 = 87.5%, 4 = 100%
+	 it is however not recommended to change this option!
+	-->
+	<inferred scale="4"/>
+	<!-- unless you know what you're doing, don't change the following settings -->
 	<graphic_device disabled_extensions="" force_device="" force_vendor=""/>
-	<inferred scale="4" />
-</engine>
+	<opencl platform="0" clear_cache="1"/>
+
+	<!-- misc albion settings (you may change these) -->
+	<albion>
+		<!--
+		 scale_2d/scale_3d options: 1x, 2x, 4x, hq2x, hq4x
+		 note: this mostly influences the load time, not so much the rendering performance (hq4x is recommended)
+		 object_lights: 0 (on) or 1 (off), if enabled, this will add a light source for each "light map object" (lamps/etc.)
+		 collision: 0 (on) or 1 (off)
+		 hour: the hour in which the game should start (0 - 23, obviously)
+		-->
+		<map scale_2d="hq4x" scale_3d="hq4x" object_lights="1" collision="1" hour="8"/>
+		<!--
+		 free_cam: 0 or 1 (1 doesn't pin the player to the ground and disables collision detection)
+		 player_gfx: sets the 2d player gfx, e.g. 200 = Tom, 167 = AI (range: 0 - 209, this also contains invalid values!)
+		-->
+		<debug free_cam="0" player_gfx="200"/>
+	</albion>
+</config>

@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 #include "labdata.h"
 #include "object_light.h"
+#include <scene/model/a2ematerial.h>
 
 /*! labdata constructor
  */
@@ -429,7 +430,6 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	const size_t max_tex_size = exts->get_max_texture_size();
 	size2 floors_tex_size, walls_tex_size, objects_tex_size;
 	const size_t scale_factor = scaling::get_scale_factor(conf::get<scaling::SCALE_TYPE>("map.3d.scale_type"));
-	//const size_t aa_spacing_scale = (e->get_anti_aliasing() >= rtt::TAA_MSAA_2 ? 2 : 1);
 	
 	// compute floors tex size
 	const size_t floor_spacing = 16 * scale_factor; // we sadly need that much spacing for floor tiles
@@ -663,8 +663,8 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 
 	// assign textures
 	for(size_t i = 0; i < 3; i++) {
-		a2ematerial::material* mat = (i == 0 ? lab_fc_material->get_material(0) : (i == 1 ? lab_wall_material->get_material(0) : lab_obj_material->get_material(0)));
-		a2ematerial::diffuse_material* diff_mat = (a2ematerial::diffuse_material*)mat->mat;
+		a2ematerial::material& mat = (i == 0 ? lab_fc_material->get_material(0) : (i == 1 ? lab_wall_material->get_material(0) : lab_obj_material->get_material(0)));
+		a2ematerial::diffuse_material* diff_mat = (a2ematerial::diffuse_material*)mat.mat;
 		diff_mat->diffuse_texture = (i == 0 ? floors_tex : (i == 1 ? walls_tex : objects_tex));
 	}
 

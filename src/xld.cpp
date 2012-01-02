@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,8 +18,12 @@
  */
 
 #include "xld.h"
+#include <core/file_io.h>
 
 string xld::xld_path = "";
+
+#define AR_SWAP_USINT(us) (((us & 0xFF00) >> 8) + ((us & 0xFF) << 8))
+#define AR_SWAP_UINT(ui) (((ui >> 24) & 0xFF) + (((ui >> 16) & 0xFF) << 8) + (((ui >> 8) & 0xFF) << 16) + ((ui & 0xFF) << 24))
 
 /*! xld constructor
  */
@@ -61,13 +65,15 @@ void xld::load(const string& filename) {
 	}
 
 	// get object count
-	const size_t object_count = c->swap_usint(fio->get_usint());
+	const unsigned short int read_obj_count = fio->get_usint();
+	const size_t object_count = AR_SWAP_USINT(read_obj_count);
 
 	// get object lengths
 	objects.reserve(object_count);
 	for(size_t i = 0; i < object_count; i++) {
 		objects.push_back(new xld_object());
-		objects.back()->length = c->swap_uint(fio->get_uint());
+		const unsigned int read_length = fio->get_uint();
+		objects.back()->length = AR_SWAP_UINT(read_length);
 		objects.back()->data = new unsigned char[objects.back()->length];
 	}
 

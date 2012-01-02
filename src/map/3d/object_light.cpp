@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ template <> void object_light<object_light_type::GLOWING_LAMP>::animate(const si
 	l->set_radius(radius);
 }
 
-template <> object_light<object_light_type::TORCH>::object_light(const float3& position_) : object_light_base(position_, float3(1.0f), std_tile_size*4.0f) {
+template <> object_light<object_light_type::TORCH>::object_light(const float3& position_) : object_light_base(position_, float3(1.0f), std_tile_size*8.0f) {
 }
 template <> void object_light<object_light_type::TORCH>::animate(const size_t& time) {
 	// TODO: flickering/light color dependent on wether it's a torch or a light staff
@@ -185,8 +185,8 @@ template <> void object_light<object_light_type::LIVING_WALL>::animate(const siz
 		float3 cur_color = l->get_color();
 		cur_color.r += step_size * (float(rand()%2) - 0.5f) * 2.0f;
 		cur_color.g += step_size * (float(rand()%2) - 0.5f) * 2.0f;
-		cur_color.r = c->clamp(cur_color.r, original.color.r - deviation, 1.0f);
-		cur_color.g = c->clamp(cur_color.g, original.color.g - deviation, 1.0f);
+		cur_color.r = core::clamp(cur_color.r, original.color.r - deviation, 1.0f);
+		cur_color.g = core::clamp(cur_color.g, original.color.g - deviation, 1.0f);
 		l->set_color(cur_color);
 	}
 }

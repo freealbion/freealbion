@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,19 +17,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
 #include "ar_global.h"
 #include "bin_graphics.h"
+#include <a2e.h>
 
 engine* e;
-core* c;
 file_io* fio;
 gfx* egfx;
-gui* egui;
-a2eui* eui;
 texman* t;
 event* eevt;
-gui_style* gs;
 shader* s;
 opencl* ocl;
 scene* sce;

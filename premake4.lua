@@ -4,6 +4,8 @@ local win_unixenv = false
 local cygwin = false
 local mingw = false
 local clang_libcxx = false
+local gcc_compat = false
+local platform = "x32"
 
 -- this function returns the first result of "find basepath -name filename", this is needed on some platforms to determine the include path of a library
 function find_include(filename, base_path)
@@ -37,7 +39,6 @@ project "albion"
 	kind "ConsoleApp"
 	language "C++"
 	files { "src/**.h", "src/**.cpp" }
-	platforms { "x64", "x32" }
 	defines { "A2E_NET_PROTOCOL=TCP_protocol", "A2E_USE_OPENCL" }
 	targetdir "bin"
 	
@@ -57,7 +58,16 @@ project "albion"
 			end
 		end
 		if(_ARGS[argc] == "--clang") then
-				clang_libcxx = true
+			clang_libcxx = true
+		end
+		if(_ARGS[argc] == "--gcc") then
+			gcc_compat = true
+		end
+		if(_ARGS[argc] == "--platform") then
+			argc=argc+1
+			if(_ARGS[argc] ~= nil) then
+				platform = _ARGS[argc]
+			end
 		end
 		argc=argc+1
 	end
@@ -68,12 +78,18 @@ project "albion"
 		else
 			includedirs { "/usr/include/w32api", "/usr/include/w32api/GL" }
 		end
-		includedirs { "/usr/include/freetype2", "/usr/include/libxml2", "/usr/local/include", "/usr/include/a2e" }
+		includedirs { "/usr/include/freetype2", "/usr/include/libxml2", "/usr/local/include", "/usr/include/a2elight", "/usr/local/include/a2elight" }
 		buildoptions { "-Wall -x c++ -std=c++0x -Wno-trigraphs -Wreturn-type -Wunused-variable -funroll-loops" }
+		libdirs { "/usr/local/lib" }
+
 		if(clang_libcxx) then
 			buildoptions { "-stdlib=libc++" }
-			buildoptions { "-Wno-delete-non-virtual-dtor -Wno-overloaded-virtual" }
-			linkoptions { "-stdlib=libc++" }
+			buildoptions { "-Wno-delete-non-virtual-dtor -Wno-overloaded-virtual -Wunreachable-code" }
+			linkoptions { "-stdlib=libc++ -fvisibility=default" }
+		end
+
+		if(gcc_compat) then
+			buildoptions { "-Wno-strict-aliasing" }
 		end
 	end
 	
@@ -93,27 +109,34 @@ project "albion"
 	end
 	
 	if(os.is("linux") or os.is("bsd") or win_unixenv) then
-		libdirs { os.findlib("xml2"), os.findlib("a2e") }
+		libdirs { os.findlib("xml2") }
 		if(not win_unixenv) then
-			links { "GL", "SDL_net", "SDL_image", "xml2" }
-			libdirs { os.findlib("SDL"), os.findlib("SDL_net"), os.findlib("SDL_image") }
+			links { "GL", "SDL_image", "xml2" }
+			libdirs { os.findlib("SDL"), os.findlib("SDL_image") }
 			buildoptions { "`sdl-config --cflags`" }
 			linkoptions { "`sdl-config --libs`" }
 		elseif(cygwin) then
 			-- link against windows opengl libs on cygwin
-			links { "opengl32", "SDL_net.dll", "SDL_image.dll", "xml2" }
+			links { "opengl32", "SDL_image.dll", "xml2" }
 			libdirs { "/lib/w32api" }
 			buildoptions { "`sdl-config --cflags | sed -E 's/-Dmain=SDL_main//g'`" }
 			linkoptions { "`sdl-config --libs | sed -E 's/(-lmingw32|-mwindows)//g'`" }
 		elseif(mingw) then
 			-- link against windows opengl libs on mingw
-			links { "opengl32", "glu32", "SDL_net", "SDL_image", "libxml2" }
+			links { "opengl32", "SDL_image", "libxml2" }
 			buildoptions { "`sdl-config --cflags | sed -E 's/-Dmain=SDL_main//g'`" }
 			linkoptions { "`sdl-config --libs`" }
 		end
+
+		if(gcc_compat) then
+			if(not mingw) then
+				defines { "_GLIBCXX__PTHREADS" }
+			end
+			defines { "_GLIBCXX_USE_NANOSLEEP" }
+		end
 		
 		-- find all necessary headers (in case they aren't in /usr/include)
-		local include_files = { "SDL.h", "SDL_net.h" }
+		local include_files = { "SDL.h" }
 		for i = 1, table.maxn(include_files) do
 			if((not os.isfile("/usr/include/"..include_files[i])) and
 			   (not os.isfile("/usr/local/include/"..include_files[i]))) then
@@ -130,27 +153,31 @@ project "albion"
 		end
 	end
 	
-	if(os.is("windows") and not win_unixenv) then
-		links { "opengl32", "glu32", "odbc32", "odbccp32", "SDL", "SDLmain", "SDL_net", "SDL_image", "libxml2", "vcomp", "OpenCL" }
-		defines { "__WINDOWS__", "_CONSOLE", "A2E_IMPORTS", "_CRT_SECURE_NO_DEPRECATE" }
-		flags { "NoMinimalRebuild", "NoEditAndContinue" }
-		buildoptions { "/Zi /MP8" }
-	end
-	
 	-- the same for all
 	includedirs { "src/", "src/gfx/", "src/gfx/hqx/", "src/map/", "src/map/2d/", "src/map/3d/", "src/ui/", "src/events/" }
 	
 	-- configs
-	configuration { "x32" }
-		defines { "PLATFORM_X86" }
+	-- prefer system platform
+	if(platform == "x64") then
+		platforms { "x64", "x32" }
+	else
+		platforms { "x32", "x64" }
+	end
 	
 	configuration { "x64" }
 		defines { "PLATFORM_X64" }
 
+	configuration { "x32" }
+		defines { "PLATFORM_X86" }
+
+
 	configuration "Debug"
-		defines { "DEBUG" }
+		defines { "DEBUG", "A2E_DEBUG" }
 		flags { "Symbols" }
-		links { "a2ed" }
+		links { "a2elightd" }
+		if(not os.is("windows") or win_unixenv) then
+			buildoptions { " -gdwarf-2" }
+		end
 
 	configuration "Release"
 		defines { "NDEBUG" }
@@ -158,4 +185,4 @@ project "albion"
 		if(not os.is("windows") or win_unixenv) then
 			buildoptions { "-ffast-math -O3" }
 		end
-		links { "a2e" }
+		links { "a2elight" }

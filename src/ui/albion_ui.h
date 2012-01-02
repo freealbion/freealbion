@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,12 +23,7 @@
 #include "ar_global.h"
 #include "map_handler.h"
 
-/*! @class agui
- *  @brief albion gui
- *  @author flo
- *  
- *  albion gui
- */
+class image;
 
 class albion_ui {
 public:
@@ -36,6 +31,7 @@ public:
 	~albion_ui();
 	
 	void run();
+	void draw();
 	
 	void open_goto_map_wnd();
 	void close_goto_map_wnd();
@@ -47,36 +43,38 @@ protected:
 	map_handler* mh;
 
 	//
-	a2eui_window* albion_dbg;
+	/*a2eui_window* albion_dbg;
 	gui_button* b_goto_map;
 	gui_input* i_goto_map;
 	gui_list* lb_map_names;
 	gui_text* t_time;
-	gui_text* t_time_value;
+	gui_text* t_time_value;*/
 	
 	//
-	gui_window* game_ui;
 	image* clock_img_obj;
-	gui_image* clock_img;
 	struct clock_number {
 		image* img;
-		gui_image* gui_img;
+		float2 num_pos;
 	} clock_numbers[4];
-
+	float2 clock_img_pos;
+	float2 clock_img_size;
+	float2 clock_num_size;
+	
 	float2 compass_img_pos;
 	float2 compass_img_size;
+	float2 compass_dot_img_pos;
 	float2 compass_dot_img_size;
 	image* compass_img_obj;
-	gui_image* compass_img;
 	image* compass_dot_img_obj;
-	gui_image* compass_dot_img;
 	size_t cur_dot_img;
 	size_t dot_timer;
+	bool game_ui_opened;
+	bool game_ui_loaded;
 	
 	//
-	void handle_b_goto_map_button(event::GUI_EVENT_TYPE type, GUI_ID id);
+	/*void handle_b_goto_map_button(event::GUI_EVENT_TYPE type, GUI_ID id);
 	void handle_i_goto_map_selected(event::GUI_EVENT_TYPE type, GUI_ID id);
-	void handle_lb_map_names_list(event::GUI_EVENT_TYPE type, GUI_ID id);
+	void handle_lb_map_names_list(event::GUI_EVENT_TYPE type, GUI_ID id);*/
 	
 	//
 	clock_callback* clock_cb;

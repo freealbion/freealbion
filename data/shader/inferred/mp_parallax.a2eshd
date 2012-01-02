@@ -26,9 +26,9 @@ void main() {
 	vec3 tvertex = vec3(transform_mat * vec4(in_vertex, 1.0));
 	vec3 vview = cam_position - model_position - tvertex;
 	
-	vec3 vv_tangent = vec3(transform_mat * vec4(tangent, 1.0));
-	vec3 vv_binormal = vec3(transform_mat * vec4(binormal, 1.0));
-	vec3 vv_normal = vec3(transform_mat * vec4(normal, 1.0));
+	vec3 vv_tangent = mat3(transform_mat) * tangent;
+	vec3 vv_binormal = mat3(transform_mat) * binormal;
+	vec3 vv_normal = mat3(transform_mat) * normal;
 	
 	out_view_vec.x = dot(vview, vv_tangent);  // s tangent
 	out_view_vec.y = dot(vview, vv_binormal); // t tangent

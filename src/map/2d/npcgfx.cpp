@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2011 Florian Ziesche
+ *  Copyright (C) 2007 - 2012 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  */
 
 #include "npcgfx.h"
+#include <rendering/gfx.h>
 
 /*! npcgfx constructor
  */
@@ -84,7 +85,7 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 	if(npc_num >= 400 && npc_num < 600) {
 		texture_size.y = npc_size.y*4*(object_count/4);
 	}
-
+	
 	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, texture_size, npc_size, cur_palette, tex_info, NULL, albion_texture::TST_NONE, 0, false, texture_object::TF_TRILINEAR);
 }
 
@@ -151,7 +152,7 @@ void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame, const float2& 
 	float depth_val = (position.y - (npc_num < 200 ? 0.2f : 0.1f))/255.0f;
 	// depth overwrite
 	if(depth_overwrite != -1.0f) depth_val = depth_overwrite;
-
+	
 	egfx->draw_textured_depth_rectangle(gfx::rect(screen_position.x,
 												  screen_position.y,
 												  screen_position.x + draw_size.x,
