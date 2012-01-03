@@ -28,7 +28,9 @@ How to get it:
  * Linux: a binary distribution is rather difficult, so you'll have to build it yourself
 
 Build Instructions:
- * TODO
+ * install/build a2elight (https://github.com/a2flo/a2elight/blob/master/README)
+ * on Windows/Linux: run "./premake.sh gcc" or "./premake.sh clang" and "make"
+ * on OS X: open albion.xcodeproj and build it
 
 Installation and General Advices:
  * on Windows/Linux: download and install the latest graphic card drivers (NVIDIA: http://www.geforce.com/Drivers, AMD: http://support.amd.com/us/gpudownload/Pages/index.aspx)
