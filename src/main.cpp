@@ -104,7 +104,8 @@ int main(int argc, char *argv[]) {
 		const string map_num_str = argv[1];
 		if(!map_num_str.empty()) {
 			const size_t arg_map_num = string2size_t(map_num_str);
-			if(mh->get_map_type(arg_map_num) != MT_NONE) {
+			if((arg_map_num == 0 && map_num_str[0] == '0') ||
+			   (arg_map_num != 0 && mh->get_map_type(arg_map_num) != MT_NONE)) {
 				inital_map_num = arg_map_num;
 			}
 			else {
@@ -379,9 +380,10 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 			case SDLK_0:
 				e->reload_kernels();
 				break;
-			case SDLK_F7:
+			// TODO: make this work
+			/*case SDLK_F7:
 				mh->load_map(99);
-				break;
+				break;*/
 			default:
 				return false;
 		}

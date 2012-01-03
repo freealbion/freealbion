@@ -1,0 +1,61 @@
+
+# Public Release 1 - 2012/01/03
+
+What's included so far:
+ * most of the 2D and 3D map rendering (event based animations are missing; also no event based tile exchange)
+ * walking 2D and 3D NPCs (random and along a given path)
+ * basic player movement and collision detection (needs more reverse engineering though)
+ * 3D graphic enhancements: real dynamic lighting for each light source/object, hqnx graphics (up to 4x), anti-aliasing and mip-mapping
+ * clock and compass
+ * rudimentary event handling (map changes)
+ * day/night cycle on 3D maps
+ * cross-platform ;)
+
+What's not included and Known Issues:
+ * http://albion2.org/board/viewtopic.php?p=1426#p1426
+
+Requirements:
+ * OpenGL 3.2 Core and OpenCL 1.0/1.1 capable graphics card and drivers (i.e. GeForce 8+ _or_ Radeon HD4+)
+ * Windows: NT 5.1+, OS X: 10.7, Linux: any that is capable of the above
+ * 2 GB RAM are recommended (it can use up to 1 GB of RAM when generating the HQ4X textures)
+ * 256 MB VRAM minimum (only use 1X or HQ2X scaling, don't use SSAA)
+ * 512 MB VRAM are recommended (can use HQ4X, but 1 GB+ is recommended when you want to use HQ4X and 1080p+ SSAA)
+ * Albion v1.38 CD XLD files and main.exe
+ * Mouse and Keyboard (no, there's no touch version, yet)
+
+How to get it:
+ * Windows and OS X: http://albion2.org/dl/albion_pr1.zip
+ * Linux: a binary distribution is rather difficult, so you'll have to build it yourself
+
+Build Instructions:
+ * TODO
+
+Installation and General Advices:
+ * on Windows/Linux: download and install the latest graphic card drivers (NVIDIA: http://www.geforce.com/Drivers, AMD: http://support.amd.com/us/gpudownload/Pages/index.aspx)
+ * copy your Albion CD XLD files and main.exe to "albion_pr1/data/xld" (for file/folder structure read the readme.txt in that folder)
+ * edit "albion_pr1/data/config.xml" to your liking (open it in an appropriate editor, notepad is not of them!)
+ * VSync should always be enabled (you'll get weird behavior on 2D maps otherwise)
+ * Fullscreen is recommended for best performance (also set your fullscreen resolution)
+ * Loading and Start-up times are high when using HQ2X or HQ4X, don't panic
+ * AMD/ATI drivers are known to act weird (if you're experiencing bad performance on your high-end card, try quitting and starting the game again)
+
+Controls:
+ * WASD or arrow keys for walking
+ * ESC to quit the game
+ * C to toggle collision detection
+ * +/- to increase/decrease day time
+ * in 3D: right click to toggle camera rotation using your mouse
+ * in 3D: V to toggle between "free cam" (flying) and "normal cam" (pinned to the ground)
+ * in 3D: R to reset the camera+player rotation and position
+ * Q to toggle debug texture display (use in combination with keys 1 - 7)
+
+Credits:
+ * http://www.libsdl.org / SDL and SDL_image (thanks to Sam Lantinga and all contributors for the years of work)
+ * http://www.libpng.org / libpng, http://zlib.net / zlib (who could live without them?)
+ * http://www.xmlsoft.org / libxml2 (not always the easiest to use, but gets the job done)
+ * http://industriousone.com/premake / premake4 (better than automake and cmake ;))
+ * http://www.mingw.org / mingw/msys environment (msvc must die!)
+ * clang/libc++ (http://llvm.org) and gcc/libstdc++ (http://gcc.gnu.org)
+ * Khronos (http://www.khronos.org) / Nvidia / AMD / Apple (OpenGL/OpenCL)
+ * Micky for testing ;)
+

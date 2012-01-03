@@ -28,8 +28,9 @@
 	<!-- misc albion settings (you may change these) -->
 	<albion>
 		<!--
-		 scale_2d/scale_3d options: 1x, 2x, 4x, hq2x, hq4x
-		 note: this mostly influences the load time, not so much the rendering performance (hq4x is recommended)
+		 scale_2d: don't change this!
+		 scale_3d options: 1x, 2x, 4x, hq2x, hq4x
+		 note: this mostly influences the load time, not so much the rendering performance (if you have enough VRAM), hq4x is recommended
 		 object_lights: 0 (on) or 1 (off), if enabled, this will add a light source for each "light map object" (lamps/etc.)
 		 collision: 0 (on) or 1 (off)
 		 hour: the hour in which the game should start (0 - 23, obviously)
