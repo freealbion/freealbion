@@ -167,8 +167,19 @@ void map_handler::handle() {
 	if(me_evt != NULL) {
 		size2 map_pos = size2(me_evt->map_x-1, me_evt->map_y-1);
 		// the map change event pos might be (0, 0), in which case the player pos should be used
-		if(me_evt->map_x == 0 || me_evt->map_y == 0) {
+		if(me_evt->map_x == 0 && me_evt->map_y == 0) {
 			map_pos = player_pos;
+		}
+		// if only one is 0, this is a continent map change (keep player pos for this coordinate)
+		else if(me_evt->map_x == 0 || me_evt->map_y == 0) {
+			if(me_evt->map_x == 0) {
+				map_pos.x = player_pos.x;
+				map_pos.y = me_evt->map_y - 1;
+			}
+			else if(me_evt->map_y == 0) {
+				map_pos.x = me_evt->map_x - 1;
+				map_pos.y = player_pos.y;
+			}
 		}
 		load_map(me_evt->next_map-100, map_pos, me_evt->direction);
 		return;
