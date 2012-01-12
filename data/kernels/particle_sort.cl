@@ -1,6 +1,13 @@
 
 #include "a2e_cl_global.h"
 
+//
+kernel void compute_distances(global const float4* pos_buffer, const float4 camera_pos, global float* dist_buffer) {
+	const uint global_id = get_global_id(0);
+	const float4 pos = pos_buffer[global_id];
+	dist_buffer[global_id] = fast_distance(pos.xyz, camera_pos.xyz);
+}
+
 /*
  * Copyright 1993-2010 NVIDIA Corporation.  All rights reserved.
  *
@@ -12,29 +19,23 @@
  *
  */
 
-inline void ComparatorPrivate(global const float4* pos_buffer,
-							  const float3 camera_pos,
+inline void ComparatorPrivate(global const float* dist_buffer,
 							  uint* keyA,
 							  uint* keyB,
 							  uint arrowDir) {
-	const float4 pos_a = pos_buffer[*keyA];
-	const float4 pos_b = pos_buffer[*keyB];
-	const float dist_a = fast_distance(pos_a.xyz, camera_pos);
-	const float dist_b = fast_distance(pos_b.xyz, camera_pos);
+	const float dist_a = dist_buffer[*keyA];
+	const float dist_b = dist_buffer[*keyB];
 	if((uint)(dist_a < dist_b) == arrowDir) {
 		uint t = *keyA; *keyA = *keyB; *keyB = t;
 	}
 }
 
-inline void ComparatorLocal(global const float4* pos_buffer,
-							const float3 camera_pos,
+inline void ComparatorLocal(global const float* dist_buffer,
 							local uint* keyA,
 							local uint* keyB,
 							uint arrowDir) {
-	const float4 pos_a = pos_buffer[*keyA];
-	const float4 pos_b = pos_buffer[*keyB];
-	const float dist_a = fast_distance(pos_a.xyz, camera_pos);
-	const float dist_b = fast_distance(pos_b.xyz, camera_pos);
+	const float dist_a = dist_buffer[*keyA];
+	const float dist_b = dist_buffer[*keyB];
 	if((uint)(dist_a < dist_b) == arrowDir) {
 		uint t = *keyA; *keyA = *keyB; *keyB = t;
 	}
@@ -49,8 +50,7 @@ inline void ComparatorLocal(global const float4* pos_buffer,
 //sorted in opposite directions
 // NOTE: this was bitonicSortLocal1
 kernel __attribute__((reqd_work_group_size(LOCAL_SIZE_LIMIT / 2, 1, 1)))
-void bitonicSortLocal(global const float4* pos_buffer,
-					  const float4 camera_pos,
+void bitonicSortLocal(global const float* dist_buffer,
 					  global uint* d_DstKey,
 					  global const uint* d_SrcKey) {
 	local uint l_key[LOCAL_SIZE_LIMIT];
@@ -71,13 +71,10 @@ void bitonicSortLocal(global const float4* pos_buffer,
 		for(uint stride = size / 2; stride > 0; stride >>= 1){
 			barrier(CLK_LOCAL_MEM_FENCE);
 			uint pos = 2 * local_id - (local_id & (stride - 1));
-			ComparatorLocal(
-							pos_buffer,
-							camera_pos.xyz,
+			ComparatorLocal(dist_buffer,
 							&l_key[pos +	  0],
 							&l_key[pos + stride],
-							dir
-							);
+							dir);
 		}
 	}
 	
@@ -88,13 +85,10 @@ void bitonicSortLocal(global const float4* pos_buffer,
 		for(uint stride = LOCAL_SIZE_LIMIT / 2; stride > 0; stride >>= 1){
 			barrier(CLK_LOCAL_MEM_FENCE);
 			uint pos = 2 * local_id - (local_id & (stride - 1));
-			ComparatorLocal(
-							pos_buffer,
-							camera_pos.xyz,
+			ComparatorLocal(dist_buffer,
 							&l_key[pos +	  0],
 							&l_key[pos + stride],
-							dir
-							);
+							dir);
 		}
 	}
 	
@@ -104,8 +98,7 @@ void bitonicSortLocal(global const float4* pos_buffer,
 }
 
 //Bitonic merge iteration for 'stride' >= LOCAL_SIZE_LIMIT
-kernel void bitonicMergeGlobal(global const float4* pos_buffer,
-							   const float4 camera_pos,
+kernel void bitonicMergeGlobal(global const float* dist_buffer,
 							   global uint* d_DstKey,
 							   global uint* d_SrcKey,
 							   uint arrayLength,
@@ -121,13 +114,10 @@ kernel void bitonicMergeGlobal(global const float4* pos_buffer,
 	uint keyA = d_SrcKey[pos +      0];
 	uint keyB = d_SrcKey[pos + stride];
 	
-	ComparatorPrivate(
-					  pos_buffer,
-					  camera_pos.xyz,
+	ComparatorPrivate(dist_buffer,
 					  &keyA,
 					  &keyB,
-					  dir
-					  );
+					  dir);
 	
 	d_DstKey[pos +	  0] = keyA;
 	d_DstKey[pos + stride] = keyB;
@@ -136,8 +126,7 @@ kernel void bitonicMergeGlobal(global const float4* pos_buffer,
 //Combined bitonic merge steps for
 //'size' > LOCAL_SIZE_LIMIT and 'stride' = [1 .. LOCAL_SIZE_LIMIT / 2]
 kernel __attribute__((reqd_work_group_size(LOCAL_SIZE_LIMIT / 2, 1, 1)))
-void bitonicMergeLocal(global const float4* pos_buffer,
-					   const float4 camera_pos,
+void bitonicMergeLocal(global const float* dist_buffer,
 					   global uint* d_DstKey,
 					   global uint* d_SrcKey,
 					   uint arrayLength,
@@ -158,13 +147,10 @@ void bitonicMergeLocal(global const float4* pos_buffer,
 	for(; stride > 0; stride >>= 1){
 		barrier(CLK_LOCAL_MEM_FENCE);
 		uint pos = 2*  local_id - (local_id & (stride - 1));
-		ComparatorLocal(
-						pos_buffer,
-						camera_pos.xyz,
+		ComparatorLocal(dist_buffer,
 						&l_key[pos +	  0],
 						&l_key[pos + stride],
-						dir
-						);
+						dir);
 	}
 	
 	barrier(CLK_LOCAL_MEM_FENCE);

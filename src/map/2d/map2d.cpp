@@ -443,7 +443,7 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 				evt_rect.y1 = cur_evt->ypos * tile_size + tile_size/2 - 3;
 				evt_rect.x2 = evt_rect.x1 + 6;
 				evt_rect.y2 = evt_rect.y1 + 6;
-				egfx->draw_fade_rectangle(&evt_rect, 0xCFFFFFFF, 0x2FFFFFFF, gfx::FT_DIAGONAL);
+				//egfx->draw_fade_rectangle(&evt_rect, 0xCFFFFFFF, 0x2FFFFFFF, gfx::FT_DIAGONAL);
 			}
 		}
 	}

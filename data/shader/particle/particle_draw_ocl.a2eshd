@@ -194,6 +194,7 @@ void main() {
 	for(int i = 0; i < MAX_LIGHTS; i++) {
 		light_color += lights.data[i].color.xyz * attenuation[i];
 	}
+	light_color += vec3(out_aux.w, out_aux.z, sqrt(out_aux.w*out_aux.z));
 	tex_color.xyz *= light_color;
 	</option>
 	

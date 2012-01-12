@@ -467,7 +467,7 @@
 		5C06AF9012612D3400405DE8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 			};
 			buildConfigurationList = 5C06AF9312612D3400405DE8 /* Build configuration list for PBXProject "albion" */;
 			compatibilityVersion = "Xcode 3.2";

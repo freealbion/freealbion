@@ -293,7 +293,7 @@ void map_handler::debug_draw(const DRAW_MODE) {
 			tmin.y = tmax.y = 0.0f;
 
 			extbbox box(tmin, tmax, float3(0.0f), matrix4f().identity());
-			egfx->draw_bbox(&box, 0x7FFF0000);
+			//egfx->draw_bbox(box, 0x7FFF0000);
 		}
 	}
 }

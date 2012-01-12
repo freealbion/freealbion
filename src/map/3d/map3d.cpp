@@ -313,7 +313,6 @@ void map3d::load(const size_t& map_num) {
 	npcs_model->load_from_memory(1, npc_object_count*4, npcs_vertices, npcs_tex_coords, npcs_index_count, npcs_indices);
 	npcs_model->set_ws_positions(npcs_ws_positions);
 	npcs_model->set_material(lab_data->get_object_material());
-	sce->add_model(npcs_model);
 	
 	// compute which wall sides we need
 	wall_sides = new unsigned char[map_size.x*map_size.y];
@@ -730,7 +729,8 @@ void map3d::load(const size_t& map_num) {
 	object_light_ani_time = SDL_GetTicks();
 	sun_distance = (float(map_size.x) / 2.0f) * std_tile_size;
 	
-	// render this at the end (faster since it'll only write the pixels that are really necessary)
+	// render these at the end (faster since it'll only write the pixels that are really necessary)
+	sce->add_model(npcs_model);
 	sce->add_model(bg3d);
 
 	// and finally:
