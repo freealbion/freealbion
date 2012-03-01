@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a2e_shader version="1">
 	<includes>global</includes>
-	<options list="# colored textured texture_mul_color texture_madd_color" />
+	<options list="# colored colored_mul_color textured textured_passthrough texture_mul_color texture_madd_color" />
 
 	<vertex_shader>
 		<variables>
-<option value="colored">
+<option value="colored colored_mul_color">
 in vec4 in_color;
 out vec4 out_color;
 </option>
 
-<option value="textured texture_mul_color texture_madd_color">
+<option value="textured textured_passthrough texture_mul_color texture_madd_color">
 in vec2 in_tex_coord;
-out vec2 tex_coord;
+centroid out vec2 tex_coord;
 </option>
 
 uniform mat4 mvpm;
@@ -21,11 +21,11 @@ uniform mat4 mvpm;
 void main() {
 	gl_Position = mvpm * vec4(in_vertex, 1.0);
 	
-	<option value="colored">
+	<option value="colored colored_mul_color">
 	out_color = in_color;
 	</option>
 	
-	<option value="textured texture_mul_color texture_madd_color">
+	<option value="textured textured_passthrough texture_mul_color texture_madd_color">
 	tex_coord = in_tex_coord;
 	</option>
 }
@@ -34,17 +34,17 @@ void main() {
 	
 	<fragment_shader>
 		<variables>
-<option value="# texture_mul_color texture_madd_color">
+<option value="# texture_mul_color texture_madd_color colored_mul_color">
 uniform vec4 in_color;
 </option>
 
-<option value="colored">
+<option value="colored colored_mul_color">
 in vec4 out_color;
 </option>
 
-<option value="textured texture_mul_color texture_madd_color">
+<option value="textured textured_passthrough texture_mul_color texture_madd_color">
 uniform sampler2D tex;
-in vec2 tex_coord;
+centroid in vec2 tex_coord;
 </option>
 
 <option value="texture_madd_color">
@@ -57,11 +57,14 @@ void main() {
 	vec4 color = in_color;
 	</option>
 	
-	<option value="colored">
+	<option value="colored colored_mul_color">
 	vec4 color = out_color;
 	</option>
+	<option value="colored_mul_color">
+	color = in_color * out_color;
+	</option>
 	
-	<option value="textured">
+	<option value="textured textured_passthrough">
 	vec4 color = texture(tex, tex_coord);
 	</option>
 	
@@ -73,7 +76,13 @@ void main() {
 	color += add_color;
 	</option>
 	
+	<option value="# colored colored_mul_color textured texture_mul_color texture_madd_color">
 	frag_color = vec4(color.rgb * color.a, color.a);
+	</option>
+	
+	<option value="textured_passthrough">
+	frag_color = vec4(color.rgb, color.a);
+	</option>
 }
 		</program>
 	</fragment_shader>

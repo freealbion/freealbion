@@ -147,7 +147,7 @@ void albion_ui::open_game_ui() {
 	// clock
 	clock_img_obj = new image(e);
 	clock_img_obj->set_scaling(true);
-	a2e_texture& clock_tex = bin_gfx->get_bin_graphic(bin_graphics::CLOCK);
+	const a2e_texture& clock_tex = bin_gfx->get_bin_graphic(bin_graphics::CLOCK);
 	clock_img_obj->set_texture(clock_tex);
 	clock_img_obj->set_gui_img(true);
 	
@@ -157,7 +157,7 @@ void albion_ui::open_game_ui() {
 	clock_img_size.y = img_scale * float(clock_tex->height);
 	
 	// clock numbers
-	a2e_texture& clock_num_tex = bin_gfx->get_bin_graphic(bin_graphics::CLOCK_NUM_0);
+	const a2e_texture& clock_num_tex = bin_gfx->get_bin_graphic(bin_graphics::CLOCK_NUM_0);
 	clock_num_size = float2(clock_num_tex->width, clock_num_tex->height);
 	clock_num_size *= img_scale;
 	float x_per_num = (clock_img_size.x - clock_num_size.x*4.0f) / 4.0f;
@@ -174,8 +174,8 @@ void albion_ui::open_game_ui() {
 	}
 	
 	// compass
-	a2e_texture& compass_tex = bin_gfx->get_bin_graphic(bin_graphics::COMPASS_EN);
-	a2e_texture& compass_dot_tex = bin_gfx->get_bin_graphic(bin_graphics::COMPASS_DOT_0);
+	const a2e_texture& compass_tex = bin_gfx->get_bin_graphic(bin_graphics::COMPASS_EN);
+	const a2e_texture& compass_dot_tex = bin_gfx->get_bin_graphic(bin_graphics::COMPASS_DOT_0);
 	compass_img_obj = new image(e);
 	compass_img_obj->set_scaling(true);
 	compass_img_obj->set_texture(compass_tex);

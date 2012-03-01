@@ -11,6 +11,13 @@
 #endif
 #endif
 
+#if !defined(A2E_IR_TILE_SIZE_X)
+#define A2E_IR_TILE_SIZE_X 8
+#endif
+#if !defined(A2E_IR_TILE_SIZE_Y)
+#define A2E_IR_TILE_SIZE_Y 8
+#endif
+
 struct __attribute__((aligned(32), packed)) ir_light {
 	float4 position;
 	float4 color;
@@ -58,7 +65,8 @@ kernel void ir_lighting(
 #endif
 	write_mem_fence(CLK_LOCAL_MEM_FENCE);
 #endif
-		
+	
+#if 1
 	const size_t local_id = get_local_id(0);
 	const size_t group_id = get_group_id(0);
 	const size_t idx = (group_id % tiles.x) * A2E_IR_TILE_SIZE_X + (local_id % A2E_IR_TILE_SIZE_X);
@@ -193,4 +201,5 @@ kernel void ir_lighting(
 	}
 	
 	write_imagef(output_buffer, tex_coord, color);
+#endif
 }

@@ -50,7 +50,6 @@ size_t scaling::get_scale_factor(const SCALE_TYPE& scale_type) {
 		case ST_NEAREST_4X:
 		case ST_HQ4X:
 			return 4;
-		default: break;
 	}
 	return 0;
 }
@@ -83,6 +82,5 @@ void scaling::scale(const SCALE_TYPE scale_type, const unsigned int* input, cons
 		case ST_HQ4X:
 			hq4x_32(input, output, input_size);
 			break;
-		default: return;
 	}
 }

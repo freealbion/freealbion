@@ -25,7 +25,11 @@
 #include "map_defines.h"
 
 #include <scene/model/a2estatic.h>
+#if !defined(A2E_IOS)
 #include <rendering/renderer/gl3/shader_gl3.h>
+#else
+#include <rendering/renderer/gles2/shader_gles2.h>
+#endif
 
 class map_tiles : public a2estatic {
 public:

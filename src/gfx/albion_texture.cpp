@@ -194,7 +194,11 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 			}
 		}
 		
+#if !defined(A2E_IOS)
 		glTexImage2D(GL_TEXTURE_2D, (unsigned int)level, tex->internal_format, (unsigned int)cur_size.x, (unsigned int)cur_size.y, 0, tex->format, tex->type, scaled_data);
+#else
+		glTexImage2D(GL_TEXTURE_2D, (unsigned int)level, texman::convert_internal_format(tex->internal_format), (unsigned int)cur_size.x, (unsigned int)cur_size.y, 0, tex->format, tex->type, scaled_data);
+#endif
 		
 		if(last_data != tex_data) delete [] last_data;
 		
@@ -202,7 +206,9 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 		last_size = cur_size;
 	}
 	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+#if !defined(A2E_IOS)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0); // defaults to 0 anyways?
+#endif
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, (unsigned int)(level-1));
 	
 	if(last_data != tex_data) delete [] last_data;
@@ -284,7 +290,6 @@ void albion_texture::add_spacing(unsigned int* surface, const size2& texture_siz
 		}
 		break;
 		case TST_NONE:
-		default:
 			break;
 	}
 }

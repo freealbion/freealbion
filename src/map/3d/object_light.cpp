@@ -56,7 +56,6 @@ case object_light_type::type: return new object_light<object_light_type::type>(p
 object_light_base* object_light_base::create(const object_light_type& type, const float3& position) {
 	switch(type) {
 		__OBJECT_LIGHT_TYPE_LIST(__OBJECT_LIGHT_CASE_CREATE)
-		default: break;
 	}
 	a2e_error("unknown object light type: %u!", (unsigned int)type);
 	return new object_light<object_light_type::STREET_LAMP>(position);
@@ -67,12 +66,12 @@ template <> object_light<object_light_type::STREET_LAMP>::object_light(const flo
 template <> void object_light<object_light_type::STREET_LAMP>::animate(const size_t& time) {
 }
 
-template <> object_light<object_light_type::GLOWING_LAMP>::object_light(const float3& position_) : object_light_base(position_, float3(215, 255, 176)/255.0f, std_tile_size*4.0f) {
+template <> object_light<object_light_type::GLOWING_LAMP>::object_light(const float3& position_) : object_light_base(position_, float3(215.0f, 255.0f, 176.0f)/255.0f, std_tile_size*4.0f) {
 }
 template <> void object_light<object_light_type::GLOWING_LAMP>::animate(const size_t& time) {
 	static const unsigned int step_count = 2000;
-	static const float2 minmax_radius = float2(std_tile_size*3.0f, std_tile_size*4.0f);
-	static const float radius_diff = minmax_radius.y - minmax_radius.x;
+	const float2 minmax_radius(std_tile_size*3.0f, std_tile_size*4.0f);
+	const float radius_diff = minmax_radius.y - minmax_radius.x;
 	
 	step += time;
 	if(step >= step_count) {
@@ -159,9 +158,9 @@ template <> object_light<object_light_type::GLOWING_GRABBER>::object_light(const
 template <> void object_light<object_light_type::GLOWING_GRABBER>::animate(const size_t& time) {
 	static const unsigned int step_count = 300; // i should put an epilepsy warning somewhere
 	static const float3 colors[] = {
-		float3(239, 206, 77)/255.0f,
-		float3(177, 129, 85)/255.0f,
-		float3(173, 73, 1)/255.0f,
+		float3(239.0f, 206.0f, 77.0f)/255.0f,
+		float3(177.0f, 129.0f, 85.0f)/255.0f,
+		float3(173.0f, 73.0f, 1.0f)/255.0f,
 	};
 	
 	step += time;

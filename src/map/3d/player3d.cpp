@@ -20,7 +20,7 @@
 #include "player3d.h"
 #include <scene/camera.h>
 
-player3d::player3d(map3d* map3d_obj) : npc3d(map3d_obj) {
+player3d::player3d(map3d* map3d_obj) : npc3d(map3d_obj), last_pos(0.0f, 0.0f, 0.0f) {
 	char_type = CT_PLAYER;
 }
 

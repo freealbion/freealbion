@@ -149,9 +149,11 @@
 		5CDFD7A213248985009459CE /* inferred_gbuffer.a2eshdi */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = inferred_gbuffer.a2eshdi; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5CE00A2513ABB86F00FAE69A /* premake.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = premake.sh; sourceTree = "<group>"; };
 		5CE00A2613ABB86F00FAE69A /* premake4.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = premake4.lua; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
-		5CF266901379FF6E00B729B0 /* ir_lighting.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = ir_lighting.cl; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		5CF266901379FF6E00B729B0 /* ir_lighting.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = ir_lighting.cl; sourceTree = "<group>"; };
 		5CFC5D1213E46E5200824F9C /* bin_graphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bin_graphics.cpp; sourceTree = "<group>"; };
 		5CFC5D1613E46E5C00824F9C /* bin_graphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bin_graphics.h; sourceTree = "<group>"; };
+		5CFEE38A14FF91C700108EE9 /* glsles_compat.a2eshdi */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = glsles_compat.a2eshdi; sourceTree = "<group>"; };
+		5CFEE38C14FF91D500108EE9 /* blend.a2eshd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = blend.a2eshd; path = data/shader/misc/blend.a2eshd; sourceTree = "<group>"; };
 		5CFFE9201269605A00199C96 /* npc2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = npc2d.cpp; sourceTree = "<group>"; };
 		5CFFE9211269605A00199C96 /* npc2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = npc2d.h; sourceTree = "<group>"; };
 		5CFFE9221269605A00199C96 /* player2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player2d.cpp; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 				5C34B58713E8E85E004E705F /* fxaa3.a2eshd */,
 				5C2C9286140AE73B00AC808C /* simple.a2eshd */,
 				5C6E2D2A14AA25C300FBD924 /* downsample.a2eshd */,
+				5CFEE38C14FF91D500108EE9 /* blend.a2eshd */,
 			);
 			name = misc;
 			sourceTree = "<group>";
@@ -304,6 +307,7 @@
 				5C7A455A12CBAA86005C70EE /* inferred.a2eshdi */,
 				5CDFD7A213248985009459CE /* inferred_gbuffer.a2eshdi */,
 				5C6A50B5140DB1BD00EA5C1A /* global.a2eshdi */,
+				5CFEE38A14FF91C700108EE9 /* glsles_compat.a2eshdi */,
 			);
 			name = include;
 			path = data/shader/include;
@@ -582,7 +586,7 @@
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.7;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
 			name = Debug;
@@ -602,7 +606,7 @@
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.7;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
 			name = Release;
@@ -628,7 +632,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/Albion_Remake_Prefix.pch;
+				GCC_PREFIX_HEADER = src/osx/Albion_Remake_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"A2E_USE_OPENCL=1",
 					PLATFORM_X64,
@@ -667,7 +671,6 @@
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-la2elightd";
 				PRODUCT_NAME = "Albion Remaked";
-				SDKROOT = macosx;
 				SYMROOT = build;
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -705,7 +708,7 @@
 				GCC_ENABLE_SSE41_EXTENSIONS = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = src/Albion_Remake_Prefix.pch;
+				GCC_PREFIX_HEADER = src/osx/Albion_Remake_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"A2E_USE_OPENCL=1",
 					PLATFORM_X64,
@@ -745,7 +748,6 @@
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-la2elight";
 				PRODUCT_NAME = "Albion Remake";
-				SDKROOT = macosx;
 				SYMROOT = build;
 				WARNING_CFLAGS = (
 					"-Wall",

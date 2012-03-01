@@ -122,7 +122,7 @@ public:
 		ARROW_LOOK_DOWN,
 	};
 	
-	a2e_texture& get_bin_graphic(const BIN_GRAPHIC_TYPE type) const;
+	a2e_texture get_bin_graphic(const BIN_GRAPHIC_TYPE type) const;
 	
 protected:
 	struct bin_gfx_mapping {
@@ -134,7 +134,7 @@ protected:
 		bool scale_nearest;
 	};
 	
-	a2e_texture* bin_textures;
+	vector<a2e_texture> bin_textures;
 	
 };
 

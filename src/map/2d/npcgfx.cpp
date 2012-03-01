@@ -86,7 +86,11 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 		texture_size.y = npc_size.y*4*(object_count/4);
 	}
 	
+#if !defined(A2E_IOS)
 	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, texture_size, npc_size, cur_palette, tex_info, NULL, albion_texture::TST_NONE, 0, false, texture_object::TF_TRILINEAR);
+#else
+	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, texture_size, npc_size, cur_palette, tex_info, NULL, albion_texture::TST_NONE, 0, false, texture_object::TF_LINEAR);
+#endif
 }
 
 const a2e_texture& npcgfx::get_npcgfx(const size_t& npc_num) {

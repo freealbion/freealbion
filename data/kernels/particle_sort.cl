@@ -8,6 +8,10 @@ kernel void compute_distances(global const float4* pos_buffer, const float4 came
 	dist_buffer[global_id] = fast_distance(pos.xyz, camera_pos.xyz);
 }
 
+#if !defined(LOCAL_SIZE_LIMIT)
+#define LOCAL_SIZE_LIMIT 512
+#endif
+
 /*
  * Copyright 1993-2010 NVIDIA Corporation.  All rights reserved.
  *

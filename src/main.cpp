@@ -25,7 +25,7 @@
  *
  * \author flo
  *
- * \date April 2007 - January 2012
+ * \date April 2007 - March 2012
  *
  * Albion Remake
  */
@@ -35,7 +35,11 @@ static a2e_texture debug_tex;
 
 int main(int argc, char *argv[]) {
 	// initialize the engine
+#if !defined(A2E_IOS) || !defined(A2E_DEBUG)
 	e = new engine(argv[0], (const char*)"../data/");
+#else
+	e = new engine(argv[0], (const char*)"../../../../Documents/albion/data/");
+#endif
 	e->init();
 	e->set_caption(APPLICATION_NAME);
 	
@@ -78,9 +82,9 @@ int main(int argc, char *argv[]) {
 		{ "AR_IR_MP_MAP_OBJECTS", "inferred/mp_map_objects.a2eshd" },
 		{ "AR_IR_MP_MAP_TILES", "inferred/mp_map_tiles.a2eshd" },
 	};
-	for(size_t i = 0; i < A2E_ARRAY_LENGTH(ar_shaders); i++) {
-		if(!s->add_a2e_shader(ar_shaders[i][0], ar_shaders[i][1])) {
-			a2e_error("couldn't add a2e-shader \"%s\"!", ar_shaders[i][1]);
+	for(const auto& shd : ar_shaders) {
+		if(!s->add_a2e_shader(shd[0], shd[1])) {
+			a2e_error("couldn't add a2e-shader \"%s\"!", shd[1]);
 			done = true;
 		}
 	}
@@ -145,6 +149,7 @@ int main(int argc, char *argv[]) {
 		
 		// set caption (app name and fps count)
 		if(e->is_new_fps_count()) {
+			//cout << "FPS: " << e->get_fps() << endl;
 			caption << APPLICATION_NAME << " | FPS: " << e->get_fps();
 			if(mh->get_tile(0) != NULL) {
 				caption << " | ";
@@ -202,10 +207,11 @@ int main(int argc, char *argv[]) {
 			core::reset(&caption);
 		}
 
+		e->start_draw();
+
 		clck->run();
 		mh->handle();
-
-		e->start_draw();
+		
 		aui->run();
 
 		mh->draw();
@@ -240,6 +246,10 @@ int main(int argc, char *argv[]) {
 	debug_tex->tex_num = 0;
 	
 	//a2e_debug_wnd::close();
+	
+	eevt->remove_event_handler(key_handler_fnctr);
+	eevt->remove_event_handler(mouse_handler_fnctr);
+	eevt->remove_event_handler(quit_handler_fnctr);
 
 	delete palettes;
 	delete bin_gfx;

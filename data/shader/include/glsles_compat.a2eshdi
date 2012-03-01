@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader_include version="1">
+	<fragment_shader>
+		<preprocessor>
+		</preprocessor>
+		<variables>
+		</variables>
+		<program>
+vec4 texture(in sampler2D sampler, vec2 P) {
+	return texture2D(sampler, P);
+}
+vec4 texture(in sampler2D sampler, vec2 P, float bias) {
+	return texture2D(sampler, P, bias);
+}
+vec4 texture(in samplerCube sampler, vec3 P) {
+	return textureCube(sampler, P);
+}
+vec4 texture(in samplerCube sampler, vec3 P, float bias) {
+	return textureCube(sampler, P, bias);
+}
+		</program>
+	</fragment_shader>
+</a2e_shader_include>

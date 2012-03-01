@@ -201,7 +201,6 @@ bin_graphics::bin_graphics() {
 		{ ARROW_LOOK_UP, 0x102D63, 16, 16, texture_object::TF_LINEAR, false },
 		{ ARROW_LOOK_DOWN, 0x102E63, 16, 16, texture_object::TF_LINEAR, false },
 	};
-	static const size_t bin_gfx_count = A2E_ARRAY_LENGTH(graphics);
 	
 	if(!fio->open_file(xld::make_xld_path("MAIN.EXE").c_str(), file_io::OT_READ_BINARY)) {
 		a2e_error("couldn't open MAIN.EXE");
@@ -213,25 +212,24 @@ bin_graphics::bin_graphics() {
 		
 		const scaling::SCALE_TYPE scale_type = conf::get<scaling::SCALE_TYPE>("map.2d.scale_type");
 		const size_t scale_factor = scaling::get_scale_factor(scale_type);
-		bin_textures = new a2e_texture[bin_gfx_count];
-		for(size_t i = 0; i < bin_gfx_count; i++) {
-			size2 texture_size(graphics[i].width * scale_factor, graphics[i].height * scale_factor);
-			unsigned int* tex_surface = new unsigned int[texture_size.x*texture_size.y*4];
-			unsigned int* data_32bpp = new unsigned int[graphics[i].width*graphics[i].height];
+		for(const auto& graphic : graphics) {
+			size2 texture_size(graphic.width * scale_factor, graphic.height * scale_factor);
+			unsigned int* tex_surface = new unsigned int[texture_size.x * texture_size.y*4];
+			unsigned int* data_32bpp = new unsigned int[graphic.width * graphic.height];
 			
 			scaling::SCALE_TYPE scale = scale_type;
-			if(graphics[i].scale_nearest) {
+			if(graphic.scale_nearest) {
 				scale = (scale_factor == 4 ? scaling::ST_NEAREST_4X :
 						 (scale_factor == 2 ? scaling::ST_NEAREST_2X : scaling::ST_NEAREST_1X));
 			}
 			
-			gfxconv::convert_8to32(&albion_binary[graphics[i].offset], data_32bpp,
-								   graphics[i].width, graphics[i].height, 
+			gfxconv::convert_8to32(&albion_binary[graphic.offset], data_32bpp,
+								   graphic.width, graphic.height,
 								   18, 0); // pal 18!
-			scaling::scale(scale, data_32bpp, size2(graphics[i].width, graphics[i].height), tex_surface);
+			scaling::scale(scale, data_32bpp, size2(graphic.width, graphic.height), tex_surface);
 			
 			
-			bin_textures[i] = t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, graphics[i].filtering, 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+			bin_textures.emplace_back(t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, graphic.filtering, 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE));
 			
 			delete [] tex_surface;
 			delete [] data_32bpp;
@@ -242,8 +240,9 @@ bin_graphics::bin_graphics() {
 }
 
 bin_graphics::~bin_graphics() {
+	bin_textures.clear();
 }
 
-a2e_texture& bin_graphics::get_bin_graphic(const BIN_GRAPHIC_TYPE type) const {
-	return bin_textures[type];
+a2e_texture bin_graphics::get_bin_graphic(const BIN_GRAPHIC_TYPE type) const {
+	return bin_textures.at(type);
 }

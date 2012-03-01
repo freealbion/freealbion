@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a2e_shader version="1">
+	<options list="# keep_alpha"/>
+
 	<vertex_shader>
 		<variables>
 in vec2 in_vertex;
@@ -256,7 +258,7 @@ void main() {
 //  _ = the lowest digit is directly related to performance
 // _  = the highest digit is directly related to style
 // 
-#define FXAA_QUALITY__PRESET 23
+#define FXAA_QUALITY__PRESET 29
 #endif
 
 
@@ -936,13 +938,16 @@ FxaaFloat4 FxaaPixelShader(
 		</preprocessor>
 		<variables>
 uniform sampler2D src_buffer;
+<option value="keep_alpha">
+uniform sampler2D alpha_buffer;
+</option>
 uniform vec2 texel_size;
 in vec2 tex_coord;
 out vec4 frag_color;
 		</variables>
 		<program>
 void main() {
-	frag_color = FxaaPixelShader(// Use noperspective interpolation here (turn off perspective interpolation).
+	vec4 color = FxaaPixelShader(// Use noperspective interpolation here (turn off perspective interpolation).
 								 // {xy} = center of pixel
 								 tex_coord,
 								 //
@@ -995,6 +1000,13 @@ void main() {
 								 //   Tune by looking at mostly non-green content,
 								 //   then start at zero and increase until aliasing is a problem.
 								 0.0833);
+	<option value="keep_alpha">
+	ivec2 itex_coord = ivec2(floor(tex_coord / texel_size));
+	color.a = texelFetch(alpha_buffer, itex_coord, 0).a;
+	//color.a = texture(alpha_buffer, tex_coord).a;
+	</option>
+	
+	frag_color = color;
 }
 		</program>
 	</fragment_shader>

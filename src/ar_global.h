@@ -24,6 +24,9 @@
 #include <core/logger.h>
 #include <core/vector2.h>
 #include <core/vector3.h>
+#if defined(A2E_IOS)
+#include <rendering/gles_compat.h>
+#endif
 #include "palette.h"
 #include "clock.h"
 

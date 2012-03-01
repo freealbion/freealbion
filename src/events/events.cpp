@@ -165,8 +165,6 @@ events::event* events::create_event(const events::EVENT_TYPE& type) {
 			return new query_event();
 		case ETY_MAP_EXIT:
 			return new map_exit_event();
-		default:
-			break;
 	}
 	a2e_error("unknown event type: %i", type);
 	return new event();
