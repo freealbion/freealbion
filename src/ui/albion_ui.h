@@ -38,6 +38,7 @@ public:
 	
 	void open_game_ui();
 	void close_game_ui();
+	void load_game_ui(const size2& size);
 	
 protected:
 	map_handler* mh;
@@ -70,6 +71,8 @@ protected:
 	size_t dot_timer;
 	bool game_ui_opened;
 	bool game_ui_loaded;
+	
+	void delete_game_ui();
 	
 	//
 	/*void handle_b_goto_map_button(event::GUI_EVENT_TYPE type, GUI_ID id);

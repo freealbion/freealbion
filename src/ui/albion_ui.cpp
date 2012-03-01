@@ -57,13 +57,17 @@ albion_ui::~albion_ui() {
 	delete clock_cb;
 	
 	if(game_ui_loaded) {
-		delete clock_img_obj;
-		for(size_t i = 0; i < 4; i++) {
-			delete clock_numbers[i].img;
-		}
-		delete compass_img_obj;
-		delete compass_dot_img_obj;
+		delete_game_ui();
 	}
+}
+
+void albion_ui::delete_game_ui() {
+	delete clock_img_obj;
+	for(size_t i = 0; i < 4; i++) {
+		delete clock_numbers[i].img;
+	}
+	delete compass_img_obj;
+	delete compass_dot_img_obj;
 }
 
 void albion_ui::run() {
@@ -141,8 +145,23 @@ void albion_ui::open_game_ui() {
 	game_ui_opened = true;
 	
 	if(game_ui_loaded) return;
+	load_game_ui(size2(e->get_width(), e->get_height()));
+}
+
+void albion_ui::close_game_ui(){
+	if(!game_ui_opened) return;
+	game_ui_opened = false;
+}
+
+void albion_ui::load_game_ui(const size2& size) {
+	// delete old ui if it has been loaded already
+	if(game_ui_loaded) {
+		delete_game_ui();
+	}
 	
-	float2 wnd_size(e->get_width()/12, e->get_height());
+	//
+	game_ui_loaded = false;
+	const float2 wnd_size(size.x/12, size.y);
 	
 	// clock
 	clock_img_obj = new image(e);
@@ -192,15 +211,10 @@ void albion_ui::open_game_ui() {
 	compass_dot_img_size = float2(compass_img_scale * compass_dot_tex->width,
 								  compass_img_scale * compass_dot_tex->height);
 	compass_dot_img_pos = float2(compass_img_pos.x, compass_img_pos.y);
-
+	
 	dot_timer = SDL_GetTicks();
 	
 	game_ui_loaded = true;
-}
-
-void albion_ui::close_game_ui(){
-	if(!game_ui_opened) return;
-	game_ui_opened = false;
 }
 
 void albion_ui::open_goto_map_wnd() {

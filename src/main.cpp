@@ -96,6 +96,8 @@ int main(int argc, char *argv[]) {
 	eevt->add_event_handler(mouse_handler_fnctr, EVENT_TYPE::MOUSE_RIGHT_CLICK);
 	event::handler quit_handler_fnctr(&quit_handler);
 	eevt->add_event_handler(quit_handler_fnctr, EVENT_TYPE::QUIT);
+	event::handler window_handler_fnctr(&window_handler);
+	eevt->add_internal_event_handler(window_handler_fnctr, EVENT_TYPE::WINDOW_RESIZE);
 
 	// load/init stuff
 	palettes = new pal();
@@ -250,6 +252,7 @@ int main(int argc, char *argv[]) {
 	eevt->remove_event_handler(key_handler_fnctr);
 	eevt->remove_event_handler(mouse_handler_fnctr);
 	eevt->remove_event_handler(quit_handler_fnctr);
+	eevt->remove_event_handler(window_handler_fnctr);
 
 	delete palettes;
 	delete bin_gfx;
@@ -412,5 +415,13 @@ bool mouse_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 
 bool quit_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 	done = true;
+	return true;
+}
+
+bool window_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
+	if(type == EVENT_TYPE::WINDOW_RESIZE) {
+		const window_resize_event& evt = (const window_resize_event&)*obj;
+		aui->load_game_ui(evt.size);
+	}
 	return true;
 }

@@ -48,5 +48,6 @@ stringstream tmp;
 bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj);
 bool mouse_handler(EVENT_TYPE type, shared_ptr<event_object> obj);
 bool quit_handler(EVENT_TYPE type, shared_ptr<event_object> obj);
+bool window_handler(EVENT_TYPE type, shared_ptr<event_object> obj);
 
 #endif
