@@ -6,11 +6,13 @@ ALBION_MAKE="make"
 ALBION_MAKE_PLATFORM="32"
 ALBION_ARGS=""
 ALBION_CPU_COUNT=1
+ALBION_USE_CLANG=0
 
 if [[ $# > 0 && $1 == "gcc" ]]; then
 	ALBION_ARGS="--gcc"
 else
 	ALBION_ARGS="--clang"
+	ALBION_USE_CLANG=1
 fi
 
 case $( uname | tr [:upper:] [:lower:] ) in
@@ -65,6 +67,11 @@ echo "using: premake4 --cc=gcc --os="${ALBION_OS}" gmake "${ALBION_ARGS}
 
 premake4 --cc=gcc --os=${ALBION_OS} gmake ${ALBION_ARGS}
 sed -i -e 's/\${MAKE}/\${MAKE} -j '${ALBION_CPU_COUNT}'/' Makefile
+
+if [[ $ALBION_USE_CLANG == 1 ]]; then
+	sed -i '1i export CC=clang' Makefile
+	sed -i '1i export CXX=clang++' Makefile
+fi
 
 echo ""
 echo "###################################################"
