@@ -28,7 +28,7 @@ How to get it:
  * Linux: a binary distribution is rather difficult, so you'll have to build it yourself
 
 Build Instructions:
- * install/build a2elight (https://github.com/a2flo/a2elight/blob/master/README)
+ * install/build a2elight (https://github.com/a2flo/a2elight/blob/master/README.textile)
  * on Windows/Linux: run "./premake.sh gcc" or "./premake.sh clang" and "make"
  * on OS X: open albion.xcodeproj and build it
 

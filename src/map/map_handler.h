@@ -30,6 +30,7 @@
 #include "player3d.h"
 #include "npcgfx.h"
 #include "labdata.h"
+#include <gui/gui.h>
 
 class map_handler {
 public:
@@ -37,7 +38,7 @@ public:
 	~map_handler();
 	
 	void handle();
-	void draw();
+	void draw(const gui::DRAW_MODE_UI draw_mode);
 	
 	void load_map(const size_t& map_num, const size2 player_pos = size2(0, 0), const MOVE_DIRECTION player_direction = MD_NONE);
 	MAP_TYPE get_map_type(const size_t& map_num) const;
@@ -67,6 +68,8 @@ protected:
 	xld* maps1;
 	xld* maps2;
 	xld* maps3;
+	
+	gui::draw_callback draw_cb;
 	
 	//
 	size_t last_key_press;

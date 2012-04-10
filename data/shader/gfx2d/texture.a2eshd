@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<includes>global gfx2d</includes>
+		<options list="# passthrough madd_color gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl" />
+
+	<vertex_shader>
+		<variables>
+uniform mat4 mvpm;
+		</variables>
+		<program>
+void main() {
+	gl_Position = mvpm * vec4(in_vertex, 1.0);
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<variables>
+<option value="madd_color gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl">
+uniform vec4 mul_color;
+uniform vec4 add_color;
+</option>
+
+<option value="gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl">
+uniform vec4 gradient_mul_interpolator;
+uniform vec4 gradient_add_interpolator;
+</option>
+
+uniform sampler2D tex;
+uniform mat4 mvpm;
+uniform vec4 orientation;
+		</variables>
+		<program>
+void main() {
+	vec2 screen_offset = vec2(-(mvpm[3][0] + 1.0), -(mvpm[3][1] + 1.0)) / vec2(mvpm[0][0], mvpm[1][1]);
+	vec2 interpolator_dir = (gl_FragCoord.xy + screen_offset - extent.xy) / (extent.zw - extent.xy);
+	interpolator_dir *= (orientation.zw - orientation.xy);
+	vec2 tex_coord = mod(interpolator_dir + orientation.xy, 1.0);
+	
+	vec4 color = texture(tex, tex_coord);
+	
+	// simple multiply/add color
+	<option value="madd_color">
+	color *= mul_color;
+	color += add_color;
+	</option>
+	
+	// gradients
+	<option value="gradient_horizontal">
+	vec4 gradient_color = gradient_horizontal();
+	</option>
+	<option value="gradient_vertical">
+	vec4 gradient_color = gradient_vertical();
+	</option>
+	<option value="gradient_diagonal_lr">
+	vec4 gradient_color = gradient_diagonal_lr();
+	</option>
+	<option value="gradient_diagonal_rl">
+	vec4 gradient_color = gradient_diagonal_rl();
+	</option>
+	
+	<option value="gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl">
+	color = mix(color * mul_color, gradient_color, gradient_mul_interpolator);
+	color += add_color;
+	color += gradient_color * gradient_add_interpolator;
+	</option>
+	
+	// output:
+	<option value="# mul_color add_color madd_color gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl">
+	frag_color = vec4(color.rgb * color.a, color.a);
+	</option>
+	
+	<option value="passthrough">
+	frag_color = color;
+	</option>
+}
+		</program>
+	</fragment_shader>
+	
+</a2e_shader>

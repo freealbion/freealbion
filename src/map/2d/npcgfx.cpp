@@ -18,7 +18,7 @@
  */
 
 #include "npcgfx.h"
-#include <rendering/gfx.h>
+#include <rendering/gfx2d.h>
 
 /*! npcgfx constructor
  */
@@ -157,14 +157,14 @@ void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame, const float2& 
 	// depth overwrite
 	if(depth_overwrite != -1.0f) depth_val = depth_overwrite;
 	
-	egfx->draw_textured_depth_rectangle(gfx::rect(screen_position.x,
-												  screen_position.y,
-												  screen_position.x + draw_size.x,
-												  screen_position.y + draw_size.y),
-										coord(tx, ty),
-										coord(tx + tc_size.x, ty + tc_size.y),
-										depth_val,
-										tex->tex());
+	gfx2d::draw_rectangle_texture(rect(screen_position.x,
+									   screen_position.y,
+									   screen_position.x + draw_size.x,
+									   screen_position.y + draw_size.y),
+								  tex->tex(),
+								  coord(tx, ty),
+								  coord(tx + tc_size.x, ty + tc_size.y),
+								  depth_val);
 }
 
 void npcgfx::clear() {

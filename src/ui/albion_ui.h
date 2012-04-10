@@ -22,6 +22,7 @@
 
 #include "ar_global.h"
 #include "map_handler.h"
+#include <gui/gui.h>
 
 class image;
 
@@ -31,7 +32,7 @@ public:
 	~albion_ui();
 	
 	void run();
-	void draw();
+	void draw(const gui::DRAW_MODE_UI draw_mode);
 	
 	void open_goto_map_wnd();
 	void close_goto_map_wnd();
@@ -42,6 +43,7 @@ public:
 	
 protected:
 	map_handler* mh;
+	gui::draw_callback draw_cb;
 
 	//
 	/*a2eui_window* albion_dbg;

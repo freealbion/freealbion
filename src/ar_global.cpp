@@ -23,7 +23,6 @@
 
 engine* e;
 file_io* fio;
-gfx* egfx;
 texman* t;
 event* eevt;
 shader* s;
@@ -32,5 +31,6 @@ scene* sce;
 camera* cam;
 pal* palettes;
 ext* exts;
+gui* ui;
 ar_clock* clck;
 bin_graphics* bin_gfx;

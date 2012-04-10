@@ -47,10 +47,10 @@ class opencl;
 class scene;
 class camera;
 class ext;
+class gui;
 
 extern engine* e;
 extern file_io* fio;
-extern gfx* egfx;
 extern texman* t;
 extern event* eevt;
 extern shader* s;
@@ -58,6 +58,7 @@ extern opencl* ocl;
 extern scene* sce;
 extern camera* cam;
 extern ext* exts;
+extern gui* ui;
 
 extern pal* palettes;
 extern ar_clock* clck;

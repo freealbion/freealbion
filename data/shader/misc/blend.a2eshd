@@ -25,56 +25,6 @@ void main() {
 	vec4 src_color = texture(src_buffer, vec2(tex_coord.x, 1.0 - tex_coord.y), 0);
 	vec4 dst_color = texture(dst_buffer, tex_coord, 0);
 	
-	//// bg 5x5 blur
-	/*if(src_color.a > 0.0) {
-		vec3 sample[25];
-		ivec2 itex_coord = ivec2(textureSize(dst_buffer, 0) * tex_coord);
-		int i = 0;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(-2, -2)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(-1, -2)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(0, -2)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(1, -2)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(2, -2)).xyz;
-		
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(-2, -1)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(-1, -1)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(0, -1)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(1, -1)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(2, -1)).xyz;
-		
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(-2, 0)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(-1, 0)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(0, 0)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(1, 0)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(2, 0)).xyz;
-		
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(-2, 1)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(-1, 1)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(0, 1)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(1, 1)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(2, 1)).xyz;
-		
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(-2, 2)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(-1, 2)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(0, 2)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(1, 2)).xyz;
-		sample[i++] = texelFetchOffset(dst_buffer, itex_coord, 0, ivec2(2, 2)).xyz;
-		
-		//   1   4   7   4   1
-		//   4  16  26  16   4
-		//   7  26  41  26   7
-		//   4  16  26  16   4
-		//   1   4   7   4   1
-		//               / 273
-		
-		dst_color.xyz = (sample[0]        + (4.0*sample[1])   + (7.0*sample[2])   + (4.0*sample[3])   + sample[4]        +
-						 (4.0*sample[5])  + (16.0*sample[6])  + (26.0*sample[7])  + (16.0*sample[8])  + (4.0*sample[9])  +
-						 (7.0*sample[10]) + (26.0*sample[11]) + (41.0*sample[12]) + (26.0*sample[13]) + (7.0*sample[14]) +
-						 (4.0*sample[15]) + (16.0*sample[16]) + (26.0*sample[17]) + (16.0*sample[18]) + (4.0*sample[19]) +
-						 sample[20]       + (4.0*sample[21])  + (7.0*sample[22])  + (4.0*sample[23])  + sample[24]) / 273.0;
-	}*/
-	////
-	
 	vec3 color = src_color.xyz + dst_color.xyz * (1.0 - src_color.a);
 
 	frag_color = vec4(color, 1.0);

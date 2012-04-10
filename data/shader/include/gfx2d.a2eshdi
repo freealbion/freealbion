@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader_include version="1">
+	<fragment_shader>
+		<preprocessor>
+		</preprocessor>
+		<variables>
+////
+uniform vec4 gradients[4]; // -> max gradient colors: 4
+uniform vec4 gradient_positions;
+uniform vec4 extent;
+////
+		</variables>
+		<program>
+////
+// gradient computation
+vec4 compute_gradient(float interpolator) {
+	vec4 color = vec4(0.0);
+	{
+		float apply = step(gradient_positions.x, interpolator) * step(interpolator, gradient_positions.y);
+		float interp = smoothstep(gradient_positions.x, gradient_positions.y, interpolator);
+		color += mix(gradients[0], gradients[1], interp) * apply;
+	}
+	{
+		float apply = step(gradient_positions.y, interpolator) * step(interpolator, gradient_positions.z);
+		float interp = smoothstep(gradient_positions.y, gradient_positions.z, interpolator);
+		color += mix(gradients[1], gradients[2], interp) * apply;
+	}
+	{
+		float apply = step(gradient_positions.z, interpolator) * step(interpolator, gradient_positions.w);
+		float interp = smoothstep(gradient_positions.z, gradient_positions.w, interpolator);
+		color += mix(gradients[2], gradients[3], interp) * apply;
+	}
+	return color;
+}
+vec4 gradient_horizontal() {
+	return compute_gradient((gl_FragCoord.x - extent.x) / (extent.z - extent.x));
+}
+vec4 gradient_vertical() {
+	return compute_gradient((gl_FragCoord.y - extent.y) / (extent.w - extent.y));
+}
+vec4 gradient_diagonal_lr() {
+	vec2 interpolator_dir = (gl_FragCoord.xy - extent.xy) / (extent.zw - extent.xy);
+	return compute_gradient((interpolator_dir.x + interpolator_dir.y) * 0.5);
+}
+vec4 gradient_diagonal_rl() {
+	vec2 interpolator_dir = (gl_FragCoord.xy - extent.xy) / (extent.zw - extent.xy);
+	return compute_gradient(((1.0 - interpolator_dir.x) + interpolator_dir.y) * 0.5);
+}
+////
+
+		</program>
+	</fragment_shader>
+</a2e_shader_include>

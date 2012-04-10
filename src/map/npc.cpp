@@ -18,7 +18,7 @@
  */
 
 #include "npc.h"
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 /*! npc constructor
  */

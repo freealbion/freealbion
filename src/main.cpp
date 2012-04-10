@@ -25,7 +25,7 @@
  *
  * \author flo
  *
- * \date April 2007 - March 2012
+ * \date April 2007 - April 2012
  *
  * Albion Remake
  */
@@ -51,15 +51,15 @@ int main(int argc, char *argv[]) {
 	// init class pointers
 	fio = e->get_file_io();
 	eevt = e->get_event();
-	egfx = e->get_gfx();
 	t = e->get_texman();
 	ocl = e->get_opencl();
 	exts = e->get_ext();
 	s = e->get_shader();
+	sce = e->get_scene();
+	ui = e->get_gui();
 	
 	conf::add<a2e_texture>("debug.texture", t->get_dummy_texture());
 	
-	sce = new scene(e);
 	cam = new camera(e);
 
 	// initialize the camera
@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 	//a2e_debug_wnd::open();
 	
 	// for debugging purposes
-	debug_tex = a2e_texture(new texture_object());
+	debug_tex = make_a2e_texture();
 	debug_tex->width = e->get_width();
 	debug_tex->height = e->get_height();
 	
@@ -213,12 +213,10 @@ int main(int argc, char *argv[]) {
 
 		clck->run();
 		mh->handle();
-		
 		aui->run();
-
-		mh->draw();
 		
-		if(conf::get<bool>("debug.display_debug_texture")) {
+		// TODO: move this into a function and add a draw callback
+		/*if(conf::get<bool>("debug.display_debug_texture")) {
 			a2e_texture tex = conf::get<a2e_texture>("debug.texture");
 			if(tex->width > 0 && tex->height > 0) {
 				e->start_2d_draw();
@@ -233,15 +231,12 @@ int main(int argc, char *argv[]) {
 				}
 				draw_width *= scale;
 				draw_height *= scale;
-				egfx->draw_textured_color_rectangle(gfx::rect(0, 0, (unsigned int)draw_width, (unsigned int)draw_height),
-													coord(0.0f, 1.0f), coord(1.0f, 0.0f),
-													float4(1.0f, 1.0f, 1.0f, 0.0f), float4(0.0f, 0.0f, 0.0f, 1.0f),
-													conf::get<a2e_texture>("debug.texture")->tex());
+				gfx2d::draw_rectangle_texture(rect(0, 0, (unsigned int)draw_width, (unsigned int)draw_height),
+											  conf::get<a2e_texture>("debug.texture")->tex(),
+											  float4(1.0f, 1.0f, 1.0f, 0.0f), float4(0.0f, 0.0f, 0.0f, 1.0f));
 				e->stop_2d_draw();
 			}
-		}
-		
-		aui->draw();
+		}*/
 
 		e->stop_draw();
 	}
@@ -258,7 +253,6 @@ int main(int argc, char *argv[]) {
 	delete bin_gfx;
 
 	delete aui;
-	delete sce;
 	delete cam;
 	delete e;
 

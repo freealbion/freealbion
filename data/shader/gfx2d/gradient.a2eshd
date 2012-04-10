@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a2e_shader version="1">
+	<includes>global gfx2d</includes>
+	<options list="gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl" />
+
+	<vertex_shader>
+		<variables>
+uniform mat4 mvpm;
+		</variables>
+		<program>
+void main() {
+	gl_Position = mvpm * vec4(in_vertex, 1.0);
+}
+		</program>
+	</vertex_shader>
+	
+	<fragment_shader>
+		<program>
+void main() {
+	vec4 color = vec4(0.0);
+	
+	<option value="gradient_horizontal">
+	color = gradient_horizontal();
+	</option>
+	<option value="gradient_vertical">
+	color = gradient_vertical();
+	</option>
+	<option value="gradient_diagonal_lr">
+	color = gradient_diagonal_lr();
+	</option>
+	<option value="gradient_diagonal_rl">
+	color = gradient_diagonal_rl();
+	</option>
+	
+	frag_color = color;
+}
+		</program>
+	</fragment_shader>
+	
+</a2e_shader>

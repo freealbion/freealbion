@@ -20,6 +20,7 @@
 #include "albion_ui.h"
 #include "bin_graphics.h"
 #include <gui/image.h>
+#include <rendering/gfx2d.h>
 
 // ui defines
 #define ALBION_DBG_ID 500
@@ -40,7 +41,7 @@
 
 /*! albion_ui constructor
  */
-albion_ui::albion_ui(map_handler* mh_) : mh(mh_), game_ui_opened(false), game_ui_loaded(false) {
+albion_ui::albion_ui(map_handler* mh_) : mh(mh_), draw_cb(this, &albion_ui::draw), game_ui_opened(false), game_ui_loaded(false) {
 	clock_cb = new clock_callback(this, &albion_ui::clock_tick);
 	clck->add_tick_callback(ar_clock::CCBT_TICK, *clock_cb);
 	
@@ -90,42 +91,34 @@ void albion_ui::run() {
 	}
 }
 
-void albion_ui::draw() {
+void albion_ui::draw(const gui::DRAW_MODE_UI draw_mode) {
 	if(!game_ui_opened) return;
-	
-	e->start_2d_draw();
-	glEnable(GL_BLEND);
+	if(draw_mode != gui::DRAW_MODE_UI::PRE_UI) return;
 	
 	// draw the clock
-	egfx->draw_textured_rectangle(gfx::rect(clock_img_pos.x, clock_img_pos.y, clock_img_pos.x+clock_img_size.x, clock_img_pos.y+clock_img_size.y),
-										coord(0.0f, 0.0f), coord(1.0f, 1.0f),
-										clock_img_obj->get_texture()->tex());
+	gfx2d::draw_rectangle_texture(rect(clock_img_pos.x, clock_img_pos.y,
+									   clock_img_pos.x+clock_img_size.x, clock_img_pos.y+clock_img_size.y),
+								  clock_img_obj->get_texture()->tex());
 	for(size_t i = 0; i < 4; i++) {
-		egfx->draw_textured_rectangle(gfx::rect(clock_numbers[i].num_pos.x,
-												clock_numbers[i].num_pos.y,
-												clock_numbers[i].num_pos.x+clock_num_size.x,
-												clock_numbers[i].num_pos.y+clock_num_size.y),
-									  coord(0.0f, 0.0f), coord(1.0f, 1.0f),
+		gfx2d::draw_rectangle_texture(rect(clock_numbers[i].num_pos.x,
+										   clock_numbers[i].num_pos.y,
+										   clock_numbers[i].num_pos.x+clock_num_size.x,
+										   clock_numbers[i].num_pos.y+clock_num_size.y),
 									  clock_numbers[i].img->get_texture()->tex());
 	}
 	
 	// draw the compass (only on 3d maps)
 	bool map_3d = (mh->get_active_map_type() == MT_3D_MAP);
 	if(map_3d) {
-		egfx->draw_textured_rectangle(gfx::rect(compass_img_pos.x, compass_img_pos.y,
-												compass_img_pos.x+compass_img_size.x,
-												compass_img_pos.y+compass_img_size.y),
-									  coord(0.0f, 0.0f), coord(1.0f, 1.0f),
+		gfx2d::draw_rectangle_texture(rect(compass_img_pos.x, compass_img_pos.y,
+										   compass_img_pos.x+compass_img_size.x,
+										   compass_img_pos.y+compass_img_size.y),
 									  compass_img_obj->get_texture()->tex());
-		egfx->draw_textured_rectangle(gfx::rect(compass_dot_img_pos.x, compass_dot_img_pos.y,
-												compass_dot_img_pos.x+compass_dot_img_size.x,
-												compass_dot_img_pos.y+compass_dot_img_size.y),
-									  coord(0.0f, 0.0f), coord(1.0f, 1.0f),
+		gfx2d::draw_rectangle_texture(rect(compass_dot_img_pos.x, compass_dot_img_pos.y,
+										   compass_dot_img_pos.x+compass_dot_img_size.x,
+										   compass_dot_img_pos.y+compass_dot_img_size.y),
 									  compass_dot_img_obj->get_texture()->tex());
 	}
-	
-	glDisable(GL_BLEND);
-	e->stop_2d_draw();
 }
 
 void albion_ui::clock_tick(size_t ticks) {
@@ -143,6 +136,7 @@ void albion_ui::clock_tick(size_t ticks) {
 void albion_ui::open_game_ui() {
 	if(game_ui_opened) return;
 	game_ui_opened = true;
+	ui->add_draw_callback(draw_cb);
 	
 	if(game_ui_loaded) return;
 	load_game_ui(size2(e->get_width(), e->get_height()));
@@ -151,6 +145,7 @@ void albion_ui::open_game_ui() {
 void albion_ui::close_game_ui(){
 	if(!game_ui_opened) return;
 	game_ui_opened = false;
+	ui->delete_draw_callback(draw_cb);
 }
 
 void albion_ui::load_game_ui(const size2& size) {
@@ -232,7 +227,7 @@ void albion_ui::open_goto_map_wnd() {
 	
 	// position
 	gui_window* wnd = (gui_window*)albion_dbg->get_object();
-	gfx::rect* wnd_rect = wnd->get_rectangle();
+	rect* wnd_rect = wnd->get_rectangle();
 	unsigned int wnd_height = wnd->get_height();
 	wnd_rect->y1 = e->get_height() - 1 - wnd_height;
 	wnd_rect->y2 = e->get_height() - 1;

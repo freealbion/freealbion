@@ -435,7 +435,7 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 										 0.0f);
 			*e->get_mvp_matrix() = *mvm * *pm;
 
-			gfx::rect evt_rect;
+			rect evt_rect;
 			for(size_t i = 0; i < mevents.get_event_info_count(); i++) {
 				const map_events::map_event_info* cur_evt = mevents.get_event_info(i);
 					
@@ -443,7 +443,7 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 				evt_rect.y1 = cur_evt->ypos * tile_size + tile_size/2 - 3;
 				evt_rect.x2 = evt_rect.x1 + 6;
 				evt_rect.y2 = evt_rect.y1 + 6;
-				//egfx->draw_fade_rectangle(&evt_rect, 0xCFFFFFFF, 0x2FFFFFFF, gfx::FT_DIAGONAL);
+				//gfx2d::draw_fade_rectangle(&evt_rect, 0xCFFFFFFF, 0x2FFFFFFF, gfx2d::FT_DIAGONAL);
 			}
 		}
 	}

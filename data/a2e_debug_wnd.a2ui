@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<a2e_user_interface version="2">
+<!--<a2e_user_interface version="2">
 	<window width="640" height="180" id="-1" name="a2e_debug_wnd" caption="a2e_debug_wnd"/>
 	<object type="list" name="dbg_console" caption="" id="10" tab_id="-1" tab="0" width="505" height="150" xpos="130" ypos="5"/>
 	<object type="input" name="dbg_console_input" caption="&gt;" id="11" tab_id="-1" tab="0" width="505" height="15" xpos="130" ypos="160"/>
 	<object type="button" name="dbg_reload_shaders" caption="reload shaders" id="12" tab_id="-1" tab="0" width="115" height="20" xpos="5" ypos="5" filename="" img_scaling="0"/>
 	<object type="button" name="dbg_reset_cam" caption="reset cam" id="13" tab_id="-1" tab="0" width="115" height="20" xpos="5" ypos="65" filename="" img_scaling="0"/>
 	<object type="button" name="dbg_reload_kernels" caption="reload kernels" id="14" tab_id="-1" tab="0" width="115" height="20" xpos="5" ypos="35" filename="" img_scaling="0"/>
+</a2e_user_interface>-->
+
+<a2e_user_interface version="3">
+	<!--
+		size valid values:
+		fill (for windows: full available width/height, for elements: available width/height - border), equal to 100%
+		fill_border (for windows: same as fill, for elements: also use border space)
+		std (use standard width/height defined by the engine/gui scheme)
+		0.0% - 100.0%, 0.0% - 100.0% (float2)
+		
+		pos:
+		centered
+		0.0% - 100.0%, 0.0% - 100.0% (float2), e.g.: 20%,10%
+	-->
+	<window name="a2e_debug_wnd" caption="debug wnd" size="fill,fill" pos="0%,0%"/>
+	<button name="some_button" caption="click" size="10%,std" pos="centered,0%"/>
 </a2e_user_interface>

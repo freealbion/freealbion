@@ -21,7 +21,7 @@
 #include <scene/camera.h>
 #include <scene/scene.h>
 
-map_handler::map_handler() : key_handler_fnctr(this, &map_handler::key_handler) {
+map_handler::map_handler() : draw_cb(this, &map_handler::draw), key_handler_fnctr(this, &map_handler::key_handler) {
 	// load maps
 	maps1 = new xld("MAPDATA1.XLD");
 	maps2 = new xld("MAPDATA2.XLD");
@@ -57,6 +57,7 @@ map_handler::map_handler() : key_handler_fnctr(this, &map_handler::key_handler) 
 	active_map_type = MT_NONE;
 	
 	sce->add_draw_callback("map_handler", this, &map_handler::debug_draw);
+	ui->add_draw_callback(draw_cb);
 
 	//
 	last_key_press = SDL_GetTicks();
@@ -67,7 +68,9 @@ map_handler::map_handler() : key_handler_fnctr(this, &map_handler::key_handler) 
 }
 
 map_handler::~map_handler() {
-	// TODO: remove event handler
+	eevt->remove_event_handler(key_handler_fnctr);
+	
+	ui->delete_draw_callback(draw_cb);
 	
 	delete maps1;
 	delete maps2;
@@ -189,13 +192,15 @@ void map_handler::handle() {
 	maps3d->handle();
 	p2d->handle();
 	p3d->handle();
+	
+	if(active_map_type == MT_3D_MAP) {
+		cam->run();
+	}
 }
 
-void map_handler::draw() {
-	if(active_map_type == MT_2D_MAP) {
-		e->start_2d_draw();
-		glEnable(GL_BLEND);
-	
+void map_handler::draw(const gui::DRAW_MODE_UI draw_mode) {
+	if(active_map_type == MT_2D_MAP &&
+	   draw_mode == gui::DRAW_MODE_UI::PRE_UI) {
 		maps2d->draw(MDS_NPCS, NDS_PRE_UNDERLAY);
 		p2d->draw(NDS_PRE_UNDERLAY);
 	
@@ -212,13 +217,6 @@ void map_handler::draw() {
 		// clear depth (so it doesn't interfere with the gui) and draw debug stuff
 		glClear(GL_DEPTH_BUFFER_BIT);
 		maps2d->draw(MDS_DEBUG, NDS_NONE);
-	
-		glDisable(GL_BLEND);
-		e->stop_2d_draw();
-	}
-	else if(active_map_type == MT_3D_MAP) {
-		cam->run();
-		sce->draw();
 	}
 }
 
@@ -293,7 +291,7 @@ void map_handler::debug_draw(const DRAW_MODE) {
 			tmin.y = tmax.y = 0.0f;
 
 			extbbox box(tmin, tmax, float3(0.0f), matrix4f().identity());
-			//egfx->draw_bbox(box, 0x7FFF0000);
+			//gfx2d::draw_bbox(box, 0x7FFF0000);
 		}
 	}
 }
