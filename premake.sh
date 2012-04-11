@@ -46,7 +46,14 @@ case $( uname | tr [:upper:] [:lower:] ) in
 esac
 
 
-case $( uname -m ) in
+ALBION_PLATFORM_TEST_STRING=""
+if [[ $ALBION_OS != "windows" ]]; then
+	ALBION_PLATFORM_TEST_STRING=$( uname -m )
+else
+	ALBION_PLATFORM_TEST_STRING=$( gcc -dumpmachine | sed "s/-.*//" )
+fi
+
+case $ALBION_PLATFORM_TEST_STRING in
 	"i386"|"i486"|"i586"|"i686")
 		ALBION_PLATFORM="x32"
 		ALBION_MAKE_PLATFORM="32"

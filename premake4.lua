@@ -80,7 +80,7 @@ project "albion"
 			includedirs { "/usr/include/w32api", "/usr/include/w32api/GL" }
 		end
 		includedirs { "/usr/include/freetype2", "/usr/include/libxml2", "/usr/local/include", "/usr/include/a2elight", "/usr/local/include/a2elight" }
-		buildoptions { "-Wall -x c++ -std=c++0x -Wno-trigraphs -Wreturn-type -Wunused-variable -funroll-loops" }
+		buildoptions { "-Wall -x c++ -std=c++11 -Wno-trigraphs -Wreturn-type -Wunused-variable -funroll-loops" }
 		libdirs { "/usr/local/lib" }
 
 		if(clang_libcxx) then
@@ -108,14 +108,14 @@ project "albion"
 		end
 		if(mingw) then
 			defines { "__WINDOWS__", "MINGW" }
-			includedirs { "/mingw/include/GL", "/mingw/include/CL" }
+			includedirs { "/mingw/include" }
 			libdirs { "/usr/lib", "/usr/local/lib" }
 			buildoptions { "-Wno-unknown-pragmas" }
 		end
 	end
 	
 	if(os.is("linux") or os.is("bsd") or win_unixenv) then
-		libdirs { os.findlib("xml2") }
+		libdirs { os.findlib("GL"), os.findlib("xml2") }
 		if(not win_unixenv) then
 			links { "GL", "SDL2_image", "xml2" }
 			libdirs { os.findlib("SDL2"), os.findlib("SDL2_image") }
@@ -162,6 +162,7 @@ project "albion"
 
 
 	configuration "Debug"
+		targetname "albiond"
 		defines { "DEBUG", "A2E_DEBUG" }
 		flags { "Symbols" }
 		links { "a2elightd" }
@@ -170,6 +171,7 @@ project "albion"
 		end
 
 	configuration "Release"
+		targetname "albion"
 		defines { "NDEBUG" }
 		flags { "Optimize" }
 		if(not os.is("windows") or win_unixenv) then

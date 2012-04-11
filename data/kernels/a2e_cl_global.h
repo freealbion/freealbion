@@ -22,7 +22,7 @@
 #else
 
 // note: amd devices support this, but don't expose the extension and won't compile if this is enabled
-#if !defined(AMD)
+#if !defined(PLATFORM_AMD)
 #pragma OPENCL EXTENSION cl_khr_gl_sharing : enable
 #endif
 
