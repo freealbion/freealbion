@@ -67,8 +67,8 @@ map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) : lab_data(
 	player_light = new object_light<object_light_type::TORCH>(float3(0.0f, 20.0f, 0.0f));
 	
 	// sun
-	sun_light = new light(e, 0.0f, 100.0f, 0.0f);
-	sun_light->set_type(light::LT_DIRECTIONAL);
+	sun_light = new light(0.0f, 100.0f, 0.0f);
+	sun_light->set_type(light::LIGHT_TYPE::DIRECTIONAL);
 	sce->add_light(sun_light);
 	sun_distance = 100.0f;
 	SDL_Surface* sun_light_tex = IMG_Load(e->data_path("sun_light.png").c_str());
@@ -260,8 +260,8 @@ void map3d::load(const size_t& map_num) {
 		//
 		for(size_t so = 0; so < obj->sub_object_count; so++) {
 			const labdata::lab_object_info* sub_object = obj->sub_objects[so];
-			const float2 obj_size = float2(sub_object->x_size, sub_object->y_size);
-			const float2 obj_scale = float2(sub_object->x_scale, sub_object->y_scale);
+			//const float2 obj_size = float2(sub_object->x_size, sub_object->y_size);
+			//const float2 obj_scale = float2(sub_object->x_scale, sub_object->y_scale);
 			const float2& tc_b = sub_object->tex_coord_begin[0];
 			const float2& tc_e = sub_object->tex_coord_end[0];
 			const float x_size = float(sub_object->x_scale)/32.0f;
@@ -608,8 +608,8 @@ void map3d::load(const size_t& map_num) {
 				for(size_t i = 0; i < obj->sub_object_count; i++) {
 					//
 					const labdata::lab_object_info* sub_object = obj->sub_objects[i];
-					const float2 obj_size = float2(sub_object->x_size, sub_object->y_size);
-					const float2 obj_scale = float2(sub_object->x_scale, sub_object->y_scale);
+					//const float2 obj_size = float2(sub_object->x_size, sub_object->y_size);
+					//const float2 obj_scale = float2(sub_object->x_scale, sub_object->y_scale);
 					const float2& tc_b = sub_object->tex_coord_begin[0];
 					const float2& tc_e = sub_object->tex_coord_end[0];
 					const float x_size = float(sub_object->x_scale)/32.0f;

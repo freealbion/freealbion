@@ -27,7 +27,7 @@ albion_texture::albion_texture() {
 albion_texture::~albion_texture() {
 }
 
-a2e_texture albion_texture::create(const size_t& map_type, const size2& texture_size, const size2& tile_size, const size_t& palette, const vector<albion_texture_info*>& tex_info, xld** xlds, const TEXTURE_SPACING_TYPE spacing_type, const size_t spacing_size, bool custom_mipmaps, const texture_object::TEXTURE_FILTERING filtering) {
+a2e_texture albion_texture::create(const size_t& map_type, const size2& texture_size, const size2& tile_size, const size_t& palette, const vector<albion_texture_info*>& tex_info, xld** xlds, const TEXTURE_SPACING_TYPE spacing_type, const size_t spacing_size, bool custom_mipmaps, const TEXTURE_FILTERING filtering) {
 	if(tex_info.size() == 0) return t->get_dummy_texture();
 	if(texture_size.x == 0 || texture_size.y == 0) return t->get_dummy_texture();
 	if(tile_size.x == 0 || tile_size.y == 0) return t->get_dummy_texture();
@@ -135,7 +135,7 @@ a2e_texture albion_texture::create(const size_t& map_type, const size2& texture_
 	delete [] scaled_data;
 
 	if(custom_mipmaps) {
-		ret_tex = t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, std::min(filtering, texture_object::TF_LINEAR), e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		ret_tex = t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, std::min(filtering, TEXTURE_FILTERING::LINEAR), e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 		build_mipmaps(ret_tex, tex_surface, filtering);
 	}
 	else {
@@ -146,8 +146,8 @@ a2e_texture albion_texture::create(const size_t& map_type, const size2& texture_
 	return ret_tex;
 }
 
-void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* tex_data, const texture_object::TEXTURE_FILTERING filtering) {
-	if(filtering < texture_object::TF_BILINEAR) return;
+void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* tex_data, const TEXTURE_FILTERING filtering) {
+	if(filtering < TEXTURE_FILTERING::BILINEAR) return;
 	if(tex_data == NULL) return;
 	
 	//
@@ -155,7 +155,7 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 	const ssize_t scale_passes = (scale_factor == 4 ? 3 : (scale_factor == 2 ? 2 : 1)) - 1;
 	
 	glBindTexture(GL_TEXTURE_2D, tex->tex());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (filtering == texture_object::TF_BILINEAR ? GL_LINEAR_MIPMAP_NEAREST : GL_LINEAR_MIPMAP_LINEAR));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (filtering == TEXTURE_FILTERING::BILINEAR ? GL_LINEAR_MIPMAP_NEAREST : GL_LINEAR_MIPMAP_LINEAR));
 	if(e->get_anisotropic() > 0) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLint)e->get_anisotropic());
 	}

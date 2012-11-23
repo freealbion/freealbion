@@ -1,31 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<a2e_shader version="1">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
 	<includes>blur</includes>
 	
 	<fragment_shader>
-		<variables>
 in vec2 tex_coord;
 out vec4 frag_color;
 
 uniform vec2 tcs[5];
 uniform sampler2D tex;
-		</variables>
-		<program>
+
 void main() {
-	vec4 sample[5];
+	vec4 samples[5];
 			
-	sample[0] = texture(tex, tex_coord + tcs[0]);
-	sample[1] = texture(tex, tex_coord + tcs[1]);
-	sample[2] = texture(tex, tex_coord + tcs[2]);
-	sample[3] = texture(tex, tex_coord + tcs[3]);
-	sample[4] = texture(tex, tex_coord + tcs[4]);
+	samples[0] = texture(tex, tex_coord + tcs[0]);
+	samples[1] = texture(tex, tex_coord + tcs[1]);
+	samples[2] = texture(tex, tex_coord + tcs[2]);
+	samples[3] = texture(tex, tex_coord + tcs[3]);
+	samples[4] = texture(tex, tex_coord + tcs[4]);
 
 //   7  26  41  26   7
 //               / 107
 
-	frag_color = ((7.0*sample[0]) + (26.0*sample[1]) + (41.0*sample[2]) + (26.0*sample[3]) + (7.0*sample[4])) / 107.0;
+	frag_color = ((7.0*samples[0]) + (26.0*samples[1]) + (41.0*samples[2]) + (26.0*samples[3]) + (7.0*samples[4])) / 107.0;
 }
-		</program>
 	</fragment_shader>
 
 </a2e_shader>

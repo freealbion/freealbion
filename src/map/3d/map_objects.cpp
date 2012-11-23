@@ -47,16 +47,16 @@ const string map_objects::select_shader(const DRAW_MODE& draw_mode) const {
 	return "";
 }
 
-void map_objects::pre_draw_geometry(gl3shader& shd, size_t& attr_array_mask, size_t& texture_mask) {
+void map_objects::pre_draw_geometry(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask) {
 	pre_draw_material(shd, attr_array_mask, texture_mask);
-	attr_array_mask |= VA_TEXTURE_COORD;
-	texture_mask |= a2ematerial::TT_DIFFUSE;
+	attr_array_mask |= a2emodel::VERTEX_ATTRIBUTE::TEXTURE_COORD;
+	texture_mask |= a2ematerial::TEXTURE_TYPE::DIFFUSE;
 }
 
-void map_objects::pre_draw_material(gl3shader& shd, size_t& attr_array_mask, size_t& texture_mask) {
+void map_objects::pre_draw_material(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask a2e_unused) {
 	shd->uniform("cam_position", -float3(*e->get_position()));
 	
 	shd->attribute_array("ws_position", vbo_ws_position_id, 3);
 
-	attr_array_mask &= ~VA_NORMAL;
+	attr_array_mask &= (a2emodel::VERTEX_ATTRIBUTE)(~(unsigned int)a2emodel::VERTEX_ATTRIBUTE::NORMAL);
 }

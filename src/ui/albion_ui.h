@@ -32,7 +32,7 @@ public:
 	~albion_ui();
 	
 	void run();
-	void draw(const gui::DRAW_MODE_UI draw_mode);
+	void draw(const DRAW_MODE_UI draw_mode, rtt::fbo* buffer);
 	
 	void open_goto_map_wnd();
 	void close_goto_map_wnd();
@@ -43,7 +43,8 @@ public:
 	
 protected:
 	map_handler* mh;
-	gui::draw_callback draw_cb;
+	ui_draw_callback draw_cb;
+	gui_simple_callback* draw_cb_obj = nullptr;
 
 	//
 	/*a2eui_window* albion_dbg;

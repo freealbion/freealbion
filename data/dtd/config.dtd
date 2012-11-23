@@ -1,4 +1,4 @@
-<!ELEMENT config (#PCDATA | screen | projection | input | sleep | graphic | graphic_device | inferred | opencl | albion)*>
+<!ELEMENT config (#PCDATA | screen | gui | projection | input | sleep | graphic | graphic_device | inferred | opencl | albion)*>
 <!ELEMENT screen (#PCDATA)*>
 <!ATTLIST screen
 	width CDATA #REQUIRED
@@ -6,6 +6,11 @@
 	fullscreen CDATA #REQUIRED
 	vsync CDATA #REQUIRED
 	stereo CDATA #REQUIRED
+>
+<!ELEMENT gui (#PCDATA)*>
+<!ATTLIST gui
+	dpi CDATA #REQUIRED
+	anti_aliasing CDATA #REQUIRED
 >
 <!ELEMENT projection (#PCDATA)*>
 <!ATTLIST projection
@@ -38,12 +43,14 @@
 >
 <!ELEMENT inferred (#PCDATA)*>
 <!ATTLIST inferred
-	scale CDATA #REQUIRED
+	upscaling CDATA #REQUIRED
+	geometry_light_scaling CDATA #REQUIRED
 >
 <!ELEMENT opencl (#PCDATA)*>
 <!ATTLIST opencl
 	platform CDATA #REQUIRED
 	clear_cache CDATA #REQUIRED
+	restrict CDATA #REQUIRED
 >
 <!ELEMENT albion (#PCDATA | map | debug)*>
 <!ELEMENT map (#PCDATA)*>

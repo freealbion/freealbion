@@ -198,8 +198,8 @@ protected:
 	xld* overlay_xlds[3];
 	xld* wall_xlds[2];
 	
-	texture_object::TEXTURE_FILTERING tex_filtering;
-	texture_object::TEXTURE_FILTERING custom_tex_filtering;
+	TEXTURE_FILTERING tex_filtering;
+	TEXTURE_FILTERING custom_tex_filtering;
 	
 	// light object numbers for each labdata
 	map<unsigned int, light_info_container*> light_objects;

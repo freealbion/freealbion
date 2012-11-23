@@ -1,23 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<a2e_shader_include version="1">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
 	<fragment_shader>
-		<preprocessor>
-		</preprocessor>
-		<variables>
-		</variables>
-		<program>
-vec4 texture(in sampler2D sampler, vec2 P) {
+		<header>
+vec4 texture(const in sampler2D sampler, const in vec2 P) {
 	return texture2D(sampler, P);
 }
-vec4 texture(in sampler2D sampler, vec2 P, float bias) {
+vec4 texture(const in sampler2D sampler, const in vec2 P, const in float bias) {
 	return texture2D(sampler, P, bias);
 }
-vec4 texture(in samplerCube sampler, vec3 P) {
+vec4 texture(const in samplerCube sampler, const in vec3 P) {
 	return textureCube(sampler, P);
 }
-vec4 texture(in samplerCube sampler, vec3 P, float bias) {
+vec4 texture(const in samplerCube sampler, const in vec3 P, const in float bias) {
 	return textureCube(sampler, P, bias);
 }
-		</program>
+		</header>
 	</fragment_shader>
-</a2e_shader_include>
+</a2e_shader>

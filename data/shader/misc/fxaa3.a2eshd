@@ -1,22 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<a2e_shader version="1">
-	<options list="# keep_alpha"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
+	<options># keep_alpha</options>
 
 	<vertex_shader>
-		<variables>
 in vec2 in_vertex;
 out vec2 tex_coord;
-		</variables>
-		<program>
+
 void main() {
 	gl_Position = vec4(in_vertex.x, in_vertex.y, 0.0, 1.0);
 	tex_coord = in_vertex * 0.5 + 0.5;
 }
-		</program>
 	</vertex_shader>
 
 	<fragment_shader>
-		<preprocessor>
 #define FXAA_GATHER4_ALPHA 0
 
 /*============================================================================
@@ -935,17 +932,14 @@ FxaaFloat4 FxaaPixelShader(
 }
 /*==========================================================================*/
 
-		</preprocessor>
-		<variables>
 uniform sampler2D src_buffer;
-<option value="keep_alpha">
+<option match="keep_alpha">
 uniform sampler2D alpha_buffer;
 </option>
 uniform vec2 texel_size;
 in vec2 tex_coord;
 out vec4 frag_color;
-		</variables>
-		<program>
+
 void main() {
 	vec4 color = FxaaPixelShader(// Use noperspective interpolation here (turn off perspective interpolation).
 								 // {xy} = center of pixel
@@ -1000,7 +994,7 @@ void main() {
 								 //   Tune by looking at mostly non-green content,
 								 //   then start at zero and increase until aliasing is a problem.
 								 0.0833);
-	<option value="keep_alpha">
+	<option match="keep_alpha">
 	ivec2 itex_coord = ivec2(floor(tex_coord / texel_size));
 	color.a = texelFetch(alpha_buffer, itex_coord, 0).a;
 	//color.a = texture(alpha_buffer, tex_coord).a;
@@ -1008,7 +1002,6 @@ void main() {
 	
 	frag_color = color;
 }
-		</program>
 	</fragment_shader>
 
 </a2e_shader>

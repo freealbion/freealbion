@@ -25,7 +25,7 @@
  *
  * \author flo
  *
- * \date April 2007 - April 2012
+ * \date April 2007 - November 2012
  *
  * Albion Remake
  */
@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
 #endif
 	e->init();
 	e->set_caption(APPLICATION_NAME);
+	e->acquire_gl_context();
 	
 	conf::init();
 	xld::set_xld_path(e->data_path("xld/"));
@@ -57,12 +58,10 @@ int main(int argc, char *argv[]) {
 	s = e->get_shader();
 	sce = e->get_scene();
 	ui = e->get_gui();
+	fm = ui->get_font_manager();
 	
-	conf::add<a2e_texture>("debug.texture", t->get_dummy_texture());
-	
-	cam = new camera(e);
-
 	// initialize the camera
+	cam = new camera(e);
 	cam->set_position(0.0f, -80.0f, 0.0f);
 	cam->set_rotation(0.0f, 90.0f+45.0f, 0.0f);
 	cam->set_rotation_speed(300.0f);
@@ -91,7 +90,7 @@ int main(int argc, char *argv[]) {
 	
 	// add event handlers
 	event::handler key_handler_fnctr(&key_handler);
-	eevt->add_event_handler(key_handler_fnctr, EVENT_TYPE::KEY_DOWN, EVENT_TYPE::KEY_UP, EVENT_TYPE::KEY_PRESSED);
+	eevt->add_event_handler(key_handler_fnctr, EVENT_TYPE::KEY_DOWN, EVENT_TYPE::KEY_UP);
 	event::handler mouse_handler_fnctr(&mouse_handler);
 	eevt->add_event_handler(mouse_handler_fnctr, EVENT_TYPE::MOUSE_RIGHT_CLICK);
 	event::handler quit_handler_fnctr(&quit_handler);
@@ -134,9 +133,9 @@ int main(int argc, char *argv[]) {
 	//a2e_debug_wnd::open();
 	
 	// for debugging purposes
-	debug_tex = make_a2e_texture();
-	debug_tex->width = e->get_width();
-	debug_tex->height = e->get_height();
+	ar_debug* debug_ui = new ar_debug();
+	
+	e->release_gl_context();
 	
 	// main loop
 	while(!done) {
@@ -148,6 +147,8 @@ int main(int argc, char *argv[]) {
 			SDL_Delay(20);
 			continue;
 		}
+		
+		debug_ui->run();
 		
 		// set caption (app name and fps count)
 		if(e->is_new_fps_count()) {
@@ -162,22 +163,22 @@ int main(int argc, char *argv[]) {
 				
 				tbytes << mh->get_tile(0)->upper_bytes;
 				byte_strs[0] = tbytes.str();
-				core::reset(&tbytes);
+				core::reset(tbytes);
 				tbytes << mh->get_tile(0)->lower_bytes;
 				byte_strs[1] = tbytes.str();
-				core::reset(&tbytes);
+				core::reset(tbytes);
 				tbytes << mh->get_tile(1)->upper_bytes;
 				byte_strs[2] = tbytes.str();
-				core::reset(&tbytes);
+				core::reset(tbytes);
 				tbytes << mh->get_tile(1)->lower_bytes;
 				byte_strs[3] = tbytes.str();
-				core::reset(&tbytes);
+				core::reset(tbytes);
 				tbytes << mh->get_tile_num(0);
 				byte_strs[4] = tbytes.str();
-				core::reset(&tbytes);
+				core::reset(tbytes);
 				tbytes << mh->get_tile_num(1);
 				byte_strs[5] = tbytes.str();
-				core::reset(&tbytes);
+				core::reset(tbytes);
 
 				for(size_t i = 0; i < 6; i++) {
 					size_t add_zeros = 8 - byte_strs[i].length();
@@ -206,7 +207,7 @@ int main(int argc, char *argv[]) {
 			}
 
 			e->set_caption(caption.str().c_str());
-			core::reset(&caption);
+			core::reset(caption);
 		}
 
 		e->start_draw();
@@ -214,33 +215,9 @@ int main(int argc, char *argv[]) {
 		clck->run();
 		mh->handle();
 		aui->run();
-		
-		// TODO: move this into a function and add a draw callback
-		/*if(conf::get<bool>("debug.display_debug_texture")) {
-			a2e_texture tex = conf::get<a2e_texture>("debug.texture");
-			if(tex->width > 0 && tex->height > 0) {
-				e->start_2d_draw();
-				size_t draw_width = tex->width, draw_height = tex->height;
-				float ratio = float(draw_width) / float(draw_height);
-				float scale = 1.0f;
-				if(ratio >= 1.0f && draw_width > e->get_width()) {
-					scale = float(e->get_width()) / float(draw_width);
-				}
-				else if(ratio < 1.0f && draw_height > e->get_height()) {
-					scale = float(e->get_height()) / float(draw_height);
-				}
-				draw_width *= scale;
-				draw_height *= scale;
-				gfx2d::draw_rectangle_texture(rect(0, 0, (unsigned int)draw_width, (unsigned int)draw_height),
-											  conf::get<a2e_texture>("debug.texture")->tex(),
-											  float4(1.0f, 1.0f, 1.0f, 0.0f), float4(0.0f, 0.0f, 0.0f, 1.0f));
-				e->stop_2d_draw();
-			}
-		}*/
 
 		e->stop_draw();
 	}
-	debug_tex->tex_num = 0;
 	
 	//a2e_debug_wnd::close();
 	
@@ -248,6 +225,8 @@ int main(int argc, char *argv[]) {
 	eevt->remove_event_handler(mouse_handler_fnctr);
 	eevt->remove_event_handler(quit_handler_fnctr);
 	eevt->remove_event_handler(window_handler_fnctr);
+	
+	delete debug_ui;
 
 	delete palettes;
 	delete bin_gfx;
@@ -280,13 +259,6 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 			case SDLK_RSHIFT:
 				cam->set_cam_speed(5.0f);
 				break;
-			default:
-				return false;
-		}
-	}
-	else { // EVENT_TYPE::KEY_PRESSED
-		const shared_ptr<key_pressed_event>& key_evt = (shared_ptr<key_pressed_event>&)obj;
-		switch(key_evt->key) {
 			case SDLK_ESCAPE:
 				done = true;
 				break;
@@ -321,7 +293,7 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 				conf::set<bool>("debug.draw_events", conf::get<bool>("debug.draw_events") ^ true);
 				break;
 			case SDLK_q:
-				conf::set<bool>("debug.display_debug_texture", conf::get<bool>("debug.display_debug_texture") ^ true);
+				conf::set<bool>("debug.show_texture", conf::get<bool>("debug.show_texture") ^ true);
 				break;
 			case SDLK_n:
 				if(conf::get<size_t>("debug.npcgfx") > 0) {
@@ -340,32 +312,25 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 				cam->set_rotation(0.0f, 90.0f+45.0f, 0.0f);
 				break;
 			case SDLK_1:
-				debug_tex->tex_num = sce->_get_g_buffer(0)->tex_id[0];
-				conf::set<a2e_texture>("debug.texture", debug_tex);
+				conf::set<size_t>("debug.texture", sce->get_geometry_buffer(0)->tex[0]);
 				break;
 			case SDLK_2:
-				debug_tex->tex_num = sce->_get_g_buffer(1)->tex_id[0];
-				conf::set<a2e_texture>("debug.texture", debug_tex);
+				conf::set<size_t>("debug.texture", sce->get_geometry_buffer(1)->tex[0]);
 				break;
 			case SDLK_3:
-				debug_tex->tex_num = sce->_get_g_buffer(1)->tex_id[1];
-				conf::set<a2e_texture>("debug.texture", debug_tex);
+				conf::set<size_t>("debug.texture", sce->get_geometry_buffer(1)->tex[1]);
 				break;
 			case SDLK_4:
-				debug_tex->tex_num = sce->_get_l_buffer(0)->tex_id[0];
-				conf::set<a2e_texture>("debug.texture", debug_tex);
+				conf::set<size_t>("debug.texture", sce->get_light_buffer(0)->tex[0]);
 				break;
 			case SDLK_5:
-				debug_tex->tex_num = sce->_get_l_buffer(1)->tex_id[0];
-				conf::set<a2e_texture>("debug.texture", debug_tex);
+				conf::set<size_t>("debug.texture", sce->get_light_buffer(1)->tex[0]);
 				break;
 			case SDLK_6:
-				debug_tex->tex_num = sce->_get_fxaa_buffer()->tex_id[0];
-				conf::set<a2e_texture>("debug.texture", debug_tex);
+				conf::set<size_t>("debug.texture", sce->get_fxaa_buffer()->tex[0]);
 				break;
 			case SDLK_7:
-				debug_tex->tex_num = sce->_get_scene_buffer()->tex_id[0];
-				conf::set<a2e_texture>("debug.texture", debug_tex);
+				conf::set<size_t>("debug.texture", sce->get_scene_buffer()->tex[0]);
 				break;
 			case SDLK_v:
 				cam->set_keyboard_input(cam->get_keyboard_input() ^ true);
@@ -398,7 +363,7 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 	return true;
 }
 
-bool mouse_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
+bool mouse_handler(EVENT_TYPE type, shared_ptr<event_object> obj a2e_unused) {
 	if(type == EVENT_TYPE::MOUSE_RIGHT_CLICK) {
 		const bool cur_state = cam->get_mouse_input();
 		cam->set_mouse_input(cur_state ^ true);
@@ -407,7 +372,7 @@ bool mouse_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 	return true;
 }
 
-bool quit_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
+bool quit_handler(EVENT_TYPE type a2e_unused, shared_ptr<event_object> obj a2e_unused) {
 	done = true;
 	return true;
 }

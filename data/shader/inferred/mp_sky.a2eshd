@@ -1,34 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<a2e_shader version="1">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
 	<vertex_shader>
-		<variables>
 in vec2 in_vertex;
 in vec3 in_cube_tex_coord;
 out vec3 out_cube_tex_coord;
-		</variables>
-		<program>
+
 void main() {
 	out_cube_tex_coord = in_cube_tex_coord;
 	gl_Position = vec4(in_vertex.x, in_vertex.y, 1.0, 1.0);
 }
-		</program>
 	</vertex_shader>
 	
 	<fragment_shader>
-		<variables>
 uniform samplerCube diffuse_texture;
 uniform vec3 light_color;
 
 in vec3 out_cube_tex_coord;
 out vec4 frag_color;
-		</variables>
-		<program>
+
 void main() {
 	vec4 diff_color = texture(diffuse_texture, out_cube_tex_coord);
 	diff_color.rgb *= light_color;
 	frag_color = vec4(diff_color.rgb, 1.0);
 }
-		</program>
 	</fragment_shader>
 	
 </a2e_shader>

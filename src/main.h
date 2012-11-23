@@ -33,7 +33,7 @@
 #include "transtb.h"
 #include "clock.h"
 #include "bin_graphics.h"
-
+#include "ar_debug.h"
 #include "map_handler.h"
 
 map_handler* mh;

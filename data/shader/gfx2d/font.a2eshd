@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
+	<vertex_shader>
+uniform mat4 mvpm;
+uniform uvec2 glyph_count; // (glyphs per row, glyphs per column)
+uniform vec2 glyph_size; // "font size"
+uniform vec2 page_size; // "texture size"
+
+layout(std140) uniform text {
+	uvec4 data[4096]; // 16 bytes * 4096 = 64k == max
+} text_data;
+
+in vec2 in_vertex;
+out vec2 tex_coord;
+flat out float tex_page;
+
+void main() {
+	ivec2 id = ivec2(gl_InstanceID / 2, (gl_InstanceID % 2) * 2);
+	uint index = text_data.data[id.x][id.y];
+	uint pos = text_data.data[id.x][id.y + 1];
+	uvec2 upos = uvec2(pos & 0xFFFFu, (pos >> 16u) & 0xFFFFu);
+	
+	vec2 vertex = in_vertex * glyph_size;
+	// kinda sick, but it does it's job (there is no other way to emulate a packed short int)
+	vertex.x += float(upos.x >= 0x8000u ? -int((~upos.x & 0xFFFFu) + 1u) : int(upos.x));
+	vertex.y += float(upos.y >= 0x8000u ? -int((~upos.y & 0xFFFFu) + 1u) : int(upos.y));
+	
+	uint glyphs_per_page = glyph_count.x * glyph_count.y;
+	uint page = index / glyphs_per_page;
+	index -= page * glyphs_per_page;
+	tex_page = page;
+	tex_coord.x = index % glyph_count.x;
+	tex_coord.y = index / glyph_count.x;
+	tex_coord.xy *= glyph_size;
+	tex_coord.xy += in_vertex * glyph_size;
+	tex_coord.xy -= in_vertex / page_size; // - 1 texel
+	tex_coord.xy /= page_size;
+	
+	gl_Position = mvpm * vec4(vertex, 0.0, 1.0);
+}
+	</vertex_shader>
+	
+	<fragment_shader>
+uniform sampler2DArray font_texture;
+uniform vec4 font_color;
+
+in vec2 tex_coord;
+flat in float tex_page;
+out vec4 frag_color;
+
+void main() {
+	vec3 color = texture(font_texture, vec3(tex_coord.x, tex_coord.y, tex_page)).rgb;
+	frag_color = vec4(color * font_color.rgb, font_color.a * max(color.r, max(color.g, color.b)));
+}
+	</fragment_shader>
+
+</a2e_shader>

@@ -1,34 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<a2e_shader_include version="1">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
 	<fragment_shader>
-		<preprocessor>
-		</preprocessor>
-		<variables>
 ////
 uniform vec4 gradients[4]; // -> max gradient colors: 4
-uniform vec4 gradient_positions;
+uniform vec4 stops;
 uniform vec4 extent;
 ////
-		</variables>
-		<program>
+
 ////
 // gradient computation
-vec4 compute_gradient(float interpolator) {
+vec4 compute_gradient(const in float interpolator) {
 	vec4 color = vec4(0.0);
-	{
-		float apply = step(gradient_positions.x, interpolator) * step(interpolator, gradient_positions.y);
-		float interp = smoothstep(gradient_positions.x, gradient_positions.y, interpolator);
-		color += mix(gradients[0], gradients[1], interp) * apply;
+	// built-in step function can not be trusted -> branch instead ...
+	if(interpolator < stops.y) {
+		float interp = smoothstep(stops.x, stops.y, interpolator);
+		color += mix(gradients[0], gradients[1], interp);
 	}
-	{
-		float apply = step(gradient_positions.y, interpolator) * step(interpolator, gradient_positions.z);
-		float interp = smoothstep(gradient_positions.y, gradient_positions.z, interpolator);
-		color += mix(gradients[1], gradients[2], interp) * apply;
+	else if(interpolator < stops.z) {
+		float interp = smoothstep(stops.y, stops.z, interpolator);
+		color += mix(gradients[1], gradients[2], interp);
 	}
-	{
-		float apply = step(gradient_positions.z, interpolator) * step(interpolator, gradient_positions.w);
-		float interp = smoothstep(gradient_positions.z, gradient_positions.w, interpolator);
-		color += mix(gradients[2], gradients[3], interp) * apply;
+	else if(interpolator <= stops.w) {
+		float interp = smoothstep(stops.z, stops.w, interpolator);
+		color += mix(gradients[2], gradients[3], interp);
 	}
 	return color;
 }
@@ -47,7 +42,5 @@ vec4 gradient_diagonal_rl() {
 	return compute_gradient(((1.0 - interpolator_dir.x) + interpolator_dir.y) * 0.5);
 }
 ////
-
-		</program>
 	</fragment_shader>
-</a2e_shader_include>
+</a2e_shader>

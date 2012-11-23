@@ -1,0 +1,34 @@
+<!ELEMENT a2e_shader (#PCDATA | includes | options | vertex_shader | geometry_shader | fragment_shader)*>
+<!ATTLIST a2e_shader
+	version CDATA #REQUIRED
+>
+
+<!ELEMENT includes (#PCDATA)*>
+
+<!ELEMENT options (#PCDATA)*>
+
+<!ELEMENT vertex_shader (#PCDATA | header | option | condition)*>
+<!ATTLIST vertex_shader
+	version CDATA #IMPLIED
+>
+<!ELEMENT geometry_shader (#PCDATA | header | option | condition)*>
+<!ATTLIST geometry_shader
+	version CDATA #IMPLIED
+>
+<!ELEMENT fragment_shader (#PCDATA | header | option | condition)*>
+<!ATTLIST fragment_shader
+	version CDATA #IMPLIED
+>
+
+<!ELEMENT header (#PCDATA | option | condition)*>
+
+<!ELEMENT option (#PCDATA | option | condition)*>
+<!ATTLIST option
+	match CDATA #IMPLIED
+	nomatch CDATA #IMPLIED
+>
+<!ELEMENT condition (#PCDATA | option | condition)*>
+<!ATTLIST condition
+	type CDATA #REQUIRED
+	value CDATA #REQUIRED
+>

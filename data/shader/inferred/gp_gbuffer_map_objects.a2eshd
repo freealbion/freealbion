@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<a2e_shader version="1">
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
 	<includes>global inferred_gbuffer</includes>
 	
 	<vertex_shader>
-		<variables>
 uniform vec3 cam_position;
 uniform mat4 mvpm;
 
@@ -11,8 +11,7 @@ in vec3 ws_position;
 in vec2 texture_coord;
 
 out vec2 out_tex_coord;
-		</variables>
-		<program>
+
 void main() {
 	vec3 view_vec = normalize(vec3(cam_position.x - ws_position.x,
 								   0.0,
@@ -27,28 +26,33 @@ void main() {
 	
 	gl_Position = mvpm * vertex;
 }
-		</program>
 	</vertex_shader>
 	
 	<fragment_shader>
-		<variables>
 uniform sampler2D diffuse_texture;
+<option nomatch="*aux_texture">
 uniform vec2 Nuv;
+</option>
+<option match="*aux_texture">
+uniform sampler2D aux_texture;
+</option>
 
 in vec2 out_tex_coord;
-		</variables>
-		<program>
+
 void main() {
 	check_mask_id();
 	
 	if(texture(diffuse_texture, out_tex_coord).a < 0.5) discard;
+	
+	<option match="*aux_texture">
+	vec2 Nuv = texture(aux_texture, out_tex_coord).xy * 1536.0;
+	</option>
 	
 	// write to gbuffer
 	// small hack: set the normal to (0, 1, 0), since we're rendering 2.5D objects
 	// and this way they'll most certainly point to a light source (/be lit by one)
 	write_gbuffer(vec3(0.0, 1.0, 0.0), Nuv);
 }
-		</program>
 	</fragment_shader>
 
 </a2e_shader>

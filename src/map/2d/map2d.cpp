@@ -290,7 +290,7 @@ bool map2d::is_2d_map(const size_t& map_num) const {
 }
 
 // TODO: write correct/nice windows roundf
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__)
 #ifndef roundf
 #define roundf(x) (x > 0.0f ? floorf(x + 0.5f) : ceilf(x - 0.5f))
 #endif
@@ -364,7 +364,8 @@ void map2d::handle() {
 				if(update_size == 0) continue;
 
 				glBindBuffer(GL_ARRAY_BUFFER, cur_layer.tex_coords_vbo);
-				glBufferSubData(GL_ARRAY_BUFFER, (cur_layer.ani_offset*4) * 2 * sizeof(float), update_size * 2 * sizeof(float), &cur_layer.tex_coords[cur_layer.ani_offset*4]);
+				glBufferSubData(GL_ARRAY_BUFFER, (cur_layer.ani_offset*4) * 2 * sizeof(float),
+								update_size * 2 * sizeof(float), &cur_layer.tex_coords[cur_layer.ani_offset*4]);
 			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -524,7 +525,6 @@ bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, 
 				case 0x0100:
 				case 0x0304:
 					return true;
-					break;
 				default:
 					break;
 			}

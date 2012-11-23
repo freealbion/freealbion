@@ -1,33 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<a2e_shader version="1">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
 	<!-- note: std/# option is point lighting -->
-	<options list="# directional" />
+	<options># directional</options>
 	<includes>global</includes>
 
 	<vertex_shader>
-		<variables>
-<option value="#">
-uniform vec4 light_position;
-uniform float light_radius;
+<option match="#">
+uniform vec4 light_position; // note: pos is packed with radius
 uniform mat4 mvpm;
 </option>
 
-		</variables>
-		<program>
 void main() {
-	<option value="#">
-	gl_Position = mvpm * vec4(in_vertex*light_radius + light_position.xyz, 1.0);
+	<option match="#">
+	gl_Position = mvpm * vec4(in_vertex*light_position.w + light_position.xyz, 1.0);
 	</option>
 	
-	<option value="directional">
+	<option match="directional">
 	gl_Position = vec4(in_vertex.x, in_vertex.y, 0.0, 1.0);
 	</option>
 }
-		</program>
 	</vertex_shader>
 	
 	<fragment_shader>
-		<variables>
 uniform sampler2D normal_nuv_buffer;
 uniform sampler2D depth_buffer;
 
@@ -35,17 +30,17 @@ uniform vec3 cam_position;
 uniform vec2 screen_size;
 uniform vec2 projection_ab;
 
-// note: pos is packed with radius^2 and color with 1/radius^2
+uniform mat4 imvm;
+out vec4 frag_color_2;
+
+// note: pos is packed with radius and color with 1/radius^2
 uniform vec4 light_position;
 uniform vec4 light_color;
 
-<option value="directional">
+<option match="directional">
 uniform vec4 light_ambient;
 </option>
 
-uniform mat4 imvm;
-		</variables>
-		<program>
 void main() {
 	vec2 tex_coord = gl_FragCoord.xy / screen_size;
 	
@@ -68,14 +63,14 @@ void main() {
 	// note: light_color.w == 1/light_radius^2
 	vec3 light_dir = (light_position.xyz - rep_pos);
 	
-	<option value="#">
+	<option match="#">
 	light_dir *= light_color.w;
-	// attenutation = distance / light_radius^4
-	float attenuation = 1.0 - dot(light_dir, light_dir) * light_position.w;
+	// attenuation = distance / light_radius^4
+	float attenuation = 1.0 - dot(light_dir, light_dir) * (light_position.w * light_position.w);
 	if(attenuation <= 0.0) discard;
 	</option>
 	
-	<option value="directional">
+	<option match="directional">
 	const float attenuation = 1.0;
 	</option>
 	
@@ -85,7 +80,7 @@ void main() {
 	// read and decode normal
 	vec4 normal_nuv_read = texture(normal_nuv_buffer, tex_coord).rgba;
 	vec2 normal_read = normal_nuv_read.xy;
-	vec2 nuv_read = normal_nuv_read.zw;
+	vec2 nuv = normal_nuv_read.zw;
 	vec3 normal;
 	normal.z = dot(normal_read.xy, normal_read.xy) * 2.0 - 1.0;
 	// and again: abs inner sqrt result, b/c of fp inaccuracies
@@ -94,34 +89,35 @@ void main() {
 	////////////////////////////////////////////////////////////////////////////
 	// lighting (continuation: actual lighting)
 	// phong lighting
-	vec4 final_color = vec4(0.0);
+	vec4 diff_color = vec4(0.0);
+	vec4 spec_color = vec4(0.0);
 	
 	float lambertTerm = dot(normal, light_dir);
 	if(lambertTerm > 0.0) {
-		final_color.rgb += light_color.rgb * lambertTerm * attenuation;
+		diff_color.rgb += light_color.rgb * lambertTerm * attenuation;
 		
 		vec3 view_dir = normalize(cam_position - rep_pos);
 		vec3 R = reflect(-light_dir, normal);
-		float specular = pow(max(dot(R, view_dir), 0.0), nuv_read.x);
-		<option value="#">
-		final_color.a = length(light_color.rgb * attenuation * specular) * clamp(log(attenuation)/5.0, 0.0, 2.0);
+		float specular = pow(max(dot(R, view_dir), 0.0), nuv.x);
+		<option match="#">
+		spec_color.rgb = light_color.rgb * attenuation * specular;
 		</option>
-		<option value="directional">
+		<option match="directional">
 		// since attenuation is const 1.0 with directional lighting, the computation above would get optimized away
-		final_color.a = length(light_color.rgb * specular) * 0.05;
+		spec_color.rgb = light_color.rgb * specular;
 		</option>
 	}
-	<option value="#">
+	<option match="#">
 	else discard;
 	</option>
 	
-	<option value="directional">
-	final_color += light_ambient;
+	<option match="directional">
+	diff_color.rgb += light_ambient.rgb;
 	</option>
 	
-	frag_color = final_color;
+	frag_color = diff_color;
+	frag_color_2 = spec_color;
 }
-		</program>
 	</fragment_shader>
 	
 </a2e_shader>

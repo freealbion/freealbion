@@ -31,6 +31,7 @@
 #include "npcgfx.h"
 #include "labdata.h"
 #include <gui/gui.h>
+#include <scene/scene.h>
 
 class map_handler {
 public:
@@ -38,7 +39,7 @@ public:
 	~map_handler();
 	
 	void handle();
-	void draw(const gui::DRAW_MODE_UI draw_mode);
+	void draw(const DRAW_MODE_UI draw_mode, rtt::fbo* buffer);
 	
 	void load_map(const size_t& map_num, const size2 player_pos = size2(0, 0), const MOVE_DIRECTION player_direction = MD_NONE);
 	MAP_TYPE get_map_type(const size_t& map_num) const;
@@ -69,12 +70,14 @@ protected:
 	xld* maps2;
 	xld* maps3;
 	
-	gui::draw_callback draw_cb;
+	ui_draw_callback draw_cb;
+	gui_simple_callback* draw_cb_obj;
+	scene::draw_callback scene_draw_cb;
 	
 	//
 	size_t last_key_press;
 	size_t last_move;
-	atomic_t next_dir;
+	atomic<unsigned int> next_dir { 0 };
 	event::handler key_handler_fnctr;
 	bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj);
 	

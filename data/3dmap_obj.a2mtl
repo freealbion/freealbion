@@ -4,6 +4,7 @@
 		<material id="0" type="diffuse" model="phong">
 			<texture type="diffuse" file="blue.png" />
 			<texture type="specular" file="white.png" />
+			<texture type="reflectance" file="reflectance_placeholder_128.png" />
 		</material>
 	</materials>
 	<material_mapping>

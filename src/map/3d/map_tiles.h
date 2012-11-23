@@ -39,8 +39,8 @@ public:
 protected:
 	
 	virtual const string select_shader(const DRAW_MODE& draw_mode) const;
-	virtual void pre_draw_geometry(gl3shader& shd, size_t& attr_array_mask, size_t& texture_mask);
-	virtual void pre_draw_material(gl3shader& shd, size_t& attr_array_mask, size_t& texture_mask);
+	virtual void pre_draw_geometry(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask);
+	virtual void pre_draw_material(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask);
 	
 };
 

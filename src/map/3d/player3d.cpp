@@ -127,7 +127,7 @@ void player3d::move(const MOVE_DIRECTION direction) {
 	pos = next_pos = new_pos;
 }
 
-void player3d::move(const size2& move_pos) {
+void player3d::move(const size2& move_pos a2e_unused) {
 	return;
 }
 

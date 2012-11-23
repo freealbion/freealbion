@@ -21,16 +21,17 @@
 #include "bin_graphics.h"
 #include <a2e.h>
 
-engine* e;
-file_io* fio;
-texman* t;
-event* eevt;
-shader* s;
-opencl* ocl;
-scene* sce;
-camera* cam;
-pal* palettes;
-ext* exts;
-gui* ui;
-ar_clock* clck;
-bin_graphics* bin_gfx;
+engine* e = nullptr;
+file_io* fio = nullptr;
+texman* t = nullptr;
+event* eevt = nullptr;
+shader* s = nullptr;
+opencl_base* ocl = nullptr;
+scene* sce = nullptr;
+camera* cam = nullptr;
+pal* palettes = nullptr;
+ext* exts = nullptr;
+gui* ui = nullptr;
+font_manager* fm = nullptr;
+ar_clock* clck = nullptr;
+bin_graphics* bin_gfx = nullptr;

@@ -1,43 +1,97 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<a2e_shader version="1">
-	<includes>global inferred_gbuffer</includes>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
+	<includes>global inferred_gbuffer env_probe</includes>
 	
 	<vertex_shader>
-		<variables>
 uniform mat4 local_mview;
 uniform mat4 local_scale;
 
+<option nomatch="*env_probe">
 uniform mat4 mvpm;
+</option>
 
 in vec3 normal;
+<option match="*aux_texture">
+in vec2 tex_coord;
+</option>
 
-out vec3 out_normal;
-		</variables>
-		<program>
+out vertex {
+	vec3 normal;
+	<option match="*aux_texture">
+	vec2 tex_coord;
+	</option>
+} out_vertex;
+
 void main() {
 	mat4 transform_mat = local_scale * local_mview;
 	
-	out_normal = mat3(transform_mat) * normal;
+	out_vertex.normal = mat3(transform_mat) * normal;
 	
+	<option match="*aux_texture">
+	out_vertex.tex_coord = tex_coord;
+	</option>
+	
+	<option nomatch="*env_probe">
 	gl_Position = mvpm * vec4(in_vertex, 1.0);
+	</option>
+	<option match="*env_probe">
+	gl_Position = vec4(in_vertex, 1.0);
+	</option>
 }
-		</program>
 	</vertex_shader>
-	
-	<fragment_shader>
-		<variables>
-uniform vec2 Nuv;
 
-in vec3 out_normal;
-		</variables>
-		<program>
+	<geometry_shader>
+		<header>
+<option match="*env_probe">
+in vertex {
+	vec3 normal;
+	<option match="*aux_texture">
+	vec2 tex_coord;
+	</option>
+} in_vertex[];
+out vertex {
+	vec3 normal;
+	<option match="*aux_texture">
+	vec2 tex_coord;
+	</option>
+} out_vertex;
+
+void env_probe_copy_vars(const in int side, const in int idx) {
+	out_vertex.normal = in_vertex[idx].normal;
+	<option match="*aux_texture">
+	out_vertex.tex_coord = in_vertex[idx].tex_coord;
+	</option>
+}
+</option>
+		</header>
+	</geometry_shader>
+
+	<fragment_shader>
+<option nomatch="*aux_texture">
+uniform vec2 Nuv;
+</option>
+<option match="*aux_texture">
+uniform sampler2D aux_texture;
+</option>
+
+in vertex {
+	vec3 normal;
+	<option match="*aux_texture">
+	vec2 tex_coord;
+	</option>
+} in_vertex;
+
 void main() {
 	check_mask_id();
 	
+	<option match="*aux_texture">
+	vec2 Nuv = texture(aux_texture, in_vertex.tex_coord).xy * 1536.0;
+	</option>
+	
 	// write to gbuffer
-	write_gbuffer(out_normal, Nuv);
+	write_gbuffer(in_vertex.normal, Nuv);
 }
-		</program>
 	</fragment_shader>
 
 </a2e_shader>

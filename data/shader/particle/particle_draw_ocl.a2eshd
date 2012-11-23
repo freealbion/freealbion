@@ -1,36 +1,32 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<a2e_shader version="1">
-	<options list="# lit lit_pp" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
+	<options># lit lit_pp</options>
 
 	<vertex_shader>
-		<variables>
 uniform float living_time;
 in vec4 in_vertex;
 in vec4 in_aux;
 out vec4 vs_aux;
-		</variables>
-		<program>
+
 void main() {
 	// w < 1: will be culled in the geometry shader
 	gl_Position = vec4(in_vertex.xyz,
 					   (in_vertex.w <= 0.0 || in_vertex.w > living_time) ? 0.0 : 1.0);
 	vs_aux = in_aux;
 }
-		</program>
 	</vertex_shader>
 
 	<geometry_shader>
-		<preprocessor>
 layout(points) in;
 layout(triangle_strip, max_vertices = 4) out;
-		</preprocessor>
-		<variables>
+
 uniform vec2 size;
 uniform mat4 mvm;
 uniform mat4 mvpm;
 uniform vec3 position;
 
-<option value="lit lit_pp">
+<option match="lit lit_pp">
 #define MAX_LIGHTS 4 // has to be changed in the fs too
 layout(std140) uniform light_buffer {
 	// note: pos is packed with radius^2 and color with 1/radius^2
@@ -40,10 +36,10 @@ layout(std140) uniform light_buffer {
 	} data[MAX_LIGHTS];
 } lights;
 
-<option value="lit">
+<option match="lit">
 flat out float attenuation[MAX_LIGHTS];
 </option>
-<option value="lit_pp">
+<option match="lit_pp">
 centroid out float attenuation[MAX_LIGHTS];
 </option>
 
@@ -66,8 +62,7 @@ out vec4 out_aux;
 
 out vec2 tex_coord;
 centroid out vec4 out_position;
-		</variables>
-		<program>
+
 void main() {
 	vec4 in_pos = gl_in[0].gl_Position;
 	if(in_pos.w < 1.0) return; // discard particle
@@ -79,7 +74,7 @@ void main() {
 	up *= 0.5 * size.y;
 	in_pos.xyz += position;
 	
-	<option value="lit">
+	<option match="lit">
 	float total_attenuation = compute_attenuation(in_pos.xyz);
 	if(total_attenuation == 0.0) return;
 	</option>
@@ -90,7 +85,7 @@ void main() {
 	// v0
 	tex_coord = vec2(0.0, 0.0);
 	vec4 pos = in_pos + vec4(-right - up, 0.0);
-	<option value="lit_pp">
+	<option match="lit_pp">
 	compute_attenuation(pos.xyz);
 	</option>
 	pos = mvpm * pos;
@@ -102,7 +97,7 @@ void main() {
 	// v1
 	tex_coord = vec2(1.0, 0.0);
 	pos = in_pos + vec4(-right + up, 0.0);
-	<option value="lit_pp">
+	<option match="lit_pp">
 	compute_attenuation(pos.xyz);
 	</option>
 	pos = mvpm * pos;
@@ -114,7 +109,7 @@ void main() {
 	// v2
 	tex_coord = vec2(0.0, 1.0);
 	pos = in_pos + vec4(right - up, 0.0);
-	<option value="lit_pp">
+	<option match="lit_pp">
 	compute_attenuation(pos.xyz);
 	</option>
 	pos = mvpm * pos;
@@ -126,7 +121,7 @@ void main() {
 	// v3
 	tex_coord = vec2(1.0, 1.0);
 	pos = in_pos + vec4(right + up, 0.0);
-	<option value="lit_pp">
+	<option match="lit_pp">
 	compute_attenuation(pos.xyz);
 	</option>
 	pos = mvpm * pos;
@@ -136,11 +131,9 @@ void main() {
 	
 	EndPrimitive();
 }
-		</program>
 	</geometry_shader>
 	
 	<fragment_shader>
-		<variables>
 uniform sampler2D particle_tex;
 uniform sampler2D depth_buffer;
 uniform vec4 color;
@@ -149,7 +142,7 @@ in vec2 tex_coord;
 centroid in vec4 out_position;
 out vec4 frag_color;
 
-<option value="lit lit_pp">
+<option match="lit lit_pp">
 #define MAX_LIGHTS 4 // has to be changed in the gs too
 layout(std140) uniform light_buffer {
 	// note: pos is packed with radius^2 and color with 1/radius^2
@@ -159,17 +152,16 @@ layout(std140) uniform light_buffer {
 	} data[MAX_LIGHTS];
 } lights;
 
-<option value="lit">
+<option match="lit">
 flat in float attenuation[MAX_LIGHTS];
 </option>
-<option value="lit_pp">
+<option match="lit_pp">
 centroid in float attenuation[MAX_LIGHTS];
 </option>
 </option>
 
 in vec4 out_aux;
-		</variables>
-		<program>
+
 void main() {
 	vec2 centroid_frag_coord = ((out_position.xy/out_position.w) * 0.5) + 0.5;
 	float particle_depth = gl_FragCoord.z;
@@ -189,7 +181,7 @@ void main() {
 	float dist = scene_depth - particle_depth;
 	tex_color.a *= (dist < threshhold ? dist * inv_threshhold : 1.0);
 	
-	<option value="lit lit_pp">
+	<option match="lit lit_pp">
 	vec3 light_color = vec3(0.0);
 	for(int i = 0; i < MAX_LIGHTS; i++) {
 		light_color += lights.data[i].color.xyz * attenuation[i];
@@ -201,7 +193,6 @@ void main() {
 	tex_color.a *= color.a;
 	frag_color = vec4(tex_color.xyz * tex_color.a, tex_color.a);
 }
-		</program>
 	</fragment_shader>
 
 </a2e_shader>

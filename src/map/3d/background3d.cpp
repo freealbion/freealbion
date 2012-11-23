@@ -125,7 +125,7 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 	}
 	memset(pixel_data[3], 0, cm_texture_size.x*cm_texture_size.y*sizeof(unsigned int)); // -y = black
 	
-	bg_texture = t->add_cubemap_texture((void**)pixel_data, (unsigned int)cm_texture_size.x, (unsigned int)cm_texture_size.y, GL_RGBA8, GL_RGBA, texture_object::TF_TRILINEAR, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+	bg_texture = t->add_cubemap_texture((void**)pixel_data, (unsigned int)cm_texture_size.x, (unsigned int)cm_texture_size.y, GL_RGBA8, GL_RGBA, TEXTURE_FILTERING::TRILINEAR, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 	
 	for(size_t i = 0; i < 6; i++) delete [] pixel_data[i];
 	delete [] pixel_data;

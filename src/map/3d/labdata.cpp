@@ -27,7 +27,7 @@ labdata::labdata() {
 	tex_filtering = e->get_filtering();
 	
 	// only use linear filtering (max!) when creating the texture (we'll add custom mip-maps later)
-	custom_tex_filtering = std::min(texture_object::TF_LINEAR, tex_filtering);
+	custom_tex_filtering = std::min(TEXTURE_FILTERING::LINEAR, tex_filtering);
 
 	cur_labdata_num = (~0);
 	lab_fc_material = NULL;

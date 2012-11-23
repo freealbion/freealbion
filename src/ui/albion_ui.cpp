@@ -21,23 +21,7 @@
 #include "bin_graphics.h"
 #include <gui/image.h>
 #include <rendering/gfx2d.h>
-
-// ui defines
-#define ALBION_DBG_ID 500
-#define B_GOTO_MAP_ID 501
-#define I_GOTO_MAP_ID 502
-#define LB_MAP_NAMES_ID 503
-#define T_TIME_ID 504
-#define T_TIME_VALUE_ID 505
-
-#define GAME_UI_ID 1000
-#define GAME_CLOCK_IMG_ID 1001
-#define GAME_CLOCK_NUM_0_IMG_ID 1002
-#define GAME_CLOCK_NUM_1_IMG_ID 1003
-#define GAME_CLOCK_NUM_2_IMG_ID 1004
-#define GAME_CLOCK_NUM_3_IMG_ID 1005
-#define GAME_COMPASS_IMG_ID 1010
-#define GAME_COMPASS_DOT_IMG_ID 1011
+#include <gui/style/gui_surface.h>
 
 /*! albion_ui constructor
  */
@@ -88,12 +72,13 @@ void albion_ui::run() {
 		compass_dot_img_pos = float2(sinf(DEG2RAD(y_rot)), cosf(DEG2RAD(y_rot)));
 		compass_dot_img_pos *= (compass_img_size.x / 2.0f) - compass_dot_img_size.x*0.8f;
 		compass_dot_img_pos = compass_img_pos + compass_img_size/2.0f + compass_dot_img_pos - compass_dot_img_size/2.0f;
+		
+		draw_cb_obj->redraw();
 	}
 }
 
-void albion_ui::draw(const gui::DRAW_MODE_UI draw_mode) {
+void albion_ui::draw(const DRAW_MODE_UI draw_mode a2e_unused, rtt::fbo* buffer a2e_unused) {
 	if(!game_ui_opened) return;
-	if(draw_mode != gui::DRAW_MODE_UI::PRE_UI) return;
 	
 	// draw the clock
 	gfx2d::draw_rectangle_texture(rect(clock_img_pos.x, clock_img_pos.y,
@@ -131,12 +116,14 @@ void albion_ui::clock_tick(size_t ticks) {
 	clock_numbers[1].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + hours%10)));
 	clock_numbers[2].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + mins/10)));
 	clock_numbers[3].img->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::CLOCK_NUM_0 + mins%10)));
+	
+	draw_cb_obj->redraw();
 }
 
 void albion_ui::open_game_ui() {
 	if(game_ui_opened) return;
 	game_ui_opened = true;
-	ui->add_draw_callback(draw_cb);
+	draw_cb_obj = ui->add_draw_callback(DRAW_MODE_UI::PRE_UI, draw_cb, float2(1.0f), float2(0.0f));
 	
 	if(game_ui_loaded) return;
 	load_game_ui(size2(e->get_width(), e->get_height()));
@@ -146,6 +133,7 @@ void albion_ui::close_game_ui(){
 	if(!game_ui_opened) return;
 	game_ui_opened = false;
 	ui->delete_draw_callback(draw_cb);
+	draw_cb_obj = nullptr;
 }
 
 void albion_ui::load_game_ui(const size2& size) {

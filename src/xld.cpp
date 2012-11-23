@@ -51,15 +51,15 @@ const string xld::make_xld_path(const string& filename) {
 
 void xld::load(const string& filename) {
 	// open file
-	if(!fio->open_file(make_xld_path(filename).c_str(), file_io::OT_READ_BINARY)) {
+	if(!fio->open(make_xld_path(filename).c_str(), file_io::OPEN_TYPE::READ_BINARY)) {
 		a2e_error("couldn't open xld \"%s\"!", filename);
 		return;
 	}
 
 	// check header
-	fio->get_terminated_block(&data, (char)0x00);
+	fio->get_terminated_block(data, (char)0x00);
 	if(data != "XLD0I") {
-		fio->close_file();
+		fio->close();
 		a2e_error("\"%s\" is no valid XLD file!", filename);
 		return;
 	}
@@ -83,7 +83,7 @@ void xld::load(const string& filename) {
 	}
 
 	// close file
-	fio->close_file();
+	fio->close();
 }
 
 void xld::close() {

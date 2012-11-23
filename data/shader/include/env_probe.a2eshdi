@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
+	<geometry_shader>
+		<header>
+<option match="*env_probe">
+layout(triangles) in;
+layout(triangle_strip, max_vertices = 6) out;
+</option>
+		</header>
+
+<option match="*env_probe">
+uniform mat4 mvpm;
+uniform mat4 mvpm_backside;
+
+// NOTE: in/out vertex data must be declared in each shader!
+
+void main() {
+	vec3 vertices[6] = vec3[] (
+		vec3(mvpm * gl_in[0].gl_Position),
+		vec3(mvpm * gl_in[1].gl_Position),
+		vec3(mvpm * gl_in[2].gl_Position),
+		vec3(mvpm_backside * gl_in[0].gl_Position),
+		vec3(mvpm_backside * gl_in[1].gl_Position),
+		vec3(mvpm_backside * gl_in[2].gl_Position)
+	);
+	
+	for(int side = 0; side < 2; side++) {
+		// cull if all vertices are behind the camera
+		if(vertices[side*3].z < 0.0 &&
+		   vertices[side*3 + 1].z < 0.0 &&
+		   vertices[side*3 + 2].z < 0.0) {
+			continue;
+		}
+		
+		float side_offset = (side == 0 ? -0.5 : 0.5);
+		for(int i = 0; i < 3; i++) {
+			env_probe_copy_vars(side, i);
+			
+			// TODO: if+else (if lt 0, write gl_pos stuff directly)
+			vec3 in_pos = vertices[side*3 + i];
+			if(in_pos.z < 0.0) {
+				// if only a single vertex is behind the camera, clamp it to the circle border
+				in_pos.xy = normalize(vec2(in_pos.x, in_pos.y)).xy * vec2(128.0, 128.0);
+				in_pos.z = 0.9999;
+			}
+			
+			float zval = in_pos.z;
+			float L = length(in_pos);
+			vec3 out_pos = in_pos / L;
+			out_pos.xy /= out_pos.z + 1.0;
+			out_pos.z = (L * zval) / 1000.0;
+			out_pos.x = (out_pos.x * 0.5) + side_offset;
+			gl_Position = vec4(out_pos, 1.0);
+			
+			EmitVertex();
+		}
+		EndPrimitive();
+	}
+}
+</option>
+	</geometry_shader>
+</a2e_shader>

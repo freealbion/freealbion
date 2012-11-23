@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<a2e_shader version="1">
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
 	<includes>global inferred</includes>
 
 	<vertex_shader>
-		<variables>
 in vec2 texture_coord;
 out vec2 out_tex_coord;
-		</variables>
-		<program>
+
 void main() {
 	out_tex_coord = texture_coord;
 	
@@ -15,32 +14,37 @@ void main() {
 	
 	gl_Position = mvpm * vec4(in_vertex, 1.0);
 }
-		</program>
 	</vertex_shader>
 	
 	<fragment_shader>
-		<variables>
 uniform sampler2D diffuse_texture;
 uniform sampler2D specular_texture;
+uniform sampler2D reflectance_texture;
 
 in vec2 out_tex_coord;
-		</variables>
-		<program>
+
 void main() {
 	vec4 diff_color = texture(diffuse_texture, out_tex_coord);
-	if(diff_color.a < 0.5) discard;
+	// TODO: fix this (must be "<" 0.5)
+	if(diff_color.a <= 0.5) discard;
 	
 	vec4 spec_color = texture(specular_texture, out_tex_coord);
+	vec3 refl_color = texture(reflectance_texture, out_tex_coord).xyz;
 	
-	vec4 light_color = compute_light_color();
+	vec4 light_colors[2] = compute_light_colors();
 	
 	////////////////////////////////////////////////////////////////////////////
 	// lighting
-	vec3 final_color = light_color.rgb * diff_color.rgb + light_color.a * spec_color.rgb;
+	vec3 final_color = compute_diffuse(diff_color.rgb, refl_color, light_colors[0]);
+	final_color += compute_specular(spec_color.rgb, refl_color, light_colors[1]);
 	
+	<option match="opaque">
+	frag_color = vec4(final_color * diff_color.a, 1.0);
+	</option>
+	<option match="alpha">
 	frag_color = vec4(final_color * diff_color.a, diff_color.a);
+	</option>
 }
-		</program>
 	</fragment_shader>
 	
 </a2e_shader>

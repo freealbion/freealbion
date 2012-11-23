@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
+	<!-- define *env_map combiner in all shaders -->
+	<vertex_shader>
+		<option match="*env_map"></option>
+	</vertex_shader>
+	<geometry_shader>
+		<option match="*env_map"></option>
+	</geometry_shader>
+	<fragment_shader>
+		<option match="*env_map">
+uniform sampler2D environment_map;
+uniform sampler2D normal_buffer;
+
+vec3 compute_env(const in vec3 view_vec, const in vec3 refl_color, const in vec3 spec_color) {
+	// get normal (TODO: better method + fix for alpha pass)
+	vec4 normal_nuv_read = texture(normal_buffer, gl_FragCoord.xy / screen_size).rgba;
+	vec2 normal_read = normal_nuv_read.xy;
+	vec2 nuv = normal_nuv_read.zw;
+	vec3 normal;
+	normal.z = dot(normal_read.xy, normal_read.xy) * 2.0 - 1.0;
+	// and again: abs inner sqrt result, b/c of fp inaccuracies
+	normal.xy = normalize(normal_read.xy) * sqrt(abs(1.0 - normal.z * normal.z));
+	
+	// Calculate the world space surface normal
+	vec3 wN = normal;
+	
+	// Calculate the reflected view vector
+	vec3 I = normalize(view_vec);
+	vec3 wR = I - 2.0 * dot(I, wN) * wN;
+	
+	// Calculate two versions of this vector - one for
+	// the 'front' paraboloid and one for the 'back' paraboloid
+	vec3 wRf = wR;
+	vec3 wRb = vec3(wR.x, wR.y, -wR.z);
+	
+	// Calculate the front paraboloid coordinates
+	vec2 front;
+	front.x = ( wRf.x / ( 2.0 * (1.0 + wRf.z) ) ) + 0.5;
+	front.y = 1.0 - ( (wRf.y / ( 2.0 * (1.0 + wRf.z) ) ) + 0.5);
+	front.x = front.x * 0.5;
+	
+	// Calculate the back paraboloid coordinates
+	vec2 back;
+	back.x = ( wRb.x / ( 2.0 * (1.0 + wRb.z) ) ) + 0.5;
+	back.y = 1.0 - ( (wRb.y / ( 2.0 * (1.0 + wRb.z) ) ) + 0.5);
+	back.x = (back.x * 0.5) + 0.5;
+	
+	// Sample the paraboloid maps
+	vec3 env_front = texture(environment_map, front).xyz;
+	vec3 env_back = texture(environment_map, back).xyz;
+	
+	// Combine both paraboloid maps
+	vec3 env_color = max(env_front, env_back).rgb;
+	vec3 env_specularity = (refl_color + spec_color) * (exp(max(nuv.x, nuv.y) / 1536.0) - 1.0) + vec3(0.025);
+	return env_specularity * env_color;
+}
+		</option>
+	</fragment_shader>
+</a2e_shader>

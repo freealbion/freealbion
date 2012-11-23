@@ -61,7 +61,7 @@ F(LIVING_WALL)
 class npc;
 class object_light_base {
 public:
-	object_light_base(const float3& position_, const float3& color_, const float& radius_) : position(position_), color(color_), radius(radius_), step(rand()%10000), direction(1.0f), l(new light(e, position_.x, position_.y, position_.z)), n(NULL) {
+	object_light_base(const float3& position_, const float3& color_, const float& radius_) : position(position_), color(color_), radius(radius_), step(rand()%10000), direction(1.0f), l(new light(position_.x, position_.y, position_.z)), n(NULL) {
 		l->set_color(color);
 		l->set_radius(radius);
 		sce->add_light(l);

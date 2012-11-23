@@ -44,6 +44,7 @@
 		5C32C6E71355298C00164662 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06B00C1261336700405DE8 /* OpenGL.framework */; };
 		5C32C6E81355298C00164662 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFDB12612E4800405DE8 /* AppKit.framework */; };
 		5C32C6EA1355298C00164662 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFA012612D3500405DE8 /* Cocoa.framework */; };
+		5CDEEDFC165FE32D00523AF7 /* ar_debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CDEEDFA165FE32C00523AF7 /* ar_debug.cpp */; };
 		5CFC5D1413E46E5200824F9C /* bin_graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CFC5D1213E46E5200824F9C /* bin_graphics.cpp */; };
 /* End PBXBuildFile section */
 
@@ -138,7 +139,6 @@
 		5C9C5109126548C100A15B31 /* scaling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scaling.h; sourceTree = "<group>"; };
 		5C9C510A126548C100A15B31 /* xld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xld.cpp; path = src/xld.cpp; sourceTree = SOURCE_ROOT; };
 		5C9C510B126548C100A15B31 /* xld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xld.h; path = src/xld.h; sourceTree = SOURCE_ROOT; };
-		5C9C511D126548E300A15B31 /* Albion_Remake_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Albion_Remake_Prefix.pch; path = src/Albion_Remake_Prefix.pch; sourceTree = "<group>"; };
 		5C9C512A1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = src/osx/en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		5C9C512C1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = en; path = src/osx/en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		5C9C512E1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = en; path = src/osx/en.lproj/Credits.rtf; sourceTree = "<group>"; };
@@ -149,6 +149,8 @@
 		5CD776981530FAFB00BDEDAF /* gfx2d.a2eshdi */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = gfx2d.a2eshdi; sourceTree = "<group>"; };
 		5CDB6F151379C4B2006033D4 /* particle_compute.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = particle_compute.cl; sourceTree = "<group>"; };
 		5CDB6F171379C4B2006033D4 /* particle_spawn.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; path = particle_spawn.cl; sourceTree = "<group>"; };
+		5CDEEDFA165FE32C00523AF7 /* ar_debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ar_debug.cpp; path = src/ar_debug.cpp; sourceTree = SOURCE_ROOT; };
+		5CDEEDFB165FE32C00523AF7 /* ar_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ar_debug.h; path = src/ar_debug.h; sourceTree = SOURCE_ROOT; };
 		5CDFD7A213248985009459CE /* inferred_gbuffer.a2eshdi */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = inferred_gbuffer.a2eshdi; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5CE00A2513ABB86F00FAE69A /* premake.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = premake.sh; sourceTree = "<group>"; };
 		5CE00A2613ABB86F00FAE69A /* premake4.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = premake4.lua; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.python; };
@@ -203,6 +205,8 @@
 				5C9C510B126548C100A15B31 /* xld.h */,
 				5C52B6411280CE7E00E8ED0D /* ar_global.cpp */,
 				5C52B6421280CE7E00E8ED0D /* ar_global.h */,
+				5CDEEDFA165FE32C00523AF7 /* ar_debug.cpp */,
+				5CDEEDFB165FE32C00523AF7 /* ar_debug.h */,
 				5C58908312690BBE0011E96B /* events */,
 				5C9C5101126548C100A15B31 /* gfx */,
 				5C9C50EB126548C100A15B31 /* map */,
@@ -217,7 +221,6 @@
 			children = (
 				5CE00A2513ABB86F00FAE69A /* premake.sh */,
 				5CE00A2613ABB86F00FAE69A /* premake4.lua */,
-				5C9C511D126548E300A15B31 /* Albion_Remake_Prefix.pch */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -486,7 +489,7 @@
 		5C06AF9012612D3400405DE8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0440;
+				LastUpgradeCheck = 0450;
 			};
 			buildConfigurationList = 5C06AF9312612D3400405DE8 /* Build configuration list for PBXProject "albion" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -552,6 +555,7 @@
 				5C32C6E31355298C00164662 /* hq2x.cpp in Sources */,
 				5CFC5D1413E46E5200824F9C /* bin_graphics.cpp in Sources */,
 				5C2E8091141C61DF00C4A0EE /* object_light.cpp in Sources */,
+				5CDEEDFC165FE32D00523AF7 /* ar_debug.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -633,10 +637,13 @@
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__EXIT_TIME_DESTRUCTORS = NO;
 				CLANG_X86_VECTOR_INSTRUCTIONS = sse4.1;
 				CODE_SIGN_ENTITLEMENTS = "src/osx/Albion Remake.entitlements";
 				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				CONFIGURATION_BUILD_DIR = bin/;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -649,8 +656,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = src/osx/Albion_Remake_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"A2E_USE_OPENCL=1",
+					"A2E_EXPORT=1",
+					"A2E_CUDA_CL=1",
 					PLATFORM_X64,
+					DEBUG,
 				);
 				GCC_UNROLL_LOOPS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -677,6 +686,7 @@
 				);
 				INFOPLIST_FILE = src/osx/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @loader_path/../Resources";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					"$(inherited)",
@@ -688,17 +698,39 @@
 				PRODUCT_NAME = "Albion Remaked";
 				SYMROOT = build;
 				WARNING_CFLAGS = (
-					"-Wall",
-					"-Wextra",
-					"-Wstrict-prototypes",
-					"-Widiomatic-parentheses",
-					"-Wnull-dereference",
-					"-Wunneeded-internal-declaration",
-					"-Wlogical-op-parentheses",
-					"-Wnull-arithmetic",
-					"-Wno-unused-parameter",
-					"-Wno-ignored-qualifiers",
-					"-Wdangling-else",
+					"-Weverything",
+					"-Wno-c++98-compat",
+					"-Wno-c++98-compat-pedantic",
+					"-Wno-header-hygiene",
+					"-Wno-gnu",
+					"-Wno-float-equal",
+					"-Wno-documentation",
+					"-Wno-system-headers",
+					"-Wno-global-constructors",
+					"-Wno-padded",
+					"-Wno-packed",
+					"-Wno-switch-enum",
+					"-Wno-sign-conversion",
+					"-Wno-conversion",
+					"-Wno-exit-time-destructors",
+					"-Wno-unknown-warning-option",
+					"-Wmissing-field-initializers",
+					"-Wmissing-prototypes",
+					"-Wreturn-type",
+					"-Woverloaded-virtual",
+					"-Wmissing-braces",
+					"-Wunused-function",
+					"-Wunused-label",
+					"-Wunused-parameter",
+					"-Wunused-variable",
+					"-Wuninitialized",
+					"-Wunknown-pragmas",
+					"-Wfour-char-constants",
+					"-Wshorten-64-to-32",
+					"-Wnewline-eof",
+					"-Wnon-virtual-dtor",
+					"-Wno-unused-member-function",
+					"-Wno-four-char-constants",
 				);
 				WRAPPER_EXTENSION = app;
 			};
@@ -711,10 +743,13 @@
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__EXIT_TIME_DESTRUCTORS = NO;
 				CLANG_X86_VECTOR_INSTRUCTIONS = sse4.1;
 				CODE_SIGN_ENTITLEMENTS = "src/osx/Albion Remake.entitlements";
 				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				CONFIGURATION_BUILD_DIR = bin/;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -725,7 +760,8 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = src/osx/Albion_Remake_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"A2E_USE_OPENCL=1",
+					"A2E_EXPORT=1",
+					"A2E_CUDA_CL=1",
 					PLATFORM_X64,
 				);
 				GCC_UNROLL_LOOPS = YES;
@@ -753,6 +789,7 @@
 				);
 				INFOPLIST_FILE = src/osx/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @loader_path/../Resources";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					"$(inherited)",
@@ -765,17 +802,39 @@
 				PRODUCT_NAME = "Albion Remake";
 				SYMROOT = build;
 				WARNING_CFLAGS = (
-					"-Wall",
-					"-Wextra",
-					"-Wstrict-prototypes",
-					"-Widiomatic-parentheses",
-					"-Wnull-dereference",
-					"-Wunneeded-internal-declaration",
-					"-Wlogical-op-parentheses",
-					"-Wnull-arithmetic",
-					"-Wno-unused-parameter",
-					"-Wno-ignored-qualifiers",
-					"-Wdangling-else",
+					"-Weverything",
+					"-Wno-c++98-compat",
+					"-Wno-c++98-compat-pedantic",
+					"-Wno-header-hygiene",
+					"-Wno-gnu",
+					"-Wno-float-equal",
+					"-Wno-documentation",
+					"-Wno-system-headers",
+					"-Wno-global-constructors",
+					"-Wno-padded",
+					"-Wno-packed",
+					"-Wno-switch-enum",
+					"-Wno-sign-conversion",
+					"-Wno-conversion",
+					"-Wno-exit-time-destructors",
+					"-Wno-unknown-warning-option",
+					"-Wmissing-field-initializers",
+					"-Wmissing-prototypes",
+					"-Wreturn-type",
+					"-Woverloaded-virtual",
+					"-Wmissing-braces",
+					"-Wunused-function",
+					"-Wunused-label",
+					"-Wunused-parameter",
+					"-Wunused-variable",
+					"-Wuninitialized",
+					"-Wunknown-pragmas",
+					"-Wfour-char-constants",
+					"-Wshorten-64-to-32",
+					"-Wnewline-eof",
+					"-Wnon-virtual-dtor",
+					"-Wno-unused-member-function",
+					"-Wno-four-char-constants",
 				);
 				WRAPPER_EXTENSION = app;
 			};

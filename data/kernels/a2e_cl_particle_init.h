@@ -1,6 +1,6 @@
 
-#ifndef __PARTICLE_INIT_CLH__
-#define __PARTICLE_INIT_CLH__
+#ifndef __PARTICLE_INIT_H__
+#define __PARTICLE_INIT_H__
 
 #include "a2e_cl_global.h"
 
@@ -9,12 +9,12 @@ float2 sincos_f2(const float val) {
 	return (float2)(sin(val), cos(val));
 }
 
-void AUTO_VEC_HINT init_particles(float8* ret, uint* kernel_seed,
-								  const uint type, const float spawn_rate_ts, const float living_time, const uint particle_count, const float velocity,
-								  const float4 angle, const float4 extents, const float4 direction, const float4 position_offset);
-void AUTO_VEC_HINT init_particles(float8* ret, uint* kernel_seed,
-								  const uint type, const float spawn_rate_ts, const float living_time, const uint particle_count, const float velocity,
-								  const float4 angle, const float4 extents, const float4 direction, const float4 position_offset) {
+void init_particles(float8* ret, uint* kernel_seed,
+					const uint type, const float spawn_rate_ts, const float living_time, const uint particle_count, const float velocity,
+					const float4 angle, const float4 extents, const float4 direction, const float4 position_offset);
+void init_particles(float8* ret, uint* kernel_seed,
+					const uint type, const float spawn_rate_ts, const float living_time, const uint particle_count, const float velocity,
+					const float4 angle, const float4 extents, const float4 direction, const float4 position_offset) {
 	int particle_num = get_global_id(0);
 	float ltime = spawn_rate_ts;
 

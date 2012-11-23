@@ -30,9 +30,9 @@
 #include "palette.h"
 #include "clock.h"
 
-#define APPLICATION_NAME "Albion Remake PR1"
+#define APPLICATION_NAME "Albion Remake PR2"
 
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__)
 #pragma warning(disable: 4244)
 #pragma warning(disable: 4267)
 #endif
@@ -43,22 +43,24 @@ class gfx;
 class texman;
 class event;
 class shader;
-class opencl;
+class opencl_base;
 class scene;
 class camera;
 class ext;
 class gui;
+class font_manager;
 
 extern engine* e;
 extern file_io* fio;
 extern texman* t;
 extern event* eevt;
 extern shader* s;
-extern opencl* ocl;
+extern opencl_base* ocl;
 extern scene* sce;
 extern camera* cam;
 extern ext* exts;
 extern gui* ui;
+extern font_manager* fm;
 
 extern pal* palettes;
 extern ar_clock* clck;

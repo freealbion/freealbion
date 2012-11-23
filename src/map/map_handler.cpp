@@ -19,9 +19,13 @@
 
 #include "map_handler.h"
 #include <scene/camera.h>
-#include <scene/scene.h>
+#include <gui/style/gui_surface.h>
 
-map_handler::map_handler() : draw_cb(this, &map_handler::draw), key_handler_fnctr(this, &map_handler::key_handler) {
+map_handler::map_handler() :
+draw_cb(this, &map_handler::draw),
+scene_draw_cb(this, &map_handler::debug_draw),
+key_handler_fnctr(this, &map_handler::key_handler)
+{
 	// load maps
 	maps1 = new xld("MAPDATA1.XLD");
 	maps2 = new xld("MAPDATA2.XLD");
@@ -56,13 +60,12 @@ map_handler::map_handler() : draw_cb(this, &map_handler::draw), key_handler_fnct
 	
 	active_map_type = MT_NONE;
 	
-	sce->add_draw_callback("map_handler", this, &map_handler::debug_draw);
-	ui->add_draw_callback(draw_cb);
+	sce->add_draw_callback("map_handler", scene_draw_cb);
+	draw_cb_obj = ui->add_draw_callback(DRAW_MODE_UI::PRE_UI, draw_cb, float2(1.0f), float2(0.0f));
 
 	//
 	last_key_press = SDL_GetTicks();
 	last_move = SDL_GetTicks();
-	AtomicSet(&next_dir, MD_NONE);
 	
 	eevt->add_event_handler(key_handler_fnctr, EVENT_TYPE::KEY_DOWN, EVENT_TYPE::KEY_UP);
 }
@@ -71,6 +74,7 @@ map_handler::~map_handler() {
 	eevt->remove_event_handler(key_handler_fnctr);
 	
 	ui->delete_draw_callback(draw_cb);
+	sce->delete_draw_callback(scene_draw_cb);
 	
 	delete maps1;
 	delete maps2;
@@ -96,19 +100,19 @@ bool map_handler::key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 		switch(key_evt->key) {
 			case SDLK_LEFT:
 			case SDLK_a:
-				AtomicOR(&next_dir, MD_LEFT);
+				next_dir |= MD_LEFT;
 				break;
 			case SDLK_RIGHT:
 			case SDLK_d:
-				AtomicOR(&next_dir, MD_RIGHT);
+				next_dir |= MD_RIGHT;
 				break;
 			case SDLK_UP:
 			case SDLK_w:
-				AtomicOR(&next_dir, MD_UP);
+				next_dir |= MD_UP;
 				break;
 			case SDLK_DOWN:
 			case SDLK_s:
-				AtomicOR(&next_dir, MD_DOWN);
+				next_dir |= MD_DOWN;
 				break;
 			default:
 				return false;
@@ -119,19 +123,19 @@ bool map_handler::key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 		switch(key_evt->key) {
 			case SDLK_LEFT:
 			case SDLK_a:
-				AtomicAND(&next_dir, ~MD_LEFT);
+				next_dir &= ~MD_LEFT;
 				break;
 			case SDLK_RIGHT:
 			case SDLK_d:
-				AtomicAND(&next_dir, ~MD_RIGHT);
+				next_dir &= ~MD_RIGHT;
 				break;
 			case SDLK_UP:
 			case SDLK_w:
-				AtomicAND(&next_dir, ~MD_UP);
+				next_dir &= ~MD_UP;
 				break;
 			case SDLK_DOWN:
 			case SDLK_s:
-				AtomicAND(&next_dir, ~MD_DOWN);
+				next_dir &= ~MD_DOWN;
 				break;
 			default:
 				return false;
@@ -143,7 +147,7 @@ bool map_handler::key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 
 void map_handler::handle() {
 	const events::map_exit_event* me_evt = NULL;
-	const MOVE_DIRECTION cur_next_dir = (MOVE_DIRECTION)AtomicGet(&next_dir);
+	const MOVE_DIRECTION cur_next_dir = (MOVE_DIRECTION)next_dir.load();
 	size2 player_pos(0, 0);
 	if(active_map_type == MT_2D_MAP) {
 		if(cur_next_dir != MD_NONE && (SDL_GetTicks() - last_move) > TIME_PER_TILE) {
@@ -155,6 +159,8 @@ void map_handler::handle() {
 			player_pos = p2d->get_pos();
 			me_evt = maps2d->get_map_events().get_map_exit_event(player_pos);
 		}
+		
+		draw_cb_obj->redraw();
 	}
 	else if(active_map_type == MT_3D_MAP) {
 		p3d->move(cur_next_dir);
@@ -198,26 +204,25 @@ void map_handler::handle() {
 	}
 }
 
-void map_handler::draw(const gui::DRAW_MODE_UI draw_mode) {
-	if(active_map_type == MT_2D_MAP &&
-	   draw_mode == gui::DRAW_MODE_UI::PRE_UI) {
-		maps2d->draw(MDS_NPCS, NDS_PRE_UNDERLAY);
-		p2d->draw(NDS_PRE_UNDERLAY);
+void map_handler::draw(const DRAW_MODE_UI draw_mode a2e_unused, rtt::fbo* buffer a2e_unused) {
+	if(active_map_type != MT_2D_MAP) return;
 	
-		if(conf::get<bool>("map.draw_underlay")) maps2d->draw(MDS_UNDERLAY, NDS_NONE);
+	maps2d->draw(MDS_NPCS, NDS_PRE_UNDERLAY);
+	p2d->draw(NDS_PRE_UNDERLAY);
 	
-		maps2d->draw(MDS_NPCS, NDS_PRE_OVERLAY);
-		p2d->draw(NDS_PRE_OVERLAY);
+	if(conf::get<bool>("map.draw_underlay")) maps2d->draw(MDS_UNDERLAY, NDS_NONE);
 	
-		if(conf::get<bool>("map.draw_overlay")) maps2d->draw(MDS_OVERLAY, NDS_NONE);
-
-		maps2d->draw(MDS_NPCS, NDS_POST_OVERLAY);
-		p2d->draw(NDS_POST_OVERLAY);
-
-		// clear depth (so it doesn't interfere with the gui) and draw debug stuff
-		glClear(GL_DEPTH_BUFFER_BIT);
-		maps2d->draw(MDS_DEBUG, NDS_NONE);
-	}
+	maps2d->draw(MDS_NPCS, NDS_PRE_OVERLAY);
+	p2d->draw(NDS_PRE_OVERLAY);
+	
+	if(conf::get<bool>("map.draw_overlay")) maps2d->draw(MDS_OVERLAY, NDS_NONE);
+	
+	maps2d->draw(MDS_NPCS, NDS_POST_OVERLAY);
+	p2d->draw(NDS_POST_OVERLAY);
+	
+	// clear depth (so it doesn't interfere with the gui) and draw debug stuff
+	glClear(GL_DEPTH_BUFFER_BIT);
+	maps2d->draw(MDS_DEBUG, NDS_NONE);
 }
 
 void map_handler::load_map(const size_t& map_num, const size2 player_pos, const MOVE_DIRECTION player_direction) {
@@ -248,7 +253,7 @@ void map_handler::load_map(const size_t& map_num, const size2 player_pos, const 
 	}
 	
 	// reset move direction
-	AtomicSet(&next_dir, MD_NONE);
+	next_dir = MD_NONE;
 }
 
 const size2& map_handler::get_player_position() const {

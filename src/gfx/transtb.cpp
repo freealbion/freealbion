@@ -48,7 +48,7 @@ transtb::transtb() {
 	}
 	delete [] data_32bpp;
 
-	ttb_tex = t->add_texture(ttb_surface, ttb_tex_size.x, ttb_tex_size.y, GL_RGBA8, GL_RGBA, texture_object::TF_POINT, 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+	ttb_tex = t->add_texture(ttb_surface, ttb_tex_size.x, ttb_tex_size.y, GL_RGBA8, GL_RGBA, TEXTURE_FILTERING::POINT, 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 	//conf::set<a2e_texture>("debug.texture", ttb_tex);
 
 	delete ttb;*/

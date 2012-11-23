@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
+	<!-- note: std/# option is point lighting -->
+	<options># directional</options>
+	<includes>global</includes>
+
+	<vertex_shader>
+<option match="#">
+uniform vec4 light_position; // note: pos is packed with radius
+uniform mat4 mvpm;
+</option>
+
+void main() {
+	<option match="#">
+	gl_Position = mvpm * vec4(in_vertex*light_position.w + light_position.xyz, 1.0);
+	</option>
+	
+	<option match="directional">
+	gl_Position = vec4(in_vertex.x, in_vertex.y, 0.0, 1.0);
+	</option>
+}
+	</vertex_shader>
+	
+	<fragment_shader>
+uniform sampler2D normal_nuv_buffer;
+uniform sampler2D depth_buffer;
+
+uniform vec3 cam_position;
+uniform vec2 screen_size;
+uniform vec2 projection_ab;
+
+uniform mat4 imvm;
+out vec4 frag_color_2;
+
+// note: pos is packed with radius and color with 1/radius^2
+uniform vec4 light_position;
+uniform vec4 light_color;
+
+<option match="directional">
+uniform vec4 light_ambient;
+</option>
+
+void main() {
+	vec2 tex_coord = gl_FragCoord.xy / screen_size;
+	
+	float depth = texture(depth_buffer, tex_coord).r; // in [0, 1]
+	
+	////////////////////////////////////////////////////////////////////////////
+	// reconstruct world space position
+	float linear_depth = projection_ab.y / (depth - projection_ab.x); // in [near plane, far plane]
+	const float up_vec = 0.72654252800536066024136247722454;
+	float right_vec = up_vec * (screen_size.x / screen_size.y);
+	
+	vec3 rep_pos;
+	rep_pos.z = -linear_depth;
+	rep_pos.xy = (tex_coord * 2.0 - 1.0) * vec2(right_vec, up_vec) * linear_depth;
+	rep_pos = vec3(imvm * vec4(rep_pos, 1.0));
+	
+	////////////////////////////////////////////////////////////////////////////
+	// lighting (start: check if lit)
+	// note: light_color.w == 1/light_radius^2
+	vec3 light_dir = (light_position.xyz - rep_pos);
+	
+	<option match="#">
+	light_dir *= light_color.w;
+	// attenuation = distance / light_radius^4
+	float attenuation = 1.0 - dot(light_dir, light_dir) * (light_position.w * light_position.w);
+	</option>
+	
+	<option match="directional">
+	const float attenuation = 1.0;
+	</option>
+	
+	light_dir = normalize(light_dir);
+	
+	////////////////////////////////////////////////////////////////////////////
+	// read and decode normal
+	vec4 normal_nuv_read = texture(normal_nuv_buffer, tex_coord).rgba;
+	vec2 normal_read = normal_nuv_read.xy;
+	vec2 nuv = normal_nuv_read.zw;
+	vec3 normal;
+	normal.z = dot(normal_read.xy, normal_read.xy) * 2.0 - 1.0;
+	// and again: abs inner sqrt result, b/c of fp inaccuracies
+	normal.xy = normalize(normal_read.xy) * sqrt(abs(1.0 - normal.z * normal.z));
+	
+	////////////////////////////////////////////////////////////////////////////
+	// lighting (continuation: actual lighting)
+	vec4 diff_color = vec4(0.0);
+	vec4 spec_color = vec4(0.0);
+	
+	vec3 view_dir = normalize(cam_position - rep_pos);
+	
+	// this is used by surfaces that should always be lit when there is a light nearby
+	if(nuv.x == 0.0 && nuv.y == 0) {
+		light_dir = view_dir;
+		// bend the normal by a small amount to prevent singularities in the light computation
+		normal = normalize(view_dir + vec3(0.01, -0.01, 0.01));
+		nuv = vec2(1.0);
+	}
+	
+	//
+	float LdotN = dot(light_dir, normal);
+	if(LdotN > 0.0 && attenuation > 0.0) {
+		//
+		<option match="#">
+		vec3 light_rgb = light_color.rgb * attenuation;
+		</option>
+		<option match="directional">
+		vec3 light_rgb = light_color.rgb;
+		</option>
+		
+		//
+		vec3 epsilon = vec3(1.0, 0.0, 0.0);
+		vec3 tangent = normalize(cross(normal, epsilon));
+		vec3 bitangent = normalize(cross(normal, tangent));
+		vec3 half_vec = normalize(light_dir + view_dir);
+		
+		float VdotN = dot(view_dir, normal);
+		float HdotN = dot(half_vec, normal);
+		float HdotL = dot(half_vec, light_dir);
+		float HdotT = dot(half_vec, tangent);
+		float HdotB = dot(half_vec, bitangent);
+		
+		// compute diffuse
+		const float pd_const = 28.0 / (23.0 * 3.14159);
+		float pd_0 = 1.0 - pow(1.0 - (LdotN / 2.0), 5.0);
+		float pd_1 = 1.0 - pow(1.0 - (VdotN / 2.0), 5.0);
+		diff_color.rgb = pd_const * pd_0 * pd_1 * light_rgb;
+		
+		// compute specular
+		float ps_num_exp = nuv.x * HdotT * HdotT + nuv.y * HdotB * HdotB;
+		ps_num_exp /= (1.0 - HdotN * HdotN);
+		float ps_num = sqrt((nuv.x + 1.0) * (nuv.y + 1.0));
+		ps_num *= pow(HdotN, ps_num_exp);
+		
+		float ps_den = (8.0 * 3.14159) * HdotL * max(LdotN, VdotN);
+		
+		// store main rgb component in spec rgb and partial schlick term in alpha
+		spec_color.rgb = light_rgb * (ps_num / ps_den);
+		spec_color.a = pow(1.0 - HdotL, 5.0);
+	}
+
+	//
+	<option match="directional">
+	diff_color.rgb += light_ambient.rgb;
+	</option>
+	
+	frag_color = diff_color;
+	frag_color_2 = spec_color;
+}
+	</fragment_shader>
+	
+</a2e_shader>

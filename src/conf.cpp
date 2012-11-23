@@ -24,87 +24,80 @@
 #include <core/xml.h>
 
 //
-map<string, void*> conf::settings;
-
-// valid conf types
-#define CONF_TYPES(F) \
-F(string) \
-F(bool) \
-F(size_t) \
-F(ssize_t) \
-F(float) \
-F(float3) \
-F(a2e_texture) \
-F(scaling::SCALE_TYPE)
+unordered_map<string, pair<conf::CONF_TYPE, void*>> conf::settings;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // define add, get and set functions for all valid conf types
 
 //// get
-#ifndef DEBUG
+#if !defined(DEBUG)
 // non-debug version
-#define CONF_DEFINE_GET_FUNCS(type) \
-template <> void conf::get<type>(const string& name, type& dst) { dst = ((setting<type>*)settings[name])->get(); }	\
-template <> const type& conf::get<type>(const string& name) { return ((setting<type>*)settings[name])->get(); }
+#define CONF_DEFINE_GET_FUNCS(type, enum_type) \
+template <> void conf::get<type>(const string& name, type& dst) { dst = ((setting<type>*)(settings[name].second))->get(); } \
+template <> const type& conf::get<type>(const string& name) { return ((setting<type>*)(settings[name].second))->get(); }
 
 #else
 // debug version with run-time type checking
-#define CONF_DEFINE_GET_FUNCS(type) \
+#define CONF_DEFINE_GET_FUNCS(type, enum_type) \
 template <> void conf::get<type>(const string& name, type& dst) {													\
-	if(strcmp(((setting<type>*)settings[name])->type_name, typeid(type).name()) != 0) {								\
-		cout << "ERROR: get(): invalid type for conf setting \"" << name << "\" - used: " << typeid(type).name()	\
-		<< ", expected: " << ((setting<type>*)settings[name])->type_name << "!" << endl;							\
+	if(((setting<type>*)(settings[name].second))->type_name != typeid(type).name()) {								\
+		a2e_error("invalid type for conf setting \"%s\" - used: %s, expected: %s!",									\
+				  name, typeid(type).name(), ((setting<type>*)(settings[name].second))->type_name);					\
 	}																												\
-	dst = ((setting<type>*)settings[name])->get();																	\
+	dst = ((setting<type>*)(settings[name].second))->get();															\
 }																													\
 \
 template <> const type& conf::get<type>(const string& name) {														\
-	if(strcmp(((setting<type>*)settings[name])->type_name, typeid(type).name()) != 0) {								\
-		cout << "ERROR: get(): invalid type for conf setting \"" << name << "\" - used: " << typeid(type).name()	\
-		<< ", expected: " << ((setting<type>*)settings[name])->type_name << "!" << endl;							\
+	if(((setting<type>*)(settings[name].second))->type_name != typeid(type).name()) {								\
+		a2e_error("invalid type for conf setting \"%s\" - used: %s, expected: %s!",									\
+				  name, typeid(type).name(), ((setting<type>*)(settings[name].second))->type_name);					\
 	}																												\
-	return ((setting<type>*)settings[name])->get();																	\
+	return ((setting<type>*)(settings[name].second))->get();														\
 }
 
 #endif
 
-CONF_TYPES(CONF_DEFINE_GET_FUNCS)
+AR_CONF_TYPES(CONF_DEFINE_GET_FUNCS)
 
 //// set
-#ifndef DEBUG
+#if !defined(DEBUG)
 // non-debug version
-#define CONF_DEFINE_SET_FUNCS(type) \
+#define CONF_DEFINE_SET_FUNCS(type, enum_type) \
 template <> void conf::set<type>(const string& name, const type& value) {											\
-	((setting<type>*)settings[name])->set(value);																	\
+	((setting<type>*)(settings[name].second))->set(value);															\
 }
 #else
 // debug version with run-time type checking
-#define CONF_DEFINE_SET_FUNCS(type) \
+#define CONF_DEFINE_SET_FUNCS(type, enum_type) \
 template <> void conf::set<type>(const string& name, const type& value) {											\
-	if(strcmp(((setting<type>*)settings[name])->type_name, typeid(type).name()) != 0) {								\
-		cout << "ERROR: set(): invalid type for conf setting \"" << name << "\" - used: " << typeid(type).name()	\
-		<< ", expected: " << ((setting<type>*)settings[name])->type_name << "!" << endl;							\
+	if(((setting<type>*)(settings[name].second))->type_name != typeid(type).name()) {								\
+		a2e_error("invalid type for conf setting \"%s\" - used: %s, expected: %s!",									\
+				  name, typeid(type).name(), ((setting<type>*)(settings[name].second))->type_name);					\
 	}																												\
-	((setting<type>*)settings[name])->set(value);																	\
+	((setting<type>*)(settings[name].second))->set(value);															\
 }
 #endif
 
-CONF_TYPES(CONF_DEFINE_SET_FUNCS)
+AR_CONF_TYPES(CONF_DEFINE_SET_FUNCS)
 
 //// add
-#define CONF_DEFINE_ADD_FUNCS(type)																					\
-template <> bool conf::add<type>(const string& name, const type& value) {											\
+#define CONF_DEFINE_ADD_FUNCS(type, enum_type) \
+template <> bool conf::add<type>(const string& name, const type& value,												\
+								 decltype(setting<type>::call_on_set) call_on_set) {								\
 	/* check if a setting with such a name already exists */														\
 	if(settings.count(name) > 0) {																					\
-		cout << __func__ << ": a setting with the name \"" << name << "\" already exists!" << endl;					\
+		a2e_error("a setting with the name \"%s\" already exists!", name);											\
 		return false;																								\
 	}																												\
 																													\
 	/* create setting */																							\
-	settings[name] = setting<type>::create(value);																	\
+	settings.insert(make_pair(name, make_pair(enum_type, (void*)setting<type>::create(value, call_on_set))));		\
 	return true;																									\
+}																													\
+template <> bool conf::add<type>(const string& name, const type& value) {											\
+	return conf::add<type>(name, value, [](const type& val a2e_unused){});														\
 }
-CONF_TYPES(CONF_DEFINE_ADD_FUNCS)
+AR_CONF_TYPES(CONF_DEFINE_ADD_FUNCS)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
@@ -138,9 +131,15 @@ void conf::init() {
 	
 	conf::add<bool>("ui.display", true);
 	
+	// for misc debugging purposes:
+	conf::add<bool>("debug.ui", true);
+	conf::add<size_t>("debug.texture", 0); // actual GLuint
+	conf::add<bool>("debug.show_texture", true);
+	conf::add<bool>("debug.fps", false);
+	conf::add<bool>("debug.osx", false);
+	conf::add<bool>("debug.timer", false);
 	conf::add<bool>("debug.player_pos", false);
 	conf::add<bool>("debug.draw_events", false);
-	conf::add<bool>("debug.display_debug_texture", false);
 	conf::add<size_t>("debug.npcgfx", config_doc.get<size_t>("config.albion.debug.player_gfx", 200));
 	conf::add<bool>("debug.free_cam", config_doc.get<bool>("config.albion.debug.free_cam", false));
 }

@@ -1,6 +1,6 @@
 
-#ifndef __A2E_MATRIX_CLH__
-#define __A2E_MATRIX_CLH__
+#ifndef __A2E_MATRIX_H__
+#define __A2E_MATRIX_H__
 
 typedef float16 matrix4;
 

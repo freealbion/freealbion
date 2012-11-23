@@ -51,7 +51,6 @@ size_t scaling::get_scale_factor(const SCALE_TYPE& scale_type) {
 		case ST_HQ4X:
 			return 4;
 	}
-	return 0;
 }
 
 void scaling::scale(const SCALE_TYPE scale_type, const unsigned int* input, const size2& input_size, unsigned int* output) {

@@ -1,34 +1,64 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<a2e_shader_include version="1">
-	<options list="opaque alpha" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
+	<options>opaque alpha</options>
 
 	<vertex_shader>
-		<variables>
 uniform mat4 mvpm;
 
-<option value="alpha">
+<option match="alpha">
 uniform mat4 mvm;
-out float out_depth;
-centroid out vec4 out_position;
+out vertex_alpha {
+	float depth;
+	<condition type="NEQUAL" value="GCV_ATI">
+	centroid out vec4 position;
+	</condition>
+	<condition type="EQUAL" value="GCV_ATI">
+	centroid vec4 position;
+	</condition>
+} out_vertex_alpha;
 </option>
 
-		</variables>
-		<program>
 void inferred_vs() {
-	<option value="alpha">
-	out_depth = -(mvm * vec4(in_vertex, 1.0)).z;
-	out_position = mvpm * vec4(in_vertex, 1.0);
+	<option match="alpha">
+	out_vertex_alpha.depth = -(mvm * vec4(in_vertex, 1.0)).z;
+	out_vertex_alpha.position = mvpm * vec4(in_vertex, 1.0);
 	</option>
 }
-		</program>
 	</vertex_shader>
+
+
+	<geometry_shader>
+		<header>
+<option match="alpha">
+in vertex_alpha {
+	float depth;
+	<condition type="NEQUAL" value="GCV_ATI">
+	centroid in vec4 position;
+	</condition>
+	<condition type="EQUAL" value="GCV_ATI">
+	centroid vec4 position;
+	</condition>
+} in_vertex_alpha[];
+out vertex_alpha {
+	float depth;
+	<condition type="NEQUAL" value="GCV_ATI">
+	centroid out vec4 position;
+	</condition>
+	<condition type="EQUAL" value="GCV_ATI">
+	centroid vec4 position;
+	</condition>
+} out_vertex_alpha;
+</option>
+		</header>
+	</geometry_shader>
 	
 	<fragment_shader>
-		<variables>
-uniform sampler2D light_buffer;
+uniform sampler2D light_buffer_diffuse;
+uniform sampler2D light_buffer_specular;
 uniform vec2 screen_size;
 
-<option value="alpha">
+<option match="alpha">
 uniform vec2 id;
 uniform float mask_id;
 uniform sampler2D dsf_buffer;
@@ -38,22 +68,39 @@ uniform vec2 l_buffer_size;
 uniform vec2 projection_ab;
 uniform vec2 texel_size;
 
-in float out_depth;
-centroid in vec4 out_position;
+in vertex_alpha {
+	float depth;
+	<condition type="NEQUAL" value="GCV_ATI">
+	centroid in vec4 position;
+	</condition>
+	<condition type="EQUAL" value="GCV_ATI">
+	centroid vec4 position;
+	</condition>
+} in_vertex_alpha;
 </option>
 
-		</variables>
-		<program>
+vec3 compute_diffuse(const in vec3 diff_color, const in vec3 refl_color, const in vec4 diff_light_color) {
+	return diff_color * 2.0 * (1.0 - refl_color) * diff_light_color.rgb;
+}
 
-<option value="opaque">
-vec4 compute_light_color() {
-	return texture(light_buffer, gl_FragCoord.xy / screen_size);
+vec3 compute_specular(const in vec3 spec_color, const in vec3 refl_color, const in vec4 spec_light_color) {
+	vec3 schlick = refl_color + (1.0 - refl_color) * spec_light_color.a;
+	return spec_color * schlick * spec_light_color.rgb;
+}
+
+<option match="opaque">
+vec4[2] compute_light_colors() {
+	vec4 ret[2];
+	ivec2 coord = ivec2(floor(gl_FragCoord.xy));
+	ret[0] = texelFetch(light_buffer_diffuse, coord, 0);
+	ret[1] = texelFetch(light_buffer_specular, coord, 0);
+	return ret;
 }
 </option>
 
-<option value="alpha">
-vec4 compute_light_color() {
-	vec2 centroid_frag_coord = ((out_position.xy/out_position.w) * 0.5) + 0.5;
+<option match="alpha">
+vec4[2] compute_light_colors() {
+	vec2 centroid_frag_coord = ((in_vertex_alpha.position.xy/in_vertex_alpha.position.w) * 0.5) + 0.5;
 	vec2 lbuffer_coord = centroid_frag_coord * l_buffer_size;
 	vec2 lbuffer_coord_f = floor(lbuffer_coord);
 	
@@ -91,8 +138,9 @@ vec4 compute_light_color() {
 	coords[3] = coords[0] + vec2(stexel_size.x, stexel_size.y); // upper right
 	
 	//
-	vec4 light_color = vec4(0.0);
-	vec4 light_vals[4];
+	vec4[2] light_colors; // diff + spec
+	vec4 light_vals_diff[4];
+	vec4 light_vals_spec[4];
 	float valid_sample[4];
 	float valid_samples = 0.0;
 	const float depth_epsilon = 20.0;
@@ -102,14 +150,15 @@ vec4 compute_light_color() {
 		float depth = projection_ab.y / (texture(depth_buffer, coords[i]).r - projection_ab.x);
 		
 		vec2 dsf_diff = abs(dsf - id);
-		if(abs(depth - out_depth) <= depth_epsilon &&
+		if(abs(depth - in_vertex_alpha.depth) <= depth_epsilon &&
 		   dsf_diff.x <= epsilon &&
 		   dsf_diff.y <= epsilon) {
 			valid_sample[i] = 1.0;
 			valid_samples += 1.0;
 		}
 		
-		light_vals[i] = texture(light_buffer, coords[i]);
+		light_vals_diff[i] = texture(light_buffer_diffuse, coords[i]);
+		light_vals_spec[i] = texture(light_buffer_specular, coords[i]);
 	}
 	//if(valid_samples == 0.0) discard;
 	
@@ -127,21 +176,21 @@ vec4 compute_light_color() {
 	weights.y = clamp(bilinear_weight.x - valid_sample[2], 0.0, 1.0);
 	weights.z = clamp(bilinear_weight.y + valid_sample[1], 0.0, 1.0);
 	
-	light_color = mix(mix(light_vals[0], light_vals[1], weights.x),
-					  mix(light_vals[2], light_vals[3], weights.y),
-					  weights.z);
+	light_colors[0] = mix(mix(light_vals_diff[0], light_vals_diff[1], weights.x),
+						  mix(light_vals_diff[2], light_vals_diff[3], weights.y),
+						  weights.z);
+	light_colors[1] = mix(mix(light_vals_spec[0], light_vals_spec[1], weights.x),
+						  mix(light_vals_spec[2], light_vals_spec[3], weights.y),
+						  weights.z);
 	
 	if(valid_samples == 0.0) {
 		// modify lighting a bit dependent on its intensity
-		//light_color.rgb *= (light_color.r+light_color.g+light_color.b)/3.0;
-		light_color.rgb *= (light_color.r+light_color.g+light_color.b)/2.3;
-		light_color.a *= light_color.a;
-		//light_color.rgb *= 0.75;
+		light_colors[0].rgb *= (light_colors[0].r+light_colors[0].g+light_colors[0].b)/2.3;
+		light_colors[1].rgb *= light_colors[1].rgb;
 	}
 	
-	return light_color;
+	return light_colors;
 }
 </option>
-		</program>
 	</fragment_shader>
-</a2e_shader_include>
+</a2e_shader>

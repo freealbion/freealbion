@@ -130,7 +130,7 @@ protected:
 		size_t offset;
 		size_t width;
 		size_t height;
-		texture_object::TEXTURE_FILTERING filtering;
+		TEXTURE_FILTERING filtering;
 		bool scale_nearest;
 	};
 	
