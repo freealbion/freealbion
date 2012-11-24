@@ -6,13 +6,24 @@ ALBION_MAKE="make"
 ALBION_MAKE_PLATFORM="32"
 ALBION_ARGS=""
 ALBION_CPU_COUNT=1
-ALBION_USE_CLANG=0
+ALBION_USE_CLANG=1
 
-if [[ $# > 0 && $1 == "gcc" ]]; then
-	ALBION_ARGS="--gcc"
-else
-	ALBION_ARGS="--clang"
-	ALBION_USE_CLANG=1
+for arg in "$@"; do
+	case $arg in
+		"gcc")
+			ALBION_ARGS+=" --gcc"
+			ALBION_USE_CLANG=0
+			;;
+		"cuda")
+			ALBION_USE_CLANG+=" --cuda"
+			;;
+		*)
+			;;
+	esac
+done
+
+if [[ $ALBION_USE_CLANG == 1 ]]; then
+	ALBION_ARGS+=" --clang"
 fi
 
 case $( uname | tr [:upper:] [:lower:] ) in
@@ -23,6 +34,9 @@ case $( uname | tr [:upper:] [:lower:] ) in
 	"linux")
 		ALBION_OS="linux"
 		ALBION_CPU_COUNT=$(cat /proc/cpuinfo | grep -m 1 'cpu cores' | sed -E 's/.*(: )([:digit:]*)/\2/g')
+		if [[ $(cat /proc/cpuinfo | grep -m 1 "flags.* ht " | wc -l) == 1 ]]; then
+			ALBION_CPU_COUNT=$(expr ${ALBION_CPU_COUNT} + ${ALBION_CPU_COUNT})
+		fi
 		;;
 	[a-z0-9]*"BSD")
 		ALBION_OS="bsd"

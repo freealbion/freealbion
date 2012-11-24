@@ -6,6 +6,7 @@ local mingw = false
 local clang_libcxx = false
 local gcc_compat = false
 local platform = "x32"
+local system_includes = ""
 
 -- this function returns the first result of "find basepath -name filename", this is needed on some platforms to determine the include path of a library
 function find_include(filename, base_path)
@@ -29,19 +30,22 @@ function find_include(filename, base_path)
 	return string.sub(path_names, 0, newline-1)
 end
 
+function add_include(path)
+	system_includes = system_includes.." -isystem "..path
+end
+
 
 -- actual premake info
 solution "albion"
 	configurations { "Release", "Debug" }
+	
+	configuration "Debug"
+		links { "a2elightd" }
+	
+	configuration "Release"
+		links { "a2elight" }
 
 project "albion"
-	targetname "albion"
-	kind "ConsoleApp"
-	language "C++"
-	files { "src/**.h", "src/**.cpp" }
-	defines { "A2E_NET_PROTOCOL=TCP_protocol", "A2E_USE_OPENCL" }
-	targetdir "bin"
-	
 	-- scan args
 	local argc = 1
 	while(_ARGS[argc] ~= nil) do
@@ -71,31 +75,75 @@ project "albion"
 		end
 		argc=argc+1
 	end
+	
+	-- project settings
+	targetname "albion"
+	kind "ConsoleApp"
+	language "C++"
+	files { "src/**.h", "src/**.cpp" }
+	--defines { "A2E_NET_PROTOCOL=TCP_protocol", "A2E_USE_OPENCL" }
+	targetdir "bin"
+
+	--[[ TODO: icon and other info
+	if(win_unixenv) then
+		files { "src/win/windows.rc" }
+	end]]--
 
 	-- os specifics
 	if(not os.is("windows") or win_unixenv) then
 		if(not cygwin) then
-			includedirs { "/usr/include" }
+			add_include("/usr/include")
 		else
-			includedirs { "/usr/include/w32api", "/usr/include/w32api/GL" }
+			add_include("/usr/include/w32api")
+			add_include("/usr/include/w32api/GL")
 		end
-		includedirs { "/usr/include/freetype2", "/usr/include/libxml2", "/usr/local/include", "/usr/include/a2elight", "/usr/local/include/a2elight" }
+		add_include("/usr/local/include")
+		add_include("/usr/include/libxml2")
+		add_include("/usr/include/a2elight")
+		add_include("/usr/local/include/a2elight")
+		add_include("/usr/include/freetype2")
+		add_include("/usr/local/include/freetype2")
+	
 		buildoptions { "-Wall -x c++ -std=c++11 -Wno-trigraphs -Wreturn-type -Wunused-variable -funroll-loops" }
 		libdirs { "/usr/local/lib" }
 
 		if(clang_libcxx) then
 			buildoptions { "-stdlib=libc++ -integrated-as" }
-			buildoptions { "-Wno-delete-non-virtual-dtor -Wno-overloaded-virtual -Wunreachable-code -Wdangling-else" }
+			buildoptions { "-Weverything" }
+			buildoptions { "-Wno-unknown-warning-option" }
+			buildoptions { "-Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-header-hygiene -Wno-gnu -Wno-float-equal" }
+			buildoptions { "-Wno-documentation -Wno-system-headers -Wno-global-constructors -Wno-padded -Wno-packed" }
+			buildoptions { "-Wno-switch-enum -Wno-sign-conversion -Wno-conversion -Wno-exit-time-destructors" }
+			buildoptions { "-Wno-unused-member-function -Wno-four-char-constants" }
 			linkoptions { "-fvisibility=default" }
 			if(not win_unixenv) then
+				defines { "A2E_EXPORT=1" }
 				linkoptions { "-stdlib=libc++" }
 			else
-				linkoptions { "-lc++.dll" }
+				-- must be done before the next link options
+				linkoptions { "`sdl2-config --libs`" }
+
+				-- link against everything that libc++ links to, now that there are no default libs
+				linkoptions { "-lsupc++ -lpthread -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcr100 -ladvapi32 -lshell32 -luser32 -lkernel32 -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt" }
+				linkoptions { "-nodefaultlibs -stdlib=libc++ -lc++.dll" }
+				add_include("/usr/include/c++/v1")
 			end
 		end
 
 		if(gcc_compat) then
-			buildoptions { "-Wno-strict-aliasing" }
+			buildoptions { "-Wno-strict-aliasing -Wno-multichar" }
+		end
+
+		if(cuda) then
+			add_include("/usr/local/cuda/include")
+			add_include("/usr/local/cuda-5.0/include")
+			defines { "A2E_CUDA_CL=1" }
+			if(platform == "x64") then
+				libdirs { "/opt/cuda-toolkit/lib64", "/usr/local/cuda/lib64", "/usr/local/cuda-5.0/lib64" }
+			else
+				libdirs { "/opt/cuda-toolkit/lib", "/usr/local/cuda/lib", "/usr/local/cuda-5.0/lib" }
+			end
+			links { "cuda", "cudart" }
 		end
 	end
 	
@@ -108,19 +156,33 @@ project "albion"
 		end
 		if(mingw) then
 			defines { "__WINDOWS__", "MINGW" }
-			includedirs { "/mingw/include" }
+			add_include("/mingw/include")
 			libdirs { "/usr/lib", "/usr/local/lib" }
 			buildoptions { "-Wno-unknown-pragmas" }
 		end
 	end
 	
+	
+	-- the same for all
+	includedirs { "src/", "src/gfx/", "src/gfx/hqx/", "src/map/", "src/map/2d/", "src/map/3d/", "src/ui/", "src/events/" }
+
 	if(os.is("linux") or os.is("bsd") or win_unixenv) then
+		add_include("/usr/include/SDL2")
+		add_include("/usr/local/include/SDL2")
+		-- set system includes
+		buildoptions { system_includes }
+		
 		libdirs { os.findlib("GL"), os.findlib("xml2") }
+		links { "OpenCL", "freetype" }
 		if(not win_unixenv) then
 			links { "GL", "SDL2_image", "xml2" }
 			libdirs { os.findlib("SDL2"), os.findlib("SDL2_image") }
 			buildoptions { "`sdl2-config --cflags`" }
 			linkoptions { "`sdl2-config --libs`" }
+			if(clang_libcxx) then
+				-- small linux workaround for now (linking will fail otherwise):
+				linkoptions { "-lrt -lc -lstdcxx" }
+			end
 		elseif(cygwin) then
 			-- link against windows opengl libs on cygwin
 			links { "opengl32", "SDL2_image.dll", "xml2" }
@@ -132,19 +194,18 @@ project "albion"
 			links { "opengl32", "SDL2_image", "libxml2" }
 			buildoptions { "`sdl2-config --cflags | sed -E 's/-Dmain=SDL_main//g'`" }
 			linkoptions { "`sdl2-config --libs`" }
+			if(not clang_libcxx) then
+				linkoptions { "`sdl2-config --libs`" }
+			end
 		end
-		includedirs { "/usr/include/SDL2", "/usr/local/include/SDL2" }
 
 		if(gcc_compat) then
 			if(not mingw) then
 				defines { "_GLIBCXX__PTHREADS" }
 			end
-			defines { "_GLIBCXX_USE_NANOSLEEP" }
+			defines { "_GLIBCXX_USE_NANOSLEEP", "_GLIBCXX_USE_SCHED_YIELD" }
 		end
 	end
-	
-	-- the same for all
-	includedirs { "src/", "src/gfx/", "src/gfx/hqx/", "src/map/", "src/map/2d/", "src/map/3d/", "src/ui/", "src/events/" }
 	
 	-- configs
 	-- prefer system platform
@@ -165,7 +226,6 @@ project "albion"
 		targetname "albiond"
 		defines { "DEBUG", "A2E_DEBUG" }
 		flags { "Symbols" }
-		links { "a2elightd" }
 		if(not os.is("windows") or win_unixenv) then
 			buildoptions { " -gdwarf-2" }
 		end
@@ -177,4 +237,3 @@ project "albion"
 		if(not os.is("windows") or win_unixenv) then
 			buildoptions { "-ffast-math -O3" }
 		end
-		links { "a2elight" }
