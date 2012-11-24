@@ -132,9 +132,9 @@ void conf::init() {
 	conf::add<bool>("ui.display", true);
 	
 	// for misc debugging purposes:
-	conf::add<bool>("debug.ui", true);
+	conf::add<bool>("debug.ui", false);
 	conf::add<size_t>("debug.texture", 0); // actual GLuint
-	conf::add<bool>("debug.show_texture", true);
+	conf::add<bool>("debug.show_texture", false);
 	conf::add<bool>("debug.fps", false);
 	conf::add<bool>("debug.osx", false);
 	conf::add<bool>("debug.timer", false);

@@ -58,6 +58,6 @@
 		 free_cam: 0 or 1 (1 doesn't pin the player to the ground and disables collision detection)
 		 player_gfx: sets the 2d player gfx, e.g. 200 = Tom, 167 = AI (range: 0 - 209, this also contains invalid values!)
 		-->
-		<debug free_cam="0" player_gfx="200"/>
+		<debug free_cam="1" player_gfx="200"/>
 	</albion>
 </config>

@@ -45,14 +45,6 @@ protected:
 	map_handler* mh;
 	ui_draw_callback draw_cb;
 	gui_simple_callback* draw_cb_obj = nullptr;
-
-	//
-	/*a2eui_window* albion_dbg;
-	gui_button* b_goto_map;
-	gui_input* i_goto_map;
-	gui_list* lb_map_names;
-	gui_text* t_time;
-	gui_text* t_time_value;*/
 	
 	//
 	image* clock_img_obj;
@@ -76,11 +68,6 @@ protected:
 	bool game_ui_loaded;
 	
 	void delete_game_ui();
-	
-	//
-	/*void handle_b_goto_map_button(event::GUI_EVENT_TYPE type, GUI_ID id);
-	void handle_i_goto_map_selected(event::GUI_EVENT_TYPE type, GUI_ID id);
-	void handle_lb_map_names_list(event::GUI_EVENT_TYPE type, GUI_ID id);*/
 	
 	//
 	clock_callback* clock_cb;

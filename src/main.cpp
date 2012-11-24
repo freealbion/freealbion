@@ -31,7 +31,10 @@
  */
 
 //
-static a2e_texture debug_tex;
+static const float3 cam_speed(2.0f, 5.0f, 0.2f);
+static a2estatic* debug_model = nullptr;
+static a2ematerial* debug_mat = nullptr;
+static vector<light*> debug_lights;
 
 int main(int argc, char *argv[]) {
 	// initialize the engine
@@ -65,10 +68,10 @@ int main(int argc, char *argv[]) {
 	cam->set_position(0.0f, -80.0f, 0.0f);
 	cam->set_rotation(0.0f, 90.0f+45.0f, 0.0f);
 	cam->set_rotation_speed(300.0f);
-	cam->set_cam_speed(5.0f);
 	cam->set_mouse_input(false);
 	cam->set_keyboard_input(true);
 	cam->set_wasd_input(true);
+	cam->set_cam_speed(cam_speed.x);
 
 	// initialize the scene
 	sce->set_eye_distance(-0.3f);
@@ -104,21 +107,63 @@ int main(int argc, char *argv[]) {
 	bin_gfx = new bin_graphics();
 
 	mh = new map_handler();
-	size_t inital_map_num = 99; // shortcut map
+	//size_t inital_map_num = 99; // shortcut map
+	size_t inital_map_num = 183; // shortcut map
 	if(argc > 1) {
-		const string map_num_str = argv[1];
-		if(!map_num_str.empty()) {
-			const size_t arg_map_num = string2size_t(map_num_str);
-			if((arg_map_num == 0 && map_num_str[0] == '0') ||
-			   (arg_map_num != 0 && mh->get_map_type(arg_map_num) != MT_NONE)) {
-				inital_map_num = arg_map_num;
+		const string arg_1_str = argv[1];
+		if(arg_1_str != "") {
+			if(arg_1_str.find(".a2m") == string::npos) {
+				const size_t arg_map_num = string2size_t(arg_1_str);
+				if((arg_map_num == 0 && arg_1_str[0] == '0') ||
+				   (arg_map_num != 0 && mh->get_map_type(arg_map_num) != MT_NONE)) {
+					inital_map_num = arg_map_num;
+				}
+				else {
+					a2e_error("invalid map number or map type!");
+				}
 			}
 			else {
-				a2e_error("invalid map number or map type!");
+				const string model_name = arg_1_str.substr(0, arg_1_str.rfind(".a2m"));
+				const string mtl_name = model_name + ".a2mtl";
+				debug_mat = new a2ematerial(e);
+				debug_mat->load_material(e->data_path(mtl_name));
+				debug_model = sce->create_a2emodel<a2estatic>();
+				debug_model->load_model(e->data_path(arg_1_str));
+				debug_model->set_material(debug_mat);
+				debug_model->set_hard_scale(100.0f, 100.0f, 100.0f);
+				extbbox* bbox = debug_model->get_bounding_box();
+				const float pos_offset = -(bbox->min.y + (bbox->max.y - bbox->min.y) * 0.5f);
+				debug_model->set_position(0.0f, pos_offset, 0.0f);
+				sce->add_model(debug_model);
+				
+				debug_lights = {
+					new light(bbox->min.x, pos_offset, 0.0f),
+					new light(bbox->max.x, pos_offset, 0.0f),
+					new light(0.0f, bbox->min.y + pos_offset, 0.0f),
+					new light(0.0f, bbox->max.y + pos_offset, 0.0f),
+					new light(0.0f, pos_offset, bbox->min.z),
+					new light(0.0f, pos_offset, bbox->max.z),
+				};
+				const float light_radius = bbox->diagonal().length() * 3.0f;
+				for(const auto& li : debug_lights) {
+					li->set_color(core::rand(1.0f), core::rand(1.0f), core::rand(1.0f));
+					li->set_radius(light_radius);
+					sce->add_light(li);
+				}
+				
+				light* directional_light = new light(0.0f, bbox->max.y + pos_offset + 20.0f, 0.0f);
+				directional_light->set_color(1.0f, 1.0f, 1.0f);
+				directional_light->set_ambient(0.1f, 0.1f, 0.1f);
+				directional_light->set_type(light::LIGHT_TYPE::DIRECTIONAL);
+				sce->add_light(directional_light);
+				debug_lights.push_back(directional_light);
+				
+				cam->set_position(0.0f, 0.0f, bbox->min.z * 4.0f);
+				cam->set_rotation(0.0f, 0.0f, 0.0f);
 			}
 		}
 	}
-	mh->load_map(inital_map_num);
+	if(debug_model == nullptr) mh->load_map(inital_map_num);
 
 	aui = new albion_ui(mh);
 	if(conf::get<bool>("ui.display")) {
@@ -127,10 +172,6 @@ int main(int argc, char *argv[]) {
 	}
 	
 	cam->set_keyboard_input(conf::get<bool>("debug.free_cam"));
-	
-	// debug window
-	//a2e_debug_wnd::init(e, eui, s, ocl, cam);
-	//a2e_debug_wnd::open();
 	
 	// for debugging purposes
 	ar_debug* debug_ui = new ar_debug();
@@ -219,12 +260,16 @@ int main(int argc, char *argv[]) {
 		e->stop_draw();
 	}
 	
-	//a2e_debug_wnd::close();
-	
 	eevt->remove_event_handler(key_handler_fnctr);
 	eevt->remove_event_handler(mouse_handler_fnctr);
 	eevt->remove_event_handler(quit_handler_fnctr);
 	eevt->remove_event_handler(window_handler_fnctr);
+	
+	if(debug_model != nullptr) {
+		sce->delete_model(debug_model);
+		delete debug_model;
+	}
+	if(debug_mat != nullptr) delete debug_mat;
 	
 	delete debug_ui;
 
@@ -246,7 +291,11 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 		switch(key_evt->key) {
 			case SDLK_LSHIFT:
 			case SDLK_RSHIFT:
-				cam->set_cam_speed(0.2f);
+				cam->set_cam_speed(cam_speed.y);
+				break;
+			case SDLK_LCTRL:
+			case SDLK_RCTRL:
+				cam->set_cam_speed(cam_speed.z);
 				break;
 			default:
 				return false;
@@ -257,15 +306,15 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 		switch(key_evt->key) {
 			case SDLK_LSHIFT:
 			case SDLK_RSHIFT:
-				cam->set_cam_speed(5.0f);
+				cam->set_cam_speed(cam_speed.x);
+				break;
+			case SDLK_LCTRL:
+			case SDLK_RCTRL:
+				cam->set_cam_speed(cam_speed.x);
 				break;
 			case SDLK_ESCAPE:
 				done = true;
 				break;
-			/*case SDLK_CARET:
-				if(!a2e_debug_wnd::is_open()) a2e_debug_wnd::open();
-				else a2e_debug_wnd::close();
-				break;*/
 			case SDLK_g:
 				conf::set<bool>("ui.display", conf::get<bool>("ui.display") ^ true);
 				if(conf::get<bool>("ui.display")) {
@@ -292,9 +341,12 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 			case SDLK_e:
 				conf::set<bool>("debug.draw_events", conf::get<bool>("debug.draw_events") ^ true);
 				break;
-			case SDLK_q:
-				conf::set<bool>("debug.show_texture", conf::get<bool>("debug.show_texture") ^ true);
-				break;
+			case SDLK_q: {
+				const bool new_debug_mode = conf::get<bool>("debug.show_texture") ^ true;
+				conf::set<bool>("debug.ui", new_debug_mode);
+				conf::set<bool>("debug.show_texture", new_debug_mode);
+			}
+			break;
 			case SDLK_n:
 				if(conf::get<size_t>("debug.npcgfx") > 0) {
 					conf::set<size_t>("debug.npcgfx", conf::get<size_t>("debug.npcgfx")-1);
@@ -315,21 +367,12 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 				conf::set<size_t>("debug.texture", sce->get_geometry_buffer(0)->tex[0]);
 				break;
 			case SDLK_2:
-				conf::set<size_t>("debug.texture", sce->get_geometry_buffer(1)->tex[0]);
-				break;
-			case SDLK_3:
-				conf::set<size_t>("debug.texture", sce->get_geometry_buffer(1)->tex[1]);
-				break;
-			case SDLK_4:
 				conf::set<size_t>("debug.texture", sce->get_light_buffer(0)->tex[0]);
 				break;
-			case SDLK_5:
-				conf::set<size_t>("debug.texture", sce->get_light_buffer(1)->tex[0]);
+			case SDLK_3:
+				conf::set<size_t>("debug.texture", sce->get_light_buffer(0)->tex[1]);
 				break;
-			case SDLK_6:
-				conf::set<size_t>("debug.texture", sce->get_fxaa_buffer()->tex[0]);
-				break;
-			case SDLK_7:
+			case SDLK_4:
 				conf::set<size_t>("debug.texture", sce->get_scene_buffer()->tex[0]);
 				break;
 			case SDLK_v:

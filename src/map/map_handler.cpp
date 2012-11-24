@@ -199,7 +199,7 @@ void map_handler::handle() {
 	p2d->handle();
 	p3d->handle();
 	
-	if(active_map_type == MT_3D_MAP) {
+	if(active_map_type != MT_2D_MAP) {
 		cam->run();
 	}
 }
