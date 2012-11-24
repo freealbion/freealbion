@@ -5,6 +5,7 @@ local cygwin = false
 local mingw = false
 local clang_libcxx = false
 local gcc_compat = false
+local cuda = false
 local platform = "x32"
 local system_includes = ""
 
@@ -72,6 +73,9 @@ project "albion"
 			if(_ARGS[argc] ~= nil) then
 				platform = _ARGS[argc]
 			end
+		end
+		if(_ARGS[argc] == "--cuda") then
+			cuda = true
 		end
 		argc=argc+1
 	end
