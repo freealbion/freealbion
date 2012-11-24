@@ -18,6 +18,7 @@
  */
 
 #include "scaling.h"
+#include <core/platform.h>
 
 //opencl::kernel_object* scaling::hq4x = NULL;
 //cl::NDRange scaling::hq4x_range;
@@ -51,6 +52,7 @@ size_t scaling::get_scale_factor(const SCALE_TYPE& scale_type) {
 		case ST_HQ4X:
 			return 4;
 	}
+	a2e_unreachable();
 }
 
 void scaling::scale(const SCALE_TYPE scale_type, const unsigned int* input, const size2& input_size, unsigned int* output) {
