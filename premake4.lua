@@ -197,7 +197,6 @@ project "albion"
 			-- link against windows opengl libs on mingw
 			links { "opengl32", "SDL2_image", "libxml2" }
 			buildoptions { "`sdl2-config --cflags | sed -E 's/-Dmain=SDL_main//g'`" }
-			linkoptions { "`sdl2-config --libs`" }
 			if(not clang_libcxx) then
 				linkoptions { "`sdl2-config --libs`" }
 			end
