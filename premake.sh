@@ -29,19 +29,17 @@ fi
 case $( uname | tr [:upper:] [:lower:] ) in
 	"darwin")
 		ALBION_OS="macosx"
-		ALBION_CPU_COUNT=$(sysctl -a | grep 'machdep.cpu.thread_count' | sed -E 's/.*(: )([:digit:]*)/\2/g')
+		ALBION_CPU_COUNT=$(sysctl -n hw.ncpu)
 		;;
 	"linux")
 		ALBION_OS="linux"
-		ALBION_CPU_COUNT=$(cat /proc/cpuinfo | grep -m 1 'cpu cores' | sed -E 's/.*(: )([:digit:]*)/\2/g')
-		if [[ $(cat /proc/cpuinfo | grep -m 1 "flags.* ht " | wc -l) == 1 ]]; then
-			ALBION_CPU_COUNT=$(expr ${ALBION_CPU_COUNT} + ${ALBION_CPU_COUNT})
-		fi
+		# note that this includes hyper-threading and multi-socket systems
+		ALBION_CPU_COUNT=$(cat /proc/cpuinfo | grep "processor" | wc -l)
 		;;
 	[a-z0-9]*"BSD")
 		ALBION_OS="bsd"
 		ALBION_MAKE="gmake"
-		# TODO: get cpu/thread count on *bsd
+		ALBION_CPU_COUNT=$(sysctl -n hw.ncpu)
 		;;
 	"cygwin"*)
 		ALBION_OS="windows"
@@ -61,7 +59,7 @@ esac
 
 
 ALBION_PLATFORM_TEST_STRING=""
-if [[ $ALBION_OS != "windows" ]]; then
+if [ $ALBION_OS != "windows" ]; then
 	ALBION_PLATFORM_TEST_STRING=$( uname -m )
 else
 	ALBION_PLATFORM_TEST_STRING=$( gcc -dumpmachine | sed "s/-.*//" )
@@ -89,9 +87,14 @@ echo "using: premake4 --cc=gcc --os="${ALBION_OS}" gmake "${ALBION_ARGS}
 premake4 --cc=gcc --os=${ALBION_OS} gmake ${ALBION_ARGS}
 sed -i -e 's/\${MAKE}/\${MAKE} -j '${ALBION_CPU_COUNT}'/' Makefile
 
-if [[ $ALBION_USE_CLANG == 1 ]]; then
-	sed -i '1i export CC=clang' Makefile
-	sed -i '1i export CXX=clang++' Makefile
+if [ $ALBION_USE_CLANG == 1 ]; then
+	# this seems to be the most portable way of inserting chars in front of a file
+	# note that "sed -i "1i ..." file" is not portable!
+	mv Makefile Makefile.tmp
+	echo "export CC=clang" > Makefile
+	echo "export CXX=clang++" >> Makefile
+	cat Makefile.tmp >> Makefile
+	rm Makefile.tmp
 fi
 
 echo ""
