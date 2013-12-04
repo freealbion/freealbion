@@ -24,15 +24,15 @@
 /*! labdata constructor
  */
 labdata::labdata() {
-	tex_filtering = e->get_filtering();
+	tex_filtering = engine::get_filtering();
 	
 	// only use linear filtering (max!) when creating the texture (we'll add custom mip-maps later)
 	custom_tex_filtering = std::min(TEXTURE_FILTERING::LINEAR, tex_filtering);
 
 	cur_labdata_num = (~0);
-	lab_fc_material = NULL;
-	lab_wall_material = NULL;
-	lab_obj_material = NULL;
+	lab_fc_material = nullptr;
+	lab_wall_material = nullptr;
+	lab_obj_material = nullptr;
 
 	floors_tex = t->get_dummy_texture();
 	walls_tex = t->get_dummy_texture();
@@ -47,7 +47,7 @@ labdata::labdata() {
 		xld* x = labdata_xlds[i];
 		for(size_t j = 0; j < x->get_object_count(); j++) {
 			const xld::xld_object* obj = x->get_object(j);
-			if(obj != NULL) {
+			if(obj != nullptr) {
 				cout << (i*100 + j) << ": ";
 				for(size_t k = 0; k < 38; k++) {
 					cout.width(2);
@@ -142,13 +142,13 @@ labdata::~labdata() {
 
 void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	if(cur_labdata_num == labdata_num) return;
-	a2e_debug("loading labdata %u ...", labdata_num);
+	log_debug("loading labdata %u ...", labdata_num);
 	unload();
 
 	//
 	const xld::xld_object* object = xld::get_object(labdata_num, labdata_xlds, 300);
-	if(object == NULL) {
-		a2e_error("invalid labdata number: %u!", labdata_num);
+	if(object == nullptr) {
+		log_error("invalid labdata number: %u!", labdata_num);
 		return;
 	}
 	const unsigned char* data = object->data;
@@ -198,9 +198,9 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 		for(size_t obj = 0; obj < 8; obj++) {
 			size_t obj_num = AR_GET_USINT(data, offset+6);
 			if(obj_num > 0) {
-				// this also reorganizes the order in case there are "NULL-objects" in between
+				// this also reorganizes the order in case there are "nullptr-objects" in between
 				objects.back()->object_num[objects.back()->sub_object_count] = obj_num;
-				objects.back()->sub_objects[objects.back()->sub_object_count] = NULL;
+				objects.back()->sub_objects[objects.back()->sub_object_count] = nullptr;
 				objects.back()->offset[objects.back()->sub_object_count] = size3(AR_GET_SINT(data, offset), AR_GET_SINT(data, offset+2), AR_GET_SINT(data, offset+4));
 				objects.back()->sub_object_count++;
 			}
@@ -414,7 +414,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	for(vector<lab_object*>::iterator obj_iter = objects.begin(); obj_iter != objects.end(); obj_iter++) {
 		for(size_t sub_obj = 0; sub_obj < (*obj_iter)->sub_object_count; sub_obj++) {
 			if((*obj_iter)->object_num[sub_obj] > object_infos.size()) {
-				a2e_error("invalid object number %u!", (*obj_iter)->object_num[sub_obj]);
+				log_error("invalid object number %u!", (*obj_iter)->object_num[sub_obj]);
 				continue;
 			}
 			(*obj_iter)->sub_objects[sub_obj] = object_infos[(*obj_iter)->object_num[sub_obj]-1];
@@ -585,7 +585,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 			delete [] wall_data;
 		}
 		cout << ":: creating walls texture " << walls_tex_size << " ..." << endl;
-		walls_tex = t->add_texture(walls_surface, (unsigned int)walls_tex_size.x, (unsigned int)walls_tex_size.y, GL_RGBA8, GL_RGBA, custom_tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		walls_tex = t->add_texture(walls_surface, (unsigned int)walls_tex_size.x, (unsigned int)walls_tex_size.y, GL_RGBA8, GL_RGBA, custom_tex_filtering, engine::get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 		albion_texture::build_mipmaps(walls_tex, walls_surface, tex_filtering);
 		delete [] walls_surface;
 		//conf::set<a2e_texture>("debug.texture", walls_tex);
@@ -646,7 +646,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 			delete [] scaled_data;
 		}
 		cout << ":: creating objects texture " << objects_tex_size << " ..." << endl;
-		objects_tex = t->add_texture(objects_surface, (unsigned int)objects_tex_size.x, (unsigned int)objects_tex_size.y, GL_RGBA8, GL_RGBA, custom_tex_filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		objects_tex = t->add_texture(objects_surface, (unsigned int)objects_tex_size.x, (unsigned int)objects_tex_size.y, GL_RGBA8, GL_RGBA, custom_tex_filtering, engine::get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 		albion_texture::build_mipmaps(objects_tex, objects_surface, tex_filtering);
 		//conf::set<a2e_texture>("debug.texture", objects_tex);
 		delete [] objects_surface;
@@ -654,12 +654,12 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	else objects_tex = t->get_dummy_texture();
 
 	// create material and assign textures
-	lab_fc_material = new a2ematerial(e);
-	lab_fc_material->load_material(e->data_path("3dmap_fc.a2mtl"));
-	lab_wall_material = new a2ematerial(e);
-	lab_wall_material->load_material(e->data_path("3dmap_wall.a2mtl"));
-	lab_obj_material = new a2ematerial(e);
-	lab_obj_material->load_material(e->data_path("3dmap_obj.a2mtl"));
+	lab_fc_material = new a2ematerial();
+	lab_fc_material->load_material(floor::data_path("3dmap_fc.a2mtl"));
+	lab_wall_material = new a2ematerial();
+	lab_wall_material->load_material(floor::data_path("3dmap_wall.a2mtl"));
+	lab_obj_material = new a2ematerial();
+	lab_obj_material->load_material(floor::data_path("3dmap_obj.a2mtl"));
 
 	// assign textures
 	for(size_t i = 0; i < 3; i++) {
@@ -670,21 +670,21 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 
 	//
 	cur_labdata_num = labdata_num;
-	a2e_debug("labdata #%u loaded!", labdata_num);
+	log_debug("labdata #%u loaded!", labdata_num);
 }
 
 void labdata::unload() {
-	if(lab_fc_material != NULL) {
+	if(lab_fc_material != nullptr) {
 		delete lab_fc_material;
-		lab_fc_material = NULL;
+		lab_fc_material = nullptr;
 	}
-	if(lab_wall_material != NULL) {
+	if(lab_wall_material != nullptr) {
 		delete lab_wall_material;
-		lab_wall_material = NULL;
+		lab_wall_material = nullptr;
 	}
-	if(lab_obj_material != NULL) {
+	if(lab_obj_material != nullptr) {
 		delete lab_obj_material;
-		lab_obj_material = NULL;
+		lab_obj_material = nullptr;
 	}
 
 	t->delete_texture(floors_tex);
@@ -711,7 +711,7 @@ void labdata::unload() {
 
 const labdata::lab_object* labdata::get_object(const size_t& num) const {
 	if(num == 0 || num > objects.size()) {
-		a2e_error("invalid object number %u!", num);
+		log_error("invalid object number %u!", num);
 		return objects[0];
 	}
 	return objects[num-1];
@@ -719,7 +719,7 @@ const labdata::lab_object* labdata::get_object(const size_t& num) const {
 
 const labdata::lab_floor* labdata::get_floor(const size_t& num) const {
 	if(num == 0 || num > floors.size()) {
-		a2e_error("invalid floor number %u!", num);
+		log_error("invalid floor number %u!", num);
 		return floors[0];
 	}
 	return floors[num-1];
@@ -727,7 +727,7 @@ const labdata::lab_floor* labdata::get_floor(const size_t& num) const {
 
 const labdata::lab_wall* labdata::get_wall(const size_t& num) const {
 	if(num < 101 || num-101 > walls.size()) {
-		return NULL;
+		return nullptr;
 	}
 	return walls[num-101];
 }

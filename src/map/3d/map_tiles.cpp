@@ -19,7 +19,7 @@
 
 #include "map_tiles.hpp"
 
-map_tiles::map_tiles() : a2estatic(::e, ::s, ::sce) {
+map_tiles::map_tiles() : a2estatic(::s, ::sce) {
 }
 
 map_tiles::~map_tiles() {
@@ -37,6 +37,6 @@ void map_tiles::pre_draw_geometry(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_m
 	texture_mask |= a2ematerial::TEXTURE_TYPE::DIFFUSE;
 }
 
-void map_tiles::pre_draw_material(gl3shader& shd a2e_unused, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask a2e_unused) {
+void map_tiles::pre_draw_material(gl3shader& shd floor_unused, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask floor_unused) {
 	attr_array_mask &= (a2emodel::VERTEX_ATTRIBUTE)(~(unsigned int)a2emodel::VERTEX_ATTRIBUTE::NORMAL);
 }

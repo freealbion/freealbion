@@ -20,7 +20,7 @@
 #include "scaling.hpp"
 #include <core/platform.hpp>
 
-//opencl::kernel_object* scaling::hq4x = NULL;
+//opencl::kernel_object* scaling::hq4x = nullptr;
 //cl::NDRange scaling::hq4x_range;
 unsigned int scaling::RGBtoYUV[16777216];
 
@@ -52,7 +52,7 @@ size_t scaling::get_scale_factor(const SCALE_TYPE& scale_type) {
 		case ST_HQ4X:
 			return 4;
 	}
-	a2e_unreachable();
+	floor_unreachable();
 }
 
 void scaling::scale(const SCALE_TYPE scale_type, const unsigned int* input, const size2& input_size, unsigned int* output) {

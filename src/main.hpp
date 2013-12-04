@@ -20,6 +20,7 @@
 #ifndef __AR_MAIN_HPP__
 #define __AR_MAIN_HPP__
 
+#include <a2e.hpp>
 #include "ar_global.hpp"
 #include "conf.hpp"
 
@@ -35,14 +36,6 @@
 #include "bin_graphics.hpp"
 #include "ar_debug.hpp"
 #include "map_handler.hpp"
-
-map_handler* mh;
-albion_ui* aui;
-
-bool done = false;
-
-stringstream caption;
-stringstream tmp;
 
 // prototypes
 bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj);

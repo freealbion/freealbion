@@ -203,7 +203,7 @@ bin_graphics::bin_graphics() {
 	};
 	
 	if(!fio->open(xld::make_xld_path("MAIN.EXE").c_str(), file_io::OPEN_TYPE::READ_BINARY)) {
-		a2e_error("couldn't open MAIN.EXE");
+		log_error("couldn't open MAIN.EXE");
 	}
 	else {
 		unsigned char* albion_binary = new unsigned char[fio->get_filesize()];

@@ -37,7 +37,7 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 	const unsigned char* data = object->data;
 	const size_t length = object->length;
 	if(data_offset >= length) {
-		a2e_error("offset is larger than file size!");
+		log_error("offset is larger than file size!");
 		return;
 	}
 	
@@ -46,7 +46,7 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 	const size_t global_event_count = AR_GET_USINT(data, offset);
 	offset += 2;
 	if(global_event_count == 0xFFFF) {
-		a2e_error("invalid global event count!");
+		log_error("invalid global event count!");
 		return; // sth is wrong, break
 	}
 	for(size_t i = 0; i < global_event_count; i++) {
@@ -60,14 +60,14 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 		//if(event_info.back()->trigger > 0x1FFF) cout << "unknown event trigger!" << endl;
 		event_info.back()->event_num = AR_GET_USINT(data, offset);
 		offset += 2;
-		event_info.back()->event_obj = NULL;
+		event_info.back()->event_obj = nullptr;
 		if(offset >= length) break;
 	}
 
 	// for each (y) line
 	const size_t y_event_count = map_size.y;
 	if(y_event_count == 0xFFFF) {
-		a2e_error("invalid event count (y map size)!");
+		log_error("invalid event count (y map size)!");
 		return; // sth is wrong, break
 	}
 	for(size_t i = 0; i < y_event_count; i++) {
@@ -75,7 +75,7 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 		offset += 2;
 		if(offset >= length) break;
 		if(line_event_count == 0xFFFF) {
-			a2e_error("invalid row event count!");
+			log_error("invalid row event count!");
 			return; // sth is wrong, break
 		}
 		for(size_t j = 0; j < line_event_count; j++) {
@@ -90,7 +90,7 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 			//if(event_info.back()->trigger > 0x1FFF) cout << "unknown event trigger!" << endl;
 			event_info.back()->event_num = AR_GET_USINT(data, offset);
 			offset += 2;
-			event_info.back()->event_obj = NULL;
+			event_info.back()->event_obj = nullptr;
 		}
 	}
 	
@@ -103,13 +103,13 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 		const size_t event_count = AR_GET_USINT(data, offset);
 		cout << "event count: " << event_count << endl;
 		if(event_count == 0xFFFF) {
-			a2e_error("invalid event count!");
+			log_error("invalid event count!");
 			return; // sth is wrong, break
 		}
 		
 		offset += 2;
 		if(offset >= length) {
-			a2e_error("invalid event data!");
+			log_error("invalid event data!");
 			return; // sth is wrong, break
 		}
 		
@@ -129,17 +129,17 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 			cur_event->info[5] = AR_GET_USINT(data, offset); offset += 2;
 			cur_event->info[6] = AR_GET_USINT(data, offset); offset += 2;
 			cur_event->next_event_num = AR_GET_USINT(data, offset); offset += 2;
-			cur_event->next_event = NULL;
+			cur_event->next_event = nullptr;
 			
 			if(offset >= length) break;
 		}
 	}
-	else a2e_error("offset is larger than file size!");
+	else log_error("offset is larger than file size!");
 	
 	// assign pointers
 	for(vector<map_event_info*>::iterator ei_iter = event_info.begin(); ei_iter != event_info.end(); ei_iter++) {
 		(*ei_iter)->event_obj = get_event((*ei_iter)->event_num);
-		if((*ei_iter)->event_obj != NULL) {
+		if((*ei_iter)->event_obj != nullptr) {
 			(*ei_iter)->event_obj->assigned = true;
 		}
 	}
@@ -155,14 +155,14 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 	// handle assignment
 	set<events::event*> handled_events;
 	for(vector<events::event*>::iterator e_iter = mevents.begin(); e_iter != mevents.end(); e_iter++) {
-		if((*e_iter)->assigned && (*e_iter)->next_event != NULL && handled_events.count(*e_iter) == 0) {
+		if((*e_iter)->assigned && (*e_iter)->next_event != nullptr && handled_events.count(*e_iter) == 0) {
 			handled_events.insert(*e_iter);
 			
 			deque<events::event*> evt_list;
 			evt_list.push_back((*e_iter)->next_event);
 			if((*e_iter)->type == events::ETY_QUERY) {
 				events::event* next_event = ((events::query_event*)(*e_iter))->next_query_event;
-				if(next_event != NULL) {
+				if(next_event != nullptr) {
 					evt_list.push_back(next_event);
 				}
 			}
@@ -171,12 +171,12 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 				events::event* cur_evt = evt_list[0];
 				cur_evt->assigned = true;
 				
-				if(cur_evt->next_event != NULL && handled_events.count(cur_evt->next_event) == 0) {
+				if(cur_evt->next_event != nullptr && handled_events.count(cur_evt->next_event) == 0) {
 					evt_list.push_back(cur_evt->next_event);
 				}
 				if(cur_evt->type == events::ETY_QUERY) {
 					events::event* next_event = ((events::query_event*)cur_evt)->next_query_event;
-					if(next_event != NULL && handled_events.count(next_event) == 0) {
+					if(next_event != nullptr && handled_events.count(next_event) == 0) {
 						evt_list.push_back(next_event);
 					}
 				}
@@ -200,7 +200,7 @@ void map_events::load(const xld::xld_object* object, const size_t& data_offset, 
 		cout << "Data:" << endl;
 		events::event* evt_obj = (*ei_iter)->event_obj;
 		unsigned int num = (*ei_iter)->event_num;
-		while(evt_obj != NULL) {
+		while(evt_obj != nullptr) {
 			events::event* last_event = evt_obj;
 			evt_obj = events::dbg_print_event_info(evt_obj, num, 0);
 			num = last_event->next_event_num;
@@ -238,12 +238,12 @@ size_t map_events::get_event_info_count() const {
 }
 
 events::event* map_events::get_event(const size_t& num) const {
-	if(num >= mevents.size()) return NULL;
+	if(num >= mevents.size()) return nullptr;
 	return mevents[num];
 }
 
 map_events::map_event_info* map_events::get_event_info(const size_t& num) const {
-	if(num >= event_info.size()) return NULL;
+	if(num >= event_info.size()) return nullptr;
 	return event_info[num];
 }
 
@@ -253,7 +253,7 @@ const size_t& map_events::get_end_offset() const {
 
 const events::map_exit_event* map_events::get_map_exit_event(const size2& position) const {
 	for(auto evt = event_info.begin(); evt != event_info.end(); evt++) {
-		if((*evt)->xpos == position.x && (*evt)->ypos == position.y && (*evt)->event_obj != NULL) {
+		if((*evt)->xpos == position.x && (*evt)->ypos == position.y && (*evt)->event_obj != nullptr) {
 			deque<events::event*> evt_list;
 			evt_list.push_back((*evt)->event_obj);
 			while(!evt_list.empty()) {
@@ -265,16 +265,16 @@ const events::map_exit_event* map_events::get_map_exit_event(const size2& positi
 				}
 				else if(cur_evt->type == events::ETY_QUERY) {
 					events::event* next_event = ((events::query_event*)cur_evt)->next_query_event;
-					if(next_event != NULL) {
+					if(next_event != nullptr) {
 						evt_list.push_back(next_event);
 					}
 				}
 				
-				if(cur_evt->next_event != NULL) evt_list.push_back(cur_evt->next_event);
+				if(cur_evt->next_event != nullptr) evt_list.push_back(cur_evt->next_event);
 				
 				evt_list.pop_front();
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }

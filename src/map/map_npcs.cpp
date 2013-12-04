@@ -31,7 +31,7 @@ map_npcs::~map_npcs() {
 		if((*niter)->movement_type == MT_RANDOM) delete (*niter)->position;
 		else delete [] (*niter)->position;
 
-		(*niter)->position = NULL;
+		(*niter)->position = nullptr;
 	}
 	npcs.clear();
 }

@@ -52,7 +52,7 @@ const string xld::make_xld_path(const string& filename) {
 void xld::load(const string& filename) {
 	// open file
 	if(!fio->open(make_xld_path(filename).c_str(), file_io::OPEN_TYPE::READ_BINARY)) {
-		a2e_error("couldn't open xld \"%s\"!", filename);
+		log_error("couldn't open xld \"%s\"!", filename);
 		return;
 	}
 
@@ -60,7 +60,7 @@ void xld::load(const string& filename) {
 	fio->get_terminated_block(data, (char)0x00);
 	if(data != "XLD0I") {
 		fio->close();
-		a2e_error("\"%s\" is no valid XLD file!", filename);
+		log_error("\"%s\" is no valid XLD file!", filename);
 		return;
 	}
 
@@ -99,8 +99,8 @@ size_t xld::get_object_count() const {
 
 const xld::xld_object* xld::get_object(const size_t& num) const {
 	if(num >= objects.size()) {
-		a2e_error("invalid xld object number %d!", num);
-		return NULL;
+		log_error("invalid xld object number %d!", num);
+		return nullptr;
 	}
 	return objects[num];
 }
@@ -111,8 +111,8 @@ const vector<xld::xld_object*>& xld::get_objects() const {
 
 const xld::xld_object* xld::get_object(const size_t& num, const xld* const* xlds, const size_t max_value) {
 	if(max_value != 0 && num >= max_value) {
-		a2e_error("invalid object number: %u!", num);
-		return NULL;
+		log_error("invalid object number: %u!", num);
+		return nullptr;
 	}
 
 	return xlds[num / 100]->get_object(num % 100);

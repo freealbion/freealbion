@@ -71,7 +71,8 @@ protected:
 	virtual void compute_move();
 	
 	virtual void clock_tick_cb(size_t tick);
-	clock_callback* clock_cb;
+	clock_callback clock_cb;
+	bool clock_cb_added { false };
 	
 };
 

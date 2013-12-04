@@ -135,11 +135,11 @@ a2e_texture albion_texture::create(const size_t& map_type, const size2& texture_
 	delete [] scaled_data;
 
 	if(custom_mipmaps) {
-		ret_tex = t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, std::min(filtering, TEXTURE_FILTERING::LINEAR), e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		ret_tex = t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, std::min(filtering, TEXTURE_FILTERING::LINEAR), engine::get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 		build_mipmaps(ret_tex, tex_surface, filtering);
 	}
 	else {
-		ret_tex = t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, filtering, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		ret_tex = t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, filtering, engine::get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 	}
 	delete [] tex_surface;
 
@@ -148,7 +148,7 @@ a2e_texture albion_texture::create(const size_t& map_type, const size2& texture_
 
 void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* tex_data, const TEXTURE_FILTERING filtering) {
 	if(filtering < TEXTURE_FILTERING::BILINEAR) return;
-	if(tex_data == NULL) return;
+	if(tex_data == nullptr) return;
 	
 	//
 	const ssize_t scale_factor = (ssize_t)scaling::get_scale_factor(conf::get<scaling::SCALE_TYPE>("map.3d.scale_type"));
@@ -156,7 +156,7 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 	
 	glBindTexture(GL_TEXTURE_2D, tex->tex());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (filtering == TEXTURE_FILTERING::BILINEAR ? GL_LINEAR_MIPMAP_NEAREST : GL_LINEAR_MIPMAP_LINEAR));
-	if(e->get_anisotropic() > 0) {
+	if(engine::get_anisotropic() > 0) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLint)e->get_anisotropic());
 	}
 	

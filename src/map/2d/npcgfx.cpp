@@ -45,7 +45,7 @@ npcgfx::~npcgfx() {
 }
 
 void npcgfx::load_npcgfx(const size_t& npc_num) {
-	const xld::xld_object* object = NULL;
+	const xld::xld_object* object = nullptr;
 	if(npc_num < 100 && npc_num <= npcgfx_xlds[0]->get_object_count()) {
 		object = npcgfx_xlds[0]->get_object(npc_num-1); // TODO: check if only npcgfx nums have to be decremented in the sub-100 range
 	}
@@ -65,8 +65,8 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 		object = npcgfx_xlds[5]->get_object(npc_num - 500);
 	}
 	
-	if(object == NULL) {
-		a2e_error("invalid npc num #%u!", npc_num);
+	if(object == nullptr) {
+		log_error("invalid npc num #%u!", npc_num);
 		object = npcgfx_xlds[0]->get_object(0);
 	}
 
@@ -87,15 +87,15 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 	}
 	
 #if !defined(A2E_IOS)
-	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, texture_size, npc_size, cur_palette, tex_info, NULL, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::TRILINEAR);
+	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, texture_size, npc_size, cur_palette, tex_info, nullptr, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::TRILINEAR);
 #else
-	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, texture_size, npc_size, cur_palette, tex_info, NULL, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::LINEAR);
+	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, texture_size, npc_size, cur_palette, tex_info, nullptr, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::LINEAR);
 #endif
 }
 
 const a2e_texture& npcgfx::get_npcgfx(const size_t& npc_num) {
 	if(npc_num > 599) {
-		a2e_error("invalid npc graphic #%u!", npc_num);
+		log_error("invalid npc graphic #%u!", npc_num);
 		//throw exception();
 		return get_npcgfx(0);
 	}
@@ -173,7 +173,7 @@ void npcgfx::clear() {
 
 void npcgfx::set_palette(const size_t& palette_num) {
 	if(palette_num >= 56) {
-		a2e_error("invalid palette #%u!", palette_num);
+		log_error("invalid palette #%u!", palette_num);
 		return;
 	}
 	

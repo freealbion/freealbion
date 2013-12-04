@@ -30,7 +30,7 @@ events::~events() {
 }
 
 events::event* events::dbg_print_event_info(events::event* evt_obj, unsigned int num, unsigned int depth) {
-	if(evt_obj == NULL) return NULL;
+	if(evt_obj == nullptr) return nullptr;
 	
 	for(unsigned int i = 0; i < (depth+1); i++) {
 		cout << "\t";
@@ -47,12 +47,12 @@ events::event* events::dbg_print_event_info(events::event* evt_obj, unsigned int
 }
 
 void events::dbg_print_query_event_info(events::event* evt_obj, unsigned int num, set<events::event*>& handled_queries, unsigned int depth) {
-	while(evt_obj != NULL) {
+	while(evt_obj != nullptr) {
 		dbg_print_event_info(evt_obj, num, depth);
 		if(evt_obj->type == events::ETY_QUERY) {
 			if(handled_queries.count(evt_obj) == 0) {
 				handled_queries.insert(evt_obj);
-				if(((query_event*)evt_obj)->next_query_event != NULL) {
+				if(((query_event*)evt_obj)->next_query_event != nullptr) {
 					dbg_print_query_event_info(((query_event*)evt_obj)->next_query_event, evt_obj->info[6], handled_queries, depth+1);
 				}
 			}
@@ -166,7 +166,7 @@ events::event* events::create_event(const events::EVENT_TYPE& type) {
 		case ETY_MAP_EXIT:
 			return new map_exit_event();
 	}
-	a2e_error("unknown event type: %i", type);
+	log_error("unknown event type: %i", type);
 	return new event();
 }
 
@@ -175,7 +175,7 @@ void events::assign_type_data(vector<events::event*>& evts) {
 	for(auto& evt : evts) {
 		switch(evt->type) {
 			case events::ETY_QUERY:
-				((events::query_event*)evt)->next_query_event = (evt->info[6] < evts.size() ? evts[evt->info[6]] : NULL);
+				((events::query_event*)evt)->next_query_event = (evt->info[6] < evts.size() ? evts[evt->info[6]] : nullptr);
 				break;
 			case events::ETY_MAP_EXIT: {
 				events::map_exit_event* mevt = (events::map_exit_event*)evt;

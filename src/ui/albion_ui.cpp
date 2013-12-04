@@ -25,12 +25,15 @@
 
 /*! albion_ui constructor
  */
-albion_ui::albion_ui(map_handler* mh_) : mh(mh_), draw_cb(this, &albion_ui::draw), game_ui_opened(false), game_ui_loaded(false) {
-	clock_cb = new clock_callback(this, &albion_ui::clock_tick);
-	clck->add_tick_callback(ar_clock::CCBT_TICK, *clock_cb);
+albion_ui::albion_ui(map_handler* mh_) :
+mh(mh_),
+draw_cb(bind(&albion_ui::draw, this, placeholders::_1, placeholders::_2)),
+game_ui_opened(false), game_ui_loaded(false),
+clock_cb(bind(&albion_ui::clock_tick, this, placeholders::_1)) {
+	clck->add_tick_callback(ar_clock::CCBT_TICK, clock_cb);
 	
-	//game_ui = NULL;
-	compass_dot_img_obj = NULL;
+	//game_ui = nullptr;
+	compass_dot_img_obj = nullptr;
 	cur_dot_img = 0;
 }
 
@@ -38,8 +41,7 @@ albion_ui::albion_ui(map_handler* mh_) : mh(mh_), draw_cb(this, &albion_ui::draw
  */
 albion_ui::~albion_ui() {
 	game_ui_opened = false;
-	clck->delete_tick_callback(*clock_cb);
-	delete clock_cb;
+	clck->delete_tick_callback(clock_cb);
 	
 	if(game_ui_loaded) {
 		delete_game_ui();
@@ -61,14 +63,14 @@ void albion_ui::run() {
 	if(!map_3d) return;
 	
 	// update compass dot every 33ms (~30fps)
-	if(compass_dot_img_obj != NULL && SDL_GetTicks() - dot_timer > 33) {
+	if(compass_dot_img_obj != nullptr && SDL_GetTicks() - dot_timer > 33) {
 		// blinking
 		compass_dot_img_obj->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::COMPASS_DOT_0 + cur_dot_img)));
 		cur_dot_img = (cur_dot_img+1) % 8;
 		dot_timer = SDL_GetTicks();
 		
 		// position
-		const float y_rot = 180.0f - e->get_rotation()->y;
+		const float y_rot = 180.0f - engine::get_rotation()->y;
 		compass_dot_img_pos = float2(sinf(DEG2RAD(y_rot)), cosf(DEG2RAD(y_rot)));
 		compass_dot_img_pos *= (compass_img_size.x / 2.0f) - compass_dot_img_size.x*0.8f;
 		compass_dot_img_pos = compass_img_pos + compass_img_size/2.0f + compass_dot_img_pos - compass_dot_img_size/2.0f;
@@ -77,7 +79,7 @@ void albion_ui::run() {
 	}
 }
 
-void albion_ui::draw(const DRAW_MODE_UI draw_mode a2e_unused, rtt::fbo* buffer a2e_unused) {
+void albion_ui::draw(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buffer floor_unused) {
 	if(!game_ui_opened) return;
 	
 	// draw the clock
@@ -126,7 +128,7 @@ void albion_ui::open_game_ui() {
 	draw_cb_obj = ui->add_draw_callback(DRAW_MODE_UI::PRE_UI, draw_cb, float2(1.0f), float2(0.0f));
 	
 	if(game_ui_loaded) return;
-	load_game_ui(size2(e->get_width(), e->get_height()));
+	load_game_ui(size2(floor::get_width(), floor::get_height()));
 }
 
 void albion_ui::close_game_ui(){
@@ -147,7 +149,7 @@ void albion_ui::load_game_ui(const size2& size) {
 	const float2 wnd_size(size.x/12, size.y);
 	
 	// clock
-	clock_img_obj = new image(e);
+	clock_img_obj = new image();
 	clock_img_obj->set_scaling(true);
 	const a2e_texture& clock_tex = bin_gfx->get_bin_graphic(bin_graphics::CLOCK);
 	clock_img_obj->set_texture(clock_tex);
@@ -164,7 +166,7 @@ void albion_ui::load_game_ui(const size2& size) {
 	clock_num_size *= img_scale;
 	float x_per_num = (clock_img_size.x - clock_num_size.x*4.0f) / 4.0f;
 	for(size_t i = 0; i < 4; i++) {
-		clock_numbers[i].img = new image(e);
+		clock_numbers[i].img = new image();
 		clock_numbers[i].img->set_scaling(true);
 		clock_numbers[i].img->set_texture(clock_num_tex);
 		clock_numbers[i].img->set_gui_img(true);
@@ -178,11 +180,11 @@ void albion_ui::load_game_ui(const size2& size) {
 	// compass
 	const a2e_texture& compass_tex = bin_gfx->get_bin_graphic(bin_graphics::COMPASS_EN);
 	const a2e_texture& compass_dot_tex = bin_gfx->get_bin_graphic(bin_graphics::COMPASS_DOT_0);
-	compass_img_obj = new image(e);
+	compass_img_obj = new image();
 	compass_img_obj->set_scaling(true);
 	compass_img_obj->set_texture(compass_tex);
 	compass_img_obj->set_gui_img(true);
-	compass_dot_img_obj = new image(e);
+	compass_dot_img_obj = new image();
 	compass_dot_img_obj->set_scaling(true);
 	compass_dot_img_obj->set_texture(compass_dot_tex);
 	compass_dot_img_obj->set_gui_img(true);
@@ -203,7 +205,7 @@ void albion_ui::load_game_ui(const size2& size) {
 void albion_ui::open_goto_map_wnd() {
 	/*if(egui->exists(ALBION_DBG_ID)) return;
 	
-	albion_dbg = eui->load(e->data_path("albion_dbg.a2ui"), e->get_width()-1, 0, false, true, 0, 0, 0);
+	albion_dbg = eui->load(floor::data_path("albion_dbg.a2ui"), floor::get_width()-1, 0, false, true, 0, 0, 0);
 	b_goto_map = albion_dbg->get<gui_button>("b_goto_map");
 	i_goto_map = albion_dbg->get<gui_input>("i_goto_map");
 	lb_map_names = albion_dbg->get<gui_list>("lb_map_names");
@@ -217,8 +219,8 @@ void albion_ui::open_goto_map_wnd() {
 	gui_window* wnd = (gui_window*)albion_dbg->get_object();
 	rect* wnd_rect = wnd->get_rectangle();
 	unsigned int wnd_height = wnd->get_height();
-	wnd_rect->y1 = e->get_height() - 1 - wnd_height;
-	wnd_rect->y2 = e->get_height() - 1;
+	wnd_rect->y1 = floor::get_height() - 1 - wnd_height;
+	wnd_rect->y2 = floor::get_height() - 1;
 	wnd->set_rectangle(wnd_rect);
 
 	// fill map list
@@ -473,7 +475,7 @@ void albion_ui::close_goto_map_wnd() {
 	if(*i_goto_map->get_text() != "" && *i_goto_map->get_text() != "go to map ...") {
 		map_num_str = *i_goto_map->get_text();
 	}
-	else if(lb_map_names->get_selected_item() != NULL) {
+	else if(lb_map_names->get_selected_item() != nullptr) {
 		map_num_str = lb_map_names->get_selected_item()->text;
 		map_num_str = map_num_str.substr(0, map_num_str.find(" "));
 

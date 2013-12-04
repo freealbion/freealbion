@@ -25,19 +25,18 @@
 npc::npc() : char_type(CT_NPC) {
 	time_per_tile = TIME_PER_TILE_NPC;
 	last_frame = last_anim_frame = last_move = SDL_GetTicks();
-	npc_data = NULL;
+	npc_data = nullptr;
 	enabled = true;
 	pos_interp = 0.0f;
-	clock_cb = NULL;
+	clock_cb = nullptr;
 	view_direction = MD_NONE;
 }
 
 /*! npc destructor
  */
 npc::~npc() {
-	if(clock_cb != NULL) {
-		clck->delete_tick_callback(*clock_cb);
-		delete clock_cb;
+	if(clock_cb_added) {
+		clck->delete_tick_callback(clock_cb);
 	}
 }
 
@@ -54,21 +53,21 @@ void npc::set_npc_data(const map_npcs::map_npc* npc_data_) {
 	
 	// if the npc uses a track, add a clock callback
 	if(npc_data->movement_type == MT_TRACK) {
-		if(clock_cb == NULL) {
-			clock_cb = new clock_callback(this, &npc::clock_tick_cb);
-			clck->add_tick_callback(ar_clock::CCBT_TICK, *clock_cb);
+		if(!clock_cb_added) {
+			clock_cb = bind(&npc::clock_tick_cb, this, placeholders::_1);
+			clck->add_tick_callback(ar_clock::CCBT_TICK, clock_cb);
+			clock_cb_added = true;
 		}
 		time_per_tile = clck->get_ms_per_tick();
 	}
-	else if(npc_data->movement_type == MT_RANDOM && clock_cb != NULL) {
-		clck->delete_tick_callback(*clock_cb);
-		delete clock_cb;
-		clock_cb = NULL;
+	else if(npc_data->movement_type == MT_RANDOM && clock_cb_added) {
+		clck->delete_tick_callback(clock_cb);
+		clock_cb_added = false;
 	}
 }
 
 unsigned int npc::get_object_num() const {
-	if(npc_data == NULL) return 0;
+	if(npc_data == nullptr) return 0;
 	return npc_data->object_num;
 }
 

@@ -20,14 +20,14 @@
 #include "map_objects.hpp"
 
 map_objects::map_objects() : map_tiles() {
-	ws_positions = NULL;
+	ws_positions = nullptr;
 	vbo_ws_position_id = 0;
 }
 
 map_objects::~map_objects() {
-	if(ws_positions != NULL) {
+	if(ws_positions != nullptr) {
 		delete [] ws_positions;
-		ws_positions = NULL;
+		ws_positions = nullptr;
 	}
 	if(glIsBuffer(vbo_ws_position_id)) { glDeleteBuffers(1, &vbo_ws_position_id); }
 }
@@ -53,7 +53,7 @@ void map_objects::pre_draw_geometry(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array
 	texture_mask |= a2ematerial::TEXTURE_TYPE::DIFFUSE;
 }
 
-void map_objects::pre_draw_material(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask a2e_unused) {
+void map_objects::pre_draw_material(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask floor_unused) {
 	shd->uniform("cam_position", -float3(*e->get_position()));
 	
 	shd->attribute_array("ws_position", vbo_ws_position_id, 3);

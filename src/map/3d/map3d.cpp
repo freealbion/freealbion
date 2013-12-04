@@ -25,37 +25,38 @@ static const float tile_size = std_tile_size;
 
 /*! map3d constructor
  */
-map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) : lab_data(lab_data_) {
+map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) :
+lab_data(lab_data_), clock_cb(bind(&map3d::clock_tick, this, placeholders::_1)) {
 	map_xlds[0] = maps1;
 	map_xlds[1] = maps2;
 	map_xlds[2] = maps3;
 
 	map_loaded = false;
 	cur_map_num = (~0);
-	mnpcs = NULL;
-	npcs_model = NULL;
+	mnpcs = nullptr;
+	npcs_model = nullptr;
 	npc_object_count = 0;
 
-	ow_tiles = NULL;
-	floor_tiles = NULL;
-	ceiling_tiles = NULL;
+	ow_tiles = nullptr;
+	floor_tiles = nullptr;
+	ceiling_tiles = nullptr;
 	
-	wall_vertices = NULL;
-	wall_tex_coords = NULL;
-	wall_indices = NULL;
-	wall_model = NULL;
-	wall_sides = NULL;
+	wall_vertices = nullptr;
+	wall_tex_coords = nullptr;
+	wall_indices = nullptr;
+	wall_model = nullptr;
+	wall_sides = nullptr;
 
-	fc_vertices = NULL;
-	fc_tex_coords = NULL;
-	fc_indices = NULL;
-	fc_tiles_model = NULL;
+	fc_vertices = nullptr;
+	fc_tex_coords = nullptr;
+	fc_indices = nullptr;
+	fc_tiles_model = nullptr;
 	
-	obj_vertices = NULL;
-	obj_ws_positions = NULL;
-	obj_tex_coords = NULL;
-	obj_indices = NULL;
-	objects_model = NULL;
+	obj_vertices = nullptr;
+	obj_ws_positions = nullptr;
+	obj_tex_coords = nullptr;
+	obj_indices = nullptr;
+	objects_model = nullptr;
 
 	last_tile_animation = SDL_GetTicks();
 	object_light_ani_time = SDL_GetTicks();
@@ -71,7 +72,7 @@ map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) : lab_data(
 	sun_light->set_type(light::LIGHT_TYPE::DIRECTIONAL);
 	sce->add_light(sun_light);
 	sun_distance = 100.0f;
-	SDL_Surface* sun_light_tex = IMG_Load(e->data_path("sun_light.png").c_str());
+	SDL_Surface* sun_light_tex = IMG_Load(floor::data_path("sun_light.png").c_str());
 	sun_color_table.reserve(sun_light_tex->w);
 	const int bpp = (int)sun_light_tex->format->BytesPerPixel;
 	for(int i = 0; i < sun_light_tex->w; i++) {
@@ -86,15 +87,13 @@ map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) : lab_data(
 	sun_light->set_enabled(active_sun_light);
 	
 	//
-	clock_cb = new clock_callback(this, &map3d::clock_tick);
-	clck->add_tick_callback(ar_clock::CCBT_TICK, *clock_cb);
+	clck->add_tick_callback(ar_clock::CCBT_TICK, clock_cb);
 }
 
 /*! map3d destructor
  */
 map3d::~map3d() {
-	clck->delete_tick_callback(*clock_cb);
-	delete clock_cb;
+	clck->delete_tick_callback(clock_cb);
 	
 	delete player_light;
 	delete sun_light;
@@ -104,13 +103,13 @@ map3d::~map3d() {
 
 void map3d::load(const size_t& map_num) {
 	if(cur_map_num == map_num) return;
-	a2e_debug("loading map %u ...", map_num);
+	log_debug("loading map %u ...", map_num);
 	unload();
 
 	//
 	const xld::xld_object* object = xld::get_object(map_num, map_xlds, 300);
-	if(object == NULL) {
-		a2e_error("invalid map number: %u!", map_num);
+	if(object == nullptr) {
+		log_error("invalid map number: %u!", map_num);
 		return;
 	}
 	const unsigned char* cur_map_data = object->data;
@@ -239,7 +238,7 @@ void map3d::load(const size_t& map_num) {
 	npc_object_count = 0;
 	for(unsigned int i = 0; i < npc_count; i++) {
 		const labdata::lab_object* obj = lab_data->get_object(npc_data[i]->object_num);
-		if(obj == NULL) continue;
+		if(obj == nullptr) continue;
 		
 		npc_object_count += obj->sub_object_count;
 	}
@@ -255,7 +254,7 @@ void map3d::load(const size_t& map_num) {
 	unsigned int npc_index = 0, npc_index_num = 0;
 	for(unsigned int i = 0; i < npc_count; i++) {
 		const labdata::lab_object* obj = lab_data->get_object(npc_data[i]->object_num);
-		if(obj == NULL) continue;
+		if(obj == nullptr) continue;
 		
 		//
 		for(size_t so = 0; so < obj->sub_object_count; so++) {
@@ -321,19 +320,19 @@ void map3d::load(const size_t& map_num) {
 			if(ow_tiles[y*map_size.x + x] >= 101) {
 				unsigned char& side = wall_sides[y*map_size.x + x];
 				const labdata::lab_wall* wall = lab_data->get_wall(ow_tiles[y*map_size.x + x]);
-				if(wall == NULL) continue;
+				if(wall == nullptr) continue;
 				
 				const labdata::lab_wall* walls[] = {
-					(y > 0 ? lab_data->get_wall(ow_tiles[(y-1)*map_size.x + x]) : NULL),				// north
-					(x != map_size.x-1 ? lab_data->get_wall(ow_tiles[y*map_size.x + x+1]) : NULL),		// east
-					(y != map_size.y-1 ? lab_data->get_wall(ow_tiles[(y+1)*map_size.x + x]) : NULL),	// south
-					(x > 0 ? lab_data->get_wall(ow_tiles[y*map_size.x + x-1]) : NULL),					// west
+					(y > 0 ? lab_data->get_wall(ow_tiles[(y-1)*map_size.x + x]) : nullptr),				// north
+					(x != map_size.x-1 ? lab_data->get_wall(ow_tiles[y*map_size.x + x+1]) : nullptr),		// east
+					(y != map_size.y-1 ? lab_data->get_wall(ow_tiles[(y+1)*map_size.x + x]) : nullptr),	// south
+					(x > 0 ? lab_data->get_wall(ow_tiles[y*map_size.x + x-1]) : nullptr),					// west
 				};
 				
 				side = 0;
 				for(size_t i = 0; i < 4; i++) {
 					// TODO: does >=0x20 apply to all kinds of transparency?
-					if(walls[i] == NULL ||
+					if(walls[i] == nullptr ||
 					   (wall->type < 0x20 && walls[i]->type >= 0x20)) {
 						side |= (unsigned char)(1 << i);
 					}
@@ -363,7 +362,7 @@ void map3d::load(const size_t& map_num) {
 			}
 			if(ow_tiles[y*map_size.x + x] >= 101) {
 				const labdata::lab_wall* wall = lab_data->get_wall(ow_tiles[y*map_size.x + x]);
-				if(wall == NULL) continue;
+				if(wall == nullptr) continue;
 				if(wall->type & labdata::WT_TRANSPARENT) wall_transp_obj_count++;
 								
 				unsigned char& side = wall_sides[y*map_size.x + x];
@@ -388,7 +387,7 @@ void map3d::load(const size_t& map_num) {
 			}
 			if(ow_tiles[y*map_size.x + x] > 0 && ow_tiles[y*map_size.x + x] < 101) {
 				const labdata::lab_object* obj = lab_data->get_object(ow_tiles[y*map_size.x + x]);
-				if(obj != NULL) {
+				if(obj != nullptr) {
 					if(obj->animated) obj_ani_count += obj->sub_object_count;
 
 					sub_object_count += obj->sub_object_count;
@@ -473,7 +472,7 @@ void map3d::load(const size_t& map_num) {
 			// walls
 			if(ow_tiles[y*map_size.x + x] >= 101) {
 				const labdata::lab_wall* tile_data = lab_data->get_wall(ow_tiles[y*map_size.x + x]);
-				if(tile_data == NULL) continue;
+				if(tile_data == nullptr) continue;
 				
 				const unsigned char& side = wall_sides[y*map_size.x + x];
 				unsigned int side_count = 0;
@@ -595,7 +594,7 @@ void map3d::load(const size_t& map_num) {
 			// objects
 			if(ow_tiles[y*map_size.x + x] > 0 && ow_tiles[y*map_size.x + x] < 101) {
 				const labdata::lab_object* obj = lab_data->get_object(ow_tiles[y*map_size.x + x]);
-				if(obj == NULL) continue;
+				if(obj == nullptr) continue;
 
 				unsigned int object_index = object_num*4;
 				if(obj->animated) {
@@ -736,68 +735,68 @@ void map3d::load(const size_t& map_num) {
 	// and finally:
 	map_loaded = true;
 	cur_map_num = map_num;
-	a2e_debug("map #%u loaded!", map_num);
+	log_debug("map #%u loaded!", map_num);
 }
 
 void map3d::unload() {
-	if(wall_model != NULL) {
+	if(wall_model != nullptr) {
 		sce->delete_model(wall_model);
 		delete wall_model;
-		wall_model = NULL;
+		wall_model = nullptr;
 		
-		// can be NULLed now
-		wall_vertices = NULL;
-		wall_tex_coords = NULL;
-		wall_indices = NULL;
+		// can be nullptred now
+		wall_vertices = nullptr;
+		wall_tex_coords = nullptr;
+		wall_indices = nullptr;
 	}
-	if(fc_tiles_model != NULL) {
+	if(fc_tiles_model != nullptr) {
 		sce->delete_model(fc_tiles_model);
 		delete fc_tiles_model;
-		fc_tiles_model = NULL;
+		fc_tiles_model = nullptr;
 		
-		// can be NULLed now
-		fc_vertices = NULL;
-		fc_tex_coords = NULL;
-		fc_indices = NULL;
+		// can be nullptred now
+		fc_vertices = nullptr;
+		fc_tex_coords = nullptr;
+		fc_indices = nullptr;
 	}
-	if(objects_model != NULL) {
+	if(objects_model != nullptr) {
 		sce->delete_model(objects_model);
 		delete objects_model;
-		objects_model = NULL;
+		objects_model = nullptr;
 		
-		// can be NULLed now
-		obj_vertices = NULL;
-		obj_ws_positions = NULL;
-		obj_tex_coords = NULL;
-		obj_indices = NULL;
+		// can be nullptred now
+		obj_vertices = nullptr;
+		obj_ws_positions = nullptr;
+		obj_tex_coords = nullptr;
+		obj_indices = nullptr;
 	}
-	if(ow_tiles != NULL) {
+	if(ow_tiles != nullptr) {
 		delete ow_tiles;
-		ow_tiles = NULL;
+		ow_tiles = nullptr;
 	}
-	if(floor_tiles != NULL) {
+	if(floor_tiles != nullptr) {
 		delete floor_tiles;
-		floor_tiles = NULL;
+		floor_tiles = nullptr;
 	}
-	if(ceiling_tiles != NULL) {
+	if(ceiling_tiles != nullptr) {
 		delete ceiling_tiles;
-		ceiling_tiles = NULL;
+		ceiling_tiles = nullptr;
 	}
-	if(npcs_model != NULL) {
+	if(npcs_model != nullptr) {
 		sce->delete_model(npcs_model);
 		delete npcs_model;
-		npcs_model = NULL;
+		npcs_model = nullptr;
 		
-		// can be NULLed now
-		npcs_vertices = NULL;
-		npcs_ws_positions = NULL;
-		npcs_tex_coords = NULL;
-		npcs_indices = NULL;
+		// can be nullptred now
+		npcs_vertices = nullptr;
+		npcs_ws_positions = nullptr;
+		npcs_tex_coords = nullptr;
+		npcs_indices = nullptr;
 		npc_object_count = 0;
 	}
-	if(wall_sides != NULL) {
+	if(wall_sides != nullptr) {
 		delete [] wall_sides;
-		wall_sides = NULL;
+		wall_sides = nullptr;
 	}
 	
 	//
@@ -805,9 +804,9 @@ void map3d::unload() {
 		delete *npc_iter;
 	}
 	npcs.clear();
-	if(mnpcs != NULL) {
+	if(mnpcs != nullptr) {
 		delete mnpcs;
-		mnpcs = NULL;
+		mnpcs = nullptr;
 	}
 	
 	for(auto& ol : object_lights) {
@@ -836,8 +835,8 @@ void map3d::unload() {
 
 bool map3d::is_3d_map(const size_t& map_num) const {
 	const xld::xld_object* object = xld::get_object(map_num, &map_xlds[0], 300);
-	if(object == NULL) {
-		a2e_error("invalid map number: %u!", map_num);
+	if(object == nullptr) {
+		log_error("invalid map number: %u!", map_num);
 		return false;
 	}
 	
@@ -962,7 +961,7 @@ void map3d::handle() {
 				break;
 				case 1: {
 					const labdata::lab_wall* tile_data = lab_data->get_wall(get<1>(*ani_tile_iter));
-					if(tile_data == NULL) break;
+					if(tile_data == nullptr) break;
 					const float2& tc_b = tile_data->tex_coord_begin[tile_data->cur_ani];
 					const float2& tc_e = tile_data->tex_coord_end[tile_data->cur_ani];
 					
@@ -1055,7 +1054,7 @@ void map3d::handle() {
 
 const ssize3 map3d::get_tile() const {
 	ssize3 ret(-1);
-	const float3 cam_pos = -float3(e->get_position());
+	const float3 cam_pos = -float3(engine::get_position());
 	if(cam_pos.x >= 0.0f && cam_pos.x < tile_size*map_size.x &&
 		cam_pos.z >= 0.0f && cam_pos.z < tile_size*map_size.y) {
 		size2 cur_pos = float2(cam_pos.x, cam_pos.z)/tile_size;
@@ -1146,7 +1145,7 @@ bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position,
 		}
 		
 		if(position_count != max_pos_count) {
-			a2e_error("impossible movement!");
+			log_error("impossible movement!");
 			return bool4(true);
 		}
 	}
@@ -1160,10 +1159,10 @@ bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position,
 		
 		const size_t index = next_position[i].y*map_size.x + next_position[i].x;
 		
-		const labdata::lab_floor* floor_data = NULL;
-		const labdata::lab_floor* ceiling_data = NULL;
-		const labdata::lab_wall* wall_data = NULL;
-		const labdata::lab_object* obj_data = NULL;
+		const labdata::lab_floor* floor_data = nullptr;
+		const labdata::lab_floor* ceiling_data = nullptr;
+		const labdata::lab_wall* wall_data = nullptr;
+		const labdata::lab_object* obj_data = nullptr;
 		
 		if(floor_tiles[index] > 0) floor_data = lab_data->get_floor(floor_tiles[index]);
 		if(ceiling_tiles[index] > 0) ceiling_data = lab_data->get_floor(ceiling_tiles[index]);
@@ -1171,22 +1170,22 @@ bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position,
 		// TODO: add correct object collision
 		//if(ow_tiles[index] > 0 && ow_tiles[index] < 101) obj_data = lab_data->get_object(ow_tiles[index]);
 		
-		if(floor_data != NULL) {
+		if(floor_data != nullptr) {
 			if(floor_data->collision & labdata::CT_BLOCK) {
 				ret[1+i] = true;
 			}
 		}
-		if(ceiling_data != NULL) {
+		if(ceiling_data != nullptr) {
 			if(ceiling_data->collision & labdata::CT_BLOCK) {
 				ret[1+i] = true;
 			}
 		}
-		if(wall_data != NULL) {
+		if(wall_data != nullptr) {
 			if(wall_data->collision & labdata::CT_BLOCK) {
 				ret[1+i] = true;
 			}
 		}
-		if(obj_data != NULL) {
+		if(obj_data != nullptr) {
 			for(size_t so = 0; so < obj_data->sub_object_count; so++) {
 				if(obj_data->sub_objects[so]->collision & labdata::CT_BLOCK) {
 					ret[1+i] = true;

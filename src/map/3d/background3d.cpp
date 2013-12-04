@@ -19,7 +19,7 @@
 
 #include "background3d.hpp"
 
-background3d::background3d() : a2estatic(::e, ::s, ::sce) {
+background3d::background3d() : a2estatic(::s, ::sce) {
 	bg3d_xld = new xld("3DBCKGR0.XLD");
 	bg_texture = t->get_dummy_texture();
 	cur_bg_num = -1;
@@ -56,7 +56,7 @@ void background3d::unload() {
 
 void background3d::load(const size_t& bg_num, const size_t& palette) {
 	if(bg_num >= bg3d_xld->get_object_count()) {
-		a2e_error("invalid background number #%u!", bg_num);
+		log_error("invalid background number #%u!", bg_num);
 		return;
 	}
 	
@@ -125,7 +125,7 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 	}
 	memset(pixel_data[3], 0, cm_texture_size.x*cm_texture_size.y*sizeof(unsigned int)); // -y = black
 	
-	bg_texture = t->add_cubemap_texture((void**)pixel_data, (unsigned int)cm_texture_size.x, (unsigned int)cm_texture_size.y, GL_RGBA8, GL_RGBA, TEXTURE_FILTERING::TRILINEAR, e->get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+	bg_texture = t->add_cubemap_texture((void**)pixel_data, (unsigned int)cm_texture_size.x, (unsigned int)cm_texture_size.y, GL_RGBA8, GL_RGBA, TEXTURE_FILTERING::TRILINEAR, engine::get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 	
 	for(size_t i = 0; i < 6; i++) delete [] pixel_data[i];
 	delete [] pixel_data;
@@ -147,7 +147,7 @@ void background3d::draw(const DRAW_MODE draw_mode) {
 	gl3shader shd = s->get_gl3shader("AR_IR_MP_SKY");
 	
 	matrix4f skybox_proj_mat = *e->get_projection_matrix();
-	matrix4f IMVP = matrix4f().rotate_y(-e->get_rotation()->y) * matrix4f().rotate_x(e->get_rotation()->x) * skybox_proj_mat;
+	matrix4f IMVP = matrix4f().rotate_y(-e->get_rotation()->y) * matrix4f().rotate_x(engine::get_rotation()->x) * skybox_proj_mat;
 	IMVP.invert();
 	
 	float3 sb_tc[3] = {

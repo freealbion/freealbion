@@ -22,7 +22,7 @@
 
 /*! tileset constructor
  */
-tileset::tileset(const pal* palettes_) : palettes(palettes_), cur_tileset_num(0), cur_tileset(NULL) {
+tileset::tileset(const pal* palettes_) : palettes(palettes_), cur_tileset_num(0), cur_tileset(nullptr) {
 	// load tilesets
 	icongfx = new xld("ICONGFX0.XLD");
 
@@ -127,7 +127,7 @@ tileset::~tileset() {
 
 void tileset::load(const size_t& num, const size_t& palette) {
 	if(cur_tileset_num == num && tilesets[cur_tileset_num]->loaded) return;
-	a2e_debug("loading tileset %u ...", num);
+	log_debug("loading tileset %u ...", num);
 	if(cur_tileset_num != num && tilesets[cur_tileset_num]->loaded) {
 		// unload old tileset
 		t->delete_texture(tilesets[cur_tileset_num]->tileset);
@@ -214,7 +214,7 @@ void tileset::load(const size_t& num, const size_t& palette) {
 	tilesets[num]->tile_tc_size = float2(64.0f)/float2(tileset_tex_size);
 
 	// create texture
-	cur_tileset_tex = albion_texture::create(MT_2D_MAP, tileset_tex_size, size2(16, 16), palette, tex_info, NULL, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::POINT);
+	cur_tileset_tex = albion_texture::create(MT_2D_MAP, tileset_tex_size, size2(16, 16), palette, tex_info, nullptr, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::POINT);
 	//conf::set<a2e_texture>("debug.texture", cur_tileset_tex);
 	tilesets[num]->tileset = cur_tileset_tex;
 	tilesets[num]->tex_coords = &tilesets[num]->tex_info_obj.tex_coords;
@@ -231,11 +231,11 @@ void tileset::load(const size_t& num, const size_t& palette) {
 		}
 	}
 
-	a2e_debug("tileset %u loaded!", num);
+	log_debug("tileset %u loaded!", num);
 }
 
 void tileset::handle_animations(set<unsigned int>& modified_tiles) {
-	if(cur_tileset == NULL) return;
+	if(cur_tileset == nullptr) return;
 
 	const vector<vector<float2>>* tex_coords = cur_tileset->tex_coords;
 	for(unsigned int i = 0; i < (unsigned int)cur_tileset->tile_obj_count; i++) {
@@ -261,7 +261,7 @@ void tileset::handle_animations(set<unsigned int>& modified_tiles) {
 }
 
 const float2 tileset::get_tile_tex_coord_size() const {
-	if(cur_tileset == NULL) return float2(0.0f);
+	if(cur_tileset == nullptr) return float2(0.0f);
 	return cur_tileset->tile_tc_size;
 }
 

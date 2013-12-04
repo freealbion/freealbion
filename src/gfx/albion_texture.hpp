@@ -62,7 +62,7 @@ public:
 	struct albion_texture_single_object : public albion_texture_info {
 		unsigned int object_count;
 		const xld::xld_object* object;
-		albion_texture_single_object() : albion_texture_info(), object_count(0), object(NULL) {
+		albion_texture_single_object() : albion_texture_info(), object_count(0), object(nullptr) {
 			type = ATIT_SINGLE_OBJECT;
 		}
 	};

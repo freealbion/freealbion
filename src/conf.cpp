@@ -41,7 +41,7 @@ template <> const type& conf::get<type>(const string& name) { return ((setting<t
 #define CONF_DEFINE_GET_FUNCS(type, enum_type) \
 template <> void conf::get<type>(const string& name, type& dst) {													\
 	if(((setting<type>*)(settings[name].second))->type_name != typeid(type).name()) {								\
-		a2e_error("invalid type for conf setting \"%s\" - used: %s, expected: %s!",									\
+		log_error("invalid type for conf setting \"%s\" - used: %s, expected: %s!",									\
 				  name, typeid(type).name(), ((setting<type>*)(settings[name].second))->type_name);					\
 	}																												\
 	dst = ((setting<type>*)(settings[name].second))->get();															\
@@ -49,7 +49,7 @@ template <> void conf::get<type>(const string& name, type& dst) {													\
 \
 template <> const type& conf::get<type>(const string& name) {														\
 	if(((setting<type>*)(settings[name].second))->type_name != typeid(type).name()) {								\
-		a2e_error("invalid type for conf setting \"%s\" - used: %s, expected: %s!",									\
+		log_error("invalid type for conf setting \"%s\" - used: %s, expected: %s!",									\
 				  name, typeid(type).name(), ((setting<type>*)(settings[name].second))->type_name);					\
 	}																												\
 	return ((setting<type>*)(settings[name].second))->get();														\
@@ -71,7 +71,7 @@ template <> void conf::set<type>(const string& name, const type& value) {							
 #define CONF_DEFINE_SET_FUNCS(type, enum_type) \
 template <> void conf::set<type>(const string& name, const type& value) {											\
 	if(((setting<type>*)(settings[name].second))->type_name != typeid(type).name()) {								\
-		a2e_error("invalid type for conf setting \"%s\" - used: %s, expected: %s!",									\
+		log_error("invalid type for conf setting \"%s\" - used: %s, expected: %s!",									\
 				  name, typeid(type).name(), ((setting<type>*)(settings[name].second))->type_name);					\
 	}																												\
 	((setting<type>*)(settings[name].second))->set(value);															\
@@ -86,7 +86,7 @@ template <> bool conf::add<type>(const string& name, const type& value,									
 								 decltype(setting<type>::call_on_set) call_on_set) {								\
 	/* check if a setting with such a name already exists */														\
 	if(settings.count(name) > 0) {																					\
-		a2e_error("a setting with the name \"%s\" already exists!", name);											\
+		log_error("a setting with the name \"%s\" already exists!", name);											\
 		return false;																								\
 	}																												\
 																													\
@@ -95,7 +95,7 @@ template <> bool conf::add<type>(const string& name, const type& value,									
 	return true;																									\
 }																													\
 template <> bool conf::add<type>(const string& name, const type& value) {											\
-	return conf::add<type>(name, value, [](const type& val a2e_unused){});														\
+	return conf::add<type>(name, value, [](const type& val floor_unused){});														\
 }
 AR_CONF_TYPES(CONF_DEFINE_ADD_FUNCS)
 
@@ -113,7 +113,7 @@ scaling::SCALE_TYPE get_scale_type(const string& str) {
 }
 
 void conf::init() {
-	const xml::xml_doc& config_doc = e->get_config_doc();
+	const xml::xml_doc& config_doc = floor::get_config_doc();
 	
 	// add misc conf settings
 	conf::add<bool>("map.collision", config_doc.get<bool>("config.albion.map.collision", true));

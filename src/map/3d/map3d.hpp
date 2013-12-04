@@ -135,7 +135,7 @@ protected:
 	vector<tuple<unsigned int, unsigned int, uint2>> animated_tiles;
 	
 	//
-	clock_callback* clock_cb;
+	clock_callback clock_cb;
 	void clock_tick(size_t ticks);
 
 };

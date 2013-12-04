@@ -25,7 +25,7 @@
 
 //// object light base functions
 void object_light_base::handle() {
-	if(n == NULL || l == NULL) return;
+	if(n == nullptr || l == nullptr) return;
 	
 	npc3d* n3d = (npc3d*)n;
 	const float y_size = n3d->get_y_scale()/32.0f;
@@ -42,8 +42,8 @@ void object_light_base::handle() {
 }
 
 void object_light_base::track(npc* n_) {
-	if(n != NULL) {
-		((npc3d*)n)->set_object_light(NULL);
+	if(n != nullptr) {
+		((npc3d*)n)->set_object_light(nullptr);
 	}
 	n = n_;
 	((npc3d*)n)->set_object_light(this);
@@ -57,13 +57,13 @@ object_light_base* object_light_base::create(const object_light_type& type, cons
 	switch(type) {
 		__OBJECT_LIGHT_TYPE_LIST(__OBJECT_LIGHT_CASE_CREATE)
 	}
-	a2e_error("unknown object light type: %u!", (unsigned int)type);
+	log_error("unknown object light type: %u!", (unsigned int)type);
 	return new object_light<object_light_type::STREET_LAMP>(position);
 }
 
 template <> object_light<object_light_type::STREET_LAMP>::object_light(const float3& position_) : object_light_base(position_, float3(0.9f, 0.9f, 0.1f), std_tile_size*5.0f) {
 }
-template <> void object_light<object_light_type::STREET_LAMP>::animate(const size_t& time a2e_unused) {
+template <> void object_light<object_light_type::STREET_LAMP>::animate(const size_t& time floor_unused) {
 }
 
 template <> object_light<object_light_type::GLOWING_LAMP>::object_light(const float3& position_) : object_light_base(position_, float3(215.0f, 255.0f, 176.0f)/255.0f, std_tile_size*4.0f) {
@@ -89,68 +89,68 @@ template <> void object_light<object_light_type::GLOWING_LAMP>::animate(const si
 
 template <> object_light<object_light_type::TORCH>::object_light(const float3& position_) : object_light_base(position_, float3(1.0f), std_tile_size*8.0f) {
 }
-template <> void object_light<object_light_type::TORCH>::animate(const size_t& time a2e_unused) {
+template <> void object_light<object_light_type::TORCH>::animate(const size_t& time floor_unused) {
 	// TODO: flickering/light color dependent on wether it's a torch or a light staff
 }
 
 template <> object_light<object_light_type::FIRE>::object_light(const float3& position_) : object_light_base(position_, float3(222, 76, 11)/255.0f, std_tile_size*3.0f) {
 	// TODO
 }
-template <> void object_light<object_light_type::FIRE>::animate(const size_t& time a2e_unused) {
+template <> void object_light<object_light_type::FIRE>::animate(const size_t& time floor_unused) {
 	// TODO
 }
 
 template <> object_light<object_light_type::BLUE_FIRE>::object_light(const float3& position_) : object_light_base(position_, float3(1.0f), std_tile_size*1.0f) {
 	// TODO
 }
-template <> void object_light<object_light_type::BLUE_FIRE>::animate(const size_t& time a2e_unused) {
+template <> void object_light<object_light_type::BLUE_FIRE>::animate(const size_t& time floor_unused) {
 	// TODO
 }
 
 template <> object_light<object_light_type::GREEN_FIRE>::object_light(const float3& position_) : object_light_base(position_, float3(1.0f), std_tile_size*1.0f) {
 	// TODO
 }
-template <> void object_light<object_light_type::GREEN_FIRE>::animate(const size_t& time a2e_unused) {
+template <> void object_light<object_light_type::GREEN_FIRE>::animate(const size_t& time floor_unused) {
 	// TODO
 }
 
 template <> object_light<object_light_type::PILLAR>::object_light(const float3& position_) : object_light_base(position_, float3(1.0f), std_tile_size*1.0f) {
 	// TODO
 }
-template <> void object_light<object_light_type::PILLAR>::animate(const size_t& time a2e_unused) {
+template <> void object_light<object_light_type::PILLAR>::animate(const size_t& time floor_unused) {
 	// TODO
 }
 
 template <> object_light<object_light_type::FIREFLY>::object_light(const float3& position_) : object_light_base(position_, float3(0.9f, 0.9f, 0.1f), std_tile_size*2.0f) {
 }
-template <> void object_light<object_light_type::FIREFLY>::animate(const size_t& time a2e_unused) {
+template <> void object_light<object_light_type::FIREFLY>::animate(const size_t& time floor_unused) {
 	// TODO: glow or not?
 }
 
 template <> object_light<object_light_type::FEAR>::object_light(const float3& position_) : object_light_base(position_, float3(1.0f), std_tile_size*1.0f) {
 	// TODO
 }
-template <> void object_light<object_light_type::FEAR>::animate(const size_t& time a2e_unused) {
+template <> void object_light<object_light_type::FEAR>::animate(const size_t& time floor_unused) {
 	// TODO
 }
 
 template <> object_light<object_light_type::SERVICE_BOT>::object_light(const float3& position_) : object_light_base(position_, float3(1.0f), std_tile_size*1.0f) {
 	// TODO
 }
-template <> void object_light<object_light_type::SERVICE_BOT>::animate(const size_t& time a2e_unused) {
+template <> void object_light<object_light_type::SERVICE_BOT>::animate(const size_t& time floor_unused) {
 	// TODO
 }
 
 template <> object_light<object_light_type::STORM>::object_light(const float3& position_) : object_light_base(position_, float3(1.0f), std_tile_size*1.0f) {
 	// TODO
 }
-template <> void object_light<object_light_type::STORM>::animate(const size_t& time a2e_unused) {
+template <> void object_light<object_light_type::STORM>::animate(const size_t& time floor_unused) {
 	// TODO
 }
 
 template <> object_light<object_light_type::ARGIM>::object_light(const float3& position_) : object_light_base(position_, float3(81, 135, 102)/255.0f, std_tile_size*8.0f) {
 }
-template <> void object_light<object_light_type::ARGIM>::animate(const size_t& time a2e_unused) {
+template <> void object_light<object_light_type::ARGIM>::animate(const size_t& time floor_unused) {
 }
 
 template <> object_light<object_light_type::GLOWING_GRABBER>::object_light(const float3& position_) : object_light_base(position_, float3(0.0f), std_tile_size*1.5f) {

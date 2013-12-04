@@ -18,7 +18,6 @@
  */
 
 #include "main.hpp"
-#include <a2e.hpp>
 
 /*!
  * \mainpage
@@ -36,35 +35,36 @@ static a2estatic* debug_model = nullptr;
 static a2ematerial* debug_mat = nullptr;
 static vector<light*> debug_lights;
 
+static map_handler* mh { nullptr };
+static albion_ui* aui { nullptr };
+static bool done { false };
+
 int main(int argc, char *argv[]) {
 	// initialize the engine
 #if !defined(A2E_IOS) || !defined(A2E_DEBUG)
-	e = new engine(argv[0], (const char*)"../data/");
+	engine::init(argv[0], (const char*)"../data/");
 #else
-	e = new engine(argv[0], (const char*)"../../../../Documents/albion/data/");
+	engine::init(argv[0], (const char*)"../../../../Documents/albion/data/");
 #endif
-	e->init();
-	e->set_caption(APPLICATION_NAME);
-	e->acquire_gl_context();
+	floor::set_caption(APPLICATION_NAME);
+	floor::acquire_context();
 	
 	conf::init();
-	xld::set_xld_path(e->data_path("xld/"));
+	xld::set_xld_path(floor::data_path("xld/"));
 	
 	clck = new ar_clock();
 
 	// init class pointers
-	fio = e->get_file_io();
-	eevt = e->get_event();
-	t = e->get_texman();
-	ocl = e->get_opencl();
-	exts = e->get_ext();
-	s = e->get_shader();
-	sce = e->get_scene();
-	ui = e->get_gui();
+	eevt = floor::get_event();
+	t = engine::get_texman();
+	exts = engine::get_ext();
+	s = engine::get_shader();
+	sce = engine::get_scene();
+	ui = engine::get_gui();
 	fm = ui->get_font_manager();
 	
 	// initialize the camera
-	cam = new camera(e);
+	cam = new camera();
 	cam->set_position(0.0f, -80.0f, 0.0f);
 	cam->set_rotation(0.0f, 90.0f+45.0f, 0.0f);
 	cam->set_rotation_speed(300.0f);
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
 	};
 	for(const auto& shd : ar_shaders) {
 		if(!s->add_a2e_shader(shd[0], shd[1])) {
-			a2e_error("couldn't add a2e-shader \"%s\"!", shd[1]);
+			log_error("couldn't add a2e-shader \"%s\"!", shd[1]);
 			done = true;
 		}
 	}
@@ -119,16 +119,16 @@ int main(int argc, char *argv[]) {
 					inital_map_num = arg_map_num;
 				}
 				else {
-					a2e_error("invalid map number or map type!");
+					log_error("invalid map number or map type!");
 				}
 			}
 			else {
 				const string model_name = arg_1_str.substr(0, arg_1_str.rfind(".a2m"));
 				const string mtl_name = model_name + ".a2mtl";
-				debug_mat = new a2ematerial(e);
-				debug_mat->load_material(e->data_path(mtl_name));
+				debug_mat = new a2ematerial();
+				debug_mat->load_material(floor::data_path(mtl_name));
 				debug_model = sce->create_a2emodel<a2estatic>();
-				debug_model->load_model(e->data_path(arg_1_str));
+				debug_model->load_model(floor::data_path(arg_1_str));
 				debug_model->set_material(debug_mat);
 				debug_model->set_hard_scale(100.0f, 100.0f, 100.0f);
 				extbbox* bbox = debug_model->get_bounding_box();
@@ -176,7 +176,7 @@ int main(int argc, char *argv[]) {
 	// for debugging purposes
 	ar_debug* debug_ui = new ar_debug();
 	
-	e->release_gl_context();
+	floor::release_context();
 	
 	// main loop
 	while(!done) {
@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
 		eevt->handle_events();
 		
 		// stop drawing if window is inactive
-		if(!(SDL_GetWindowFlags(e->get_window()) & SDL_WINDOW_INPUT_FOCUS)) {
+		if(!(SDL_GetWindowFlags(floor::get_window()) & SDL_WINDOW_INPUT_FOCUS)) {
 			SDL_Delay(20);
 			continue;
 		}
@@ -192,10 +192,11 @@ int main(int argc, char *argv[]) {
 		debug_ui->run();
 		
 		// set caption (app name and fps count)
-		if(e->is_new_fps_count()) {
-			//cout << "FPS: " << e->get_fps() << endl;
-			caption << APPLICATION_NAME << " | FPS: " << e->get_fps();
-			if(mh->get_tile(0) != NULL) {
+		if(floor::is_new_fps_count()) {
+			//cout << "FPS: " << floor::get_fps() << endl;
+			stringstream caption;
+			caption << APPLICATION_NAME << " | FPS: " << floor::get_fps();
+			if(mh->get_tile(0) != nullptr) {
 				caption << " | ";
 				
 				stringstream tbytes;
@@ -204,22 +205,22 @@ int main(int argc, char *argv[]) {
 				
 				tbytes << mh->get_tile(0)->upper_bytes;
 				byte_strs[0] = tbytes.str();
-				core::reset(tbytes);
+				tbytes.clear();
 				tbytes << mh->get_tile(0)->lower_bytes;
 				byte_strs[1] = tbytes.str();
-				core::reset(tbytes);
+				tbytes.clear();
 				tbytes << mh->get_tile(1)->upper_bytes;
 				byte_strs[2] = tbytes.str();
-				core::reset(tbytes);
+				tbytes.clear();
 				tbytes << mh->get_tile(1)->lower_bytes;
 				byte_strs[3] = tbytes.str();
-				core::reset(tbytes);
+				tbytes.clear();
 				tbytes << mh->get_tile_num(0);
 				byte_strs[4] = tbytes.str();
-				core::reset(tbytes);
+				tbytes.clear();
 				tbytes << mh->get_tile_num(1);
 				byte_strs[5] = tbytes.str();
-				core::reset(tbytes);
+				tbytes.clear();
 
 				for(size_t i = 0; i < 6; i++) {
 					size_t add_zeros = 8 - byte_strs[i].length();
@@ -247,17 +248,16 @@ int main(int argc, char *argv[]) {
 				caption << " | Pos: " << mh->get_player_position();
 			}
 
-			e->set_caption(caption.str().c_str());
-			core::reset(caption);
+			floor::set_caption(caption.str());
 		}
 
-		e->start_draw();
+		engine::start_draw();
 
 		clck->run();
 		mh->handle();
 		aui->run();
 
-		e->stop_draw();
+		engine::stop_draw();
 	}
 	
 	eevt->remove_event_handler(key_handler_fnctr);
@@ -278,7 +278,6 @@ int main(int argc, char *argv[]) {
 
 	delete aui;
 	delete cam;
-	delete e;
 
 	return 0;
 }
@@ -389,11 +388,11 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 				break;
 			case SDLK_F18:
 			case SDLK_9:
-				e->reload_shaders();
+				engine::reload_shaders();
 				break;
 			case SDLK_F19:
 			case SDLK_0:
-				e->reload_kernels();
+				floor::reload_kernels();
 				break;
 			// TODO: make this work
 			/*case SDLK_F7:
@@ -406,16 +405,16 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 	return true;
 }
 
-bool mouse_handler(EVENT_TYPE type, shared_ptr<event_object> obj a2e_unused) {
+bool mouse_handler(EVENT_TYPE type, shared_ptr<event_object> obj floor_unused) {
 	if(type == EVENT_TYPE::MOUSE_RIGHT_CLICK) {
 		const bool cur_state = cam->get_mouse_input();
 		cam->set_mouse_input(cur_state ^ true);
-		e->set_cursor_visible(cur_state);
+		floor::set_cursor_visible(cur_state);
 	}
 	return true;
 }
 
-bool quit_handler(EVENT_TYPE type a2e_unused, shared_ptr<event_object> obj a2e_unused) {
+bool quit_handler(EVENT_TYPE type floor_unused, shared_ptr<event_object> obj floor_unused) {
 	done = true;
 	return true;
 }

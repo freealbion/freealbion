@@ -111,26 +111,26 @@ protected:
 			if(glIsBuffer(tex_coords_vbo)) glDeleteBuffers(1, &tex_coords_vbo);
 			if(glIsBuffer(indices_vbo)) glDeleteBuffers(1, &indices_vbo);
 			
-			if(vertices != NULL) {
+			if(vertices != nullptr) {
 				delete [] vertices;
-				vertices = NULL;
+				vertices = nullptr;
 			}
-			if(tex_coords != NULL) {
+			if(tex_coords != nullptr) {
 				delete [] tex_coords;
-				tex_coords = NULL;
+				tex_coords = nullptr;
 			}
-			if(indices != NULL) {
+			if(indices != nullptr) {
 				delete [] indices;
-				indices = NULL;
+				indices = nullptr;
 			}
-			if(tile_nums != NULL) {
+			if(tile_nums != nullptr) {
 				delete [] tile_nums;
-				tile_nums = NULL;
+				tile_nums = nullptr;
 			}
 			index_count = 0;
 		}
 		
-		map_layer() : vertices_vbo(0), tex_coords_vbo(0), indices_vbo(0), vertices(NULL), tex_coords(NULL), indices(NULL), tile_nums(NULL), index_count(0), ani_offset(0) {}
+		map_layer() : vertices_vbo(0), tex_coords_vbo(0), indices_vbo(0), vertices(nullptr), tex_coords(nullptr), indices(nullptr), tile_nums(nullptr), index_count(0), ani_offset(0) {}
 		~map_layer() { clear(); }
 	};
 	map_layer layers[2]; // under/overlay

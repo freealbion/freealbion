@@ -61,7 +61,7 @@ F(LIVING_WALL)
 class npc;
 class object_light_base {
 public:
-	object_light_base(const float3& position_, const float3& color_, const float& radius_) : position(position_), color(color_), radius(radius_), step(rand()%10000), direction(1.0f), l(new light(position_.x, position_.y, position_.z)), n(NULL) {
+	object_light_base(const float3& position_, const float3& color_, const float& radius_) : position(position_), color(color_), radius(radius_), step(rand()%10000), direction(1.0f), l(new light(position_.x, position_.y, position_.z)), n(nullptr) {
 		l->set_color(color);
 		l->set_radius(radius);
 		sce->add_light(l);
@@ -71,7 +71,7 @@ public:
 		original.radius = radius;
 	}
 	virtual ~object_light_base() {
-		if(l != NULL) {
+		if(l != nullptr) {
 			sce->delete_light(l);
 			delete l;
 		}
@@ -85,12 +85,12 @@ public:
 	virtual void set_position(const float3& position_) {
 		position = position_;
 		original.position = position_;
-		if(l != NULL) {
+		if(l != nullptr) {
 			l->set_position(position_);
 		}
 	}
 	virtual void set_enabled(const bool& state) {
-		if(l != NULL) {
+		if(l != nullptr) {
 			l->set_enabled(state);
 		}
 	}

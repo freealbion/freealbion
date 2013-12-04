@@ -42,7 +42,7 @@ public:
 		size_t length;
 		unsigned char* data;
 		
-		xld_object() : length(0), data(NULL) {}
+		xld_object() : length(0), data(nullptr) {}
 		xld_object(const size_t& length_, unsigned char* data_) : length(length_), data(data_) {}
 	};
 

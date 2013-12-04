@@ -71,7 +71,7 @@ public:
 		const vector<vector<float2>>* tex_coords;
 		float2 tile_tc_size;
 
-		tileset_object() : tile_count(0), tile_data(NULL), tiles(NULL), tile_obj_count(0), tileset(), loaded(false), tex_info_obj(), tex_coords(NULL), tile_tc_size() {}
+		tileset_object() : tile_count(0), tile_data(nullptr), tiles(nullptr), tile_obj_count(0), tileset(), loaded(false), tex_info_obj(), tex_coords(nullptr), tile_tc_size() {}
 	};
 
 	void load(const size_t& num, const size_t& palette);

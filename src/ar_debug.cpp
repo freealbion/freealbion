@@ -49,7 +49,7 @@ void gpu_perf_info::run() {
 
 //
 ar_debug::ar_debug() :
-draw_cb(this, &ar_debug::draw_ui)
+draw_cb(bind(&ar_debug::draw_ui, this, placeholders::_1, placeholders::_2))
 {
 	fnt = fm->get_font("SYSTEM_SANS_SERIF");
 #if defined(__APPLE__)
@@ -70,21 +70,21 @@ ar_debug::~ar_debug() {
 void ar_debug::run() {
 	if(conf::get<bool>("debug.ui")) {
 		if(cb_obj == nullptr) {
-			e->acquire_gl_context();
+			floor::acquire_context();
 			cb_obj = ui->add_draw_callback(DRAW_MODE_UI::POST_UI, draw_cb, float2(1.0f), float2(0.0f), gui_surface::SURFACE_FLAGS::NO_ANTI_ALIASING);
-			e->release_gl_context();
+			floor::release_context();
 		}
 		cb_obj->redraw();
 	}
 	else if(cb_obj != nullptr) {
-		e->acquire_gl_context();
+		floor::acquire_context();
 		ui->delete_draw_callback(draw_cb);
-		e->release_gl_context();
+		floor::release_context();
 		cb_obj = nullptr;
 	}
 }
 
-void ar_debug::draw_ui(const DRAW_MODE_UI draw_mode a2e_unused, rtt::fbo* buffer) {
+void ar_debug::draw_ui(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buffer) {
 	const uint2 size(buffer->width, buffer->height);
 #if defined(__APPLE__)
 	if(!conf::get<bool>("debug.osx")) {
@@ -154,8 +154,8 @@ void ar_debug::draw_ui(const DRAW_MODE_UI draw_mode a2e_unused, rtt::fbo* buffer
 	
 	// misc
 	if(conf::get<bool>("debug.fps")) {
-		const string fps_str("FPS: "+uint2string(e->get_fps()));
-		const float2 fps_pos(10.0f, e->get_height() - fnt->get_display_size() - 10);
+		const string fps_str("FPS: "+uint2string(floor::get_fps()));
+		const float2 fps_pos(10.0f, floor::get_height() - fnt->get_display_size() - 10);
 		fnt->draw(fps_str, fps_pos + 1.0f, float4(0.0f, 0.0f, 0.0f, 1.0f));
 		fnt->draw(fps_str, fps_pos);
 	}
@@ -165,7 +165,7 @@ void ar_debug::draw_ui(const DRAW_MODE_UI draw_mode a2e_unused, rtt::fbo* buffer
 		if(debug_tex_num == 0) return;
 		if(!glIsTexture(debug_tex_num)) return;
 		
-		gfx2d::draw_rectangle_texture(rect(0, 0, e->get_width(), e->get_height()),
+		gfx2d::draw_rectangle_texture(rect(0, 0, floor::get_width(), floor::get_height()),
 									  debug_tex_num,
 									  float4(1.0f, 1.0f, 1.0f, 0.0f),
 									  float4(0.0f, 0.0f, 0.0f, 1.0f),

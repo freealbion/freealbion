@@ -22,9 +22,9 @@
 #include <gui/style/gui_surface.hpp>
 
 map_handler::map_handler() :
-draw_cb(this, &map_handler::draw),
-scene_draw_cb(this, &map_handler::debug_draw),
-key_handler_fnctr(this, &map_handler::key_handler)
+draw_cb(bind(&map_handler::draw, this, placeholders::_1, placeholders::_2)),
+scene_draw_cb(bind(&map_handler::debug_draw, this, placeholders::_1)),
+key_handler_fnctr(bind(&map_handler::key_handler, this, placeholders::_1, placeholders::_2))
 {
 	// load maps
 	maps1 = new xld("MAPDATA1.XLD");
@@ -44,7 +44,7 @@ key_handler_fnctr(this, &map_handler::key_handler)
 		for(size_t map_num = 0; map_num < maps->get_object_count(); map_num++) {
 			const xld::xld_object* obj = maps->get_object(map_num);
 			const size_t rmap_num = (i*100)+map_num;
-			if(obj->length == 0) cout << rmap_num << " NULL" << endl;
+			if(obj->length == 0) cout << rmap_num << " nullptr" << endl;
 			else if(maps2d->is_2d_map(rmap_num)) cout << rmap_num << " 2D" << endl;
 			else if(maps3d->is_3d_map(rmap_num)) cout << rmap_num << " 3D" << endl;
 			else cout << rmap_num << " UNKNOWN" << endl;
@@ -146,7 +146,7 @@ bool map_handler::key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 }
 
 void map_handler::handle() {
-	const events::map_exit_event* me_evt = NULL;
+	const events::map_exit_event* me_evt = nullptr;
 	const MOVE_DIRECTION cur_next_dir = (MOVE_DIRECTION)next_dir.load();
 	size2 player_pos(0, 0);
 	if(active_map_type == MT_2D_MAP) {
@@ -173,7 +173,7 @@ void map_handler::handle() {
 	}
 	
 	// map change
-	if(me_evt != NULL) {
+	if(me_evt != nullptr) {
 		size2 map_pos = size2(me_evt->map_x-1, me_evt->map_y-1);
 		// the map change event pos might be (0, 0), in which case the player pos should be used
 		if(me_evt->map_x == 0 && me_evt->map_y == 0) {
@@ -204,7 +204,7 @@ void map_handler::handle() {
 	}
 }
 
-void map_handler::draw(const DRAW_MODE_UI draw_mode a2e_unused, rtt::fbo* buffer a2e_unused) {
+void map_handler::draw(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buffer floor_unused) {
 	if(active_map_type != MT_2D_MAP) return;
 	
 	maps2d->draw(MDS_NPCS, NDS_PRE_UNDERLAY);
@@ -242,7 +242,7 @@ void map_handler::load_map(const size_t& map_num, const size2 player_pos, const 
 		
 		// disable 3d cam input, show cursor again
 		cam->set_mouse_input(false);
-		e->set_cursor_visible(true);
+		floor::set_cursor_visible(true);
 	}
 	else if(maps3d->is_3d_map(map_num)) {
 		maps2d->unload();
@@ -290,7 +290,7 @@ void map_handler::debug_draw(const DRAW_MODE) {
 	if(conf::get<bool>("debug.player_pos")) {
 		ssize3 tile_info = get_3d_tile();
 		if(tile_info.min_element() >= 0) {
-			const float3 cam_pos = -float3(e->get_position());
+			const float3 cam_pos = -float3(engine::get_position());
 			float3 tmin = ((cam_pos/16.0f).floored())*16.0f;
 			float3 tmax = ((cam_pos/16.0f).ceiled())*16.0f;
 			tmin.y = tmax.y = 0.0f;

@@ -132,15 +132,15 @@ pal::~pal() {
 
 const unsigned int* pal::get_palette(const size_t& num) const {
 	if(num >= palettes.size()) {
-		a2e_error("invalid palette number %d!", num);
-		return NULL;
+		log_error("invalid palette number %d!", num);
+		return nullptr;
 	}
 	return palettes[num];
 }
 
 const vector<size2>& pal::get_animated_ranges(const size_t& num) const {
 	if(num >= palettes.size()) {
-		a2e_error("invalid palette number %d!", num);
+		log_error("invalid palette number %d!", num);
 		return animated_ranges[0];
 	}
 	return animated_ranges[num];

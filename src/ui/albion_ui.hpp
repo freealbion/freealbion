@@ -44,7 +44,7 @@ public:
 protected:
 	map_handler* mh;
 	ui_draw_callback draw_cb;
-	gui_simple_callback* draw_cb_obj = nullptr;
+	gui_simple_callback* draw_cb_obj { nullptr };
 	
 	//
 	image* clock_img_obj;
@@ -70,7 +70,7 @@ protected:
 	void delete_game_ui();
 	
 	//
-	clock_callback* clock_cb;
+	clock_callback clock_cb;
 	void clock_tick(size_t ticks);
 
 };

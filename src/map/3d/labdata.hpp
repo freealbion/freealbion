@@ -97,7 +97,7 @@ public:
 		unsigned int animation;
 		unsigned int cur_ani;
 		albion_texture::albion_texture_multi_xld* tex_info;
-		lab_floor() : collision(CT_PASSABLE), tex_num(0), animation(1), cur_ani(0), tex_info(NULL) {}
+		lab_floor() : collision(CT_PASSABLE), tex_num(0), animation(1), cur_ani(0), tex_info(nullptr) {}
 	};
 	
 	struct lab_object_info {

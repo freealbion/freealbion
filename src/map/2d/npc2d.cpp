@@ -34,7 +34,7 @@ npc2d::~npc2d() {
 
 void npc2d::draw(const NPC_DRAW_STAGE& draw_stage) const {
 	if(!enabled) return;
-	if(npc_data == NULL) return;
+	if(npc_data == nullptr) return;
 
 	const float tile_size = map2d_obj->get_tile_size();
 	float2 npc_pos = pos;
