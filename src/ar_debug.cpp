@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,10 +19,10 @@
 
 #include "ar_debug.h"
 #include "conf.h"
-#include <rendering/gfx2d.h>
-#include <gui/font.h>
-#include <gui/font_manager.h>
-#include <rendering/gl_timer.h>
+#include <rendering/gfx2d.hpp>
+#include <gui/font.hpp>
+#include <gui/font_manager.hpp>
+#include <rendering/gl_timer.hpp>
 #include <atomic>
 
 #if defined(__APPLE__)

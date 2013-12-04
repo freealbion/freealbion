@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #define __AR_DEBUG_H__
 
 #include "ar_global.h"
-#include <gui/gui.h>
+#include <gui/gui.hpp>
 
 #if defined(__APPLE__)
 // for debugging/optimization purposes:

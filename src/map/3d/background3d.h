@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "map_defines.h"
 #include "albion_texture.h"
 
-#include <scene/model/a2estatic.h>
+#include <scene/model/a2estatic.hpp>
 
 class background3d : public a2estatic {
 public:

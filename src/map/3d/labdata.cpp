@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 #include "labdata.h"
 #include "object_light.h"
-#include <scene/model/a2ematerial.h>
+#include <scene/model/a2ematerial.hpp>
 
 /*! labdata constructor
  */

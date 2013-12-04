@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  */
 
 #include "player3d.h"
-#include <scene/camera.h>
+#include <scene/camera.hpp>
 
 player3d::player3d(map3d* map3d_obj) : npc3d(map3d_obj), last_pos(0.0f, 0.0f, 0.0f) {
 	char_type = CT_PLAYER;

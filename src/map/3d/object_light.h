@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #ifndef __AR_OBJECT_LIGHT_H__
 #define __AR_OBJECT_LIGHT_H__
 
-#include <a2e.h>
+#include <a2e.hpp>
 #include "ar_global.h"
 
 enum class object_light_type {

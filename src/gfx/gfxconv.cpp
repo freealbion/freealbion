@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  */
 
 #include "gfxconv.h"
-#include <core/vector2.h>
+#include <core/vector2.hpp>
 
 void gfxconv::convert_8to32(const unsigned char* data_8bpp, unsigned int* data_32bpp,
 							const size_t& width, const size_t& height, 

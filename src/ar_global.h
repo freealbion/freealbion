@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,12 +20,12 @@
 #ifndef __AR_GLOBAL_H__
 #define __AR_GLOBAL_H__
 
-#include <core/cpp_headers.h>
-#include <core/logger.h>
-#include <core/vector2.h>
-#include <core/vector3.h>
+#include <core/cpp_headers.hpp>
+#include <core/logger.hpp>
+#include <core/vector2.hpp>
+#include <core/vector3.hpp>
 #if defined(A2E_IOS)
-#include <rendering/gles_compat.h>
+#include <rendering/gles_compat.hpp>
 #endif
 #include "palette.h"
 #include "clock.h"

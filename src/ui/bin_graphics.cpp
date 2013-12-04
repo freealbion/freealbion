@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 
 #include "bin_graphics.h"
 #include "map_defines.h"
-#include <core/file_io.h>
-#include <rendering/texman.h>
+#include <core/file_io.hpp>
+#include <rendering/texman.hpp>
 
 static const string type_strings[] = {
 	"CURSOR",

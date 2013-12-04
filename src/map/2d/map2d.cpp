@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 
 #include "map2d.h"
 #include "npc2d.h"
-#include <engine.h>
-#include <rendering/shader.h>
+#include <engine.hpp>
+#include <rendering/shader.hpp>
 
 static const float tile_size = 16.0f; // ^= 16 px, original size
 static const float snap_epsilon = 0.05f;

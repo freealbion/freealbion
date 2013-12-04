@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@
 
 #include "albion_ui.h"
 #include "bin_graphics.h"
-#include <gui/image.h>
-#include <rendering/gfx2d.h>
-#include <gui/style/gui_surface.h>
+#include <gui/image.hpp>
+#include <rendering/gfx2d.hpp>
+#include <gui/style/gui_surface.hpp>
 
 /*! albion_ui constructor
  */

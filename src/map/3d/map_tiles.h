@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2012 Florian Ziesche
+ *  Copyright (C) 2007 - 2014 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@
 #include "conf.h"
 #include "map_defines.h"
 
-#include <scene/model/a2estatic.h>
+#include <scene/model/a2estatic.hpp>
 #if !defined(A2E_IOS)
-#include <rendering/renderer/gl3/shader_gl3.h>
+#include <rendering/renderer/gl3/shader_gl3.hpp>
 #else
-#include <rendering/renderer/gles2/shader_gles2.h>
+#include <rendering/renderer/gles2/shader_gles2.hpp>
 #endif
 
 class map_tiles : public a2estatic {
