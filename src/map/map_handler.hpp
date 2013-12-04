@@ -17,19 +17,19 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_MAP_HANDLER_H__
-#define __AR_MAP_HANDLER_H__
+#ifndef __AR_MAP_HANDLER_HPP__
+#define __AR_MAP_HANDLER_HPP__
 
-#include "ar_global.h"
-#include "conf.h"
-#include "map_defines.h"
-#include "map2d.h"
-#include "map3d.h"
-#include "npc2d.h"
-#include "player2d.h"
-#include "player3d.h"
-#include "npcgfx.h"
-#include "labdata.h"
+#include "ar_global.hpp"
+#include "conf.hpp"
+#include "map_defines.hpp"
+#include "map2d.hpp"
+#include "map3d.hpp"
+#include "npc2d.hpp"
+#include "player2d.hpp"
+#include "player3d.hpp"
+#include "npcgfx.hpp"
+#include "labdata.hpp"
 #include <gui/gui.hpp>
 #include <scene/scene.hpp>
 

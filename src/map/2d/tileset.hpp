@@ -17,16 +17,16 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
-#ifndef __AR_TILESET_H__
-#define __AR_TILESET_H__
+#ifndef __AR_TILESET_HPP__
+#define __AR_TILESET_HPP__
 
-#include "ar_global.h"
-#include "map_defines.h"
-#include "xld.h"
-#include "palette.h"
-#include "gfxconv.h"
-#include "scaling.h"
-#include "albion_texture.h"
+#include "ar_global.hpp"
+#include "map_defines.hpp"
+#include "xld.hpp"
+#include "palette.hpp"
+#include "gfxconv.hpp"
+#include "scaling.hpp"
+#include "albion_texture.hpp"
 
 /*! @class tileset
  *  @brief tileset loader

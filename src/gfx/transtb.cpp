@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "transtb.h"
+#include "transtb.hpp"
 
 transtb::transtb() {
 	// i don't really have any idea where those are used for yet ...

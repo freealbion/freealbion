@@ -17,14 +17,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_ALBION_TEXTURE_H__
-#define __AR_ALBION_TEXTURE_H__
+#ifndef __AR_ALBION_TEXTURE_HPP__
+#define __AR_ALBION_TEXTURE_HPP__
 
-#include "ar_global.h"
-#include "conf.h"
-#include "gfxconv.h"
-#include "scaling.h"
-#include "xld.h"
+#include "ar_global.hpp"
+#include "conf.hpp"
+#include "gfxconv.hpp"
+#include "scaling.hpp"
+#include "xld.hpp"
 #include <rendering/texture_object.hpp>
 
 class albion_texture {

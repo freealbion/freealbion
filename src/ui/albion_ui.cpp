@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "albion_ui.h"
-#include "bin_graphics.h"
+#include "albion_ui.hpp"
+#include "bin_graphics.hpp"
 #include <gui/image.hpp>
 #include <rendering/gfx2d.hpp>
 #include <gui/style/gui_surface.hpp>

@@ -17,11 +17,11 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "object_light.h"
-#include "conf.h"
-#include "map_defines.h"
-#include "npc.h"
-#include "npc3d.h"
+#include "object_light.hpp"
+#include "conf.hpp"
+#include "map_defines.hpp"
+#include "npc.hpp"
+#include "npc3d.hpp"
 
 //// object light base functions
 void object_light_base::handle() {

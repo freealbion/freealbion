@@ -17,11 +17,11 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_OBJECT_LIGHT_H__
-#define __AR_OBJECT_LIGHT_H__
+#ifndef __AR_OBJECT_LIGHT_HPP__
+#define __AR_OBJECT_LIGHT_HPP__
 
 #include <a2e.hpp>
-#include "ar_global.h"
+#include "ar_global.hpp"
 
 enum class object_light_type {
 	STREET_LAMP,

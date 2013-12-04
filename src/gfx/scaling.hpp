@@ -17,10 +17,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_SCALING_H__
-#define __AR_SCALING_H__
+#ifndef __AR_SCALING_HPP__
+#define __AR_SCALING_HPP__
 
-#include "ar_global.h"
+#include "ar_global.hpp"
 #include <core/vector2.hpp>
 
 class scaling {

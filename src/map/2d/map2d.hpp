@@ -17,18 +17,18 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
-#ifndef __AR_MAP2D_H__
-#define __AR_MAP2D_H__
+#ifndef __AR_MAP2D_HPP__
+#define __AR_MAP2D_HPP__
 
-#include "ar_global.h"
-#include "conf.h"
-#include "map_defines.h"
-#include "xld.h"
-#include "tileset.h"
-#include "npcgfx.h"
-#include "map_npcs.h"
-#include "map_events.h"
-#include "player2d.h"
+#include "ar_global.hpp"
+#include "conf.hpp"
+#include "map_defines.hpp"
+#include "xld.hpp"
+#include "tileset.hpp"
+#include "npcgfx.hpp"
+#include "map_npcs.hpp"
+#include "map_events.hpp"
+#include "player2d.hpp"
 #include <rendering/gl_funcs.hpp>
 
 /*! @class map2d

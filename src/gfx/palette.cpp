@@ -17,9 +17,9 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "palette.h"
-#include "ar_global.h"
-#include "xld.h"
+#include "palette.hpp"
+#include "ar_global.hpp"
+#include "xld.hpp"
 #include <core/vector2.hpp>
 #include <core/file_io.hpp>
 

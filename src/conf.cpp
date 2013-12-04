@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "conf.h"
-#include "scaling.h"
+#include "conf.hpp"
+#include "scaling.hpp"
 #include <engine.hpp>
 #include <rendering/texture_object.hpp>
 #include <core/xml.hpp>

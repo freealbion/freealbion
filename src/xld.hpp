@@ -17,10 +17,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
-#ifndef __AR_XLD_H__
-#define __AR_XLD_H__
+#ifndef __AR_XLD_HPP__
+#define __AR_XLD_HPP__
 
-#include "ar_global.h"
+#include "ar_global.hpp"
 
 #define AR_GET_USINT(data_, offset_) ((unsigned short int)((data_[offset_+1] << 8) | data_[offset_]))
 #define AR_GET_SINT(data_, offset_) ((short int)((data_[offset_+1] << 8) | data_[offset_]))

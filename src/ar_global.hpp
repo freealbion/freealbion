@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_GLOBAL_H__
-#define __AR_GLOBAL_H__
+#ifndef __AR_GLOBAL_HPP__
+#define __AR_GLOBAL_HPP__
 
 #include <core/cpp_headers.hpp>
 #include <core/logger.hpp>
@@ -27,8 +27,8 @@
 #if defined(A2E_IOS)
 #include <rendering/gles_compat.hpp>
 #endif
-#include "palette.h"
-#include "clock.h"
+#include "palette.hpp"
+#include "clock.hpp"
 
 #define APPLICATION_NAME "Albion Remake PR2"
 

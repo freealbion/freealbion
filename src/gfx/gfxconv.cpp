@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "gfxconv.h"
+#include "gfxconv.hpp"
 #include <core/vector2.hpp>
 
 void gfxconv::convert_8to32(const unsigned char* data_8bpp, unsigned int* data_32bpp,

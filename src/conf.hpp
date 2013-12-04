@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_CONF_H__
-#define __AR_CONF_H__
+#ifndef __AR_CONF_HPP__
+#define __AR_CONF_HPP__
 
 #include <core/cpp_headers.hpp>
 

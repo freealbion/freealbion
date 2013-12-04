@@ -17,10 +17,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_MAP_DEFINES_H__
-#define __AR_MAP_DEFINES_H__
+#ifndef __AR_MAP_DEFINES_HPP__
+#define __AR_MAP_DEFINES_HPP__
 
-#include "ar_global.h"
+#include "ar_global.hpp"
 
 // experimental: 5 - 6 tiles per second (-> at least 166 - 200ms between move cmds)
 #define TILES_PER_SECOND (6) // assume 6 tiles/s for the moment, looks smoother

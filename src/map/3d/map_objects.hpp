@@ -17,13 +17,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_MAP_OBJECTS_H__
-#define __AR_MAP_OBJECTS_H__
+#ifndef __AR_MAP_OBJECTS_HPP__
+#define __AR_MAP_OBJECTS_HPP__
 
-#include "ar_global.h"
-#include "conf.h"
-#include "map_defines.h"
-#include "map_tiles.h"
+#include "ar_global.hpp"
+#include "conf.hpp"
+#include "map_defines.hpp"
+#include "map_tiles.hpp"
 
 class map_objects : public map_tiles {
 public:

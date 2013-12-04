@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "map_tiles.h"
+#include "map_tiles.hpp"
 
 map_tiles::map_tiles() : a2estatic(::e, ::s, ::sce) {
 }

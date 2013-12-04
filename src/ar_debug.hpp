@@ -17,10 +17,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_DEBUG_H__
-#define __AR_DEBUG_H__
+#ifndef __AR_DEBUG_HPP__
+#define __AR_DEBUG_HPP__
 
-#include "ar_global.h"
+#include "ar_global.hpp"
 #include <gui/gui.hpp>
 
 #if defined(__APPLE__)

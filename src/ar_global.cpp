@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "ar_global.h"
-#include "bin_graphics.h"
+#include "ar_global.hpp"
+#include "bin_graphics.hpp"
 #include <a2e.hpp>
 
 engine* e = nullptr;

@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "map2d.h"
-#include "npc2d.h"
+#include "map2d.hpp"
+#include "npc2d.hpp"
 #include <engine.hpp>
 #include <rendering/shader.hpp>
 

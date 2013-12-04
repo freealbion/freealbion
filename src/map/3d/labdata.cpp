@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "labdata.h"
-#include "object_light.h"
+#include "labdata.hpp"
+#include "object_light.hpp"
 #include <scene/model/a2ematerial.hpp>
 
 /*! labdata constructor

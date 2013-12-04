@@ -17,14 +17,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_NPC3D_H__
-#define __AR_NPC3D_H__
+#ifndef __AR_NPC3D_HPP__
+#define __AR_NPC3D_HPP__
 
-#include "ar_global.h"
-#include "map_defines.h"
-#include "map3d.h"
-#include "map_npcs.h"
-#include "npc.h"
+#include "ar_global.hpp"
+#include "map_defines.hpp"
+#include "map3d.hpp"
+#include "map_npcs.hpp"
+#include "npc.hpp"
 
 class npc3d : public npc {
 public:

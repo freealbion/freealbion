@@ -17,24 +17,24 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
-#ifndef __AR_MAIN_H__
-#define __AR_MAIN_H__
+#ifndef __AR_MAIN_HPP__
+#define __AR_MAIN_HPP__
 
-#include "ar_global.h"
-#include "conf.h"
+#include "ar_global.hpp"
+#include "conf.hpp"
 
-#include "albion_ui.h"
-#include "xld.h"
-#include "palette.h"
-#include "tileset.h"
-#include "npcgfx.h"
-#include "player2d.h"
-#include "scaling.h"
-#include "transtb.h"
-#include "clock.h"
-#include "bin_graphics.h"
-#include "ar_debug.h"
-#include "map_handler.h"
+#include "albion_ui.hpp"
+#include "xld.hpp"
+#include "palette.hpp"
+#include "tileset.hpp"
+#include "npcgfx.hpp"
+#include "player2d.hpp"
+#include "scaling.hpp"
+#include "transtb.hpp"
+#include "clock.hpp"
+#include "bin_graphics.hpp"
+#include "ar_debug.hpp"
+#include "map_handler.hpp"
 
 map_handler* mh;
 albion_ui* aui;

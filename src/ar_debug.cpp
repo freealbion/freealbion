@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "ar_debug.h"
-#include "conf.h"
+#include "ar_debug.hpp"
+#include "conf.hpp"
 #include <rendering/gfx2d.hpp>
 #include <gui/font.hpp>
 #include <gui/font_manager.hpp>

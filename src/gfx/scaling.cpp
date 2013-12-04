@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "scaling.h"
+#include "scaling.hpp"
 #include <core/platform.hpp>
 
 //opencl::kernel_object* scaling::hq4x = NULL;

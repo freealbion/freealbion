@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "player3d.h"
+#include "player3d.hpp"
 #include <scene/camera.hpp>
 
 player3d::player3d(map3d* map3d_obj) : npc3d(map3d_obj), last_pos(0.0f, 0.0f, 0.0f) {

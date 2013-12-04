@@ -17,13 +17,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_NPC_H__
-#define __AR_NPC_H__
+#ifndef __AR_NPC_HPP__
+#define __AR_NPC_HPP__
 
-#include "ar_global.h"
-#include "map_defines.h"
-#include "map_npcs.h"
-#include "clock.h"
+#include "ar_global.hpp"
+#include "map_defines.hpp"
+#include "map_npcs.hpp"
+#include "clock.hpp"
 
 class npc {
 public:

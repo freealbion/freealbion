@@ -17,10 +17,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
-#ifndef __AR_GFXCONV_H__
-#define __AR_GFXCONV_H__
+#ifndef __AR_GFXCONV_HPP__
+#define __AR_GFXCONV_HPP__
 
-#include "ar_global.h"
+#include "ar_global.hpp"
 
 /*! @class gfxconv
  *  @brief gfx converter

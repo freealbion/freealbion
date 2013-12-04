@@ -17,19 +17,19 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __AR_MAP3D_H__
-#define __AR_MAP3D_H__
+#ifndef __AR_MAP3D_HPP__
+#define __AR_MAP3D_HPP__
 
-#include "ar_global.h"
-#include "conf.h"
-#include "map_defines.h"
-#include "xld.h"
-#include "labdata.h"
-#include "map_npcs.h"
-#include "map_events.h"
-#include "map_objects.h"
-#include "map_tiles.h"
-#include "background3d.h"
+#include "ar_global.hpp"
+#include "conf.hpp"
+#include "map_defines.hpp"
+#include "xld.hpp"
+#include "labdata.hpp"
+#include "map_npcs.hpp"
+#include "map_events.hpp"
+#include "map_objects.hpp"
+#include "map_tiles.hpp"
+#include "background3d.hpp"
 
 class npc3d;
 class object_light_base;

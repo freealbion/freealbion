@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "npc3d.h"
-#include "object_light.h"
+#include "npc3d.hpp"
+#include "object_light.hpp"
 
 /*! npc3d constructor
  */

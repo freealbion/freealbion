@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "map_objects.h"
+#include "map_objects.hpp"
 
 map_objects::map_objects() : map_tiles() {
 	ws_positions = NULL;

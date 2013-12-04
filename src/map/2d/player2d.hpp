@@ -17,13 +17,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
-#ifndef __AR_PLAYER2D_H__
-#define __AR_PLAYER2D_H__
+#ifndef __AR_PLAYER2D_HPP__
+#define __AR_PLAYER2D_HPP__
 
-#include "ar_global.h"
-#include "map_defines.h"
-#include "npcgfx.h"
-#include "npc2d.h"
+#include "ar_global.hpp"
+#include "map_defines.hpp"
+#include "npcgfx.hpp"
+#include "npc2d.hpp"
 
 /*! @class player
  *  @brief player class

@@ -20,10 +20,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef __AR_HQX_H__
-#define __AR_HQX_H__
+#ifndef __AR_HQX_HPP__
+#define __AR_HQX_HPP__
 
-#include "scaling.h"
+#include "scaling.hpp"
 
 #define MASK_2 0x00FF00
 #define MASK_13 0xFF00FF

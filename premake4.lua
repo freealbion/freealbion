@@ -84,7 +84,7 @@ project "albion"
 	targetname "albion"
 	kind "ConsoleApp"
 	language "C++"
-	files { "src/**.h", "src/**.cpp" }
+	files { "src/**.hpp", "src/**.cpp" }
 	--defines { "A2E_NET_PROTOCOL=TCP_protocol", "A2E_USE_OPENCL" }
 	targetdir "bin"
 

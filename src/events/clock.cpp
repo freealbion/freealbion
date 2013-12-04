@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "clock.h"
-#include "conf.h"
+#include "clock.hpp"
+#include "conf.hpp"
 #include <SDL2/SDL.h>
 
 /*! clock constructor

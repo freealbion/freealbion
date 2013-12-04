@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "hqx.h"
+#include "hqx.hpp"
 
 #define PIXEL00_0     *dp = w[5];
 #define PIXEL00_10    Interp1(dp, w[5], w[1]);

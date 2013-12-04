@@ -653,6 +653,7 @@
 					/usr/include,
 					/usr/local/include,
 					/usr/local/include/floor,
+					/usr/local/include/a2elight,
 				);
 				LD_RUNPATH_SEARCH_PATHS = "/usr/local/lib /usr/lib @loader_path/../Resources @loader_path/../Frameworks /Library/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
@@ -775,6 +776,7 @@
 					/usr/include,
 					/usr/local/include,
 					/usr/local/include/floor,
+					/usr/local/include/a2elight,
 				);
 				LD_RUNPATH_SEARCH_PATHS = "/usr/local/lib /usr/lib @loader_path/../Resources @loader_path/../Frameworks /Library/Frameworks";
 				LIBRARY_SEARCH_PATHS = (

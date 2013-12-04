@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "background3d.h"
+#include "background3d.hpp"
 
 background3d::background3d() : a2estatic(::e, ::s, ::sce) {
 	bg3d_xld = new xld("3DBCKGR0.XLD");
