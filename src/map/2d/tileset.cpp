@@ -85,7 +85,7 @@ tileset::tileset(const pal* palettes_) : palettes(palettes_), cur_tileset_num(0)
 			tilesets[i]->tiles[j].tex_coord = empty_tc;
 			tilesets[i]->tiles[j].upper_bytes = 0;
 			tilesets[i]->tiles[j].lower_bytes = 0;
-			tilesets[i]->tiles[j].layer_type = TL_UNDERLAY;
+			tilesets[i]->tiles[j].layer_type = TILE_LAYER::UNDERLAY;
 			tilesets[i]->tiles[j].collision = 0;
 		}
 
@@ -97,7 +97,7 @@ tileset::tileset(const pal* palettes_) : palettes(palettes_), cur_tileset_num(0)
 				tilesets[i]->tiles[index].ani_num = 0xFFF;
 				tilesets[i]->tiles[index].ani_tiles = 1;
 				tilesets[i]->tiles[index].tex_coord = empty_tc;
-				tilesets[i]->tiles[index].layer_type = TL_UNDERLAY;
+				tilesets[i]->tiles[index].layer_type = TILE_LAYER::UNDERLAY;
 			}
 			else {
 				tilesets[i]->tiles[index].num = object->data[j*8+4] + (object->data[j*8+5] << 8);
@@ -214,7 +214,7 @@ void tileset::load(const size_t& num, const size_t& palette) {
 	tilesets[num]->tile_tc_size = float2(64.0f)/float2(tileset_tex_size);
 
 	// create texture
-	cur_tileset_tex = albion_texture::create(MT_2D_MAP, tileset_tex_size, size2(16, 16), palette, tex_info, nullptr, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::POINT);
+	cur_tileset_tex = albion_texture::create(MAP_TYPE::MAP_2D, tileset_tex_size, size2(16, 16), palette, tex_info, nullptr, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::POINT);
 	//conf::set<a2e_texture>("debug.texture", cur_tileset_tex);
 	tilesets[num]->tileset = cur_tileset_tex;
 	tilesets[num]->tex_coords = &tilesets[num]->tex_info_obj.tex_coords;
@@ -280,10 +280,10 @@ const vector<vector<float2>>* tileset::get_tex_coords() const {
 TILE_LAYER tileset::get_layer_type(const unsigned char& ch) const {
 	// TODO: find out what 0x8 is used for
 
-	if(ch == 0) return TL_UNDERLAY;
-	//if(ch & 2 && ch & 4) return TL_OVERLAY;
-	if(ch & 2 && ch & 4) return TL_DYNAMIC_3;
-	if(ch & 2) return TL_DYNAMIC_1;
-	if(ch & 4) return TL_DYNAMIC_2;
-	return TL_UNKNOWN;
+	if(ch == 0) return TILE_LAYER::UNDERLAY;
+	//if(ch & 2 && ch & 4) return TILE_LAYER::OVERLAY;
+	if(ch & 2 && ch & 4) return TILE_LAYER::DYNAMIC_3;
+	if(ch & 2) return TILE_LAYER::DYNAMIC_1;
+	if(ch & 4) return TILE_LAYER::DYNAMIC_2;
+	return TILE_LAYER::UNKNOWN;
 }

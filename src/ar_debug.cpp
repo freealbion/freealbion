@@ -104,7 +104,8 @@ void ar_debug::draw_ui(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buff
 											offset.x + bar_extents.x, offset.y + bar_extents.y + y_offset),
 									   float4(0.0f, 0.0f, 0.0f, 1.0f));
 			gfx2d::draw_rectangle_fill(rect(offset.x + inset.x, offset.y + inset.y + y_offset,
-											offset.x + inset.x + float(bar_extents.x - inset.x*2) * (float(value) / float(max_value)),
+											offset.x + inset.x + (unsigned int)(float(bar_extents.x - inset.x * 2) *
+                                                                                (float(value) / float(max_value))),
 											offset.y + bar_extents.y - inset.y + y_offset),
 									   float4(1.0f));
 		};
@@ -129,7 +130,7 @@ void ar_debug::draw_ui(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buff
 				const auto& qry(frame->queries[i]);
 				const float ratio = float(qry.time - frame->queries[i-1].time) * ftime_len;
 				
-				const unsigned int x_len = floorf(ratio * float(size.x - (offset.x + inner_offset.x) * 2)) - 2;
+				const unsigned int x_len = (unsigned int)(ratio * float(size.x - (offset.x + inner_offset.x) * 2)) - 2;
 				const rect qry_rect(offset.x + inner_offset.x + qry_offset,
 									offset.y + inner_offset.y,
 									offset.x + inner_offset.x + qry_offset + x_len,

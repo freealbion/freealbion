@@ -87,9 +87,9 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 	}
 	
 #if !defined(A2E_IOS)
-	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, texture_size, npc_size, cur_palette, tex_info, nullptr, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::TRILINEAR);
+	npc_graphics[npc_num] = albion_texture::create(MAP_TYPE::MAP_2D, texture_size, npc_size, cur_palette, tex_info, nullptr, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::TRILINEAR);
 #else
-	npc_graphics[npc_num] = albion_texture::create(MT_2D_MAP, texture_size, npc_size, cur_palette, tex_info, nullptr, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::LINEAR);
+	npc_graphics[npc_num] = albion_texture::create(MAP_TYPE::MAP_2D, texture_size, npc_size, cur_palette, tex_info, nullptr, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::LINEAR);
 #endif
 }
 
@@ -112,24 +112,24 @@ void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame, const float2& 
 
 	//
 	size_t npc_frame = 0;
-	switch(frame & 0xF7) {
-		case S_BACK1: npc_frame = 0; break;
-		case S_BACK2: npc_frame = 1; break;
-		case S_BACK3: npc_frame = 2; break;
-		case S_RIGHT1: npc_frame = 3; break;
-		case S_RIGHT2: npc_frame = 4; break;
-		case S_RIGHT3: npc_frame = 5; break;
-		case S_FRONT1: npc_frame = 6; break;
-		case S_FRONT2: npc_frame = 7; break;
-		case S_FRONT3: npc_frame = 8; break;
-		case S_LEFT1: npc_frame = 9; break;
-		case S_LEFT2: npc_frame = 10; break;
-		case S_LEFT3: npc_frame = 11; break;
-		case S_SIT_BACK: npc_frame = 12; break;
-		case S_SIT_RIGHT: npc_frame = 13; break;
-		case S_SIT_FRONT: npc_frame = 14; break;
-		case S_SIT_LEFT: npc_frame = 15; break;
-		case S_LAY: npc_frame = 16; break;
+	switch((NPC_STATE)(frame & 0xF7)) {
+		case NPC_STATE::BACK1: npc_frame = 0; break;
+		case NPC_STATE::BACK2: npc_frame = 1; break;
+		case NPC_STATE::BACK3: npc_frame = 2; break;
+		case NPC_STATE::RIGHT1: npc_frame = 3; break;
+		case NPC_STATE::RIGHT2: npc_frame = 4; break;
+		case NPC_STATE::RIGHT3: npc_frame = 5; break;
+		case NPC_STATE::FRONT1: npc_frame = 6; break;
+		case NPC_STATE::FRONT2: npc_frame = 7; break;
+		case NPC_STATE::FRONT3: npc_frame = 8; break;
+		case NPC_STATE::LEFT1: npc_frame = 9; break;
+		case NPC_STATE::LEFT2: npc_frame = 10; break;
+		case NPC_STATE::LEFT3: npc_frame = 11; break;
+		case NPC_STATE::SIT_BACK: npc_frame = 12; break;
+		case NPC_STATE::SIT_RIGHT: npc_frame = 13; break;
+		case NPC_STATE::SIT_FRONT: npc_frame = 14; break;
+		case NPC_STATE::SIT_LEFT: npc_frame = 15; break;
+		case NPC_STATE::LAY: npc_frame = 16; break;
 		default: npc_frame = 17; break;
 	}
 	

@@ -27,17 +27,17 @@ unsigned int scaling::RGBtoYUV[16777216];
 void scaling::init() {
 	//////// taken from hqx library, LGPL 2.1+
 	// Initalize RGB to YUV lookup table
-    unsigned int col, r, g, b, y, u, v;
+	unsigned int col, r, g, b, y, u, v;
 	RGBtoYUV[0] = (128 << 8) + 128;
-    for (col = 1; col < 16777215; col++) {
-        r = (col & 0xFF0000) >> 16;
-        g = (col & 0x00FF00) >> 8;
-        b = col & 0x0000FF;
-        y = (unsigned int)(0.299*r + 0.587*g + 0.114*b);
-        u = (unsigned int)(-0.169*r - 0.331*g + 0.5*b) + 128;
-        v = (unsigned int)(0.5*r - 0.419*g - 0.081*b) + 128;
-        RGBtoYUV[col] = 0xFF000000 + (y << 16) + (u << 8) + v;
-    }
+	for (col = 1; col < 16777215; col++) {
+		r = (col & 0xFF0000) >> 16;
+		g = (col & 0x00FF00) >> 8;
+		b = col & 0x0000FF;
+		y = (unsigned int)(0.299*r + 0.587*g + 0.114*b);
+		u = (unsigned int)(-0.169*r - 0.331*g + 0.5*b) + 128;
+		v = (unsigned int)(0.5*r - 0.419*g - 0.081*b) + 128;
+		RGBtoYUV[col] = 0xFF000000 + (y << 16) + (u << 8) + v;
+	}
 	////////
 }
 

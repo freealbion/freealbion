@@ -51,39 +51,36 @@ const string xld::make_xld_path(const string& filename) {
 
 void xld::load(const string& filename) {
 	// open file
-	if(!fio->open(make_xld_path(filename).c_str(), file_io::OPEN_TYPE::READ_BINARY)) {
+	file_io fio(make_xld_path(filename), file_io::OPEN_TYPE::READ_BINARY);
+	if(!fio.is_open()) {
 		log_error("couldn't open xld \"%s\"!", filename);
 		return;
 	}
 
 	// check header
-	fio->get_terminated_block(data, (char)0x00);
+	fio.get_terminated_block(data, (char)0x00);
 	if(data != "XLD0I") {
-		fio->close();
 		log_error("\"%s\" is no valid XLD file!", filename);
 		return;
 	}
 
 	// get object count
-	const unsigned short int read_obj_count = fio->get_usint();
+	const unsigned short int read_obj_count = fio.get_usint();
 	const size_t object_count = AR_SWAP_USINT(read_obj_count);
 
 	// get object lengths
 	objects.reserve(object_count);
 	for(size_t i = 0; i < object_count; i++) {
 		objects.push_back(new xld_object());
-		const unsigned int read_length = fio->get_uint();
+		const unsigned int read_length = fio.get_uint();
 		objects.back()->length = AR_SWAP_UINT(read_length);
 		objects.back()->data = new unsigned char[objects.back()->length];
 	}
 
 	// get objects
 	for(vector<xld_object*>::iterator obj_iter = objects.begin(); obj_iter != objects.end(); obj_iter++) {
-		fio->get_block((char*)(*obj_iter)->data, (*obj_iter)->length);
+		fio.get_block((char*)(*obj_iter)->data, (*obj_iter)->length);
 	}
-
-	// close file
-	fio->close();
 }
 
 void xld::close() {

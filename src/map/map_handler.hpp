@@ -41,7 +41,7 @@ public:
 	void handle();
 	void draw(const DRAW_MODE_UI draw_mode, rtt::fbo* buffer);
 	
-	void load_map(const size_t& map_num, const size2 player_pos = size2(0, 0), const MOVE_DIRECTION player_direction = MD_NONE);
+	void load_map(const size_t& map_num, const size2 player_pos = size2(0, 0), const MOVE_DIRECTION player_direction = MOVE_DIRECTION::NONE);
 	MAP_TYPE get_map_type(const size_t& map_num) const;
 	
 	//

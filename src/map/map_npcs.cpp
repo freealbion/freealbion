@@ -28,7 +28,7 @@ map_npcs::map_npcs() {
  */
 map_npcs::~map_npcs() {
 	for(vector<map_npc*>::iterator niter = npcs.begin(); niter != npcs.end(); niter++) {
-		if((*niter)->movement_type == MT_RANDOM) delete (*niter)->position;
+		if((*niter)->movement_type == MOVEMENT_TYPE::RANDOM) delete (*niter)->position;
 		else delete [] (*niter)->position;
 
 		(*niter)->position = nullptr;
@@ -62,8 +62,8 @@ void map_npcs::load(const unsigned char* data, const size_t& event_end_offset) {
 		
 		//cout << " mt: " << (size_t)data[offset];
 		//cout << endl;
-		if(data[offset] & 0x3) npcs.back()->movement_type = MT_RANDOM;
-		else npcs.back()->movement_type = MT_TRACK;
+		if(data[offset] & 0x3) npcs.back()->movement_type = MOVEMENT_TYPE::RANDOM;
+		else npcs.back()->movement_type = MOVEMENT_TYPE::TRACK;
 		offset++;
 
 		offset++; // unknown
@@ -72,12 +72,12 @@ void map_npcs::load(const unsigned char* data, const size_t& event_end_offset) {
 	
 	offset = event_end_offset;
 	for(vector<map_npc*>::iterator niter = npcs.begin(); niter != npcs.end(); niter++) {
-		if((*niter)->movement_type == MT_RANDOM) {
+		if((*niter)->movement_type == MOVEMENT_TYPE::RANDOM) {
 			(*niter)->position = new size2();
 			(*niter)->position->x = data[offset]; offset++;
 			(*niter)->position->y = data[offset]; offset++;
 		}
-		else { // MT_TRACK
+		else { // MOVEMENT_TYPE::TRACK
 			(*niter)->position = new size2[0x480];
 			for(size_t i = 0; i < 0x480; i++) {
 				(*niter)->position[i].set(data[offset], data[offset+1]);
@@ -85,7 +85,7 @@ void map_npcs::load(const unsigned char* data, const size_t& event_end_offset) {
 			}
 		}
 		
-		cout << "NPC @" << hex << offset << dec << ": " << (*niter)->npc_num << ", " << (*niter)->object_num << ", " << (*niter)->event_num << ", " << npcs.back()->movement_type << ", " << *(*niter)->position << endl;
+		cout << "NPC @" << hex << offset << dec << ": " << (*niter)->npc_num << ", " << (*niter)->object_num << ", " << (*niter)->event_num << ", " << (size_t)npcs.back()->movement_type << ", " << *(*niter)->position << endl;
 	}
 }
 

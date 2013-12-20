@@ -27,10 +27,10 @@
  */
 pal::pal() {
 	// load palette 000
-	fio->open(xld::make_xld_path("PALETTE.000").c_str(), file_io::OPEN_TYPE::READ_BINARY);
+	file_io fio(xld::make_xld_path("PALETTE.000"), file_io::OPEN_TYPE::READ_BINARY);
 	unsigned char* palette_000 = new unsigned char[192];
-	fio->get_block((char*)palette_000, 192);
-	fio->close();
+	fio.get_block((char*)palette_000, 192);
+	fio.close();
 
 	// load palettes
 	xld* palette_xld = new xld("PALETTE0.XLD");

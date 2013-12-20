@@ -182,11 +182,11 @@ void events::assign_type_data(vector<events::event*>& evts) {
 				mevt->map_x = evt->info[0];
 				mevt->map_y = evt->info[1];
 				switch(evt->info[2]) {
-					case 0: mevt->direction = MD_UP; break;
-					case 1: mevt->direction = MD_RIGHT; break;
-					case 2: mevt->direction = MD_DOWN; break;
-					case 3: mevt->direction = MD_LEFT; break;
-					default: mevt->direction = MD_NONE; break;
+					case 0: mevt->direction = MOVE_DIRECTION::UP; break;
+					case 1: mevt->direction = MOVE_DIRECTION::RIGHT; break;
+					case 2: mevt->direction = MOVE_DIRECTION::DOWN; break;
+					case 3: mevt->direction = MOVE_DIRECTION::LEFT; break;
+					default: mevt->direction = MOVE_DIRECTION::NONE; break;
 				}
 				mevt->next_map = evt->info[5];
 			}

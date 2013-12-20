@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE config PUBLIC "-//A2E//DTD config 1.0//EN" "config.dtd">
+<!DOCTYPE config PUBLIC "-//FLOOR//DTD config 1.0//EN" "config.dtd">
 <config>
 	<!-- screen resolution and fullscreen/vsync settings (stereo serves no purpose right now) -->
-	<screen width="1280" height="720" fullscreen="0" vsync="0" stereo="0"/>
-	<!--<screen width="1920" height="1080" fullscreen="1" vsync="1" stereo="0"/>-->
+	<screen width="1280" height="720" fullscreen="0" vsync="0" dpi="0" stereo="0"/>
+	<!--<screen width="1920" height="1080" fullscreen="1" vsync="1" dpi="0" stereo="0"/>-->
+	
+	<!-- logging options (apply to both console and file logging)
+	 verbosity: 0 = none, 1 = +error, 2 = +debug, 3 = +msg, 4 = +undecorated output
+	 append_mode: boolean, if enabled, this will, for each logging operation, open the log file in append mode, write to it and close it again
+	 separate_msg_file: boolean, if enabled and verbosity >= 3, this will log msgs into a separate file
+	 log_filename: relative filename of the log file, relative to the current working directory
+	 msg_filename: relative filename of the msg log file, only used/created if separate_msg_file = true
+	-->
+	<logging verbosity="4" append_mode="false" separate_msg_file="false" log_filename="log.txt" msg_filename="msg.txt"/>
 
 	<!--
-	 dpi: use this to overwrite the auto-detected dpi value (0: use auto-detect)
 	 anti_aliasing options: 0 - max MSAA value allowed by graphics card (8 is recommended)
 	-->
-	<gui dpi="0" anti_aliasing="2"/>
+	<gui anti_aliasing="2"/>
 
 	<!-- you might want to change the field of view, but near/far should remain at 1/1000 -->
 	<projection fov="72.0" near="0.1" far="1000.0"/>
@@ -33,14 +41,29 @@
 	 geometry_light_scaling: sets the additional scaling of the geometry and light buffer (note: it is not recommended to change this value!)
 		valid values are: 0.5, 0.625, 0.75, 0.875, 1.0 (anything above 1.0 has no effect, anything below 0.5 will lead to broken rendering)
 	-->
-	<inferred upscaling="2.0" geometry_light_scaling="1.0"/>
+	<inferred upscaling="1.0" geometry_light_scaling="1.0"/>
 
 	<!-- unless you know what you're doing, don't change the following settings
 	 opencl platform options: either the opencl platform index (starting by 0) or "cuda" on supported platforms (OS X and Linux only)
 	 opencl restrict options: if this is set to any of (or a list of) "CPU", "GPU" or "ACCELERATOR", only those kind/type of devices are used
 	-->
 	<graphic_device disabled_extensions="" force_device="" force_vendor=""/>
-	<opencl platform="0" clear_cache="1" restrict=""/>
+
+	<!-- unless you know what you're doing, don't change the following settings
+	 opencl platform options: either the opencl platform index (starting with 0) or "cuda" on supported platforms (OS X and Linux only)
+	 opencl restrict options: if this is set to any of (or a list of) "CPU", "GPU" or "ACCELERATOR", only these type of devices are used
+	-->
+	<opencl platform="0" clear_cache="true" gl_sharing="false" log_binaries="false" restrict=""/>
+	
+	<!-- cuda specific options
+	 base_dir: the base directory where cuda is installed (usually /usr/local/cuda, but might be /opt/cuda on linux)
+	 debug: compile cuda code with debug information
+	 profiling: compile cuda code with profiling support
+	 keep_temp: keep temporary files that are generated during cuda code compilation
+	 keep_binaries: save generated/compiled ptx code to data/cache/
+	 use_cache: attempts to use generated/compiled ptx code from data/cache/
+	-->
+	<cuda base_dir="/usr/local/cuda" debug="false" profiling="false" keep_temp="false" keep_binaries="true" use_cache="true"/>
 
 	<!-- misc albion settings (you may change these) -->
 	<albion>

@@ -202,41 +202,43 @@ bin_graphics::bin_graphics() {
 		{ ARROW_LOOK_DOWN, 0x102E63, 16, 16, TEXTURE_FILTERING::LINEAR, false },
 	};
 	
-	if(!fio->open(xld::make_xld_path("MAIN.EXE").c_str(), file_io::OPEN_TYPE::READ_BINARY)) {
+	file_io fio(xld::make_xld_path("MAIN.EXE"), file_io::OPEN_TYPE::READ_BINARY);
+	if(!fio.is_open()) {
 		log_error("couldn't open MAIN.EXE");
+		return;
 	}
-	else {
-		unsigned char* albion_binary = new unsigned char[fio->get_filesize()];
-		fio->get_block((char*)albion_binary, fio->get_filesize());
-		fio->close();
+	
+	unsigned char* albion_binary = new unsigned char[(size_t)fio.get_filesize()];
+	fio.get_block((char*)albion_binary, fio.get_filesize());
+	fio.close();
+	
+	const scaling::SCALE_TYPE scale_type = conf::get<scaling::SCALE_TYPE>("map.2d.scale_type");
+	const size_t scale_factor = scaling::get_scale_factor(scale_type);
+	for(const auto& graphic : graphics) {
+		size2 texture_size(graphic.width * scale_factor, graphic.height * scale_factor);
+		unsigned int* tex_surface = new unsigned int[texture_size.x * texture_size.y*4];
+		unsigned int* data_32bpp = new unsigned int[graphic.width * graphic.height];
 		
-		const scaling::SCALE_TYPE scale_type = conf::get<scaling::SCALE_TYPE>("map.2d.scale_type");
-		const size_t scale_factor = scaling::get_scale_factor(scale_type);
-		for(const auto& graphic : graphics) {
-			size2 texture_size(graphic.width * scale_factor, graphic.height * scale_factor);
-			unsigned int* tex_surface = new unsigned int[texture_size.x * texture_size.y*4];
-			unsigned int* data_32bpp = new unsigned int[graphic.width * graphic.height];
-			
-			scaling::SCALE_TYPE scale = scale_type;
-			if(graphic.scale_nearest) {
-				scale = (scale_factor == 4 ? scaling::ST_NEAREST_4X :
-						 (scale_factor == 2 ? scaling::ST_NEAREST_2X : scaling::ST_NEAREST_1X));
-			}
-			
-			gfxconv::convert_8to32(&albion_binary[graphic.offset], data_32bpp,
-								   graphic.width, graphic.height,
-								   18, 0); // pal 18!
-			scaling::scale(scale, data_32bpp, size2(graphic.width, graphic.height), tex_surface);
-			
-			
-			bin_textures.emplace_back(t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, graphic.filtering, 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE));
-			
-			delete [] tex_surface;
-			delete [] data_32bpp;
+		scaling::SCALE_TYPE scale = scale_type;
+		if(graphic.scale_nearest) {
+			scale = (scale_factor == 4 ? scaling::ST_NEAREST_4X :
+					 (scale_factor == 2 ? scaling::ST_NEAREST_2X : scaling::ST_NEAREST_1X));
 		}
 		
-		delete [] albion_binary;
+		gfxconv::convert_8to32(&albion_binary[graphic.offset], data_32bpp,
+							   graphic.width, graphic.height,
+							   18, 0); // pal 18!
+		scaling::scale(scale, data_32bpp, size2(graphic.width, graphic.height), tex_surface);
+		
+		
+		bin_textures.emplace_back(t->add_texture(tex_surface, (int)texture_size.x, (int)texture_size.y, GL_RGBA8, GL_RGBA,
+												 graphic.filtering, 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE));
+		
+		delete [] tex_surface;
+		delete [] data_32bpp;
 	}
+	
+	delete [] albion_binary;
 }
 
 bin_graphics::~bin_graphics() {

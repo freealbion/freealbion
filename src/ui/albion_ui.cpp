@@ -59,7 +59,7 @@ void albion_ui::delete_game_ui() {
 
 void albion_ui::run() {
 	// not nice, but it's just bools ...
-	bool map_3d = (mh->get_active_map_type() == MT_3D_MAP);
+	bool map_3d = (mh->get_active_map_type() == MAP_TYPE::MAP_3D);
 	if(!map_3d) return;
 	
 	// update compass dot every 33ms (~30fps)
@@ -95,7 +95,7 @@ void albion_ui::draw(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buffer
 	}
 	
 	// draw the compass (only on 3d maps)
-	bool map_3d = (mh->get_active_map_type() == MT_3D_MAP);
+	bool map_3d = (mh->get_active_map_type() == MAP_TYPE::MAP_3D);
 	if(map_3d) {
 		gfx2d::draw_rectangle_texture(rect(compass_img_pos.x, compass_img_pos.y,
 										   compass_img_pos.x+compass_img_size.x,
@@ -411,8 +411,8 @@ void albion_ui::open_goto_map_wnd() {
 	for(size_t i = 0; i < map_count; i++) {
 		string item_str = size_t2string(albion_maps[i].map_num-100) + " - " + albion_maps[i].map_name;
 		switch(mh->get_map_type(albion_maps[i].map_num-100)) {
-			case MT_2D_MAP: item_str += " (2D)"; break;
-			case MT_3D_MAP: item_str += " (3D)"; break;
+			case MAP_TYPE::MAP_2D: item_str += " (2D)"; break;
+			case MAP_TYPE::MAP_3D: item_str += " (3D)"; break;
 			default: break;
 		}
 		lb_map_names->add_item(item_str.c_str());
@@ -426,7 +426,7 @@ void albion_ui::open_goto_map_wnd() {
 	maps[2] = new xld("MAPDATA3.XLD");
 	/*for(size_t i = 0; i < map_count; i++) {
 		size_t map_num = albion_maps[i].map_num-100;
-		if(mh->get_map_type(map_num) == MT_3D_MAP) {
+		if(mh->get_map_type(map_num) == MAP_TYPE::MAP_3D) {
 			xld* mx = (map_num < 100 ? maps[0] : (map_num < 200 ? maps[1] : maps[2]));
 			const xld::xld_object* obj = mx->get_object(map_num % 100);
 			cout << "# " << map_num << ": " << (size_t)obj->data[6] << " (" << albion_maps[i].map_name << ")" << endl;
@@ -438,10 +438,10 @@ void albion_ui::open_goto_map_wnd() {
 		xld* mx = (map_num < 100 ? maps[0] : (map_num < 200 ? maps[1] : maps[2]));
 		const xld::xld_object* obj = mx->get_object(map_num % 100);
 
-		if(mh->get_map_type(map_num) == MT_3D_MAP) {
+		if(mh->get_map_type(map_num) == MOVEMENT_TYPE::3D_MAP) {
 			palettes_3d.insert((size_t)obj->data[8]);
 		}
-		if(mh->get_map_type(map_num) == MT_2D_MAP) {
+		if(mh->get_map_type(map_num) == MOVEMENT_TYPE::2D_MAP) {
 			palettes_2d.insert((size_t)obj->data[8]);
 			if(1 == (size_t)obj->data[8]) cout << "!!!!!!!!!!!!! MAP " << map_num << ": palette 14" << endl;
 		}

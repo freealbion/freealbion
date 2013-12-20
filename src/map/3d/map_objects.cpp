@@ -54,7 +54,7 @@ void map_objects::pre_draw_geometry(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array
 }
 
 void map_objects::pre_draw_material(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask floor_unused) {
-	shd->uniform("cam_position", -float3(*e->get_position()));
+	shd->uniform("cam_position", -float3(*engine::get_position()));
 	
 	shd->attribute_array("ws_position", vbo_ws_position_id, 3);
 

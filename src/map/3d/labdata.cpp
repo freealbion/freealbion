@@ -498,7 +498,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 	}
 	cout << ":: creating floors texture " << floors_tex_size << " ..." << endl;
 	if(floors_tex_size.x > 0 && floors_tex_size.y > 0) {
-		floors_tex = albion_texture::create(MT_3D_MAP, floors_tex_size, size2(64, 64), palette, floors_tex_info, floor_xlds, albion_texture::TST_MIRROR, floor_spacing, true, tex_filtering);
+		floors_tex = albion_texture::create(MAP_TYPE::MAP_3D, floors_tex_size, size2(64, 64), palette, floors_tex_info, floor_xlds, albion_texture::TST_MIRROR, floor_spacing, true, tex_filtering);
 	}
 	else floors_tex = t->get_dummy_texture();
 	//conf::set<a2e_texture>("debug.texture", floors_tex);

@@ -174,15 +174,15 @@ void map2d::load(const size_t& map_num) {
 
 					float tile_depth = 0.0f;
 					switch(tile_obj->layer_type) {
-						case TL_UNDERLAY: tile_depth = 0.0f; break;
-						case TL_OVERLAY: tile_depth = 1.0f; break;
-						case TL_DYNAMIC_1:
+						case TILE_LAYER::UNDERLAY: tile_depth = 0.0f; break;
+						case TILE_LAYER::OVERLAY: tile_depth = 1.0f; break;
+						case TILE_LAYER::DYNAMIC_1:
 							tile_depth = float(y)/255.0f;
 							break;
-						case TL_DYNAMIC_2:
+						case TILE_LAYER::DYNAMIC_2:
 							tile_depth = float(y+1)/255.0f;
 							break;
-						case TL_DYNAMIC_3:
+						case TILE_LAYER::DYNAMIC_3:
 							tile_depth = float(y+2)/255.0f;
 							break;
 						default:
@@ -401,11 +401,11 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 								 -snapped_position.y * scaled_tile_size,
 								 0.0f);
 
-	if(draw_stage == MDS_UNDERLAY || draw_stage == MDS_OVERLAY) {
+	if(draw_stage == MAP_DRAW_STAGE::UNDERLAY || draw_stage == MAP_DRAW_STAGE::OVERLAY) {
 		*mvm = matrix4f().scale(scale, scale, 1.0f) * *mvm; // *reversed order
 
 		const tileset::tileset_object& tileset_obj = tilesets->get_cur_tileset();
-		const map_layer& cur_layer = (draw_stage == MDS_UNDERLAY ? layers[0] : layers[1]);
+		const map_layer& cur_layer = (draw_stage == MAP_DRAW_STAGE::UNDERLAY ? layers[0] : layers[1]);
 		
 		gl3shader shd = s->get_gl3shader("SIMPLE");
 		shd->use("textured");
@@ -420,21 +420,21 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
-	else if(draw_stage == MDS_NPCS) {
+	else if(draw_stage == MAP_DRAW_STAGE::NPCS) {
 		// draw npcs
-		*e->get_mvp_matrix() = *mvm * *pm;
+		*engine::get_mvp_matrix() = *mvm * *pm;
 		for(vector<npc2d*>::const_iterator npc_iter = npcs.begin(); npc_iter != npcs.end(); npc_iter++) {
 			(*npc_iter)->draw(npc_draw_stage);
 		}
 	}
-	else if(draw_stage == MDS_DEBUG) {
+	else if(draw_stage == MAP_DRAW_STAGE::DEBUGGING) {
 		// draw events onto the map
 		if(conf::get<bool>("debug.draw_events")) {
 			*mvm *= matrix4f().scale(scale, scale, 1.0f);
 			*mvm *= matrix4f().translate(-snapped_position.x * scaled_tile_size,
 										 -snapped_position.y * scaled_tile_size,
 										 0.0f);
-			*e->get_mvp_matrix() = *mvm * *pm;
+			*engine::get_mvp_matrix() = *mvm * *pm;
 
 			rect evt_rect;
 			for(size_t i = 0; i < mevents.get_event_info_count(); i++) {
@@ -471,7 +471,7 @@ void map2d::set_pos(const size_t& x, const size_t& y) {
 bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const {
 	if(!map_loaded) return false;
 	
-	if(!conf::get<bool>("map.collision") && char_type == CT_PLAYER) return false;
+	if(!conf::get<bool>("map.collision") && char_type == CHARACTER_TYPE::PLAYER) return false;
 	
 	if(cur_position.x >= map_size.x) return true;
 	if(cur_position.y >= map_size.y) return true;
@@ -479,21 +479,21 @@ bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, 
 	size2 next_pos[6]; // just to be on the safe side ...
 	size_t position_count = 0;
 	
-	if(direction & MD_LEFT) {
+	if((direction & MOVE_DIRECTION::LEFT) != MOVE_DIRECTION::NONE) {
 		if(cur_position.x == 0) return true;
 		next_pos[position_count++] = size2(cur_position.x-1, cur_position.y);
 	}
-	if(direction & MD_RIGHT) {
+	if((direction & MOVE_DIRECTION::RIGHT) != MOVE_DIRECTION::NONE) {
 		if(cur_position.x+2 >= map_size.x) return true;
 		next_pos[position_count++] = size2(cur_position.x+2, cur_position.y);
 	}
-	if(direction & MD_UP) {
+	if((direction & MOVE_DIRECTION::UP) != MOVE_DIRECTION::NONE) {
 		if(cur_position.y == 0) return true;
 		if(position_count > 0) next_pos[0].y -= 1; // sideways movement
 		next_pos[position_count++] = size2(cur_position.x, cur_position.y-1);
 		next_pos[position_count++] = size2(cur_position.x+1, cur_position.y-1);
 	}
-	if(direction & MD_DOWN) {
+	if((direction & MOVE_DIRECTION::DOWN) != MOVE_DIRECTION::NONE) {
 		if(cur_position.y+1 >= map_size.y) return true;
 		if(position_count > 0) next_pos[0].y += 1;
 		next_pos[position_count++] = size2(cur_position.x, cur_position.y+1);

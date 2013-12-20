@@ -38,7 +38,6 @@
 #endif
 
 class engine;
-class file_io;
 class gfx;
 class texman;
 class event;
@@ -50,8 +49,6 @@ class ext;
 class gui;
 class font_manager;
 
-extern engine* e;
-extern file_io* fio;
 extern texman* t;
 extern event* eevt;
 extern shader* s;

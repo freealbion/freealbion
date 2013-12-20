@@ -24,7 +24,7 @@
  */
 npc3d::npc3d(map3d* map3d_obj_) : npc(), map3d_obj(map3d_obj_), l(nullptr) {
 	time_per_tile = TIME_PER_TILE_NPC3D;
-	state = N3DS_FRONT1;
+	state = (size_t)NPC3D_STATE::FRONT1;
 	anim_dir = false;
 }
 
@@ -58,7 +58,7 @@ void npc3d::handle() {
 	if(new_frame && state > 0) {
 		(!anim_dir) ? state++ : state--;
 		
-		if(state == N3DS_FRONT1 || state == N3DS_FRONT3) {
+		if(state == (size_t)NPC3D_STATE::FRONT1 || state == (size_t)NPC3D_STATE::FRONT3) {
 			anim_dir ^= true;
 		}
 		
@@ -73,10 +73,10 @@ void npc3d::move(const MOVE_DIRECTION direction) {
 	pos_interp = 0.0f;
 
 	if(!map3d_obj->collide(direction, pos, char_type).x) {
-		if(direction & MD_LEFT) next_pos.x--;
-		if(direction & MD_RIGHT) next_pos.x++;
-		if(direction & MD_UP) next_pos.y--;
-		if(direction & MD_DOWN) next_pos.y++;
+		if((direction & MOVE_DIRECTION::LEFT) != MOVE_DIRECTION::NONE) next_pos.x--;
+		if((direction & MOVE_DIRECTION::RIGHT) != MOVE_DIRECTION::NONE) next_pos.x++;
+		if((direction & MOVE_DIRECTION::UP) != MOVE_DIRECTION::NONE) next_pos.y--;
+		if((direction & MOVE_DIRECTION::DOWN) != MOVE_DIRECTION::NONE) next_pos.y++;
 	}
 }
 

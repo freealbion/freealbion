@@ -58,7 +58,7 @@ key_handler_fnctr(bind(&map_handler::key_handler, this, placeholders::_1, placeh
 	p3d = new player3d(maps3d);
 	p3d->set_pos(0, 0);
 	
-	active_map_type = MT_NONE;
+	active_map_type = MAP_TYPE::NONE;
 	
 	sce->add_draw_callback("map_handler", scene_draw_cb);
 	draw_cb_obj = ui->add_draw_callback(DRAW_MODE_UI::PRE_UI, draw_cb, float2(1.0f), float2(0.0f));
@@ -91,7 +91,7 @@ map_handler::~map_handler() {
 
 bool map_handler::key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 	if(conf::get<bool>("debug.free_cam") &&
-	   active_map_type == MT_3D_MAP) {
+	   active_map_type == MAP_TYPE::MAP_3D) {
 		return false;
 	}
 	
@@ -100,19 +100,19 @@ bool map_handler::key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 		switch(key_evt->key) {
 			case SDLK_LEFT:
 			case SDLK_a:
-				next_dir |= MD_LEFT;
+				next_dir |= (unsigned int)MOVE_DIRECTION::LEFT;
 				break;
 			case SDLK_RIGHT:
 			case SDLK_d:
-				next_dir |= MD_RIGHT;
+				next_dir |= (unsigned int)MOVE_DIRECTION::RIGHT;
 				break;
 			case SDLK_UP:
 			case SDLK_w:
-				next_dir |= MD_UP;
+				next_dir |= (unsigned int)MOVE_DIRECTION::UP;
 				break;
 			case SDLK_DOWN:
 			case SDLK_s:
-				next_dir |= MD_DOWN;
+				next_dir |= (unsigned int)MOVE_DIRECTION::DOWN;
 				break;
 			default:
 				return false;
@@ -123,19 +123,19 @@ bool map_handler::key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 		switch(key_evt->key) {
 			case SDLK_LEFT:
 			case SDLK_a:
-				next_dir &= ~MD_LEFT;
+				next_dir &= ~(unsigned int)MOVE_DIRECTION::LEFT;
 				break;
 			case SDLK_RIGHT:
 			case SDLK_d:
-				next_dir &= ~MD_RIGHT;
+				next_dir &= ~(unsigned int)MOVE_DIRECTION::RIGHT;
 				break;
 			case SDLK_UP:
 			case SDLK_w:
-				next_dir &= ~MD_UP;
+				next_dir &= ~(unsigned int)MOVE_DIRECTION::UP;
 				break;
 			case SDLK_DOWN:
 			case SDLK_s:
-				next_dir &= ~MD_DOWN;
+				next_dir &= ~(unsigned int)MOVE_DIRECTION::DOWN;
 				break;
 			default:
 				return false;
@@ -149,8 +149,8 @@ void map_handler::handle() {
 	const events::map_exit_event* me_evt = nullptr;
 	const MOVE_DIRECTION cur_next_dir = (MOVE_DIRECTION)next_dir.load();
 	size2 player_pos(0, 0);
-	if(active_map_type == MT_2D_MAP) {
-		if(cur_next_dir != MD_NONE && (SDL_GetTicks() - last_move) > TIME_PER_TILE) {
+	if(active_map_type == MAP_TYPE::MAP_2D) {
+		if(cur_next_dir != MOVE_DIRECTION::NONE && (SDL_GetTicks() - last_move) > TIME_PER_TILE) {
 			last_move = SDL_GetTicks();
 			p2d->move(cur_next_dir);
 		}
@@ -162,7 +162,7 @@ void map_handler::handle() {
 		
 		draw_cb_obj->redraw();
 	}
-	else if(active_map_type == MT_3D_MAP) {
+	else if(active_map_type == MAP_TYPE::MAP_3D) {
 		p3d->move(cur_next_dir);
 		if(p3d->has_moved()) {
 			p3d->set_moved(false);
@@ -199,30 +199,30 @@ void map_handler::handle() {
 	p2d->handle();
 	p3d->handle();
 	
-	if(active_map_type != MT_2D_MAP) {
+	if(active_map_type != MAP_TYPE::MAP_2D) {
 		cam->run();
 	}
 }
 
 void map_handler::draw(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buffer floor_unused) {
-	if(active_map_type != MT_2D_MAP) return;
+	if(active_map_type != MAP_TYPE::MAP_2D) return;
 	
-	maps2d->draw(MDS_NPCS, NDS_PRE_UNDERLAY);
-	p2d->draw(NDS_PRE_UNDERLAY);
+	maps2d->draw(MAP_DRAW_STAGE::NPCS, NPC_DRAW_STAGE::PRE_UNDERLAY);
+	p2d->draw(NPC_DRAW_STAGE::PRE_UNDERLAY);
 	
-	if(conf::get<bool>("map.draw_underlay")) maps2d->draw(MDS_UNDERLAY, NDS_NONE);
+	if(conf::get<bool>("map.draw_underlay")) maps2d->draw(MAP_DRAW_STAGE::UNDERLAY, NPC_DRAW_STAGE::NONE);
 	
-	maps2d->draw(MDS_NPCS, NDS_PRE_OVERLAY);
-	p2d->draw(NDS_PRE_OVERLAY);
+	maps2d->draw(MAP_DRAW_STAGE::NPCS, NPC_DRAW_STAGE::PRE_OVERLAY);
+	p2d->draw(NPC_DRAW_STAGE::PRE_OVERLAY);
 	
-	if(conf::get<bool>("map.draw_overlay")) maps2d->draw(MDS_OVERLAY, NDS_NONE);
+	if(conf::get<bool>("map.draw_overlay")) maps2d->draw(MAP_DRAW_STAGE::OVERLAY, NPC_DRAW_STAGE::NONE);
 	
-	maps2d->draw(MDS_NPCS, NDS_POST_OVERLAY);
-	p2d->draw(NDS_POST_OVERLAY);
+	maps2d->draw(MAP_DRAW_STAGE::NPCS, NPC_DRAW_STAGE::POST_OVERLAY);
+	p2d->draw(NPC_DRAW_STAGE::POST_OVERLAY);
 	
 	// clear depth (so it doesn't interfere with the gui) and draw debug stuff
 	glClear(GL_DEPTH_BUFFER_BIT);
-	maps2d->draw(MDS_DEBUG, NDS_NONE);
+	maps2d->draw(MAP_DRAW_STAGE::DEBUGGING, NPC_DRAW_STAGE::NONE);
 }
 
 void map_handler::load_map(const size_t& map_num, const size2 player_pos, const MOVE_DIRECTION player_direction) {
@@ -238,7 +238,7 @@ void map_handler::load_map(const size_t& map_num, const size2 player_pos, const 
 		maps2d->load(map_num);
 		maps2d->set_initial_position(ppos2d);
 		npc_graphics->set_palette(maps2d->get_palette()-1);
-		active_map_type = MT_2D_MAP;
+		active_map_type = MAP_TYPE::MAP_2D;
 		
 		// disable 3d cam input, show cursor again
 		cam->set_mouse_input(false);
@@ -249,11 +249,11 @@ void map_handler::load_map(const size_t& map_num, const size2 player_pos, const 
 		maps3d->load(map_num);
 		p3d->set_pos(player_pos.x, player_pos.y);
 		p3d->set_view_direction(player_direction);
-		active_map_type = MT_3D_MAP;
+		active_map_type = MAP_TYPE::MAP_3D;
 	}
 	
 	// reset move direction
-	next_dir = MD_NONE;
+	next_dir = (unsigned int)MOVE_DIRECTION::NONE;
 }
 
 const size2& map_handler::get_player_position() const {
@@ -281,9 +281,9 @@ const MAP_TYPE& map_handler::get_active_map_type() const {
 }
 
 MAP_TYPE map_handler::get_map_type(const size_t& map_num) const {
-	if(maps2d->is_2d_map(map_num)) return MT_2D_MAP;
-	if(maps3d->is_3d_map(map_num)) return MT_3D_MAP;
-	return MT_NONE;
+	if(maps2d->is_2d_map(map_num)) return MAP_TYPE::MAP_2D;
+	if(maps3d->is_3d_map(map_num)) return MAP_TYPE::MAP_3D;
+	return MAP_TYPE::NONE;
 }
 
 void map_handler::debug_draw(const DRAW_MODE) {

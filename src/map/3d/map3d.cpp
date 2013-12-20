@@ -887,7 +887,7 @@ void map3d::handle() {
 	if(!map_loaded) return;
 
 	// attach player light to camera for now
-	player_light->set_position(-float3(*e->get_position()));
+	player_light->set_position(-float3(*engine::get_position()));
 	
 	// update/animate object lights
 	const unsigned int& ani_time_diff = SDL_GetTicks() - object_light_ani_time;
@@ -1066,7 +1066,7 @@ const ssize3 map3d::get_tile() const {
 bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const {
 	if(!map_loaded) return bool4(false);
 	
-	if(!conf::get<bool>("map.collision") && char_type == CT_PLAYER) return bool4(false);
+	if(!conf::get<bool>("map.collision") && char_type == CHARACTER_TYPE::PLAYER) return bool4(false);
 	
 	if(cur_position.x >= map_size.x) return bool4(true);
 	if(cur_position.y >= map_size.y) return bool4(true);
@@ -1079,8 +1079,8 @@ bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position,
 	next_position[2].x = next_position[2].y = -1;
 	size_t position_count = 0; // count == 1 if single direction, == 3 if sideways
 	
-	if(!((direction & MD_LEFT) && (direction & MD_RIGHT))) {
-		if(direction & MD_LEFT) {
+	if(!((direction & MOVE_DIRECTION::LEFT) != MOVE_DIRECTION::NONE && (direction & MOVE_DIRECTION::RIGHT) != MOVE_DIRECTION::NONE)) {
+		if((direction & MOVE_DIRECTION::LEFT) != MOVE_DIRECTION::NONE) {
 			if(cur_position.x == 0) {
 				ret.x = true;
 				ret.y = true;
@@ -1090,7 +1090,7 @@ bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position,
 				position_count++;
 			}
 		}
-		else if(direction & MD_RIGHT) {
+		else if((direction & MOVE_DIRECTION::RIGHT) != MOVE_DIRECTION::NONE) {
 			if(cur_position.x+1 >= map_size.x) {
 				ret.x = true;
 				ret.y = true;
@@ -1102,8 +1102,8 @@ bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position,
 		}
 	}
 	
-	if(!((direction & MD_UP) && (direction & MD_DOWN))) {
-		if(direction & MD_UP) {
+	if(!((direction & MOVE_DIRECTION::UP) != MOVE_DIRECTION::NONE && (direction & MOVE_DIRECTION::DOWN) != MOVE_DIRECTION::NONE)) {
+		if((direction & MOVE_DIRECTION::UP) != MOVE_DIRECTION::NONE) {
 			if(cur_position.y == 0) {
 				ret.x = true;
 				ret.z = true;
@@ -1113,7 +1113,7 @@ bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position,
 				position_count++;
 			}
 		}
-		else if(direction & MD_DOWN) {
+		else if((direction & MOVE_DIRECTION::DOWN) != MOVE_DIRECTION::NONE) {
 			if(cur_position.y+1 >= map_size.y) {
 				ret.x = true;
 				ret.z = true;
@@ -1127,19 +1127,19 @@ bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position,
 	
 	// check for sideways movement
 	if(position_count == 2) {
-		if((direction & MD_LEFT) && (direction & MD_UP)) {
+		if((direction & MOVE_DIRECTION::LEFT) != MOVE_DIRECTION::NONE && (direction & MOVE_DIRECTION::UP) != MOVE_DIRECTION::NONE) {
 			next_position[2] = size2(cur_position.x-1, cur_position.y-1);
 			position_count++;
 		}
-		else if((direction & MD_LEFT) && (direction & MD_DOWN)) {
+		else if((direction & MOVE_DIRECTION::LEFT) != MOVE_DIRECTION::NONE && (direction & MOVE_DIRECTION::DOWN) != MOVE_DIRECTION::NONE) {
 			next_position[2] = size2(cur_position.x-1, cur_position.y+1);
 			position_count++;
 		}
-		else if((direction & MD_RIGHT) && (direction & MD_UP)) {
+		else if((direction & MOVE_DIRECTION::RIGHT) != MOVE_DIRECTION::NONE && (direction & MOVE_DIRECTION::UP) != MOVE_DIRECTION::NONE) {
 			next_position[2] = size2(cur_position.x+1, cur_position.y-1);
 			position_count++;
 		}
-		else if((direction & MD_RIGHT) && (direction & MD_DOWN)) {
+		else if((direction & MOVE_DIRECTION::RIGHT) != MOVE_DIRECTION::NONE && (direction & MOVE_DIRECTION::DOWN) != MOVE_DIRECTION::NONE) {
 			next_position[2] = size2(cur_position.x+1, cur_position.y+1);
 			position_count++;
 		}

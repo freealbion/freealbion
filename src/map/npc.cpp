@@ -22,14 +22,14 @@
 
 /*! npc constructor
  */
-npc::npc() : char_type(CT_NPC) {
+npc::npc() : char_type(CHARACTER_TYPE::NPC) {
 	time_per_tile = TIME_PER_TILE_NPC;
 	last_frame = last_anim_frame = last_move = SDL_GetTicks();
 	npc_data = nullptr;
 	enabled = true;
 	pos_interp = 0.0f;
 	clock_cb = nullptr;
-	view_direction = MD_NONE;
+	view_direction = MOVE_DIRECTION::NONE;
 }
 
 /*! npc destructor
@@ -52,7 +52,7 @@ void npc::set_npc_data(const map_npcs::map_npc* npc_data_) {
 	else set_pos(npc_data->position[0].x-1, npc_data->position[0].y-1);
 	
 	// if the npc uses a track, add a clock callback
-	if(npc_data->movement_type == MT_TRACK) {
+	if(npc_data->movement_type == MOVEMENT_TYPE::TRACK) {
 		if(!clock_cb_added) {
 			clock_cb = bind(&npc::clock_tick_cb, this, placeholders::_1);
 			clck->add_tick_callback(ar_clock::CCBT_TICK, clock_cb);
@@ -60,7 +60,7 @@ void npc::set_npc_data(const map_npcs::map_npc* npc_data_) {
 		}
 		time_per_tile = clck->get_ms_per_tick();
 	}
-	else if(npc_data->movement_type == MT_RANDOM && clock_cb_added) {
+	else if(npc_data->movement_type == MOVEMENT_TYPE::RANDOM && clock_cb_added) {
 		clck->delete_tick_callback(clock_cb);
 		clock_cb_added = false;
 	}
@@ -96,22 +96,22 @@ void npc::compute_move() {
 	if(!enabled) return;
 	
 	// compute next move
-	if(npc_data->movement_type == MT_RANDOM) {
+	if(npc_data->movement_type == MOVEMENT_TYPE::RANDOM) {
 		// TODO: think of a better method ;)
 		if(SDL_GetTicks() - last_move < time_per_tile) return;
 		last_move = SDL_GetTicks();
 		
 		const size_t rand_dir = rand() % 8;
-		MOVE_DIRECTION dir = MD_NONE;
+		MOVE_DIRECTION dir = MOVE_DIRECTION::NONE;
 		switch(rand_dir) {
-			case 0: dir = MD_UP; break;
-			case 1: dir = (MOVE_DIRECTION)(MD_UP | MD_RIGHT); break;
-			case 2: dir = MD_RIGHT; break;
-			case 3: dir = (MOVE_DIRECTION)(MD_DOWN | MD_RIGHT); break;
-			case 4: dir = MD_DOWN; break;
-			case 5: dir = (MOVE_DIRECTION)(MD_DOWN | MD_LEFT); break;
-			case 6: dir = MD_LEFT; break;
-			case 7: dir = (MOVE_DIRECTION)(MD_UP | MD_LEFT); break;
+			case 0: dir = MOVE_DIRECTION::UP; break;
+			case 1: dir = (MOVE_DIRECTION)(MOVE_DIRECTION::UP | MOVE_DIRECTION::RIGHT); break;
+			case 2: dir = MOVE_DIRECTION::RIGHT; break;
+			case 3: dir = (MOVE_DIRECTION)(MOVE_DIRECTION::DOWN | MOVE_DIRECTION::RIGHT); break;
+			case 4: dir = MOVE_DIRECTION::DOWN; break;
+			case 5: dir = (MOVE_DIRECTION)(MOVE_DIRECTION::DOWN | MOVE_DIRECTION::LEFT); break;
+			case 6: dir = MOVE_DIRECTION::LEFT; break;
+			case 7: dir = (MOVE_DIRECTION)(MOVE_DIRECTION::UP | MOVE_DIRECTION::LEFT); break;
 			default: break;
 		}
 		move(dir);

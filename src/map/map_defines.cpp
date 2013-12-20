@@ -17,19 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "ar_global.hpp"
-#include "bin_graphics.hpp"
-#include <a2e.hpp>
+#include "map_defines.hpp"
 
-texman* t = nullptr;
-event* eevt = nullptr;
-shader* s = nullptr;
-opencl_base* ocl = nullptr;
-scene* sce = nullptr;
-camera* cam = nullptr;
-pal* palettes = nullptr;
-ext* exts = nullptr;
-gui* ui = nullptr;
-font_manager* fm = nullptr;
-ar_clock* clck = nullptr;
-bin_graphics* bin_gfx = nullptr;
+enum_class_bitwise_or_global_impl(MOVE_DIRECTION)
+enum_class_bitwise_and_global_impl(MOVE_DIRECTION)

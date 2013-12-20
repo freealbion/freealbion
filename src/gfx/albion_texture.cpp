@@ -27,7 +27,7 @@ albion_texture::albion_texture() {
 albion_texture::~albion_texture() {
 }
 
-a2e_texture albion_texture::create(const size_t& map_type, const size2& texture_size, const size2& tile_size, const size_t& palette, const vector<albion_texture_info*>& tex_info, xld** xlds, const TEXTURE_SPACING_TYPE spacing_type, const size_t spacing_size, bool custom_mipmaps, const TEXTURE_FILTERING filtering) {
+a2e_texture albion_texture::create(const MAP_TYPE& map_type, const size2& texture_size, const size2& tile_size, const size_t& palette, const vector<albion_texture_info*>& tex_info, xld** xlds, const TEXTURE_SPACING_TYPE spacing_type, const size_t spacing_size, bool custom_mipmaps, const TEXTURE_FILTERING filtering) {
 	if(tex_info.size() == 0) return t->get_dummy_texture();
 	if(texture_size.x == 0 || texture_size.y == 0) return t->get_dummy_texture();
 	if(tile_size.x == 0 || tile_size.y == 0) return t->get_dummy_texture();
@@ -35,7 +35,7 @@ a2e_texture albion_texture::create(const size_t& map_type, const size2& texture_
 	unsigned int* tex_surface = new unsigned int[texture_size.x*texture_size.y];
 	memset(tex_surface, 0, texture_size.x*texture_size.y*sizeof(unsigned int));
 	
-	const scaling::SCALE_TYPE scale_type = conf::get<scaling::SCALE_TYPE>(map_type == 0 ? "map.2d.scale_type" : "map.3d.scale_type");
+	const scaling::SCALE_TYPE scale_type = conf::get<scaling::SCALE_TYPE>(map_type == MAP_TYPE::MAP_2D ? "map.2d.scale_type" : "map.3d.scale_type");
 	const size_t scale_factor = scaling::get_scale_factor(scale_type);
 	const size2 scaled_tile_size = tile_size * scale_factor;
 	const size2 spaced_scaled_tile_size = scaled_tile_size + size2(2*spacing_size);
@@ -157,7 +157,7 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 	glBindTexture(GL_TEXTURE_2D, tex->tex());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (filtering == TEXTURE_FILTERING::BILINEAR ? GL_LINEAR_MIPMAP_NEAREST : GL_LINEAR_MIPMAP_LINEAR));
 	if(engine::get_anisotropic() > 0) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLint)e->get_anisotropic());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLint)engine::get_anisotropic());
 	}
 	
 	// scale down to 0.5x

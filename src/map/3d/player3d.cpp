@@ -21,7 +21,7 @@
 #include <scene/camera.hpp>
 
 player3d::player3d(map3d* map3d_obj) : npc3d(map3d_obj), last_pos(0.0f, 0.0f, 0.0f) {
-	char_type = CT_PLAYER;
+	char_type = CHARACTER_TYPE::PLAYER;
 }
 
 player3d::~player3d() {
@@ -61,22 +61,22 @@ void player3d::move(const MOVE_DIRECTION direction) {
 	last_move = SDL_GetTicks();
 	
 	// compute new camera position
-	if(direction & MD_RIGHT) {
+	if((direction & MOVE_DIRECTION::RIGHT) != MOVE_DIRECTION::NONE) {
 		cam_offset.x -= (float)sin((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
 		cam_offset.z += (float)cos((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
 	}
 	
-	if(direction & MD_LEFT) {
+	if((direction & MOVE_DIRECTION::LEFT) != MOVE_DIRECTION::NONE) {
 		cam_offset.x += (float)sin((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
 		cam_offset.z -= (float)cos((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
 	}
 	
-	if(direction & MD_UP) {
+	if((direction & MOVE_DIRECTION::UP) != MOVE_DIRECTION::NONE) {
 		cam_offset.x += (float)sin(cam_rot.y * _PIDIV180) * cam_speed;
 		cam_offset.z -= (float)cos(cam_rot.y * _PIDIV180) * cam_speed;
 	}
 	
-	if(direction & MD_DOWN) {
+	if((direction & MOVE_DIRECTION::DOWN) != MOVE_DIRECTION::NONE) {
 		cam_offset.x -= (float)sin(cam_rot.y * _PIDIV180) * cam_speed;
 		cam_offset.z += (float)cos(cam_rot.y * _PIDIV180) * cam_speed;
 	}
@@ -85,11 +85,13 @@ void player3d::move(const MOVE_DIRECTION direction) {
 	
 	// compute direction
 	float2 fdir = float2(last_pos.x - cam_pos.x, last_pos.z - cam_pos.z).normalize();
-	const MOVE_DIRECTION cur_dir_x = (MOVE_DIRECTION)(fdir.x > 0.0f ? MD_LEFT : (fdir.x < 0.0f ? MD_RIGHT : 0));
-	const MOVE_DIRECTION cur_dir_y = (MOVE_DIRECTION)(fdir.y > 0.0f ? MD_UP : (fdir.y < 0.0f ? MD_DOWN : 0));
+	const MOVE_DIRECTION cur_dir_x = (MOVE_DIRECTION)(fdir.x > 0.0f ? MOVE_DIRECTION::LEFT :
+                                                      (fdir.x < 0.0f ? MOVE_DIRECTION::RIGHT : MOVE_DIRECTION::NONE));
+	const MOVE_DIRECTION cur_dir_y = (MOVE_DIRECTION)(fdir.y > 0.0f ? MOVE_DIRECTION::UP :
+                                                      (fdir.y < 0.0f ? MOVE_DIRECTION::DOWN : MOVE_DIRECTION::NONE));
 	const MOVE_DIRECTION cur_dir = (MOVE_DIRECTION)(cur_dir_x|cur_dir_y);
 	
-	if(cur_dir != 0) {
+	if(cur_dir != MOVE_DIRECTION::NONE) {
 		// collision check
 		bool4 col_data = map3d_obj->collide(cur_dir, pos, char_type);
 		
@@ -98,18 +100,18 @@ void player3d::move(const MOVE_DIRECTION direction) {
 		
 		float2 mod_pos = float2(fmodf(cam_pos.x, std_tile_size), fmodf(cam_pos.z, std_tile_size));
 		if((col_data.y || false) &&
-		   ((mod_pos.x < collision_offset && cur_dir_x == MD_LEFT) ||
-			(mod_pos.x > neg_collision_offset && cur_dir_x == MD_RIGHT))) {
+		   ((mod_pos.x < collision_offset && cur_dir_x == MOVE_DIRECTION::LEFT) ||
+			(mod_pos.x > neg_collision_offset && cur_dir_x == MOVE_DIRECTION::RIGHT))) {
 			cam_offset.x = 0.0f;
 			// clip to collision/hit point
-			new_cam_pos.x = (float(pos.x)*std_tile_size + (cur_dir_x == MD_LEFT ? collision_offset : neg_collision_offset));
+			new_cam_pos.x = (float(pos.x)*std_tile_size + (cur_dir_x == MOVE_DIRECTION::LEFT ? collision_offset : neg_collision_offset));
 		}
 		if((col_data.z || false) &&
-		   ((mod_pos.y < collision_offset && cur_dir_y == MD_UP) ||
-			(mod_pos.y > neg_collision_offset && cur_dir_y == MD_DOWN))) {
+		   ((mod_pos.y < collision_offset && cur_dir_y == MOVE_DIRECTION::UP) ||
+			(mod_pos.y > neg_collision_offset && cur_dir_y == MOVE_DIRECTION::DOWN))) {
 			cam_offset.z = 0.0f;
 			// clip to collision/hit point
-			new_cam_pos.z = (float(pos.y)*std_tile_size + (cur_dir_y == MD_UP ? collision_offset : neg_collision_offset));
+			new_cam_pos.z = (float(pos.y)*std_tile_size + (cur_dir_y == MOVE_DIRECTION::UP ? collision_offset : neg_collision_offset));
 		}
 	}
 	new_cam_pos.x += cam_offset.x;
@@ -135,16 +137,16 @@ void player3d::set_view_direction(const MOVE_DIRECTION& vdirection) {
 	npc3d::set_view_direction(vdirection);
 	
 	switch(vdirection) {
-		case MD_UP:
+		case MOVE_DIRECTION::UP:
 			cam->set_rotation(0.0f, 0.0f, 0.0f);
 			break;
-		case MD_RIGHT:
+		case MOVE_DIRECTION::RIGHT:
 			cam->set_rotation(0.0f, 90.0f, 0.0f);
 			break;
-		case MD_DOWN:
+		case MOVE_DIRECTION::DOWN:
 			cam->set_rotation(0.0f, 180.0f, 0.0f);
 			break;
-		case MD_LEFT:
+		case MOVE_DIRECTION::LEFT:
 			cam->set_rotation(0.0f, 270.0f, 0.0f);
 			break;
 		default: break;

@@ -23,7 +23,7 @@
 /*! player constructor
  */
 player2d::player2d(map2d* map2d_obj, npcgfx* npc_graphics) : npc2d(map2d_obj, npc_graphics) {
-	char_type = CT_PLAYER;
+	char_type = CHARACTER_TYPE::PLAYER;
 	time_per_tile = TIME_PER_TILE;
 	map2d_obj->set_player(this);
 }
@@ -41,10 +41,10 @@ void player2d::draw(const NPC_DRAW_STAGE& draw_stage) const {
 	float2 player_next_pos = next_pos;
 	player_pos = player_pos*(1.0f-pos_interp) + player_next_pos*pos_interp;
 
-	float depth_overwrite = (draw_stage == NDS_PRE_UNDERLAY || draw_stage == NDS_PRE_OVERLAY) ? 0.0f : -1.0f;
+	float depth_overwrite = (draw_stage == NPC_DRAW_STAGE::PRE_UNDERLAY || draw_stage == NPC_DRAW_STAGE::PRE_OVERLAY) ? 0.0f : -1.0f;
 	//static const size_t continent_npcgfx_offset = 500;
 	npc_graphics->draw_npc((continent ? 500 : conf::get<size_t>("debug.npcgfx")),
-						   (NPC_STATE)state,
+						   state,
 						   float2((player_pos.x - screen_position.x)*tile_size,
 								  (player_pos.y - 2.0f - screen_position.y)*tile_size),
 						   player_pos, depth_overwrite);
@@ -71,17 +71,17 @@ void player2d::set_view_direction(const MOVE_DIRECTION& vdirection) {
 	npc2d::set_view_direction(vdirection);
 	
 	switch(vdirection) {
-		case MD_UP:
-			state = S_BACK1;
+		case MOVE_DIRECTION::UP:
+			state = (size_t)NPC_STATE::BACK1;
 			break;
-		case MD_RIGHT:
-			state = S_RIGHT1;
+		case MOVE_DIRECTION::RIGHT:
+			state = (size_t)NPC_STATE::RIGHT1;
 			break;
-		case MD_DOWN:
-			state = S_FRONT1;
+		case MOVE_DIRECTION::DOWN:
+			state = (size_t)NPC_STATE::FRONT1;
 			break;
-		case MD_LEFT:
-			state = S_LEFT1;
+		case MOVE_DIRECTION::LEFT:
+			state = (size_t)NPC_STATE::LEFT1;
 			break;
 		default: break;
 	}

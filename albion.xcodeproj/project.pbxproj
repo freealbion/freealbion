@@ -46,6 +46,7 @@
 		5C32C6E71355298C00164662 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06B00C1261336700405DE8 /* OpenGL.framework */; };
 		5C32C6E81355298C00164662 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFDB12612E4800405DE8 /* AppKit.framework */; };
 		5C32C6EA1355298C00164662 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C06AFA012612D3500405DE8 /* Cocoa.framework */; };
+		5C91C2301863E3EA003B254F /* map_defines.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5C91C22E1863E3EA003B254F /* map_defines.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -147,6 +148,7 @@
 		5C7A456112CBAA86005C70EE /* lp_phong.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = lp_phong.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C7A456212CBAA86005C70EE /* mp_diffuse.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = mp_diffuse.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		5C7A456312CBAA86005C70EE /* mp_parallax.a2eshd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = mp_parallax.a2eshd; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		5C91C22E1863E3EA003B254F /* map_defines.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = map_defines.cpp; sourceTree = "<group>"; };
 		5C9C512A1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = src/osx/en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		5C9C512C1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = en; path = src/osx/en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		5C9C512E1265490100A15B31 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = en; path = src/osx/en.lproj/Credits.rtf; sourceTree = "<group>"; };
@@ -306,6 +308,7 @@
 			children = (
 				5C29BBCD184FE28D00EF665E /* 2d */,
 				5C29BBD8184FE28D00EF665E /* 3d */,
+				5C91C22E1863E3EA003B254F /* map_defines.cpp */,
 				5C29BBE9184FE28D00EF665E /* map_defines.hpp */,
 				5C29BBEA184FE28D00EF665E /* map_events.cpp */,
 				5C29BBEB184FE28D00EF665E /* map_events.hpp */,
@@ -546,6 +549,7 @@
 				5C29BC06184FE28D00EF665E /* map2d.cpp in Sources */,
 				5C29BBFB184FE28D00EF665E /* conf.cpp in Sources */,
 				5C29BC0A184FE28D00EF665E /* tileset.cpp in Sources */,
+				5C91C2301863E3EA003B254F /* map_defines.cpp in Sources */,
 				5C29BC09184FE28D00EF665E /* player2d.cpp in Sources */,
 				5C29BBFF184FE28D00EF665E /* gfxconv.cpp in Sources */,
 				5C29BC10184FE28D00EF665E /* npc3d.cpp in Sources */,
@@ -607,7 +611,6 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CLANG_X86_VECTOR_INSTRUCTIONS = sse4.1;
-				CODE_SIGN_ENTITLEMENTS = "src/osx/Albion Remake.entitlements";
 				COMBINE_HIDPI_IMAGES = YES;
 				CONFIGURATION_BUILD_DIR = bin/;
 				CURRENT_PROJECT_VERSION = PR2;
@@ -733,7 +736,6 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CLANG_X86_VECTOR_INSTRUCTIONS = sse4.1;
-				CODE_SIGN_ENTITLEMENTS = "src/osx/Albion Remake.entitlements";
 				COMBINE_HIDPI_IMAGES = YES;
 				CONFIGURATION_BUILD_DIR = bin/;
 				CURRENT_PROJECT_VERSION = PR2;

@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
 			if(arg_1_str.find(".a2m") == string::npos) {
 				const size_t arg_map_num = string2size_t(arg_1_str);
 				if((arg_map_num == 0 && arg_1_str[0] == '0') ||
-				   (arg_map_num != 0 && mh->get_map_type(arg_map_num) != MT_NONE)) {
+				   (arg_map_num != 0 && mh->get_map_type(arg_map_num) != MAP_TYPE::NONE)) {
 					inital_map_num = arg_map_num;
 				}
 				else {
@@ -236,15 +236,15 @@ int main(int argc, char *argv[]) {
 				caption << "c: " << (size_t)mh->get_tile(0)->collision << " " << (size_t)mh->get_tile(1)->collision;
 			}
 
-			if(mh->get_active_map_type() == MT_3D_MAP) {
+			if(mh->get_active_map_type() == MAP_TYPE::MAP_3D) {
 				ssize3 tile_info = mh->get_3d_tile();
 				if(tile_info.min_element() >= 0) {
 					caption << " | " << tile_info.x << " " << tile_info.y << " " << tile_info.z;
 				}
-				caption << " | Pos: " << (float3(-*e->get_position())/std_tile_size).floored();
-				caption << " | Cam: " << float3(-*e->get_position());
+				caption << " | Pos: " << (float3(-*engine::get_position())/std_tile_size).floored();
+				caption << " | Cam: " << float3(-*engine::get_position());
 			}
-			else if(mh->get_active_map_type() == MT_2D_MAP) {
+			else if(mh->get_active_map_type() == MAP_TYPE::MAP_2D) {
 				caption << " | Pos: " << mh->get_player_position();
 			}
 

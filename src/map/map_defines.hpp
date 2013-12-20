@@ -21,6 +21,7 @@
 #define __AR_MAP_DEFINES_HPP__
 
 #include "ar_global.hpp"
+#include <floor/core/util.hpp>
 
 // experimental: 5 - 6 tiles per second (-> at least 166 - 200ms between move cmds)
 #define TILES_PER_SECOND (6) // assume 6 tiles/s for the moment, looks smoother
@@ -35,86 +36,88 @@
 static const float std_tile_size = 16.0f;
 static const float std_half_tile_size = std_tile_size/2.0f;
 
-enum NPC_STATE {
-	S_BACK1		= 0x01,
-	S_BACK2		= 0x02,
-	S_BACK3		= 0x04,
-	S_RIGHT1	= 0x11,
-	S_RIGHT2	= 0x12,
-	S_RIGHT3	= 0x14,
-	S_FRONT1	= 0x21,
-	S_FRONT2	= 0x22,
-	S_FRONT3	= 0x24,
-	S_LEFT1		= 0x31,
-	S_LEFT2		= 0x32,
-	S_LEFT3		= 0x34,
-	S_SIT_BACK	= 0x40,
-	S_SIT_RIGHT	= 0x50,
-	S_SIT_FRONT	= 0x60,
-	S_SIT_LEFT	= 0x70,
-	S_LAY		= 0x80
+enum class NPC_STATE : unsigned char {
+	BACK1		= 0x01,
+	BACK2		= 0x02,
+	BACK3		= 0x04,
+	RIGHT1		= 0x11,
+	RIGHT2		= 0x12,
+	RIGHT3		= 0x14,
+	FRONT1		= 0x21,
+	FRONT2		= 0x22,
+	FRONT3		= 0x24,
+	LEFT1		= 0x31,
+	LEFT2		= 0x32,
+	LEFT3		= 0x34,
+	SIT_BACK	= 0x40,
+	SIT_RIGHT	= 0x50,
+	SIT_FRONT	= 0x60,
+	SIT_LEFT	= 0x70,
+	LAY			= 0x80
 };
 
-enum NPC3D_STATE {
-	N3DS_NONE,
-	N3DS_FRONT1,
-	N3DS_FRONT2,
-	N3DS_FRONT3,
+enum class NPC3D_STATE {
+	NONE,
+	FRONT1,
+	FRONT2,
+	FRONT3,
 };
 
-enum MOVE_DIRECTION {
-	MD_NONE		= 0,
-	MD_LEFT		= 1,
-	MD_RIGHT	= 2,
-	MD_UP		= 4,
-	MD_DOWN		= 8
+enum class MOVE_DIRECTION : unsigned char {
+	NONE	= 0,
+	LEFT	= 1,
+	RIGHT	= 2,
+	UP		= 4,
+	DOWN	= 8
+};
+enum_class_bitwise_or_global(MOVE_DIRECTION)
+enum_class_bitwise_and_global(MOVE_DIRECTION)
+
+enum class MOVEMENT_TYPE {
+	RANDOM,
+	TRACK
 };
 
-enum MOVEMENT_TYPE {
-	MT_RANDOM,
-	MT_TRACK
+enum class TILE_DEBUG_TYPE : unsigned char {
+	TRANSPARENT_1 = 0,
+	TRANSPARENT_2 = 2,
+	ORANGE_DOT = 4,
+	ORANGE = 6,
 };
 
-enum TILE_DEBUG_TYPE {
-	TBT_TRANSPARENT_1 = 0,
-	TBT_TRANSPARENT_2 = 2,
-	TBT_ORANGE_DOT = 4,
-	TBT_ORANGE = 6,
+enum class MAP_DRAW_STAGE {
+	UNDERLAY,
+	OVERLAY,
+	NPCS,
+	DEBUGGING
 };
 
-enum MAP_DRAW_STAGE {
-	MDS_UNDERLAY,
-	MDS_OVERLAY,
-	MDS_NPCS,
-	MDS_DEBUG
+enum class NPC_DRAW_STAGE {
+	NONE,
+	PRE_UNDERLAY,
+	PRE_OVERLAY,
+	POST_OVERLAY,
+	DEBUGGING
 };
 
-enum NPC_DRAW_STAGE {
-	NDS_NONE,
-	NDS_PRE_UNDERLAY,
-	NDS_PRE_OVERLAY,
-	NDS_POST_OVERLAY,
-	NDS_DEBUG
+enum class TILE_LAYER {
+	UNKNOWN,
+	UNDERLAY,	//!< always underlay
+	DYNAMIC_1,	//!< underlay if player y > tile y, overlay if player y <= tile y
+	DYNAMIC_2,	//!< same as TILE_LAYER::DYNAMIC_1, but tile y + 1
+	DYNAMIC_3,	//!< same as TILE_LAYER::DYNAMIC_1, but tile y + 2
+	OVERLAY		//!< always overlay
 };
 
-enum TILE_LAYER {
-	TL_UNKNOWN,
-	TL_UNDERLAY,	//! always underlay
-	TL_DYNAMIC_1,	//! underlay if player y > tile y, overlay if player y <= tile y
-	TL_DYNAMIC_2,	//! same as TL_DYNAMIC_1, but tile y + 1
-	TL_DYNAMIC_3,	//! same as TL_DYNAMIC_1, but tile y + 2
-	TL_OVERLAY		//! always overlay
+enum class CHARACTER_TYPE {
+	PLAYER,
+	NPC
 };
 
-enum CHARACTER_TYPE {
-	CT_PLAYER,
-	CT_NPC
-};
-
-enum MAP_TYPE {
-	MT_2D_MAP,
-	MT_3D_MAP,
-	MT_NONE
+enum class MAP_TYPE {
+	MAP_2D,
+	MAP_3D,
+	NONE
 };
 
 #endif

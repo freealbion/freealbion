@@ -146,8 +146,8 @@ void background3d::draw(const DRAW_MODE draw_mode) {
 	
 	gl3shader shd = s->get_gl3shader("AR_IR_MP_SKY");
 	
-	matrix4f skybox_proj_mat = *e->get_projection_matrix();
-	matrix4f IMVP = matrix4f().rotate_y(-e->get_rotation()->y) * matrix4f().rotate_x(engine::get_rotation()->x) * skybox_proj_mat;
+	matrix4f skybox_proj_mat = *engine::get_projection_matrix();
+	matrix4f IMVP = matrix4f().rotate_y(-engine::get_rotation()->y) * matrix4f().rotate_x(engine::get_rotation()->x) * skybox_proj_mat;
 	IMVP.invert();
 	
 	float3 sb_tc[3] = {
