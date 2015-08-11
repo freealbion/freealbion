@@ -28,7 +28,7 @@
 #include "map/map_npcs.hpp"
 #include "map/map_events.hpp"
 #include "map/2d/player2d.hpp"
-#include <rendering/gl_funcs.hpp>
+#include <floor/core/gl_support.hpp>
 
 /*! @class map2d
  *  @brief displays 2d maps
