@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "gfxconv.hpp"
-#include <core/vector2.hpp>
+#include "gfx/gfxconv.hpp"
+#include <floor/math/vector_lib.hpp>
 
 void gfxconv::convert_8to32(const unsigned char* data_8bpp, unsigned int* data_32bpp,
 							const size_t& width, const size_t& height, 
@@ -40,7 +40,7 @@ void gfxconv::convert_8to32(const unsigned char* data_8bpp, unsigned int* data_3
 				for(size_t x = 0; x < width; x++) {
 					index = shifted_data[y*width + x];
 					if(index >= ani_range->x && index <= ani_range->y) {
-						index = ani_range->x + ((range + (ssize_t(index - ani_range->x) - ssize_t(palette_shift % range))) % range);
+						index = uint8_t(ani_range->x + ((range + size_t(ssize_t(index - ani_range->x) - ssize_t(palette_shift % range))) % range));
 						shifted_data[y*width + x] = index;
 					}
 					else shifted_data[y*width + x] = index;

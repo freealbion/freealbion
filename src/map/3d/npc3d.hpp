@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@
 #define __AR_NPC3D_HPP__
 
 #include "ar_global.hpp"
-#include "map_defines.hpp"
-#include "map3d.hpp"
-#include "map_npcs.hpp"
-#include "npc.hpp"
+#include "map/map_defines.hpp"
+#include "map/3d/map3d.hpp"
+#include "map/map_npcs.hpp"
+#include "map/npc.hpp"
 
 class npc3d : public npc {
 public:

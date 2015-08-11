@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,26 +22,24 @@
 
 #include "ar_global.hpp"
 #include "conf.hpp"
-#include "map_defines.hpp"
-#include "xld.hpp"
-#include "labdata.hpp"
-#include "map_npcs.hpp"
-#include "map_events.hpp"
+#include "map/map_defines.hpp"
+#include "map/3d/labdata.hpp"
+#include "map/map_npcs.hpp"
+#include "map/map_events.hpp"
 #include "map_objects.hpp"
-#include "map_tiles.hpp"
-#include "background3d.hpp"
+#include "map/3d/map_tiles.hpp"
+#include "map/3d/background3d.hpp"
 
 class npc3d;
 class object_light_base;
 
 class map3d {
 public:
-	map3d(labdata* lab_data, xld* maps1, xld* maps2, xld* maps3);
+	map3d(labdata* lab_data, array<lazy_xld, 3>& maps);
 	~map3d();
 
 	void load(const size_t& map_num);
 	void unload();
-	bool is_3d_map(const size_t& map_num) const;
 	
 	void handle();
 	void draw() const;
@@ -57,7 +55,7 @@ public:
 	
 protected:
 	labdata* lab_data;
-	const xld* map_xlds[3];
+	array<lazy_xld, 3>& map_xlds;
 
 	background3d* bg3d;
 	bool bg_loaded;
@@ -69,7 +67,7 @@ protected:
 	float3* npcs_vertices;
 	float3* npcs_ws_positions;
 	float2* npcs_tex_coords;
-	index3** npcs_indices;
+	uint3** npcs_indices;
 	unsigned int npc_object_count;
 	map_objects* npcs_model;
 	
@@ -89,14 +87,14 @@ protected:
 	// floors/ceilings
 	float3* fc_vertices;
 	float2* fc_tex_coords;
-	index3** fc_indices;
+	uint3** fc_indices;
 	unsigned int fc_tile_count;
 	map_tiles* fc_tiles_model;
 	
 	// walls
 	float3* wall_vertices;
 	float2* wall_tex_coords;
-	index3** wall_indices;
+	uint3** wall_indices;
 	unsigned int wall_tile_count;
 	map_tiles* wall_model;
 
@@ -104,7 +102,7 @@ protected:
 	float3* obj_vertices;
 	float3* obj_ws_positions;
 	float2* obj_tex_coords;
-	index3** obj_indices;
+	uint3** obj_indices;
 	map_objects* objects_model;
 	
 	// lights

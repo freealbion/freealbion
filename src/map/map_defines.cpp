@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "map_defines.hpp"
+#include "map/map_defines.hpp"
 
-enum_class_bitwise_or_global_impl(MOVE_DIRECTION)
-enum_class_bitwise_and_global_impl(MOVE_DIRECTION)
+atomic<MOVE_DIRECTION>& operator|=(atomic<MOVE_DIRECTION>& e0, const MOVE_DIRECTION& e1) {
+	e0 = e0 | e1;
+	return e0;
+}
+
+atomic<MOVE_DIRECTION>& operator&=(atomic<MOVE_DIRECTION>& e0, const MOVE_DIRECTION& e1) {
+	e0 = e0 & e1;
+	return e0;
+}

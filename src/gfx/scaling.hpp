@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #define __AR_SCALING_HPP__
 
 #include "ar_global.hpp"
-#include <core/vector2.hpp>
+#include <floor/math/vector_lib.hpp>
 
 class scaling {
 public:

@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -33,6 +33,9 @@
 #define TIME_PER_ANIMATION_FRAME (150)
 #define TIME_PER_TILE_ANIMATION_FRAME (100)
 
+#define MAX_MAP_NUMBER (300u)
+#define MAX_NPC_NUMBER (600u)
+
 static const float std_tile_size = 16.0f;
 static const float std_half_tile_size = std_tile_size/2.0f;
 
@@ -63,15 +66,16 @@ enum class NPC3D_STATE {
 	FRONT3,
 };
 
-enum class MOVE_DIRECTION : unsigned char {
-	NONE	= 0,
-	LEFT	= 1,
-	RIGHT	= 2,
-	UP		= 4,
-	DOWN	= 8
+enum class MOVE_DIRECTION : unsigned int {
+	NONE	= (0u),
+	LEFT	= (1u << 0u),
+	RIGHT	= (1u << 1u),
+	UP		= (1u << 2u),
+	DOWN	= (1u << 3u)
 };
-enum_class_bitwise_or_global(MOVE_DIRECTION)
-enum_class_bitwise_and_global(MOVE_DIRECTION)
+floor_global_enum_ext(MOVE_DIRECTION)
+atomic<MOVE_DIRECTION>& operator|=(atomic<MOVE_DIRECTION>& e0, const MOVE_DIRECTION& e1);
+atomic<MOVE_DIRECTION>& operator&=(atomic<MOVE_DIRECTION>& e0, const MOVE_DIRECTION& e1);
 
 enum class MOVEMENT_TYPE {
 	RANDOM,
@@ -114,10 +118,10 @@ enum class CHARACTER_TYPE {
 	NPC
 };
 
-enum class MAP_TYPE {
+enum class MAP_TYPE : unsigned int {
+	NONE = 0u,
 	MAP_2D,
 	MAP_3D,
-	NONE
 };
 
 #endif

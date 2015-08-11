@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,18 +24,20 @@
 #include "ar_global.hpp"
 #include "conf.hpp"
 
-#include "albion_ui.hpp"
-#include "xld.hpp"
-#include "palette.hpp"
-#include "tileset.hpp"
-#include "npcgfx.hpp"
-#include "player2d.hpp"
-#include "scaling.hpp"
-#include "transtb.hpp"
-#include "clock.hpp"
-#include "bin_graphics.hpp"
+#include "ui/albion_ui.hpp"
+#include "gfx/palette.hpp"
+#include "map/2d/tileset.hpp"
+#include "map/2d/npcgfx.hpp"
+#include "map/2d/player2d.hpp"
+#include "gfx/scaling.hpp"
+#include "gfx/transtb.hpp"
+#include "events/clock.hpp"
+#include "ui/bin_graphics.hpp"
 #include "ar_debug.hpp"
-#include "map_handler.hpp"
+#include "map/map_handler.hpp"
+#include "script/albion_script.hpp"
+#include "audio/audio_handler.hpp"
+#include <floor/math/vector_lib.hpp>
 
 // prototypes
 bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj);

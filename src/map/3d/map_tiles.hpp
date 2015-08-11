@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,14 +22,9 @@
 
 #include "ar_global.hpp"
 #include "conf.hpp"
-#include "map_defines.hpp"
+#include "map/map_defines.hpp"
 
 #include <scene/model/a2estatic.hpp>
-#if !defined(A2E_IOS)
-#include <rendering/renderer/gl3/shader_gl3.hpp>
-#else
-#include <rendering/renderer/gles2/shader_gles2.hpp>
-#endif
 
 class map_tiles : public a2estatic {
 public:
@@ -39,8 +34,8 @@ public:
 protected:
 	
 	virtual const string select_shader(const DRAW_MODE& draw_mode) const;
-	virtual void pre_draw_geometry(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask);
-	virtual void pre_draw_material(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask);
+	virtual void pre_draw_geometry(gl_shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask);
+	virtual void pre_draw_material(gl_shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask);
 	
 };
 

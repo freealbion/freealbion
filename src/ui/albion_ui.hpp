@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,10 +21,15 @@
 #define __AR_ALBION_UI_HPP__
 
 #include "ar_global.hpp"
-#include "map_handler.hpp"
+#include "map/map_handler.hpp"
 #include <gui/gui.hpp>
 
 class image;
+
+class gui_window;
+class gui_button;
+class gui_input_box;
+class gui_list_box;
 
 class albion_ui {
 public:
@@ -42,14 +47,14 @@ public:
 	void load_game_ui(const size2& size);
 	
 protected:
-	map_handler* mh;
+	map_handler* mh { nullptr };
 	ui_draw_callback draw_cb;
 	gui_simple_callback* draw_cb_obj { nullptr };
 	
 	//
-	image* clock_img_obj;
+	a2e_image* clock_img_obj;
 	struct clock_number {
-		image* img;
+		a2e_image* img;
 		float2 num_pos;
 	} clock_numbers[4];
 	float2 clock_img_pos;
@@ -60,8 +65,8 @@ protected:
 	float2 compass_img_size;
 	float2 compass_dot_img_pos;
 	float2 compass_dot_img_size;
-	image* compass_img_obj;
-	image* compass_dot_img_obj;
+	a2e_image* compass_img_obj;
+	a2e_image* compass_dot_img_obj;
 	size_t cur_dot_img;
 	size_t dot_timer;
 	bool game_ui_opened;
@@ -70,8 +75,17 @@ protected:
 	void delete_game_ui();
 	
 	//
+	gui_window* map_wnd { nullptr };
+	gui_button* goto_map_button { nullptr };
+	gui_input_box* goto_map_input { nullptr };
+	gui_list_box* goto_map_list { nullptr };
+	
+	//
 	clock_callback clock_cb;
 	void clock_tick(size_t ticks);
+	
+	//
+	static const map<size_t, string> albion_maps;
 
 };
 

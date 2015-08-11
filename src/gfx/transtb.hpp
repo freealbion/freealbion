@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,9 +22,8 @@
 
 #include "ar_global.hpp"
 #include "conf.hpp"
-#include "gfxconv.hpp"
-#include "scaling.hpp"
-#include "xld.hpp"
+#include "gfx/gfxconv.hpp"
+#include "gfx/scaling.hpp"
 
 class transtb {
 public:

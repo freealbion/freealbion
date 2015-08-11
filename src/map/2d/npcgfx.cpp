@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,66 +17,49 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "npcgfx.hpp"
+#include "map/2d/npcgfx.hpp"
 #include <rendering/gfx2d.hpp>
 
 /*! npcgfx constructor
  */
-npcgfx::npcgfx(const pal* palettes_) : palettes(palettes_), cur_palette(6) {
-	// load npc graphics
-	npcgfx_xlds[0] = new xld("NPCGR0.XLD");
-	npcgfx_xlds[1] = new xld("NPCGR1.XLD");
-	npcgfx_xlds[2] = new xld("PARTGR0.XLD");
-	npcgfx_xlds[3] = new xld("TACTICO0.XLD");
-	npcgfx_xlds[4] = new xld("NPCKL0.XLD");
-	npcgfx_xlds[5] = new xld("PARTKL0.XLD");
-}
+npcgfx::npcgfx(const pal* palettes_) : palettes(palettes_), cur_palette(6),
+npcgfx_xlds({{
+	lazy_xld("NPCGR0.XLD"), lazy_xld("NPCGR1.XLD"),
+	lazy_xld("PARTGR0.XLD"), lazy_xld("TACTICO0.XLD"),
+	lazy_xld("NPCKL0.XLD"), lazy_xld("PARTKL0.XLD") }})
+{}
 
 /*! npcgfx destructor
  */
 npcgfx::~npcgfx() {
 	clear();
-	delete npcgfx_xlds[0];
-	delete npcgfx_xlds[1];
-	delete npcgfx_xlds[2];
-	delete npcgfx_xlds[3];
-	delete npcgfx_xlds[4];
-	delete npcgfx_xlds[5];
 }
 
 void npcgfx::load_npcgfx(const size_t& npc_num) {
-	const xld::xld_object* object = nullptr;
-	if(npc_num < 100 && npc_num <= npcgfx_xlds[0]->get_object_count()) {
-		object = npcgfx_xlds[0]->get_object(npc_num-1); // TODO: check if only npcgfx nums have to be decremented in the sub-100 range
-	}
-	else if(npc_num < 200 && (npc_num - 100) < npcgfx_xlds[1]->get_object_count()) {
-		object = npcgfx_xlds[1]->get_object(npc_num - 100);
-	}
-	else if(npc_num < 300 && (npc_num - 200) < npcgfx_xlds[2]->get_object_count()) {
-		object = npcgfx_xlds[2]->get_object(npc_num - 200);
-	}
-	else if(npc_num < 400 && (npc_num - 300) < npcgfx_xlds[3]->get_object_count()) {
-		object = npcgfx_xlds[3]->get_object(npc_num - 300);
-	}
-	else if(npc_num < 500 && (npc_num - 400) < npcgfx_xlds[4]->get_object_count()) {
-		object = npcgfx_xlds[4]->get_object(npc_num - 400);
-	}
-	else if(npc_num < 600 && (npc_num - 500) < npcgfx_xlds[5]->get_object_count()) {
-		object = npcgfx_xlds[5]->get_object(npc_num - 500);
+	//
+	if(npc_num >= MAX_NPC_NUMBER) {
+		log_error("invalid npc number: %u!", npc_num);
+		return;
 	}
 	
-	if(object == nullptr) {
-		log_error("invalid npc num #%u!", npc_num);
-		object = npcgfx_xlds[0]->get_object(0);
+	// TODO: check if only npcgfx nums have to be decremented in the sub-100 range
+	const auto object_num = (npc_num % 100) - (npc_num < 100 ? 1 : 0);
+	const auto npc_data_size = npcgfx_xlds[npc_num/100].get_object_size(object_num);
+	if(npc_data_size == 0) {
+		log_error("npc data %u is empty!", npc_num);
+		return;
 	}
+	
+	auto object_data_ptr = npcgfx_xlds[npc_num/100].get_object_data(object_num);
+	const auto object_data = object_data_ptr->data();
 
-	const size2 npc_size = size2(object->data[0], object->data[2]);
-	const size_t object_count = object->length / (npc_size.x * npc_size.y);
+	const size2 npc_size = size2(object_data[0], object_data[2]);
+	const size_t object_count = npc_data_size / (npc_size.x * npc_size.y);
 	const size_t offset = (object_count > 1 ? 6 : 0);
 
 	albion_texture::albion_texture_single_object tex_info_obj;
 	tex_info_obj.object_count = (unsigned int)object_count;
-	tex_info_obj.object = object;
+	tex_info_obj.data = object_data;
 	tex_info_obj.offset = (unsigned int)offset;
 	vector<albion_texture::albion_texture_info*> tex_info;
 	tex_info.push_back(&tex_info_obj);
@@ -86,15 +69,18 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 		texture_size.y = npc_size.y*4*(object_count/4);
 	}
 	
-#if !defined(A2E_IOS)
-	npc_graphics[npc_num] = albion_texture::create(MAP_TYPE::MAP_2D, texture_size, npc_size, cur_palette, tex_info, nullptr, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::TRILINEAR);
+	npc_graphics[npc_num] = albion_texture::create(MAP_TYPE::MAP_2D, texture_size, npc_size, cur_palette, tex_info, nullptr,
+												   albion_texture::TEXTURE_SPACING::NONE, 0, false,
+#if !defined(FLOOR_IOS)
+												   TEXTURE_FILTERING::TRILINEAR
 #else
-	npc_graphics[npc_num] = albion_texture::create(MAP_TYPE::MAP_2D, texture_size, npc_size, cur_palette, tex_info, nullptr, albion_texture::TST_NONE, 0, false, TEXTURE_FILTERING::LINEAR);
+												   TEXTURE_FILTERING::LINEAR
 #endif
+												   );
 }
 
 const a2e_texture& npcgfx::get_npcgfx(const size_t& npc_num) {
-	if(npc_num > 599) {
+	if(npc_num >= MAX_NPC_NUMBER) {
 		log_error("invalid npc graphic #%u!", npc_num);
 		//throw exception();
 		return get_npcgfx(0);
@@ -107,7 +93,9 @@ const a2e_texture& npcgfx::get_npcgfx(const size_t& npc_num) {
 	return npc_graphics.find(npc_num)->second;
 }
 
-void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame, const float2& screen_position, const float2& position, const float depth_overwrite) {
+void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame,
+					  const float2& screen_position, const float2& position,
+					  const float depth_overwrite) {
 	const float scale = conf::get<float>("map.scale");
 
 	//
@@ -130,7 +118,6 @@ void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame, const float2& 
 		case NPC_STATE::SIT_FRONT: npc_frame = 14; break;
 		case NPC_STATE::SIT_LEFT: npc_frame = 15; break;
 		case NPC_STATE::LAY: npc_frame = 16; break;
-		default: npc_frame = 17; break;
 	}
 	
 	const a2e_texture& tex = get_npcgfx(npc_num);
@@ -155,15 +142,15 @@ void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame, const float2& 
 	// offset position a bit (prefer player/party)
 	float depth_val = (position.y - (npc_num < 200 ? 0.2f : 0.1f))/255.0f;
 	// depth overwrite
-	if(depth_overwrite != -1.0f) depth_val = depth_overwrite;
+	if(const_math::is_equal(depth_overwrite, -1.0f)) depth_val = depth_overwrite;
 	
-	gfx2d::draw_rectangle_texture(rect(screen_position.x,
-									   screen_position.y,
-									   screen_position.x + draw_size.x,
-									   screen_position.y + draw_size.y),
+	const uint2 rect_start { screen_position.floored() };
+	const uint2 rect_end { rect_start + uint2 { draw_size.rounded() } };
+	gfx2d::draw_rectangle_texture(rect(rect_start.x, rect_start.y,
+									   rect_end.x, rect_end.y),
 								  tex->tex(),
-								  coord(tx, ty),
-								  coord(tx + tc_size.x, ty + tc_size.y),
+								  float2(tx, ty),
+								  float2(tx + tc_size.x, ty + tc_size.y),
 								  depth_val);
 }
 

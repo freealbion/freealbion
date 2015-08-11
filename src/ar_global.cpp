@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,13 +18,12 @@
  */
 
 #include "ar_global.hpp"
-#include "bin_graphics.hpp"
+#include "ui/bin_graphics.hpp"
 #include <a2e.hpp>
 
 texman* t = nullptr;
 event* eevt = nullptr;
 shader* s = nullptr;
-opencl_base* ocl = nullptr;
 scene* sce = nullptr;
 camera* cam = nullptr;
 pal* palettes = nullptr;
@@ -33,3 +32,4 @@ gui* ui = nullptr;
 font_manager* fm = nullptr;
 ar_clock* clck = nullptr;
 bin_graphics* bin_gfx = nullptr;
+albion_script* script = nullptr;

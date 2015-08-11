@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,12 +21,11 @@
 #define __AR_TILESET_HPP__
 
 #include "ar_global.hpp"
-#include "map_defines.hpp"
-#include "xld.hpp"
-#include "palette.hpp"
-#include "gfxconv.hpp"
-#include "scaling.hpp"
-#include "albion_texture.hpp"
+#include "map/map_defines.hpp"
+#include "gfx/palette.hpp"
+#include "gfx/gfxconv.hpp"
+#include "gfx/scaling.hpp"
+#include "gfx/albion_texture.hpp"
 
 /*! @class tileset
  *  @brief tileset loader
@@ -41,37 +40,34 @@ public:
 	~tileset();
 
 	struct tile_object {
-		unsigned char special_1;
-		unsigned char collision;
-		unsigned short int special_2;
-		size_t num;
-		size_t ani_num;
-		size_t ani_tiles;
+		unsigned char special_1 { 0 };
+		unsigned char collision { 0 };
+		unsigned short int special_2 { 0 };
+		size_t num { 0 };
+		size_t ani_num { 0 };
+		size_t ani_tiles { 0 };
 
 		float2 tex_coord;
-		bool palette_shift;
+		bool palette_shift { false };
 		
-		TILE_LAYER layer_type;
+		TILE_LAYER layer_type { TILE_LAYER::UNKNOWN };
 
-		unsigned int upper_bytes;
-		unsigned int lower_bytes;
+		unsigned int upper_bytes { 0 };
+		unsigned int lower_bytes { 0 };
 
-		tile_object() : tex_coord(), palette_shift(false) {}
+		tile_object() = default;
 	};
 
 	struct tileset_object {
 		size_t tile_count;
-		unsigned char* tile_data;
-		tile_object* tiles;
-		size_t tile_obj_count;
-		a2e_texture tileset;
-		bool loaded;
+		tile_object* tiles { nullptr };
+		size_t tile_obj_count { 0 };
+		a2e_texture tileset {};
+		bool loaded { false };
 		
-		albion_texture::albion_texture_single_object_ps tex_info_obj;
-		const vector<vector<float2>>* tex_coords;
-		float2 tile_tc_size;
-
-		tileset_object() : tile_count(0), tile_data(nullptr), tiles(nullptr), tile_obj_count(0), tileset(), loaded(false), tex_info_obj(), tex_coords(nullptr), tile_tc_size() {}
+		albion_texture::albion_texture_single_object_ps tex_info_obj {};
+		const vector<vector<float2>>* tex_coords { nullptr };
+		float2 tile_tc_size {};
 	};
 
 	void load(const size_t& num, const size_t& palette);
@@ -86,12 +82,12 @@ public:
 protected:
 	const pal* palettes;
 
-	vector<tileset_object*> tilesets;
+	vector<tileset_object> tilesets;
 	size_t cur_tileset_num;
 	const tileset_object* cur_tileset;
 	a2e_texture cur_tileset_tex;
 
-	xld* icongfx;
+	lazy_xld icongfx;
 
 };
 

@@ -8,21 +8,25 @@ uniform mat4 mvpm;
 
 <option match="alpha">
 uniform mat4 mvm;
-out vertex_alpha {
+<option nomatch="*env_probe">
+struct vertex_alpha_data {
 	float depth;
-	<condition type="NEQUAL" value="GCV_ATI">
+	vec4 position;
+};
+centroid out vertex_alpha_data vertex_alpha;
+</option>
+<option match="*env_probe">
+out vertex_alpha_block {
+	centroid out float depth;
 	centroid out vec4 position;
-	</condition>
-	<condition type="EQUAL" value="GCV_ATI">
-	centroid vec4 position;
-	</condition>
-} out_vertex_alpha;
+} vertex_alpha;
+</option>
 </option>
 
 void inferred_vs() {
 	<option match="alpha">
-	out_vertex_alpha.depth = -(mvm * vec4(in_vertex, 1.0)).z;
-	out_vertex_alpha.position = mvpm * vec4(in_vertex, 1.0);
+	vertex_alpha.depth = -(mvm * vec4(in_vertex, 1.0)).z;
+	vertex_alpha.position = mvpm * vec4(in_vertex, 1.0);
 	</option>
 }
 	</vertex_shader>
@@ -31,23 +35,14 @@ void inferred_vs() {
 	<geometry_shader>
 		<header>
 <option match="alpha">
-in vertex_alpha {
-	float depth;
-	<condition type="NEQUAL" value="GCV_ATI">
+in vertex_alpha_block {
+	centroid in float depth;
 	centroid in vec4 position;
-	</condition>
-	<condition type="EQUAL" value="GCV_ATI">
-	centroid vec4 position;
-	</condition>
 } in_vertex_alpha[];
-out vertex_alpha {
-	float depth;
-	<condition type="NEQUAL" value="GCV_ATI">
+
+out vertex_alpha_block {
+	centroid out float depth;
 	centroid out vec4 position;
-	</condition>
-	<condition type="EQUAL" value="GCV_ATI">
-	centroid vec4 position;
-	</condition>
 } out_vertex_alpha;
 </option>
 		</header>
@@ -68,15 +63,19 @@ uniform vec2 l_buffer_size;
 uniform vec2 projection_ab;
 uniform vec2 texel_size;
 
-in vertex_alpha {
+<option nomatch="*env_probe">
+struct vertex_alpha_data {
 	float depth;
-	<condition type="NEQUAL" value="GCV_ATI">
+	vec4 position;
+};
+centroid in vertex_alpha_data vertex_alpha;
+</option>
+<option match="*env_probe">
+in vertex_alpha_block {
+	centroid in float depth;
 	centroid in vec4 position;
-	</condition>
-	<condition type="EQUAL" value="GCV_ATI">
-	centroid vec4 position;
-	</condition>
-} in_vertex_alpha;
+} vertex_alpha;
+</option>
 </option>
 
 vec3 compute_diffuse(const in vec3 diff_color, const in vec3 refl_color, const in vec4 diff_light_color) {
@@ -100,7 +99,7 @@ vec4[2] compute_light_colors() {
 
 <option match="alpha">
 vec4[2] compute_light_colors() {
-	vec2 centroid_frag_coord = ((in_vertex_alpha.position.xy/in_vertex_alpha.position.w) * 0.5) + 0.5;
+	vec2 centroid_frag_coord = ((vertex_alpha.position.xy/vertex_alpha.position.w) * 0.5) + 0.5;
 	vec2 lbuffer_coord = centroid_frag_coord * l_buffer_size;
 	vec2 lbuffer_coord_f = floor(lbuffer_coord);
 	
@@ -150,7 +149,7 @@ vec4[2] compute_light_colors() {
 		float depth = projection_ab.y / (texture(depth_buffer, coords[i]).r - projection_ab.x);
 		
 		vec2 dsf_diff = abs(dsf - id);
-		if(abs(depth - in_vertex_alpha.depth) <= depth_epsilon &&
+		if(abs(depth - vertex_alpha.depth) <= depth_epsilon &&
 		   dsf_diff.x <= epsilon &&
 		   dsf_diff.y <= epsilon) {
 			valid_sample[i] = 1.0;

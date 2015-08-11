@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,11 +17,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "palette.hpp"
+#include "gfx/palette.hpp"
 #include "ar_global.hpp"
-#include "xld.hpp"
-#include <core/vector2.hpp>
-#include <core/file_io.hpp>
+#include <floor/math/vector_lib.hpp>
+#include <floor/core/file_io.hpp>
 
 /*! palette constructor
  */
@@ -42,20 +41,18 @@ pal::pal() {
 		const xld::xld_object* object = palette_xld->get_object(i);
 		palette[0] = 0;
 		for(unsigned int j = 1; j < 192; j++) {
-			palette[j] = 0xFF000000 + (object->data[j*3+2] << 16) + (object->data[j*3+1] << 8) + object->data[j*3];
+			palette[j] = 0xFF000000u + uint32_t(object->data[j*3+2] << 16u) + uint32_t(object->data[j*3+1] << 8u) + object->data[j*3];
 			if(palette[j] == 0xFF000000) palette[j] |= 0x010101;
 		}
 		for(unsigned int j = 192; j < 256; j++) {
-			palette[j] = 0xFF000000 + (palette_000[(j-192)*3+2] << 16) + (palette_000[(j-192)*3+1] << 8) + palette_000[(j-192)*3];
+			palette[j] = 0xFF000000u + uint32_t(palette_000[(j-192)*3+2] << 16u) + uint32_t(palette_000[(j-192)*3+1] << 8u) + palette_000[(j-192)*3];
 			if(palette[j] == 0xFF000000) palette[j] |= 0x010101;
 		}
 	}
 	delete palette_xld;
 
 	// set animated ranges (aka palette color rotation)
-	for(size_t i = 0; i < palette_count; i++) {
-		animated_ranges.push_back(vector<size2>());
-	}
+	animated_ranges.resize(palette_count);
 
 	/*  3D: 1, 3, 7, 8, 13, 14, 15, 18, 22, 25, 29, 30, 51
 

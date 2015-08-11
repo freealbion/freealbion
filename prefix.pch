@@ -1,0 +1,24 @@
+
+#if defined(__cplusplus) && !defined(__OBJC__)
+#include <floor/core/platform.hpp>
+#include <floor/core/cpp_headers.hpp>
+#include <floor/core/core.hpp>
+#include <floor/core/logger.hpp>
+#include <floor/math/vector_lib.hpp>
+#include <floor/core/util.hpp>
+#include <floor/constexpr/const_string.hpp>
+#include <a2e.hpp>
+#include "ar_global.hpp"
+#include "conf.hpp"
+#elif !defined(__OBJC__)
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+#endif
+
+#if defined(__OBJC__)
+#import <Foundation/Foundation.h>
+#endif

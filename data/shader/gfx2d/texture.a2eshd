@@ -2,7 +2,7 @@
 <!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
 <a2e_shader version="2">
 	<includes>global gfx2d</includes>
-		<options># passthrough madd_color gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl</options>
+		<options># passthrough madd_color gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl gradient_center_round</options>
 
 	<vertex_shader>
 uniform mat4 mvpm;
@@ -12,12 +12,12 @@ void main() {
 	</vertex_shader>
 	
 	<fragment_shader>
-<option match="madd_color gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl">
+<option match="madd_color gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl gradient_center gradient_center_round">
 uniform vec4 mul_color;
 uniform vec4 add_color;
 </option>
 
-<option match="gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl">
+<option match="gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl gradient_center gradient_center_round">
 uniform vec4 gradient_mul_interpolator;
 uniform vec4 gradient_add_interpolator;
 </option>
@@ -64,15 +64,21 @@ void main() {
 	<option match="gradient_diagonal_rl">
 	vec4 gradient_color = gradient_diagonal_rl();
 	</option>
+	<option match="gradient_center">
+	vec4 gradient_color = gradient_center();
+	</option>
+	<option match="gradient_center_round">
+	vec4 gradient_color = gradient_center_round();
+	</option>
 	
-	<option match="gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl">
+	<option match="gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl gradient_center gradient_center_round">
 	color = mix(color * mul_color, gradient_color, gradient_mul_interpolator);
 	color += add_color;
 	color += gradient_color * gradient_add_interpolator;
 	</option>
 	
 	// output:
-	<option match="# mul_color add_color madd_color gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl">
+	<option match="# mul_color add_color madd_color gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl gradient_center gradient_center_round">
 	frag_color = vec4(color.rgb * color.a, color.a);
 	</option>
 	

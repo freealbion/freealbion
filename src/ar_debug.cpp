@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -33,8 +33,8 @@ void gpu_perf_info::run() {
 		const size_t pos(input.find(search_token));
 		if(pos == string::npos) return 0;
 		const string ext_str_0(input.substr(pos+len, input.find("\n", pos+len) - pos - len));
-		if(trim_0) return string2uint(ext_str_0.substr(0, ext_str_0.size() - 7)); // trim '0000000'
-		return string2uint(ext_str_0);
+		if(trim_0) return stou(ext_str_0.substr(0, ext_str_0.size() - 7)); // trim '0000000'
+		return stou(ext_str_0);
 	};
 	
 	//
@@ -71,7 +71,8 @@ void ar_debug::run() {
 	if(conf::get<bool>("debug.ui")) {
 		if(cb_obj == nullptr) {
 			floor::acquire_context();
-			cb_obj = ui->add_draw_callback(DRAW_MODE_UI::POST_UI, draw_cb, float2(1.0f), float2(0.0f), gui_surface::SURFACE_FLAGS::NO_ANTI_ALIASING);
+			cb_obj = ui->add_draw_callback(DRAW_MODE_UI::POST_UI, draw_cb, float2(1.0f), float2(0.0f),
+										   gui_surface::SURFACE_FLAGS::NO_ANTI_ALIASING);
 			floor::release_context();
 		}
 		cb_obj->redraw();
@@ -139,7 +140,7 @@ void ar_debug::draw_ui(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buff
 				const float2 font_offset(float(qry_rect.x1), float(offset.y) - float(fnt->get_display_size()) * 0.1f);
 				
 				const float ftime = float((qry.time - frame->queries[i-1].time) / 100000) / 10.0f;
-				const string ftime_str = float2string(ftime);
+				const string ftime_str = to_string(ftime);
 				const string text(qry.identifier+" ("+ftime_str.substr(0, ftime_str.find(".")+2)+")");
 				fnt->draw(text, font_offset + 1.0f, float4(1.0f));
 				fnt->draw(text, font_offset, float4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -147,7 +148,7 @@ void ar_debug::draw_ui(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buff
 				offset.y += fnt->get_display_size();
 			}
 			const float ftotal_time = float(time_len / 100000) / 10.0f;
-			const string ftotal_time_str = float2string(ftotal_time);
+			const string ftotal_time_str = to_string(ftotal_time);
 			const string total_time_text("Total: "+ftotal_time_str.substr(0, ftotal_time_str.find(".")+2)+"ms");
 			fnt->draw(total_time_text, float2(offset.x, offset.y + outer_bar_height), float4(1.0f));
 		}
@@ -155,8 +156,8 @@ void ar_debug::draw_ui(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buff
 	
 	// misc
 	if(conf::get<bool>("debug.fps")) {
-		const string fps_str("FPS: "+uint2string(floor::get_fps()));
-		const float2 fps_pos(10.0f, floor::get_height() - fnt->get_display_size() - 10);
+		const string fps_str("FPS: "+to_string(floor::get_fps()));
+		const float2 fps_pos(10.0f, floor::get_physical_height() - fnt->get_display_size() - 10);
 		fnt->draw(fps_str, fps_pos + 1.0f, float4(0.0f, 0.0f, 0.0f, 1.0f));
 		fnt->draw(fps_str, fps_pos);
 	}
@@ -166,11 +167,11 @@ void ar_debug::draw_ui(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buff
 		if(debug_tex_num == 0) return;
 		if(!glIsTexture(debug_tex_num)) return;
 		
-		gfx2d::draw_rectangle_texture(rect(0, 0, floor::get_width(), floor::get_height()),
+		gfx2d::draw_rectangle_texture(rect(0, 0, floor::get_physical_width(), floor::get_physical_height()),
 									  debug_tex_num,
 									  float4(1.0f, 1.0f, 1.0f, 0.0f),
 									  float4(0.0f, 0.0f, 0.0f, 1.0f),
-									  coord(0.0f, 1.0f),
-									  coord(1.0f, 0.0f));
+									  float2(0.0f, 1.0f),
+									  float2(1.0f, 0.0f));
 	}
 }

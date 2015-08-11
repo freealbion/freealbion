@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "map2d.hpp"
-#include "npc2d.hpp"
+#include "map/2d/map2d.hpp"
+#include "map/2d/npc2d.hpp"
 #include <engine.hpp>
 #include <rendering/shader.hpp>
 
@@ -27,14 +27,13 @@ static const float snap_epsilon = 0.05f;
 
 /*! map2d constructor
  */
-map2d::map2d(tileset* tilesets_, npcgfx* npc_graphics_, xld* maps1_, xld* maps2_, xld* maps3_) :
-p2d(nullptr), tilesets(tilesets_), npc_graphics(npc_graphics_), maps1(maps1_), maps2(maps2_), maps3(maps3_) {
-	cur_map_data = nullptr;
+map2d::map2d(tileset* tilesets_, npcgfx* npc_graphics_, array<lazy_xld, 3>& maps_) :
+p2d(nullptr), tilesets(tilesets_), npc_graphics(npc_graphics_), maps(maps_) {
 	underlay_tiles = nullptr;
 	overlay_tiles = nullptr;
 	map_loaded = false;
 	map_palette = 0;
-	cur_map_num = (~0);
+	cur_map_num = (~0u);
 	last_tile_animation = SDL_GetTicks();
 	
 	set_initial_position(size2(0, 0));
@@ -52,34 +51,21 @@ void map2d::load(const size_t& map_num) {
 	if(cur_map_num == map_num) return;
 	log_debug("loading map %u ...", map_num);
 	unload();
-
+	
 	//
-	size_t len;
-	const xld::xld_object* object;
-	if(map_num < 100) {
-		object = maps1->get_object(map_num);
-	}
-	else if(map_num >= 100 && map_num < 200) {
-		object = maps2->get_object(map_num-100);
-	}
-	else if(map_num >= 200 && map_num < 300) {
-		object = maps3->get_object(map_num-200);
-	}
-	else {
+	if(map_num >= MAX_MAP_NUMBER) {
 		log_error("invalid map number: %u!", map_num);
 		return;
 	}
-
-	// copy map data
-	len = object->length;
-	if(len != 0) {
-		cur_map_data = new unsigned char[len];
-		memcpy(cur_map_data, object->data, len);
-	}
-	else {
-		log_error("invalid map (len = 0)!");
+	
+	const auto len = maps[map_num/100].get_object_size(map_num % 100);
+	if(len == 0) {
+		log_error("map %u is empty!", map_num);
 		return;
 	}
+	
+	auto object_data = maps[map_num/100].get_object_data(map_num % 100);
+	const auto cur_map_data = object_data->data();
 
 	if(cur_map_data[2] != 0x02) {
 		log_error("map #%u is no 2D map!", map_num);
@@ -124,7 +110,7 @@ void map2d::load(const size_t& map_num) {
 	
 	// events
 	const size_t events_offset = map_data_offset + map_data_len;
-	mevents.load(object, events_offset, map_size);
+	mevents.load(cur_map_data, len, events_offset, map_size);
 
 	// load npc/monster data (has to be done here, b/c we need info that is available only after all events have been loaded)
 	mnpcs = new map_npcs();
@@ -159,7 +145,7 @@ void map2d::load(const size_t& map_num) {
 		// allocate memory and fill data
 		layers[i].vertices = new float3[tile_count*4];
 		layers[i].tex_coords = new float2[tile_count*4];
-		layers[i].indices = new index3[tile_count*2];
+		layers[i].indices = new uint3[tile_count*2];
 		layers[i].tile_nums = new unsigned int[tile_count];
 		layers[i].ani_offset = tile_count-ani_tile_count;
 
@@ -214,15 +200,15 @@ void map2d::load(const size_t& map_num) {
 		// create vbos
 		glGenBuffers(1, &layers[i].vertices_vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, layers[i].vertices_vbo);
-		glBufferData(GL_ARRAY_BUFFER, tile_count * 4 * 3 * sizeof(float), layers[i].vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(tile_count * 4 * 3 * sizeof(float)), layers[i].vertices, GL_STATIC_DRAW);
 		
 		glGenBuffers(1, &layers[i].tex_coords_vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, layers[i].tex_coords_vbo);
-		glBufferData(GL_ARRAY_BUFFER, tile_count * 4 * 2 * sizeof(float), layers[i].tex_coords, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(tile_count * 4 * 2 * sizeof(float)), layers[i].tex_coords, GL_DYNAMIC_DRAW);
 		
 		glGenBuffers(1, &layers[i].indices_vbo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, layers[i].indices_vbo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, tile_count * 2 * sizeof(index3), layers[i].indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)(tile_count * 2 * sizeof(uint3)), layers[i].indices, GL_STATIC_DRAW);
 		
 		cout << ":: #tiles for layer " << i << ": " << tile_count << endl;
 		
@@ -240,10 +226,6 @@ void map2d::load(const size_t& map_num) {
 }
 
 void map2d::unload() {
-	if(cur_map_data != nullptr) {
-		delete [] cur_map_data;
-		cur_map_data = nullptr;
-	}
 	if(underlay_tiles != nullptr) {
 		delete [] underlay_tiles;
 		underlay_tiles = nullptr;
@@ -267,26 +249,7 @@ void map2d::unload() {
 	layers[1].clear();
 	mevents.unload();
 	map_loaded = false;
-	cur_map_num = (~0);
-}
-
-bool map2d::is_2d_map(const size_t& map_num) const {
-	const xld::xld_object* object;
-	if(map_num < 100) {
-		object = maps1->get_object(map_num);
-	}
-	else if(map_num >= 100 && map_num < 200) {
-		object = maps2->get_object(map_num-100);
-	}
-	else if(map_num >= 200 && map_num < 300) {
-		object = maps3->get_object(map_num-200);
-	}
-	else {
-		log_error("invalid map number: %u!", map_num);
-		return false;
-	}
-	
-	return (object->data[2] == 0x02);
+	cur_map_num = (~0u);
 }
 
 // TODO: write correct/nice windows roundf
@@ -364,8 +327,8 @@ void map2d::handle() {
 				if(update_size == 0) continue;
 
 				glBindBuffer(GL_ARRAY_BUFFER, cur_layer.tex_coords_vbo);
-				glBufferSubData(GL_ARRAY_BUFFER, (cur_layer.ani_offset*4) * 2 * sizeof(float),
-								update_size * 2 * sizeof(float), &cur_layer.tex_coords[cur_layer.ani_offset*4]);
+				glBufferSubData(GL_ARRAY_BUFFER, (GLsizeiptr)((cur_layer.ani_offset*4) * 2 * sizeof(float)),
+								(GLsizeiptr)(update_size * 2 * sizeof(float)), &cur_layer.tex_coords[cur_layer.ani_offset*4]);
 			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -375,10 +338,12 @@ void map2d::handle() {
 
 float2 map2d::compute_target_position() {
 	float scaled_tile_size = tile_size * conf::get<float>("map.scale");
-	normal_player_offset.set(floor::get_width() / size_t(scaled_tile_size) / 2, floor::get_height() / size_t(scaled_tile_size) / 2);
+	normal_player_offset.set(floor::get_physical_width() / size_t(scaled_tile_size) / 2,
+							 floor::get_physical_height() / size_t(scaled_tile_size) / 2);
 	float2 target_position = ssize2(next_position) - ssize2(normal_player_offset);
 	target_position.clamp(float2(0.0f),
-						  float2(map_size) - float2(floor::get_width() / size_t(scaled_tile_size), floor::get_height() / size_t(scaled_tile_size)));
+						  float2(map_size) - float2(floor::get_physical_width() / size_t(scaled_tile_size),
+													floor::get_physical_height() / size_t(scaled_tile_size)));
 	return target_position;
 }
 
@@ -407,7 +372,7 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 		const tileset::tileset_object& tileset_obj = tilesets->get_cur_tileset();
 		const map_layer& cur_layer = (draw_stage == MAP_DRAW_STAGE::UNDERLAY ? layers[0] : layers[1]);
 		
-		gl3shader shd = s->get_gl3shader("SIMPLE");
+		gl_shader shd = s->get_gl_shader("SIMPLE");
 		shd->use("textured");
 		shd->uniform("mvpm", *mvm * *pm);
 		shd->texture("tex", tileset_obj.tileset->tex());
@@ -440,8 +405,8 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 			for(size_t i = 0; i < mevents.get_event_info_count(); i++) {
 				const map_events::map_event_info* cur_evt = mevents.get_event_info(i);
 					
-				evt_rect.x1 = cur_evt->xpos * tile_size + tile_size/2 - 3;
-				evt_rect.y1 = cur_evt->ypos * tile_size + tile_size/2 - 3;
+				evt_rect.x1 = uint32_t(float(cur_evt->xpos) * tile_size + tile_size/2.0f - 3.0f);
+				evt_rect.y1 = uint32_t(float(cur_evt->ypos) * tile_size + tile_size/2.0f - 3.0f);
 				evt_rect.x2 = evt_rect.x1 + 6;
 				evt_rect.y2 = evt_rect.y1 + 6;
 				//gfx2d::draw_fade_rectangle(&evt_rect, 0xCFFFFFFF, 0x2FFFFFFF, gfx2d::FT_DIAGONAL);
@@ -453,11 +418,11 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 }
 
 tileset::tile_object* map2d::get_tile(unsigned int type) {
-	return map_loaded ? &(tilesets->get_cur_tileset().tiles[(type==1?overlay_tiles:underlay_tiles)[next_position.y*map_size.x+next_position.x]]) : nullptr;
+	return map_loaded ? &(tilesets->get_cur_tileset().tiles[(type==1?overlay_tiles:underlay_tiles)[size_t(next_position.y)*map_size.x+size_t(next_position.x)]]) : nullptr;
 }
 
 unsigned int map2d::get_tile_num(unsigned int type) {
-	return map_loaded ? (type==1?overlay_tiles:underlay_tiles)[next_position.y*map_size.x+next_position.x] : 0;
+	return map_loaded ? (type==1?overlay_tiles:underlay_tiles)[size_t(next_position.y)*map_size.x+size_t(next_position.x)] : 0;
 }
 
 const size2& map2d::get_size() const {
@@ -465,7 +430,7 @@ const size2& map2d::get_size() const {
 }
 
 void map2d::set_pos(const size_t& x, const size_t& y) {
-	next_position.set(x, y);
+	next_position.set((ssize_t)x, (ssize_t)y);
 }
 
 bool map2d::collide(const MOVE_DIRECTION& direction, const size2& cur_position, const CHARACTER_TYPE& char_type) const {

@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "map_tiles.hpp"
+#include "map/3d/map_tiles.hpp"
 
 map_tiles::map_tiles() : a2estatic(::s, ::sce) {
 }
@@ -31,12 +31,12 @@ const string map_tiles::select_shader(const DRAW_MODE& draw_mode) const {
 	return "";
 }
 
-void map_tiles::pre_draw_geometry(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask) {
+void map_tiles::pre_draw_geometry(gl_shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask) {
 	pre_draw_material(shd, attr_array_mask, texture_mask);
 	attr_array_mask |= a2emodel::VERTEX_ATTRIBUTE::TEXTURE_COORD | a2emodel::VERTEX_ATTRIBUTE::NORMAL;
 	texture_mask |= a2ematerial::TEXTURE_TYPE::DIFFUSE;
 }
 
-void map_tiles::pre_draw_material(gl3shader& shd floor_unused, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask floor_unused) {
+void map_tiles::pre_draw_material(gl_shader& shd floor_unused, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask floor_unused) {
 	attr_array_mask &= (a2emodel::VERTEX_ATTRIBUTE)(~(unsigned int)a2emodel::VERTEX_ATTRIBUTE::NORMAL);
 }

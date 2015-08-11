@@ -41,6 +41,16 @@ vec4 gradient_diagonal_rl() {
 	vec2 interpolator_dir = (gl_FragCoord.xy - extent.xy) / (extent.zw - extent.xy);
 	return compute_gradient(((1.0 - interpolator_dir.x) + interpolator_dir.y) * 0.5);
 }
+vec4 gradient_center() {
+	vec2 interpolator_dir = (gl_FragCoord.xy - extent.xy) / (extent.zw - extent.xy);
+	interpolator_dir = abs(interpolator_dir * 2.0 - 1.0);
+	return compute_gradient((interpolator_dir.x + interpolator_dir.y) * 0.5);
+}
+vec4 gradient_center_round() {
+	vec2 interpolator_dir = (gl_FragCoord.xy - extent.xy) / (extent.zw - extent.xy);
+	interpolator_dir = abs(interpolator_dir * 2.0 - 1.0);
+	return compute_gradient(length(interpolator_dir) * 0.5);
+}
 ////
 	</fragment_shader>
 </a2e_shader>

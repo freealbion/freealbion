@@ -16,20 +16,24 @@ in vec3 normal;
 in vec2 tex_coord;
 </option>
 
-out vertex {
+<option nomatch="*env_probe">struct</option>
+<option match="*env_probe">out</option>
+vertex_block {
 	vec3 normal;
 	<option match="*aux_texture">
 	vec2 tex_coord;
 	</option>
-} out_vertex;
+}
+<option nomatch="*env_probe">; out vertex_block vertex;</option>
+<option match="*env_probe">vertex;</option>
 
 void main() {
 	mat4 transform_mat = local_scale * local_mview;
 	
-	out_vertex.normal = mat3(transform_mat) * normal;
+	vertex.normal = mat3(transform_mat) * normal;
 	
 	<option match="*aux_texture">
-	out_vertex.tex_coord = tex_coord;
+	vertex.tex_coord = tex_coord;
 	</option>
 	
 	<option nomatch="*env_probe">
@@ -44,13 +48,13 @@ void main() {
 	<geometry_shader>
 		<header>
 <option match="*env_probe">
-in vertex {
+in vertex_block {
 	vec3 normal;
 	<option match="*aux_texture">
 	vec2 tex_coord;
 	</option>
 } in_vertex[];
-out vertex {
+out vertex_block {
 	vec3 normal;
 	<option match="*aux_texture">
 	vec2 tex_coord;
@@ -75,22 +79,26 @@ uniform vec2 Nuv;
 uniform sampler2D aux_texture;
 </option>
 
-in vertex {
+<option nomatch="*env_probe">struct</option>
+<option match="*env_probe">in</option>
+vertex_block {
 	vec3 normal;
 	<option match="*aux_texture">
 	vec2 tex_coord;
 	</option>
-} in_vertex;
+}
+<option nomatch="*env_probe">; in vertex_block vertex;</option>
+<option match="*env_probe">vertex;</option>
 
 void main() {
 	check_mask_id();
 	
 	<option match="*aux_texture">
-	vec2 Nuv = texture(aux_texture, in_vertex.tex_coord).xy * 1536.0;
+	vec2 Nuv = texture(aux_texture, vertex.tex_coord).xy * 1536.0;
 	</option>
 	
 	// write to gbuffer
-	write_gbuffer(in_vertex.normal, Nuv);
+	write_gbuffer(vertex.normal, Nuv);
 }
 	</fragment_shader>
 

@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
 <a2e_shader version="2">
+	<includes>global_defs</includes>
+	
 	<vertex_shader>
 uniform mat4 mvpm;
 uniform uvec2 glyph_count; // (glyphs per row, glyphs per column)
 uniform vec2 glyph_size; // "font size"
 uniform vec2 page_size; // "texture size"
 
-layout(std140) uniform text {
-	uvec4 data[4096]; // 16 bytes * 4096 = 64k == max
+layout(packed) uniform text {
+	uvec4 data[A2E_UBO_MAX_SIZE_16TH]; // 4k chars for 64k ubos, 1k chars for 16k ubos
 } text_data;
 
 in vec2 in_vertex;
@@ -22,16 +24,16 @@ void main() {
 	uvec2 upos = uvec2(pos & 0xFFFFu, (pos >> 16u) & 0xFFFFu);
 	
 	vec2 vertex = in_vertex * glyph_size;
-	// kinda sick, but it does it's job (there is no other way to emulate a packed short int)
+	// kinda sick, but it does the job (there is no other way to emulate a packed short int)
 	vertex.x += float(upos.x >= 0x8000u ? -int((~upos.x & 0xFFFFu) + 1u) : int(upos.x));
 	vertex.y += float(upos.y >= 0x8000u ? -int((~upos.y & 0xFFFFu) + 1u) : int(upos.y));
 	
 	uint glyphs_per_page = glyph_count.x * glyph_count.y;
 	uint page = index / glyphs_per_page;
 	index -= page * glyphs_per_page;
-	tex_page = page;
-	tex_coord.x = index % glyph_count.x;
-	tex_coord.y = index / glyph_count.x;
+	tex_page = float(page);
+	tex_coord.x = float(index % glyph_count.x);
+	tex_coord.y = float(index / glyph_count.x);
 	tex_coord.xy *= glyph_size;
 	tex_coord.xy += in_vertex * glyph_size;
 	tex_coord.xy -= in_vertex / page_size; // - 1 texel
@@ -52,6 +54,10 @@ out vec4 frag_color;
 void main() {
 	vec3 color = texture(font_texture, vec3(tex_coord.x, tex_coord.y, tex_page)).rgb;
 	frag_color = vec4(color * font_color.rgb, font_color.a * max(color.r, max(color.g, color.b)));
+	/*vec4 out_color = vec4(color * font_color.rgb, font_color.a * max(color.r, max(color.g, color.b)));
+	out_color *= 0.0001;
+	out_color += vec4(1.0, 0.0, 0.0, 0.5);
+	frag_color = out_color;*/
 }
 	</fragment_shader>
 

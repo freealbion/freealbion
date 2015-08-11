@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@
 
 #include "object_light.hpp"
 #include "conf.hpp"
-#include "map_defines.hpp"
-#include "npc.hpp"
-#include "npc3d.hpp"
+#include "map/map_defines.hpp"
+#include "map/npc.hpp"
+#include "map/3d/npc3d.hpp"
 
 //// object light base functions
 void object_light_base::handle() {
@@ -184,8 +184,8 @@ template <> void object_light<object_light_type::LIVING_WALL>::animate(const siz
 		float3 cur_color = l->get_color();
 		cur_color.r += step_size * (float(rand()%2) - 0.5f) * 2.0f;
 		cur_color.g += step_size * (float(rand()%2) - 0.5f) * 2.0f;
-		cur_color.r = core::clamp(cur_color.r, original.color.r - deviation, 1.0f);
-		cur_color.g = core::clamp(cur_color.g, original.color.g - deviation, 1.0f);
+		cur_color.r = const_math::clamp(cur_color.r, original.color.r - deviation, 1.0f);
+		cur_color.g = const_math::clamp(cur_color.g, original.color.g - deviation, 1.0f);
 		l->set_color(cur_color);
 	}
 }

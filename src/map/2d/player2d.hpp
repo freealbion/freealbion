@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,9 +21,9 @@
 #define __AR_PLAYER2D_HPP__
 
 #include "ar_global.hpp"
-#include "map_defines.hpp"
-#include "npcgfx.hpp"
-#include "npc2d.hpp"
+#include "map/map_defines.hpp"
+#include "map/2d/npcgfx.hpp"
+#include "map/2d/npc2d.hpp"
 
 /*! @class player
  *  @brief player class
@@ -42,6 +42,7 @@ public:
 	virtual void handle();
 	virtual void move(const MOVE_DIRECTION direction);
 	virtual void set_view_direction(const MOVE_DIRECTION& vdirection);
+	virtual float2 compute_screen_position_from_interpolated(const float2& interp_pos) const;
 
 protected:
 	

@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,9 +21,8 @@
 #define __AR_MAP_EVENTS_HPP__
 
 #include "ar_global.hpp"
-#include "map_defines.hpp"
-#include "xld.hpp"
-#include "events.hpp"
+#include "map/map_defines.hpp"
+#include "events/events.hpp"
 
 class map_events {
 public:
@@ -39,7 +38,8 @@ public:
 		events::event* event_obj;
 	};
 	
-	void load(const xld::xld_object* object, const size_t& data_offset, const size2& map_size);
+	void load(const unsigned char* data, const size_t& data_size,
+			  const size_t& data_offset, const size2& map_size);
 	void unload();
 
 	size_t get_event_count() const;

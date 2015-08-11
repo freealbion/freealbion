@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -124,6 +124,15 @@ template <> object_light<object_light_type::type>::object_light(const float3& po
 template <> void object_light<object_light_type::type>::animate(const size_t& time); \
 extern template class object_light<object_light_type::type>;
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wweak-template-vtables"
+#endif
+
 __OBJECT_LIGHT_TYPE_LIST(__OBJECT_LIGHT_SPECS_AND_EXTERN_TEMPLATE)
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 #endif

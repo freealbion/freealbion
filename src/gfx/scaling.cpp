@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "scaling.hpp"
-#include <core/platform.hpp>
+#include "gfx/scaling.hpp"
+#include <floor/core/platform.hpp>
 
 //opencl::kernel_object* scaling::hq4x = nullptr;
 //cl::NDRange scaling::hq4x_range;

@@ -231,9 +231,9 @@ void scaling::hq4x_32(const unsigned int* sp, unsigned int* dp, const size2& inp
                 if ( w[k] != w[5] )
                 {
 					unsigned int YUV2 = RGBtoYUV[w[k] & 0x00FFFFFF];
-                    if ( ( labs((YUV1 & Ymask) - (YUV2 & Ymask)) > trY ) ||
-                            ( labs((YUV1 & Umask) - (YUV2 & Umask)) > trU ) ||
-                            ( labs((YUV1 & Vmask) - (YUV2 & Vmask)) > trV ) )
+                    if ( ( ((YUV1 & Ymask) - (YUV2 & Ymask)) > trY ) ||
+                            ( ((YUV1 & Umask) - (YUV2 & Umask)) > trU ) ||
+                            ( ((YUV1 & Vmask) - (YUV2 & Vmask)) > trV ) )
                         pattern |= flag;
                 }
                 flag <<= 1;

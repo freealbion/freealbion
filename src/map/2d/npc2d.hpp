@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@
 #define __AR_NPC2D_HPP__
 
 #include "ar_global.hpp"
-#include "map_defines.hpp"
-#include "npcgfx.hpp"
-#include "map_npcs.hpp"
-#include "npc.hpp"
+#include "map/map_defines.hpp"
+#include "map/2d/npcgfx.hpp"
+#include "map/map_npcs.hpp"
+#include "map/npc.hpp"
 
 class map2d;
 class npc2d : public npc {
@@ -37,6 +37,8 @@ public:
 	virtual void move(const MOVE_DIRECTION direction);
 	virtual void move(const size2& move_pos);
 	virtual void set_continent(const bool& state);
+	virtual float2 compute_screen_position() const;
+	virtual float2 compute_screen_position_from_interpolated(const float2& interp_pos) const;
 
 protected:
 	map2d* map2d_obj;

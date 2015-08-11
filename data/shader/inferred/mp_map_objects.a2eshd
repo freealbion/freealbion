@@ -27,8 +27,8 @@ void main() {
 	
 	// instead of inferred_vs():
 	<option match="alpha">
-	out_vertex_alpha.depth = -(mvm * vertex).z;
-	out_vertex_alpha.position = mvpm * vertex;
+	vertex_alpha.depth = -(mvm * vertex).z;
+	vertex_alpha.position = mvpm * vertex;
 	</option>
 	
 	gl_Position = mvpm * vertex;

@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "npc3d.hpp"
+#include "map/3d/npc3d.hpp"
 #include "object_light.hpp"
 
 /*! npc3d constructor
@@ -49,7 +49,7 @@ void npc3d::handle() {
 	last_frame = SDL_GetTicks();
 	
 	pos_interp += interp;
-	pos_interp = core::clamp(pos_interp, 0.0f, 1.0f);
+	pos_interp = const_math::clamp(pos_interp, 0.0f, 1.0f);
 	if(pos_interp >= 1.0f) pos = next_pos;
 	
 	// animation (TODO: this is more of a hack right now, think of a better method)

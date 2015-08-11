@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,10 +17,9 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "background3d.hpp"
+#include "map/3d/background3d.hpp"
 
-background3d::background3d() : a2estatic(::s, ::sce) {
-	bg3d_xld = new xld("3DBCKGR0.XLD");
+background3d::background3d() : a2estatic(::s, ::sce), bg3d_xld("3DBCKGR0.XLD") {
 	bg_texture = t->get_dummy_texture();
 	cur_bg_num = -1;
 	cur_bg_palette = -1;
@@ -42,8 +41,6 @@ background3d::background3d() : a2estatic(::s, ::sce) {
 }
 
 background3d::~background3d() {
-	delete bg3d_xld;
-	
 	if(glIsBuffer(vbo_fs_triangle)) glDeleteBuffers(1, &vbo_fs_triangle);
 	if(glIsBuffer(vbo_fs_coords)) glDeleteBuffers(1, &vbo_fs_coords);
 }
@@ -55,7 +52,7 @@ void background3d::unload() {
 }
 
 void background3d::load(const size_t& bg_num, const size_t& palette) {
-	if(bg_num >= bg3d_xld->get_object_count()) {
+	if(bg_num >= bg3d_xld.get_object_count()) {
 		log_error("invalid background number #%u!", bg_num);
 		return;
 	}
@@ -68,8 +65,8 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 		// else: this is a different background, unload and load new one
 		unload();
 	}
-	cur_bg_num = bg_num;
-	cur_bg_palette = palette;
+	cur_bg_num = (ssize_t)bg_num;
+	cur_bg_palette = (ssize_t)palette;
 	
 	// background image is always scaled up by 4, however, nearest filtering or hq4x may be used
 	const size_t scale_factor = 4;
@@ -77,15 +74,16 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 	const scaling::SCALE_TYPE scale_type = (conf_scale_type == scaling::ST_HQ2X || conf_scale_type == scaling::ST_HQ4X ? scaling::ST_HQ4X : scaling::ST_NEAREST_4X);
 	
 	// get background image
-	const xld::xld_object* obj = bg3d_xld->get_object(bg_num);
-	size2 bg_size = size2(AR_GET_USINT(obj->data, 0), AR_GET_USINT(obj->data, 2));
+	auto obj = bg3d_xld.get_object_data(bg_num);
+	const auto obj_data = obj->data();
+	size2 bg_size = size2(AR_GET_USINT(obj_data, 0), AR_GET_USINT(obj_data, 2));
 	size2 texture_size = bg_size * scale_factor;
 
 	unsigned int* tex_surface = new unsigned int[texture_size.x*texture_size.y];
 	memset(tex_surface, 0, texture_size.x*texture_size.y*sizeof(unsigned int));
 
 	unsigned int* data_32bpp = new unsigned int[bg_size.x*bg_size.y];
-	gfxconv::convert_8to32(&(obj->data[6]), data_32bpp, bg_size.x, bg_size.y, palette, 0);
+	gfxconv::convert_8to32(&obj_data[6], data_32bpp, bg_size.x, bg_size.y, palette, 0);
 	scaling::scale(scale_type, data_32bpp, bg_size, tex_surface);
 	delete [] data_32bpp;
 
@@ -125,7 +123,7 @@ void background3d::load(const size_t& bg_num, const size_t& palette) {
 	}
 	memset(pixel_data[3], 0, cm_texture_size.x*cm_texture_size.y*sizeof(unsigned int)); // -y = black
 	
-	bg_texture = t->add_cubemap_texture((void**)pixel_data, (unsigned int)cm_texture_size.x, (unsigned int)cm_texture_size.y, GL_RGBA8, GL_RGBA, TEXTURE_FILTERING::TRILINEAR, engine::get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+	bg_texture = t->add_cubemap_texture((void**)pixel_data, (GLsizei)cm_texture_size.x, (GLsizei)cm_texture_size.y, GL_RGBA8, GL_RGBA, TEXTURE_FILTERING::TRILINEAR, engine::get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 	
 	for(size_t i = 0; i < 6; i++) delete [] pixel_data[i];
 	delete [] pixel_data;
@@ -144,7 +142,7 @@ void background3d::draw(const DRAW_MODE draw_mode) {
 	// and light pass are necessary (-> return)
 	if(draw_mode != DRAW_MODE::MATERIAL_PASS) return;
 	
-	gl3shader shd = s->get_gl3shader("AR_IR_MP_SKY");
+	gl_shader shd = s->get_gl_shader("AR_IR_MP_SKY");
 	
 	matrix4f skybox_proj_mat = *engine::get_projection_matrix();
 	matrix4f IMVP = matrix4f().rotate_y(-engine::get_rotation()->y) * matrix4f().rotate_x(engine::get_rotation()->x) * skybox_proj_mat;

@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,12 +21,11 @@
 #define __AR_BIN_GRAPHICS_HPP__
 
 #include "ar_global.hpp"
-#include "xld.hpp"
-#include "palette.hpp"
-#include "gfxconv.hpp"
-#include "scaling.hpp"
+#include "gfx/palette.hpp"
+#include "gfx/gfxconv.hpp"
+#include "gfx/scaling.hpp"
 #include "conf.hpp"
-#include "albion_texture.hpp"
+#include "gfx/albion_texture.hpp"
 
 class bin_graphics {
 public:

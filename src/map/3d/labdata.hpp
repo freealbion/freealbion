@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,13 +21,12 @@
 #define __AR_LABDATA_HPP__
 
 #include "ar_global.hpp"
-#include "map_defines.hpp"
-#include "xld.hpp"
-#include "palette.hpp"
-#include "gfxconv.hpp"
-#include "scaling.hpp"
+#include "map/map_defines.hpp"
+#include "gfx/palette.hpp"
+#include "gfx/gfxconv.hpp"
+#include "gfx/scaling.hpp"
 #include "conf.hpp"
-#include "albion_texture.hpp"
+#include "gfx/albion_texture.hpp"
 
 class a2ematerial;
 
@@ -91,13 +90,12 @@ public:
 	};
 	
 	struct lab_floor {
-		COLLISION_TYPE collision;
+		COLLISION_TYPE collision = CT_PASSABLE;
 		unsigned int _unknown_collision; // 2 bytes
-		unsigned int tex_num;
-		unsigned int animation;
-		unsigned int cur_ani;
-		albion_texture::albion_texture_multi_xld* tex_info;
-		lab_floor() : collision(CT_PASSABLE), tex_num(0), animation(1), cur_ani(0), tex_info(nullptr) {}
+		unsigned int tex_num { 0 };
+		unsigned int animation { 1 };
+		unsigned int cur_ani { 0 };
+		albion_texture::albion_texture_multi_xld* tex_info { nullptr };
 	};
 	
 	struct lab_object_info {
@@ -111,22 +109,23 @@ public:
 		unsigned int x_scale;
 		unsigned int y_scale;
 
-		unsigned int palette_shift;
-		unsigned int cur_ani;
+		unsigned int palette_shift { 0 };
+		unsigned int cur_ani { 0 };
 		float2* tex_coord_begin;
 		float2* tex_coord_end;
-		lab_object_info() : palette_shift(0), cur_ani(0) {}
 	};
 	
 	struct lab_object {
 		AUTOGFX_TYPE type;
 
-		bool animated;
+		bool animated { false };
 		size_t sub_object_count;
 		ssize3 offset[8];
 		size_t object_num[8];
-		lab_object_info* sub_objects[8];
-		lab_object() : animated(false) {}
+		lab_object_info* sub_objects[8] {
+			nullptr, nullptr, nullptr, nullptr,
+			nullptr, nullptr, nullptr, nullptr
+		};
 	};
 	
 	struct lab_wall_overlay {
@@ -151,13 +150,11 @@ public:
 		unsigned int x_size;
 		unsigned int y_size;
 		unsigned int overlay_count;
-		vector<lab_wall_overlay*> overlays;
+		vector<lab_wall_overlay> overlays;
 		
-		unsigned int cur_ani;
+		unsigned int cur_ani { 0 };
 		float2* tex_coord_begin;
 		float2* tex_coord_end;
-
-		lab_wall() : cur_ani(0) {}
 	};
 	
 	const lab_info* get_lab_info() const { return &info; }
@@ -174,29 +171,29 @@ public:
 	void handle_animations();
 	
 protected:
-	vector<lab_object*> objects;
-	vector<lab_object_info*> object_infos;
+	vector<lab_object> objects;
+	vector<lab_object_info> object_infos;
 	
-	vector<lab_floor*> floors;
-	vector<lab_wall*> walls;
+	vector<lab_floor> floors;
+	vector<lab_wall> walls;
 
 	lab_info info;
 
-	const xld* labdata_xlds[3];
-	size_t cur_labdata_num;
+	array<lazy_xld, 3> labdata_xlds;
+	size_t cur_labdata_num { ~0u };
 	
 	a2e_texture floors_tex;
 	a2e_texture walls_tex;
 	a2e_texture objects_tex;
-	a2ematerial* lab_fc_material;
-	a2ematerial* lab_wall_material;
-	a2ematerial* lab_obj_material;
-
-	//
-	xld* floor_xlds[3];
-	xld* object_xlds[4];
-	xld* overlay_xlds[3];
-	xld* wall_xlds[2];
+	a2ematerial* lab_fc_material { nullptr };
+	a2ematerial* lab_wall_material { nullptr };
+	a2ematerial* lab_obj_material { nullptr };
+	
+	// 3d textures
+	array<lazy_xld, 3> floor_xlds;
+	array<lazy_xld, 4> object_xlds;
+	array<lazy_xld, 3> overlay_xlds;
+	array<lazy_xld, 2> wall_xlds;
 	
 	TEXTURE_FILTERING tex_filtering;
 	TEXTURE_FILTERING custom_tex_filtering;

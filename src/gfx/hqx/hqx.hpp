@@ -23,7 +23,7 @@
 #ifndef __AR_HQX_HPP__
 #define __AR_HQX_HPP__
 
-#include "scaling.hpp"
+#include "gfx/scaling.hpp"
 
 #define MASK_2 0x00FF00
 #define MASK_13 0xFF00FF
@@ -43,9 +43,9 @@ inline int scaling::Diff(unsigned int w1, unsigned int w2)
     // Mask against RGB_MASK to discard the alpha channel
     unsigned int YUV1 = RGBtoYUV[w1 & 0x00FFFFFF];
     unsigned int YUV2 = RGBtoYUV[w2 & 0x00FFFFFF];
-    return ( ( labs((YUV1 & Ymask) - (YUV2 & Ymask)) > trY ) ||
-            ( labs((YUV1 & Umask) - (YUV2 & Umask)) > trU ) ||
-            ( labs((YUV1 & Vmask) - (YUV2 & Vmask)) > trV ) );
+    return ( ( ((YUV1 & Ymask) - (YUV2 & Ymask)) > trY ) ||
+            ( ((YUV1 & Umask) - (YUV2 & Umask)) > trU ) ||
+            ( ((YUV1 & Vmask) - (YUV2 & Vmask)) > trV ) );
 }
 
 /* Interpolate functions */

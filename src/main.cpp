@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,27 +24,25 @@
  *
  * \author flo
  *
- * \date April 2007 - December 2013
+ * \date April 2007 - August 2015
  *
  * Albion Remake
  */
 
 //
 static const float3 cam_speed(2.0f, 5.0f, 0.2f);
-static a2estatic* debug_model = nullptr;
-static a2ematerial* debug_mat = nullptr;
 static vector<light*> debug_lights;
 
 static map_handler* mh { nullptr };
 static albion_ui* aui { nullptr };
 static bool done { false };
 
-int main(int argc, char *argv[]) {
+int main(int argc floor_unused, char *argv[]) {
 	// initialize the engine
-#if !defined(A2E_IOS) || !defined(A2E_DEBUG)
+#if !defined(FLOOR_IOS)
 	engine::init(argv[0], (const char*)"../data/");
 #else
-	engine::init(argv[0], (const char*)"../../../../Documents/albion/data/");
+	engine::init(argv[0], (const char*)"data/");
 #endif
 	floor::set_caption(APPLICATION_NAME);
 	floor::acquire_context();
@@ -77,7 +75,7 @@ int main(int argc, char *argv[]) {
 	sce->set_eye_distance(-0.3f);
 	
 	// add shaders
-	const string ar_shaders[][2] = {
+	const string ar_shaders[][2] {
 		{ "AR_IR_GBUFFER_MAP_OBJECTS", "inferred/gp_gbuffer_map_objects.a2eshd" },
 		{ "AR_IR_GBUFFER_MAP_TILES", "inferred/gp_gbuffer_map_tiles.a2eshd" },
 		{ "AR_IR_MP_SKY", "inferred/mp_sky.a2eshd" },
@@ -105,71 +103,16 @@ int main(int argc, char *argv[]) {
 	palettes = new pal();
 	scaling::init();
 	bin_gfx = new bin_graphics();
+	script = new albion_script();
+	audio_handler::init();
 
 	mh = new map_handler();
 	//size_t inital_map_num = 99; // shortcut map
-	size_t inital_map_num = 183; // shortcut map
-	if(argc > 1) {
-		const string arg_1_str = argv[1];
-		if(arg_1_str != "") {
-			if(arg_1_str.find(".a2m") == string::npos) {
-				const size_t arg_map_num = string2size_t(arg_1_str);
-				if((arg_map_num == 0 && arg_1_str[0] == '0') ||
-				   (arg_map_num != 0 && mh->get_map_type(arg_map_num) != MAP_TYPE::NONE)) {
-					inital_map_num = arg_map_num;
-				}
-				else {
-					log_error("invalid map number or map type!");
-				}
-			}
-			else {
-				const string model_name = arg_1_str.substr(0, arg_1_str.rfind(".a2m"));
-				const string mtl_name = model_name + ".a2mtl";
-				debug_mat = new a2ematerial();
-				debug_mat->load_material(floor::data_path(mtl_name));
-				debug_model = sce->create_a2emodel<a2estatic>();
-				debug_model->load_model(floor::data_path(arg_1_str));
-				debug_model->set_material(debug_mat);
-				debug_model->set_hard_scale(100.0f, 100.0f, 100.0f);
-				extbbox* bbox = debug_model->get_bounding_box();
-				const float pos_offset = -(bbox->min.y + (bbox->max.y - bbox->min.y) * 0.5f);
-				debug_model->set_position(0.0f, pos_offset, 0.0f);
-				sce->add_model(debug_model);
-				
-				debug_lights = {
-					new light(bbox->min.x, pos_offset, 0.0f),
-					new light(bbox->max.x, pos_offset, 0.0f),
-					new light(0.0f, bbox->min.y + pos_offset, 0.0f),
-					new light(0.0f, bbox->max.y + pos_offset, 0.0f),
-					new light(0.0f, pos_offset, bbox->min.z),
-					new light(0.0f, pos_offset, bbox->max.z),
-				};
-				const float light_radius = bbox->diagonal().length() * 3.0f;
-				for(const auto& li : debug_lights) {
-					li->set_color(core::rand(1.0f), core::rand(1.0f), core::rand(1.0f));
-					li->set_radius(light_radius);
-					sce->add_light(li);
-				}
-				
-				light* directional_light = new light(0.0f, bbox->max.y + pos_offset + 20.0f, 0.0f);
-				directional_light->set_color(1.0f, 1.0f, 1.0f);
-				directional_light->set_ambient(0.1f, 0.1f, 0.1f);
-				directional_light->set_type(light::LIGHT_TYPE::DIRECTIONAL);
-				sce->add_light(directional_light);
-				debug_lights.push_back(directional_light);
-				
-				cam->set_position(0.0f, 0.0f, bbox->min.z * 4.0f);
-				cam->set_rotation(0.0f, 0.0f, 0.0f);
-			}
-		}
-	}
-	if(debug_model == nullptr) mh->load_map(inital_map_num);
+	size_t inital_map_num = 183; // beloveno
+	mh->load_map(inital_map_num);
 
 	aui = new albion_ui(mh);
-	if(conf::get<bool>("ui.display")) {
-		aui->open_goto_map_wnd();
-		aui->open_game_ui();
-	}
+	aui->open_game_ui();
 	
 	cam->set_keyboard_input(conf::get<bool>("debug.free_cam"));
 	
@@ -183,17 +126,23 @@ int main(int argc, char *argv[]) {
 		// event handling
 		eevt->handle_events();
 		
+#if !defined(FLOOR_IOS)
 		// stop drawing if window is inactive
 		if(!(SDL_GetWindowFlags(floor::get_window()) & SDL_WINDOW_INPUT_FOCUS)) {
 			SDL_Delay(20);
 			continue;
 		}
+#endif
 		
 		debug_ui->run();
+
+		engine::start_draw();
 		
 		// set caption (app name and fps count)
 		if(floor::is_new_fps_count()) {
-			//cout << "FPS: " << floor::get_fps() << endl;
+#if defined(FLOOR_IOS)
+			cout << "FPS: " << floor::get_fps() << endl;
+#endif
 			stringstream caption;
 			caption << APPLICATION_NAME << " | FPS: " << floor::get_fps();
 			if(mh->get_tile(0) != nullptr) {
@@ -205,22 +154,22 @@ int main(int argc, char *argv[]) {
 				
 				tbytes << mh->get_tile(0)->upper_bytes;
 				byte_strs[0] = tbytes.str();
-				tbytes.clear();
+				tbytes.str("");
 				tbytes << mh->get_tile(0)->lower_bytes;
 				byte_strs[1] = tbytes.str();
-				tbytes.clear();
+				tbytes.str("");
 				tbytes << mh->get_tile(1)->upper_bytes;
 				byte_strs[2] = tbytes.str();
-				tbytes.clear();
+				tbytes.str("");
 				tbytes << mh->get_tile(1)->lower_bytes;
 				byte_strs[3] = tbytes.str();
-				tbytes.clear();
+				tbytes.str("");
 				tbytes << mh->get_tile_num(0);
 				byte_strs[4] = tbytes.str();
-				tbytes.clear();
+				tbytes.str("");
 				tbytes << mh->get_tile_num(1);
 				byte_strs[5] = tbytes.str();
-				tbytes.clear();
+				tbytes.str("");
 
 				for(size_t i = 0; i < 6; i++) {
 					size_t add_zeros = 8 - byte_strs[i].length();
@@ -251,12 +200,10 @@ int main(int argc, char *argv[]) {
 			floor::set_caption(caption.str());
 		}
 
-		engine::start_draw();
-
 		clck->run();
 		mh->handle();
 		aui->run();
-
+		
 		engine::stop_draw();
 	}
 	
@@ -265,19 +212,17 @@ int main(int argc, char *argv[]) {
 	eevt->remove_event_handler(quit_handler_fnctr);
 	eevt->remove_event_handler(window_handler_fnctr);
 	
-	if(debug_model != nullptr) {
-		sce->delete_model(debug_model);
-		delete debug_model;
-	}
-	if(debug_mat != nullptr) delete debug_mat;
-	
 	delete debug_ui;
-
+	
+	audio_handler::destroy();
 	delete palettes;
 	delete bin_gfx;
+	delete script;
 
 	delete aui;
 	delete cam;
+	
+	engine::destroy();
 
 	return 0;
 }
@@ -316,14 +261,16 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 				break;
 			case SDLK_g:
 				conf::set<bool>("ui.display", conf::get<bool>("ui.display") ^ true);
+				floor::acquire_context();
 				if(conf::get<bool>("ui.display")) {
 					aui->open_goto_map_wnd();
-					aui->open_game_ui();
+					//aui->open_game_ui();
 				}
 				else {
 					aui->close_goto_map_wnd();
-					aui->close_game_ui();
+					//aui->close_game_ui();
 				}
+				floor::release_context();
 				break;
 			case SDLK_c:
 				conf::set<bool>("map.collision", conf::get<bool>("map.collision") ^ true);
@@ -394,10 +341,11 @@ bool key_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 			case SDLK_0:
 				floor::reload_kernels();
 				break;
-			// TODO: make this work
-			/*case SDLK_F7:
+			case SDLK_F7:
+				floor::start_draw();
 				mh->load_map(99);
-				break;*/
+				floor::stop_draw();
+				break;
 			default:
 				return false;
 		}

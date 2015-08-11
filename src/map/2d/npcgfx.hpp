@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,12 +22,11 @@
 
 #include "ar_global.hpp"
 #include "conf.hpp"
-#include "map_defines.hpp"
-#include "xld.hpp"
-#include "palette.hpp"
-#include "gfxconv.hpp"
-#include "scaling.hpp"
-#include "albion_texture.hpp"
+#include "map/map_defines.hpp"
+#include "gfx/palette.hpp"
+#include "gfx/gfxconv.hpp"
+#include "gfx/scaling.hpp"
+#include "gfx/albion_texture.hpp"
 
 /*! @class npcgfx
  *  @brief npc graphics
@@ -45,7 +44,9 @@ public:
 	void set_palette(const size_t& palette_num);
 
 	const a2e_texture& get_npcgfx(const size_t& npc_num);
-	void draw_npc(const size_t& npc_num, const size_t& frame, const float2& screen_position, const float2& position, const float depth_overwrite = -1.0f);
+	void draw_npc(const size_t& npc_num, const size_t& frame,
+				  const float2& screen_position, const float2& position,
+				  const float depth_overwrite = -1.0f);
 	
 protected:
 	const pal* palettes;
@@ -53,7 +54,7 @@ protected:
 
 	map<size_t, a2e_texture> npc_graphics;
 	
-	xld* npcgfx_xlds[6];
+	array<lazy_xld, 6> npcgfx_xlds;
 
 	void load_npcgfx(const size_t& npc_num);
 	

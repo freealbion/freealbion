@@ -18,8 +18,8 @@ centroid in vec2 tex_coord;
 out vec4 frag_color;
 
 void main() {
-	vec4 src_color = texture(src_buffer, vec2(tex_coord.x, 1.0 - tex_coord.y), 0);
-	vec4 dst_color = texture(dst_buffer, tex_coord, 0);
+	vec4 src_color = texture(src_buffer, vec2(tex_coord.x, 1.0 - tex_coord.y));
+	vec4 dst_color = texture(dst_buffer, tex_coord);
 	
 	vec3 color = src_color.xyz + dst_color.xyz * (1.0 - src_color.a);
 

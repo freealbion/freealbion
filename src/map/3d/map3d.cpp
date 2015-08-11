@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,22 +17,18 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "map3d.hpp"
-#include "npc3d.hpp"
+#include "map/3d/map3d.hpp"
+#include "map/3d/npc3d.hpp"
 #include "object_light.hpp"
 
 static const float tile_size = std_tile_size;
 
 /*! map3d constructor
  */
-map3d::map3d(labdata* lab_data_, xld* maps1, xld* maps2, xld* maps3) :
-lab_data(lab_data_), clock_cb(bind(&map3d::clock_tick, this, placeholders::_1)) {
-	map_xlds[0] = maps1;
-	map_xlds[1] = maps2;
-	map_xlds[2] = maps3;
-
+map3d::map3d(labdata* lab_data_, array<lazy_xld, 3>& maps) :
+lab_data(lab_data_), map_xlds(maps), clock_cb(bind(&map3d::clock_tick, this, placeholders::_1)) {
 	map_loaded = false;
-	cur_map_num = (~0);
+	cur_map_num = (~0u);
 	mnpcs = nullptr;
 	npcs_model = nullptr;
 	npc_object_count = 0;
@@ -73,7 +69,7 @@ lab_data(lab_data_), clock_cb(bind(&map3d::clock_tick, this, placeholders::_1)) 
 	sce->add_light(sun_light);
 	sun_distance = 100.0f;
 	SDL_Surface* sun_light_tex = IMG_Load(floor::data_path("sun_light.png").c_str());
-	sun_color_table.reserve(sun_light_tex->w);
+	sun_color_table.reserve((size_t)sun_light_tex->w);
 	const int bpp = (int)sun_light_tex->format->BytesPerPixel;
 	for(int i = 0; i < sun_light_tex->w; i++) {
 		unsigned char* color = ((unsigned char*)sun_light_tex->pixels) + i*bpp;
@@ -105,14 +101,21 @@ void map3d::load(const size_t& map_num) {
 	if(cur_map_num == map_num) return;
 	log_debug("loading map %u ...", map_num);
 	unload();
-
+	
 	//
-	const xld::xld_object* object = xld::get_object(map_num, map_xlds, 300);
-	if(object == nullptr) {
+	if(map_num >= MAX_MAP_NUMBER) {
 		log_error("invalid map number: %u!", map_num);
 		return;
 	}
-	const unsigned char* cur_map_data = object->data;
+
+	const auto map_data_size = map_xlds[map_num/100].get_object_size(map_num % 100);
+	if(map_data_size == 0) {
+		log_error("map %u is empty!", map_num);
+		return;
+	}
+	
+	auto object_data = map_xlds[map_num/100].get_object_data(map_num % 100);
+	const auto cur_map_data = object_data->data();
 	
 	// get map infos
 	// header
@@ -222,7 +225,7 @@ void map3d::load(const size_t& map_num) {
 	
 	// events
 	const size_t events_offset = map_data_offset + map_data_len;
-	mevents.load(object, events_offset, map_size);
+	mevents.load(cur_map_data, map_data_size, events_offset, map_size);
 
 	// load npc/monster data (has to be done here, b/c we need info that is available only after all events have been loaded)
 	mnpcs = new map_npcs();
@@ -246,8 +249,8 @@ void map3d::load(const size_t& map_num) {
 	npcs_vertices = new float3[npc_object_count*4];
 	npcs_ws_positions = new float3[npc_object_count*4];
 	npcs_tex_coords = new float2[npc_object_count*4];
-	npcs_indices = new index3*[1];
-	npcs_indices[0] = new index3[npc_object_count*2];
+	npcs_indices = new uint3*[1];
+	npcs_indices[0] = new uint3[npc_object_count*2];
 	unsigned int* npcs_index_count = new unsigned int[1];
 	npcs_index_count[0] = npc_object_count*2;
 	
@@ -403,16 +406,16 @@ void map3d::load(const size_t& map_num) {
 	// map model
 	wall_vertices = new float3[wall_count*4];
 	wall_tex_coords = new float2[wall_count*4];
-	wall_indices = new index3*[1+wall_transp_obj_count];
+	wall_indices = new uint3*[1+wall_transp_obj_count];
 	unsigned int* wall_index_count = new unsigned int[1+wall_transp_obj_count];
-	wall_indices[0] = new index3[(wall_count - wall_transp_count*2)*2];
+	wall_indices[0] = new uint3[(wall_count - wall_transp_count*2)*2];
 	wall_index_count[0] = (unsigned int)(wall_count - wall_transp_count*2)*2;
 
 	// floors/ceilings model
 	fc_vertices = new float3[fc_count*4];
 	fc_tex_coords = new float2[fc_count*4];
-	fc_indices = new index3*[1];
-	fc_indices[0] = new index3[fc_count*2];
+	fc_indices = new uint3*[1];
+	fc_indices[0] = new uint3[fc_count*2];
 	unsigned int* fc_index_count = new unsigned int[1];
 	fc_index_count[0] = (unsigned int)fc_count*2;
 	
@@ -420,8 +423,8 @@ void map3d::load(const size_t& map_num) {
 	obj_vertices = new float3[sub_object_count*4];
 	obj_ws_positions = new float3[sub_object_count*4];
 	obj_tex_coords = new float2[sub_object_count*4];
-	obj_indices = new index3*[1];
-	obj_indices[0] = new index3[sub_object_count*2];
+	obj_indices = new uint3*[1];
+	obj_indices[0] = new uint3[sub_object_count*2];
 	unsigned int* obj_index_count = new unsigned int[1];
 	obj_index_count[0] = (unsigned int)sub_object_count*2;
 	
@@ -486,9 +489,9 @@ void map3d::load(const size_t& map_num) {
 					wall_subobj+=2;
 					transp_wall = true;
 					alpha_wall = true;
-					wall_indices[wall_subobj-1] = new index3[side_count*2];
+					wall_indices[wall_subobj-1] = new uint3[side_count*2];
 					wall_index_count[wall_subobj-1] = side_count*2;
-					wall_indices[wall_subobj] = new index3[side_count*2];
+					wall_indices[wall_subobj] = new uint3[side_count*2];
 					wall_index_count[wall_subobj] = side_count*2;
 				}
 				
@@ -825,22 +828,12 @@ void map3d::unload() {
 	obj_ani_count = 0;
 	obj_ani_offset = 0;
 	animated_tiles.clear();
-	cur_map_num = (~0);
+	cur_map_num = (~0ull);
 
 	if(bg_loaded) {
 		sce->delete_model(bg3d);
 		bg_loaded = false;
 	}
-}
-
-bool map3d::is_3d_map(const size_t& map_num) const {
-	const xld::xld_object* object = xld::get_object(map_num, &map_xlds[0], 300);
-	if(object == nullptr) {
-		log_error("invalid map number: %u!", map_num);
-		return false;
-	}
-	
-	return (object->data[2] == 0x01);
 }
 
 void map3d::draw() const {
@@ -866,7 +859,7 @@ void map3d::clock_tick(size_t ticks) {
 		const size_t progression = ticks - sun_rise;
 		const float norm_progression = float(progression) / fsun_up;
 		sun_light->set_position((sun_distance - norm_progression * sun_distance) * 2.0f,
-								sinf(DEG2RAD(norm_progression * 180.0f)) * sun_distance,
+								sinf(const_math::deg_to_rad(norm_progression * 180.0f)) * sun_distance,
 								float(map_size.y) * std_tile_size);
 		
 		// set sun light color
@@ -1157,7 +1150,7 @@ bool4 map3d::collide(const MOVE_DIRECTION& direction, const size2& cur_position,
 			continue;
 		}
 		
-		const size_t index = next_position[i].y*map_size.x + next_position[i].x;
+		const size_t index = size_t(next_position[i].y) * map_size.x + size_t(next_position[i].x);
 		
 		const labdata::lab_floor* floor_data = nullptr;
 		const labdata::lab_floor* ceiling_data = nullptr;

@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "npc2d.hpp"
-#include "map2d.hpp"
-#include <core/core.hpp>
+#include "map/2d/npc2d.hpp"
+#include "map/2d/map2d.hpp"
+#include <floor/core/core.hpp>
 
 /*! npc2d constructor
  */
@@ -36,17 +36,25 @@ void npc2d::draw(const NPC_DRAW_STAGE& draw_stage) const {
 	if(!enabled) return;
 	if(npc_data == nullptr) return;
 
-	const float tile_size = map2d_obj->get_tile_size();
-	float2 npc_pos = pos;
-	float2 npc_next_pos = next_pos;
-	npc_pos = npc_pos*(1.0f-pos_interp) + npc_next_pos*pos_interp;
-	
+	float2 npc_pos = get_interpolated_pos();	
 	float depth_overwrite = (draw_stage == NPC_DRAW_STAGE::PRE_UNDERLAY || draw_stage == NPC_DRAW_STAGE::PRE_OVERLAY) ? 0.0f : -1.0f;
 	static const size_t continent_npcgfx_offset = 399;
 	npc_graphics->draw_npc((continent ? continent_npcgfx_offset : 0) + npc_data->object_num,
 						   state,
-						   float2((npc_pos.x)*tile_size, (npc_pos.y - 2.0f)*tile_size),
+						   compute_screen_position_from_interpolated(npc_pos),
 						   npc_pos, depth_overwrite);
+}
+
+float2 npc2d::compute_screen_position() const {
+	return compute_screen_position_from_interpolated(get_interpolated_pos());
+}
+
+float2 npc2d::compute_screen_position_from_interpolated(const float2& interp_pos) const {
+	const float tile_size = map2d_obj->get_tile_size();
+	float2 screen_pos = interp_pos;
+	screen_pos.y -= 2.0f;
+	screen_pos *= tile_size;
+	return screen_pos;
 }
 
 void npc2d::handle() {
@@ -60,7 +68,7 @@ void npc2d::handle() {
 	last_frame = SDL_GetTicks();
 
 	pos_interp += interp;
-	pos_interp = core::clamp(pos_interp, 0.0f, 1.0f);
+	pos_interp = const_math::clamp(pos_interp, 0.0f, 1.0f);
 	if(pos_interp >= 1.0f) pos = next_pos;
 	
 	// animation (TODO: this is more of a hack right now, think of a better method)
@@ -69,7 +77,7 @@ void npc2d::handle() {
 	const size_t cur_frame = (state & 0x7);
 	const size_t cur_frame_dir = (state & 0x8) >> 3;
 	if(new_frame && cur_frame > 0 && (state & 0xFF) < 0x40) {
-		state &= ~(0xF);
+		state &= ~size_t(0xF);
 		if(cur_frame_dir == 0) {
 			state |= (cur_frame < 4 ? (cur_frame << 1) : 0xA);
 		}

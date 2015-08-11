@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "albion_texture.hpp"
+#include "gfx/albion_texture.hpp"
 #include <engine.hpp>
 #include <rendering/texman.hpp>
 
@@ -27,7 +27,16 @@ albion_texture::albion_texture() {
 albion_texture::~albion_texture() {
 }
 
-a2e_texture albion_texture::create(const MAP_TYPE& map_type, const size2& texture_size, const size2& tile_size, const size_t& palette, const vector<albion_texture_info*>& tex_info, xld** xlds, const TEXTURE_SPACING_TYPE spacing_type, const size_t spacing_size, bool custom_mipmaps, const TEXTURE_FILTERING filtering) {
+a2e_texture albion_texture::create(const MAP_TYPE& map_type,
+								   const size2& texture_size,
+								   const size2& tile_size,
+								   const size_t& palette,
+								   const vector<albion_texture_info*>& tex_info,
+								   lazy_xld* xlds,
+								   const TEXTURE_SPACING spacing_type,
+								   const size_t spacing_size,
+								   bool custom_mipmaps,
+								   const TEXTURE_FILTERING filtering) {
 	if(tex_info.size() == 0) return t->get_dummy_texture();
 	if(texture_size.x == 0 || texture_size.y == 0) return t->get_dummy_texture();
 	if(tile_size.x == 0 || tile_size.y == 0) return t->get_dummy_texture();
@@ -42,19 +51,20 @@ a2e_texture albion_texture::create(const MAP_TYPE& map_type, const size2& textur
 	unsigned int* data_32bpp = new unsigned int[tile_size.x*tile_size.y];
 	unsigned int* scaled_data = new unsigned int[scaled_tile_size.x*scaled_tile_size.y];
 	
-	const float2 tile_tc_size = float2(float(scaled_tile_size.x)/float(texture_size.x), float(scaled_tile_size.y)/float(texture_size.y));
+	const float2 tile_tc_size { float(scaled_tile_size.x)/float(texture_size.x), float(scaled_tile_size.y)/float(texture_size.y) };
 	
 	a2e_texture ret_tex;
 	switch(tex_info[0]->type) {
-		case ATIT_MULTI_XLD: {
+		case TEXTURE_INFO::MULTI_XLD: {
 			size_t offset_x = 0, offset_y = 0;
 			for(size_t i = 0; i < tex_info.size(); i++) {
 				albion_texture_multi_xld* info = (albion_texture_multi_xld*)tex_info[i];
 
-				const xld* tex_xld = xlds[(info->tex_num / 100)];
+				lazy_xld& tex_xld = xlds[(info->tex_num / 100)];
 				const size_t tex_num = (info->tex_num < 100 ? info->tex_num-1 : info->tex_num) % 100;
-				const xld::xld_object* tex_data = tex_xld->get_object(tex_num);
-				gfxconv::convert_8to32(&tex_data->data[info->offset], data_32bpp, tile_size.x, tile_size.y, palette, info->palette_shift);
+				auto tex_data_ptr = tex_xld.get_object_data(tex_num);
+				const auto tex_data = tex_data_ptr->data();
+				gfxconv::convert_8to32(&tex_data[info->offset], data_32bpp, tile_size.x, tile_size.y, palette, info->palette_shift);
 				scaling::scale(scale_type, data_32bpp, tile_size, scaled_data);
 
 				// copy data into tiles surface
@@ -75,11 +85,11 @@ a2e_texture albion_texture::create(const MAP_TYPE& map_type, const size2& textur
 			}
 		}
 		break;
-		case ATIT_SINGLE_OBJECT: {
+		case TEXTURE_INFO::SINGLE_OBJECT: {
 			albion_texture_single_object* info = (albion_texture_single_object*)tex_info[0];
 			const size_t obj_size = tile_size.x * tile_size.y;
 			for(size_t i = 0; i < info->object_count; i++) {
-				gfxconv::convert_8to32(&(info->object->data[info->offset + i*obj_size]), data_32bpp, tile_size.x, tile_size.y, palette, info->palette_shift);
+				gfxconv::convert_8to32(&(info->data[info->offset + i*obj_size]), data_32bpp, tile_size.x, tile_size.y, palette, info->palette_shift);
 				scaling::scale(scale_type, data_32bpp, tile_size, scaled_data);
 
 				// copy data into tiles surface
@@ -91,7 +101,7 @@ a2e_texture albion_texture::create(const MAP_TYPE& map_type, const size2& textur
 			}
 		}
 		break;
-		case ATIT_SINGLE_OBJECT_PALETTE_SHIFT: {
+		case TEXTURE_INFO::SINGLE_OBJECT_PALETTE_SHIFT: {
 			albion_texture_single_object_ps* info = (albion_texture_single_object_ps*)tex_info[0];
 			const size_t obj_size = tile_size.x * tile_size.y;
 			const vector<size2>& animated_ranges = palettes->get_animated_ranges(palette);
@@ -102,7 +112,7 @@ a2e_texture albion_texture::create(const MAP_TYPE& map_type, const size2& textur
 				for(vector<size2>::const_iterator ani_range = animated_ranges.begin(); ani_range != animated_ranges.end(); ani_range++) {
 					const size_t p_offset = info->offset + i*obj_size;
 					for(size_t p = 0; p < obj_size; p++) {
-						if(info->object->data[p_offset + p] >= ani_range->x && info->object->data[p_offset + p] <= ani_range->y) {
+						if(info->data[p_offset + p] >= ani_range->x && info->data[p_offset + p] <= ani_range->y) {
 							animations = std::max(ani_range->y - ani_range->x + 1, animations);
 							break;
 						}
@@ -111,7 +121,7 @@ a2e_texture albion_texture::create(const MAP_TYPE& map_type, const size2& textur
 
 				info->tex_coords.push_back(vector<float2>());
 				for(size_t j = 0; j < animations; j++) {
-					gfxconv::convert_8to32(&(info->object->data[info->offset + i*obj_size]), data_32bpp, tile_size.x, tile_size.y, palette, j);
+					gfxconv::convert_8to32(&(info->data[info->offset + i*obj_size]), data_32bpp, tile_size.x, tile_size.y, palette, j);
 					scaling::scale(scale_type, data_32bpp, tile_size, scaled_data);
 
 					// copy data into tiles surface
@@ -135,11 +145,14 @@ a2e_texture albion_texture::create(const MAP_TYPE& map_type, const size2& textur
 	delete [] scaled_data;
 
 	if(custom_mipmaps) {
-		ret_tex = t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, std::min(filtering, TEXTURE_FILTERING::LINEAR), engine::get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		ret_tex = t->add_texture(tex_surface, (int)texture_size.x, (int)texture_size.y, GL_RGBA8, GL_RGBA,
+								 std::min(filtering, TEXTURE_FILTERING::LINEAR), engine::get_anisotropic(),
+								 GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 		build_mipmaps(ret_tex, tex_surface, filtering);
 	}
 	else {
-		ret_tex = t->add_texture(tex_surface, (unsigned int)texture_size.x, (unsigned int)texture_size.y, GL_RGBA8, GL_RGBA, filtering, engine::get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
+		ret_tex = t->add_texture(tex_surface, (int)texture_size.x, (int)texture_size.y, GL_RGBA8, GL_RGBA,
+								 filtering, engine::get_anisotropic(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_UNSIGNED_BYTE);
 	}
 	delete [] tex_surface;
 
@@ -163,10 +176,10 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 	// scale down to 0.5x
 	// for each level, we will use the texture data of the previous level (starting with tex_data)
 	const unsigned int* last_data = tex_data;
-	size2 last_size = size2(tex->width, tex->height);
+	size2 last_size = size2((size_t)tex->width, (size_t)tex->height);
 	size_t level = 1;
 	for(ssize_t scale = scale_passes; scale >= 0; scale--, level++) {
-		const size2 cur_size = size2(tex->width >> level, tex->height >> level);
+		const size2 cur_size = size2((size_t)tex->width >> level, (size_t)tex->height >> level);
 		unsigned int* scaled_data = new unsigned int[cur_size.x*cur_size.y];
 		
 		// scale down
@@ -183,10 +196,10 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 				unsigned int avg = 0;
 				for(unsigned int col = 0; col < 4; col++) {
 					const size_t shift = col*8;
-					size_t ch = (colors.x & (0xFF << shift)) >> shift;
-					ch += (colors.y & (0xFF << shift)) >> shift;
-					ch += (colors.z & (0xFF << shift)) >> shift;
-					ch += (colors.w & (0xFF << shift)) >> shift;
+					size_t ch = (colors.x & (0xFFu << shift)) >> shift;
+					ch += (colors.y & (0xFFu << shift)) >> shift;
+					ch += (colors.z & (0xFFu << shift)) >> shift;
+					ch += (colors.w & (0xFFu << shift)) >> shift;
 					ch /= 4;
 					avg |= std::min(ch, (size_t)0xFF) << shift; 
 				}
@@ -194,11 +207,8 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 			}
 		}
 		
-#if !defined(A2E_IOS)
-		glTexImage2D(GL_TEXTURE_2D, (unsigned int)level, tex->internal_format, (unsigned int)cur_size.x, (unsigned int)cur_size.y, 0, tex->format, tex->type, scaled_data);
-#else
-		glTexImage2D(GL_TEXTURE_2D, (unsigned int)level, texman::convert_internal_format(tex->internal_format), (unsigned int)cur_size.x, (unsigned int)cur_size.y, 0, tex->format, tex->type, scaled_data);
-#endif
+		glTexImage2D(GL_TEXTURE_2D, (int)level, texman::convert_internal_format(tex->internal_format),
+					 (int)cur_size.x, (int)cur_size.y, 0, tex->format, tex->type, scaled_data);
 		
 		if(last_data != tex_data) delete [] last_data;
 		
@@ -206,19 +216,25 @@ void albion_texture::build_mipmaps(const a2e_texture& tex, const unsigned int* t
 		last_size = cur_size;
 	}
 	
-#if !defined(A2E_IOS)
+#if !defined(FLOOR_IOS) || defined(PLATFORM_X64)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0); // defaults to 0 anyways?
 #endif
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, (unsigned int)(level-1));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, (int)(level-1));
 	
 	if(last_data != tex_data) delete [] last_data;
 }
 
-void albion_texture::add_spacing(unsigned int* surface, const size2& texture_size, const unsigned int* tile_data, const size2& tile_size, const size_t& spacing, const TEXTURE_SPACING_TYPE& spacing_type, const size2 offset) {
+void albion_texture::add_spacing(unsigned int* surface,
+								 const size2& texture_size,
+								 const unsigned int* tile_data,
+								 const size2& tile_size,
+								 const size_t& spacing,
+								 const TEXTURE_SPACING& spacing_type,
+								 const size2 offset) {
 	if(spacing == 0) return;
 	
 	switch(spacing_type) {
-		case TST_MIRROR:
+		case TEXTURE_SPACING::MIRROR:
 			// +/- y
 			for(size_t y = 0; y < spacing; y++) {
 				// up
@@ -271,10 +287,10 @@ void albion_texture::add_spacing(unsigned int* surface, const size2& texture_siz
 			}
 			
 			break;
-		case TST_TILE:
+		case TEXTURE_SPACING::TILE:
 			// TODO: !
 			break;
-		case TST_TRANSPARENT: {
+		case TEXTURE_SPACING::TRANSPARENT: {
 			// upper and lower stripe
 			const size_t width = tile_size.x + spacing*2;
 			for(size_t y = 0; y < spacing; y++) {
@@ -289,7 +305,7 @@ void albion_texture::add_spacing(unsigned int* surface, const size2& texture_siz
 			}
 		}
 		break;
-		case TST_NONE:
+		case TEXTURE_SPACING::NONE:
 			break;
 	}
 }

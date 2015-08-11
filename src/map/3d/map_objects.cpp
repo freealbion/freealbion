@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -47,13 +47,13 @@ const string map_objects::select_shader(const DRAW_MODE& draw_mode) const {
 	return "";
 }
 
-void map_objects::pre_draw_geometry(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask) {
+void map_objects::pre_draw_geometry(gl_shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask) {
 	pre_draw_material(shd, attr_array_mask, texture_mask);
 	attr_array_mask |= a2emodel::VERTEX_ATTRIBUTE::TEXTURE_COORD;
 	texture_mask |= a2ematerial::TEXTURE_TYPE::DIFFUSE;
 }
 
-void map_objects::pre_draw_material(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask floor_unused) {
+void map_objects::pre_draw_material(gl_shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask floor_unused) {
 	shd->uniform("cam_position", -float3(*engine::get_position()));
 	
 	shd->attribute_array("ws_position", vbo_ws_position_id, 3);

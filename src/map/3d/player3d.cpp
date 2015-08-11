@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "player3d.hpp"
+#include "map/3d/player3d.hpp"
 #include <scene/camera.hpp>
 
 player3d::player3d(map3d* map3d_obj) : npc3d(map3d_obj), last_pos(0.0f, 0.0f, 0.0f) {
@@ -62,23 +62,23 @@ void player3d::move(const MOVE_DIRECTION direction) {
 	
 	// compute new camera position
 	if((direction & MOVE_DIRECTION::RIGHT) != MOVE_DIRECTION::NONE) {
-		cam_offset.x -= (float)sin((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
-		cam_offset.z += (float)cos((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
+		cam_offset.x -= (float)sin((cam_rot.y - 90.0f) * const_math::PI_DIV_180<float>) * cam_speed;
+		cam_offset.z += (float)cos((cam_rot.y - 90.0f) * const_math::PI_DIV_180<float>) * cam_speed;
 	}
 	
 	if((direction & MOVE_DIRECTION::LEFT) != MOVE_DIRECTION::NONE) {
-		cam_offset.x += (float)sin((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
-		cam_offset.z -= (float)cos((cam_rot.y - 90.0f) * _PIDIV180) * cam_speed;
+		cam_offset.x += (float)sin((cam_rot.y - 90.0f) * const_math::PI_DIV_180<float>) * cam_speed;
+		cam_offset.z -= (float)cos((cam_rot.y - 90.0f) * const_math::PI_DIV_180<float>) * cam_speed;
 	}
 	
 	if((direction & MOVE_DIRECTION::UP) != MOVE_DIRECTION::NONE) {
-		cam_offset.x += (float)sin(cam_rot.y * _PIDIV180) * cam_speed;
-		cam_offset.z -= (float)cos(cam_rot.y * _PIDIV180) * cam_speed;
+		cam_offset.x += (float)sin(cam_rot.y * const_math::PI_DIV_180<float>) * cam_speed;
+		cam_offset.z -= (float)cos(cam_rot.y * const_math::PI_DIV_180<float>) * cam_speed;
 	}
 	
 	if((direction & MOVE_DIRECTION::DOWN) != MOVE_DIRECTION::NONE) {
-		cam_offset.x -= (float)sin(cam_rot.y * _PIDIV180) * cam_speed;
-		cam_offset.z += (float)cos(cam_rot.y * _PIDIV180) * cam_speed;
+		cam_offset.x -= (float)sin(cam_rot.y * const_math::PI_DIV_180<float>) * cam_speed;
+		cam_offset.z += (float)cos(cam_rot.y * const_math::PI_DIV_180<float>) * cam_speed;
 	}
 	
 	cam_pos += cam_offset;
@@ -121,7 +121,7 @@ void player3d::move(const MOVE_DIRECTION direction) {
 	cam->set_position(-new_cam_pos.x, -8.0f, -new_cam_pos.z);
 	last_pos = orig_cam_pos;
 	
-	size2 new_pos = size2(floorf(new_cam_pos.x/std_tile_size), floorf(new_cam_pos.z/std_tile_size));
+	size2 new_pos { (size_t)floorf(new_cam_pos.x/std_tile_size), (size_t)floorf(new_cam_pos.z/std_tile_size) };
 	if(new_pos.x != pos.x || new_pos.y != pos.y) {
 		// player moved to the next tile
 		set_moved(true);

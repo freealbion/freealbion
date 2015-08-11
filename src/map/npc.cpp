@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "npc.hpp"
+#include "map/npc.hpp"
 #include <SDL2/SDL.h>
 
 /*! npc constructor
@@ -80,8 +80,8 @@ const size2& npc::get_pos() const {
 	return next_pos;
 }
 
-const float2 npc::get_interpolated_pos() const {
-	return float2(pos)*(1.0f-pos_interp) + float2(next_pos)*pos_interp;
+float2 npc::get_interpolated_pos() const {
+	return float2 { pos } * (1.0f - pos_interp) + float2(next_pos) * pos_interp;
 }
 
 void npc::set_enabled(const bool& state) {

@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@
 
 #include "ar_global.hpp"
 #include "conf.hpp"
-#include "map_defines.hpp"
-#include "map_tiles.hpp"
+#include "map/map_defines.hpp"
+#include "map/3d/map_tiles.hpp"
 
 class map_objects : public map_tiles {
 public:
@@ -38,8 +38,8 @@ protected:
 	GLuint vbo_ws_position_id;
 	
 	virtual const string select_shader(const DRAW_MODE& draw_mode) const;
-	virtual void pre_draw_geometry(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask);
-	virtual void pre_draw_material(gl3shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask);
+	virtual void pre_draw_geometry(gl_shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask);
+	virtual void pre_draw_material(gl_shader& shd, VERTEX_ATTRIBUTE& attr_array_mask, a2ematerial::TEXTURE_TYPE& texture_mask);
 
 };
 

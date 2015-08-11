@@ -3,6 +3,7 @@
 <a2e_shader version="2">
 	<fragment_shader>
 		<header>
+			<condition type="EQUAL" value="POWERVR">
 vec4 texture(const in sampler2D sampler, const in vec2 P) {
 	return texture2D(sampler, P);
 }
@@ -15,6 +16,7 @@ vec4 texture(const in samplerCube sampler, const in vec3 P) {
 vec4 texture(const in samplerCube sampler, const in vec3 P, const in float bias) {
 	return textureCube(sampler, P, bias);
 }
+			</condition>
 		</header>
 	</fragment_shader>
 </a2e_shader>

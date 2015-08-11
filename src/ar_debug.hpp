@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ protected:
 };
 #endif
 
-class font;
+class a2e_font;
 class ar_debug {
 public:
 	ar_debug();
@@ -64,7 +64,7 @@ protected:
 	gui_simple_callback* cb_obj = nullptr;
 	void draw_ui(const DRAW_MODE_UI draw_mode, rtt::fbo* buffer);
 	
-	font* fnt = nullptr;
+	a2e_font* fnt = nullptr;
 	
 #if defined(__APPLE__)
 	gpu_perf_info* perf_info = nullptr;

@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,9 +22,8 @@
 
 #include "ar_global.hpp"
 #include "conf.hpp"
-#include "xld.hpp"
-#include "map_defines.hpp"
-#include "albion_texture.hpp"
+#include "map/map_defines.hpp"
+#include "gfx/albion_texture.hpp"
 
 #include <scene/model/a2estatic.hpp>
 
@@ -42,7 +41,7 @@ public:
 	void set_light_color(const float3& color);
 
 protected:
-	const xld* bg3d_xld;
+	lazy_xld bg3d_xld;
 
 	a2e_texture bg_texture;
 	ssize_t cur_bg_num;

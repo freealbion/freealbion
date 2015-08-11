@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,15 +20,15 @@
 #ifndef __AR_GLOBAL_HPP__
 #define __AR_GLOBAL_HPP__
 
-#include <core/cpp_headers.hpp>
-#include <core/logger.hpp>
-#include <core/vector2.hpp>
-#include <core/vector3.hpp>
-#if defined(A2E_IOS)
-#include <rendering/gles_compat.hpp>
+#include <floor/core/cpp_headers.hpp>
+#include <floor/core/logger.hpp>
+#include <floor/math/vector_lib.hpp>
+#if defined(FLOOR_IOS)
+#include <floor/core/gl_support.hpp>
 #endif
-#include "palette.hpp"
-#include "clock.hpp"
+#include "gfx/palette.hpp"
+#include "events/clock.hpp"
+#include "xld.hpp"
 
 #define APPLICATION_NAME "Albion Remake PR2"
 
@@ -42,7 +42,6 @@ class gfx;
 class texman;
 class event;
 class shader;
-class opencl_base;
 class scene;
 class camera;
 class ext;
@@ -52,7 +51,6 @@ class font_manager;
 extern texman* t;
 extern event* eevt;
 extern shader* s;
-extern opencl_base* ocl;
 extern scene* sce;
 extern camera* cam;
 extern ext* exts;
@@ -64,5 +62,8 @@ extern ar_clock* clck;
 
 class bin_graphics;
 extern bin_graphics* bin_gfx;
+
+class albion_script;
+extern albion_script* script;
 
 #endif

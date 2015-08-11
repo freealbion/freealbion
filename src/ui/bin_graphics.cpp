@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "bin_graphics.hpp"
-#include "map_defines.hpp"
-#include <core/file_io.hpp>
+#include "ui/bin_graphics.hpp"
+#include "map/map_defines.hpp"
+#include <floor/core/file_io.hpp>
 #include <rendering/texman.hpp>
 
 static const string type_strings[] = {

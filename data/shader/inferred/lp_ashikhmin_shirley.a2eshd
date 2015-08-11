@@ -92,7 +92,7 @@ void main() {
 	vec3 view_dir = normalize(cam_position - rep_pos);
 	
 	// this is used by surfaces that should always be lit when there is a light nearby
-	if(nuv.x == 0.0 && nuv.y == 0) {
+	if(nuv.x == 0.0 && nuv.y == 0.0) {
 		light_dir = view_dir;
 		// bend the normal by a small amount to prevent singularities in the light computation
 		normal = normalize(view_dir + vec3(0.01, -0.01, 0.01));

@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "map_events.hpp"
+#include "map/map_events.hpp"
 
 /*! map_events constructor
  */
@@ -31,11 +31,10 @@ map_events::~map_events() {
 	unload();
 }
 
-void map_events::load(const xld::xld_object* object, const size_t& data_offset, const size2& map_size) {
+void map_events::load(const unsigned char* data, const size_t& length,
+					  const size_t& data_offset, const size2& map_size) {
 	unload();
 	
-	const unsigned char* data = object->data;
-	const size_t length = object->length;
 	if(data_offset >= length) {
 		log_error("offset is larger than file size!");
 		return;

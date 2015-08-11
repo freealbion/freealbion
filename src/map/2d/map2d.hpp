@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,13 +22,12 @@
 
 #include "ar_global.hpp"
 #include "conf.hpp"
-#include "map_defines.hpp"
-#include "xld.hpp"
-#include "tileset.hpp"
-#include "npcgfx.hpp"
-#include "map_npcs.hpp"
-#include "map_events.hpp"
-#include "player2d.hpp"
+#include "map/map_defines.hpp"
+#include "map/2d/tileset.hpp"
+#include "map/2d/npcgfx.hpp"
+#include "map/map_npcs.hpp"
+#include "map/map_events.hpp"
+#include "map/2d/player2d.hpp"
 #include <rendering/gl_funcs.hpp>
 
 /*! @class map2d
@@ -41,12 +40,11 @@
 class npc2d;
 class map2d {
 public:
-	map2d(tileset* tilesets, npcgfx* npc_graphics, xld* maps1, xld* maps2, xld* maps3);
+	map2d(tileset* tilesets, npcgfx* npc_graphics, array<lazy_xld, 3>& maps);
 	~map2d();
 
 	void load(const size_t& map_num);
 	void unload();
-	bool is_2d_map(const size_t& map_num) const;
 	
 	void handle();
 	void draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_draw_stage) const;
@@ -76,10 +74,8 @@ protected:
 	player2d* p2d;
 	tileset* tilesets;
 	npcgfx* npc_graphics;
-
-	xld* maps1;
-	xld* maps2;
-	xld* maps3;
+	
+	array<lazy_xld, 3>& maps;
 
 	vector<npc2d*> npcs;
 	map_npcs* mnpcs;
@@ -90,7 +86,6 @@ protected:
 	size_t cur_tileset_num;
 	size2 map_size;
 	size_t map_palette;
-	unsigned char* cur_map_data;
 	unsigned int* underlay_tiles;
 	unsigned int* overlay_tiles;
 	
@@ -101,7 +96,7 @@ protected:
 		GLuint indices_vbo;
 		float3* vertices;
 		float2* tex_coords;
-		index3* indices;
+		uint3* indices;
 		unsigned int* tile_nums;
 		size_t index_count;
 		size_t ani_offset;

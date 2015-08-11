@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #ifndef __AR_CONF_HPP__
 #define __AR_CONF_HPP__
 
-#include <core/cpp_headers.hpp>
+#include <floor/core/cpp_headers.hpp>
 
 // valid conf types
 #define AR_CONF_TYPES(F) \

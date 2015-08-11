@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "player2d.hpp"
-#include "map2d.hpp"
+#include "map/2d/player2d.hpp"
+#include "map/2d/map2d.hpp"
 
 /*! player constructor
  */
@@ -34,20 +34,21 @@ player2d::~player2d() {
 }
 
 void player2d::draw(const NPC_DRAW_STAGE& draw_stage) const {
-	//
-	const float tile_size = map2d_obj->get_tile_size();
-	const float2& screen_position = map2d_obj->get_screen_position();
-	float2 player_pos = pos;
-	float2 player_next_pos = next_pos;
-	player_pos = player_pos*(1.0f-pos_interp) + player_next_pos*pos_interp;
-
+	float2 player_pos = get_interpolated_pos();
 	float depth_overwrite = (draw_stage == NPC_DRAW_STAGE::PRE_UNDERLAY || draw_stage == NPC_DRAW_STAGE::PRE_OVERLAY) ? 0.0f : -1.0f;
 	//static const size_t continent_npcgfx_offset = 500;
 	npc_graphics->draw_npc((continent ? 500 : conf::get<size_t>("debug.npcgfx")),
 						   state,
-						   float2((player_pos.x - screen_position.x)*tile_size,
-								  (player_pos.y - 2.0f - screen_position.y)*tile_size),
+						   compute_screen_position_from_interpolated(player_pos),
 						   player_pos, depth_overwrite);
+}
+
+float2 player2d::compute_screen_position_from_interpolated(const float2& interp_pos) const {
+	const float tile_size = map2d_obj->get_tile_size();
+	float2 screen_pos = interp_pos - map2d_obj->get_screen_position();
+	screen_pos.y -= 2.0f;
+	screen_pos *= tile_size;
+	return screen_pos;
 }
 
 void player2d::handle() {

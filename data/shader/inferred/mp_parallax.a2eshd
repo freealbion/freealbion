@@ -15,15 +15,19 @@ in vec2 texture_coord;
 in vec3 binormal;
 in vec3 tangent;
 
-out vertex {
+<option nomatch="*env_probe">struct</option>
+<option match="*env_probe">out</option>
+vertex_block {
 	vec2 tex_coord;
 	vec3 view_vec;
-} out_vertex;
+}
+<option nomatch="*env_probe">; out vertex_block vertex;</option>
+<option match="*env_probe">vertex;</option>
 
 void main() {
 	mat4 transform_mat = local_scale * local_mview;
 	
-	out_vertex.tex_coord = texture_coord;
+	vertex.tex_coord = texture_coord;
 	
 	vec3 tvertex = vec3(transform_mat * vec4(in_vertex, 1.0));
 	vec3 vview = cam_position - model_position - tvertex;
@@ -31,7 +35,7 @@ void main() {
 	vec3 vs_tangent = normalize(mat3(transform_mat) * tangent);
 	vec3 vs_binormal = normalize(mat3(transform_mat) * binormal);
 	vec3 vs_normal = normalize(mat3(transform_mat) * normal);
-	out_vertex.view_vec = vview * mat3(vs_tangent, vs_binormal, vs_normal);
+	vertex.view_vec = vview * mat3(vs_tangent, vs_binormal, vs_normal);
 	
 	inferred_vs();
 	
@@ -47,11 +51,11 @@ void main() {
 	<geometry_shader>
 		<header>
 <option match="*env_probe">
-in vertex {
+in vertex_block {
 	vec2 tex_coord;
 	vec3 view_vec;
 } in_vertex[];
-out vertex {
+out vertex_block {
 	vec2 tex_coord;
 	vec3 view_vec;
 } out_vertex;
@@ -76,16 +80,20 @@ uniform sampler2D specular_texture;
 uniform sampler2D reflectance_texture;
 uniform sampler2D height_texture;
 
-in vertex {
+<option nomatch="*env_probe">struct</option>
+<option match="*env_probe">in</option>
+vertex_block {
 	vec2 tex_coord;
 	vec3 view_vec;
-} in_vertex;
+}
+<option nomatch="*env_probe">; in vertex_block vertex;</option>
+<option match="*env_probe">vertex;</option>
 
 void main() {
 	vec4 light_colors[2] = compute_light_colors();
 	
 	//
-	vec3 view_vec = normalize(in_vertex.view_vec);
+	vec3 view_vec = normalize(vertex.view_vec);
 	
 	// determines the "deepness"
 	const float parallax = 0.03;
@@ -93,11 +101,11 @@ void main() {
 	// compute parallax tex coord
 	float height = 0.0;
 	float offset = 0.0;
-	vec2 parallax_tex_coord = in_vertex.tex_coord;
+	vec2 parallax_tex_coord = vertex.tex_coord;
 	for(int i = 1; i < 4; i++) {
 		height += texture(height_texture, parallax_tex_coord).x;
 		offset = parallax * ((2.0 / float(i)) * height - 1.0);
-		parallax_tex_coord = in_vertex.tex_coord + offset * view_vec.xy;
+		parallax_tex_coord = vertex.tex_coord + offset * view_vec.xy;
 	}
 	
 	vec4 diff_color = texture(diffuse_texture, parallax_tex_coord);

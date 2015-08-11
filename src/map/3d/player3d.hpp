@@ -1,6 +1,6 @@
 /*
  *  Albion Remake
- *  Copyright (C) 2007 - 2014 Florian Ziesche
+ *  Copyright (C) 2007 - 2015 Florian Ziesche
  *  
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,9 +21,9 @@
 #define __AR_PLAYER3D_HPP__
 
 #include "ar_global.hpp"
-#include "map_defines.hpp"
-#include "map3d.hpp"
-#include "npc3d.hpp"
+#include "map/map_defines.hpp"
+#include "map/3d/map3d.hpp"
+#include "map/3d/npc3d.hpp"
 
 /*! @class player
  *  @brief player class

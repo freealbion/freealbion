@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
+<a2e_shader version="2">
+	<vertex_shader>
+		<header>
+			<!-- es 3.0 / apple gpu only supports 16k ubos -->
+			<!-- also: due to the dumb and insane restrictions of glsl, define fractions -->
+			<condition type="EQUAL" value="APPLE">
+#define A2E_UBO_MAX_SIZE 16384u
+#define A2E_UBO_MAX_SIZE_HALF 8192u
+#define A2E_UBO_MAX_SIZE_4TH 4096u
+#define A2E_UBO_MAX_SIZE_8TH 2048u
+#define A2E_UBO_MAX_SIZE_16TH 1024u
+#define A2E_UBO_MAX_SIZE_32TH 512u
+			</condition>
+			<!-- desktop gpus all support 64k ubos -->
+			<condition type="NEQUAL" value="APPLE">
+#define A2E_UBO_MAX_SIZE 65536u
+#define A2E_UBO_MAX_SIZE_HALF 32768u
+#define A2E_UBO_MAX_SIZE_4TH 16384u
+#define A2E_UBO_MAX_SIZE_8TH 8192u
+#define A2E_UBO_MAX_SIZE_16TH 4096u
+#define A2E_UBO_MAX_SIZE_32TH 2048u
+			</condition>
+		</header>
+	</vertex_shader>
+
+	<geometry_shader>
+		<header>
+			<condition type="EQUAL" value="APPLE">
+#define A2E_UBO_MAX_SIZE 16384u
+#define A2E_UBO_MAX_SIZE_HALF 8192u
+#define A2E_UBO_MAX_SIZE_4TH 4096u
+#define A2E_UBO_MAX_SIZE_8TH 2048u
+#define A2E_UBO_MAX_SIZE_16TH 1024u
+#define A2E_UBO_MAX_SIZE_32TH 512u
+			</condition>
+			<condition type="NEQUAL" value="APPLE">
+#define A2E_UBO_MAX_SIZE 65536u
+#define A2E_UBO_MAX_SIZE_HALF 32768u
+#define A2E_UBO_MAX_SIZE_4TH 16384u
+#define A2E_UBO_MAX_SIZE_8TH 8192u
+#define A2E_UBO_MAX_SIZE_16TH 4096u
+#define A2E_UBO_MAX_SIZE_32TH 2048u
+			</condition>
+		</header>
+	</geometry_shader>
+
+	<fragment_shader>
+		<header>
+			<condition type="EQUAL" value="APPLE">
+#define A2E_UBO_MAX_SIZE 16384u
+#define A2E_UBO_MAX_SIZE_HALF 8192u
+#define A2E_UBO_MAX_SIZE_4TH 4096u
+#define A2E_UBO_MAX_SIZE_8TH 2048u
+#define A2E_UBO_MAX_SIZE_16TH 1024u
+#define A2E_UBO_MAX_SIZE_32TH 512u
+			</condition>
+			<condition type="NEQUAL" value="APPLE">
+#define A2E_UBO_MAX_SIZE 65536u
+#define A2E_UBO_MAX_SIZE_HALF 32768u
+#define A2E_UBO_MAX_SIZE_4TH 16384u
+#define A2E_UBO_MAX_SIZE_8TH 8192u
+#define A2E_UBO_MAX_SIZE_16TH 4096u
+#define A2E_UBO_MAX_SIZE_32TH 2048u
+			</condition>
+		</header>
+	</fragment_shader>
+</a2e_shader>

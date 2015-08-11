@@ -2,7 +2,7 @@
 <!DOCTYPE a2e_shader PUBLIC "-//A2E//DTD a2e_shader 2.0//EN" "a2e_shader.dtd">
 <a2e_shader version="2">
 	<includes>global gfx2d</includes>
-	<options>gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl</options>
+	<options>gradient_horizontal gradient_vertical gradient_diagonal_lr gradient_diagonal_rl gradient_center gradient_center_round</options>
 
 	<vertex_shader>
 uniform mat4 mvpm;
@@ -26,6 +26,12 @@ void main() {
 	</option>
 	<option match="gradient_diagonal_rl">
 	color = gradient_diagonal_rl();
+	</option>
+	<option match="gradient_center">
+	color = gradient_center();
+	</option>
+	<option match="gradient_center_round">
+		color = gradient_center_round();
 	</option>
 	
 	frag_color = vec4(color.rgb * color.a, color.a);
