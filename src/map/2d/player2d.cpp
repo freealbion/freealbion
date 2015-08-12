@@ -33,14 +33,13 @@ player2d::player2d(map2d* map2d_obj, npcgfx* npc_graphics) : npc2d(map2d_obj, np
 player2d::~player2d() {
 }
 
-void player2d::draw(const NPC_DRAW_STAGE& draw_stage) const {
+void player2d::draw(const NPC_DRAW_STAGE& draw_stage floor_unused) const {
 	float2 player_pos = get_interpolated_pos();
-	float depth_overwrite = (draw_stage == NPC_DRAW_STAGE::PRE_UNDERLAY || draw_stage == NPC_DRAW_STAGE::PRE_OVERLAY) ? 0.0f : -1.0f;
 	//static const size_t continent_npcgfx_offset = 500;
 	npc_graphics->draw_npc((continent ? 500 : conf::get<size_t>("debug.npcgfx")),
 						   state,
 						   compute_screen_position_from_interpolated(player_pos),
-						   player_pos, depth_overwrite);
+						   player_pos);
 }
 
 float2 player2d::compute_screen_position_from_interpolated(const float2& interp_pos) const {

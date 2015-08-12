@@ -32,17 +32,16 @@ npc2d::npc2d(map2d* map2d_obj_, npcgfx* npc_graphics_) : npc(), map2d_obj(map2d_
 npc2d::~npc2d() {
 }
 
-void npc2d::draw(const NPC_DRAW_STAGE& draw_stage) const {
+void npc2d::draw(const NPC_DRAW_STAGE& draw_stage floor_unused) const {
 	if(!enabled) return;
 	if(npc_data == nullptr) return;
 
-	float2 npc_pos = get_interpolated_pos();	
-	float depth_overwrite = (draw_stage == NPC_DRAW_STAGE::PRE_UNDERLAY || draw_stage == NPC_DRAW_STAGE::PRE_OVERLAY) ? 0.0f : -1.0f;
+	float2 npc_pos = get_interpolated_pos();
 	static const size_t continent_npcgfx_offset = 399;
 	npc_graphics->draw_npc((continent ? continent_npcgfx_offset : 0) + npc_data->object_num,
 						   state,
 						   compute_screen_position_from_interpolated(npc_pos),
-						   npc_pos, depth_overwrite);
+						   npc_pos);
 }
 
 float2 npc2d::compute_screen_position() const {

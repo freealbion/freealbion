@@ -252,7 +252,7 @@ void albion_ui::delete_game_ui() {
 }
 
 void albion_ui::run() {
-	if(draw_cb_obj != nullptr) return;
+	if(draw_cb_obj == nullptr) return;
 	
 	// not nice, but it's just bools ...
 	bool map_3d = (mh->get_active_map_type() == MAP_TYPE::MAP_3D);
@@ -264,6 +264,7 @@ void albion_ui::run() {
 		compass_dot_img_obj->set_texture(bin_gfx->get_bin_graphic((bin_graphics::BIN_GRAPHIC_TYPE)(bin_graphics::COMPASS_DOT_0 + cur_dot_img)));
 		cur_dot_img = (cur_dot_img+1) % 8;
 		dot_timer = SDL_GetTicks();
+		draw_cb_obj->redraw();
 		
 		// position
 		const float y_rot = 180.0f - engine::get_rotation()->y;
@@ -275,6 +276,7 @@ void albion_ui::run() {
 
 void albion_ui::draw(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buffer floor_unused) {
 	if(!game_ui_opened) return;
+	if(game_ui_hidden) return;
 	
 	// draw the clock
 	gfx2d::draw_rectangle_texture(rect(uint32_t(clock_img_pos.x), uint32_t(clock_img_pos.y),
@@ -319,7 +321,7 @@ void albion_ui::clock_tick(size_t ticks) {
 void albion_ui::open_game_ui() {
 	if(game_ui_opened) return;
 	game_ui_opened = true;
-	draw_cb_obj = ui->add_draw_callback(DRAW_MODE_UI::PRE_UI, draw_cb, float2(1.0f), float2(0.0f),
+	draw_cb_obj = ui->add_draw_callback(DRAW_MODE_UI::POST_UI, draw_cb, float2(1.0f), float2(0.0f),
 										gui_surface::SURFACE_FLAGS::NO_ANTI_ALIASING |
 										gui_surface::SURFACE_FLAGS::NO_DEPTH);
 	
@@ -401,6 +403,7 @@ void albion_ui::load_game_ui(const size2& size) {
 }
 
 void albion_ui::open_goto_map_wnd() {
+	game_ui_hidden = true;
 	if(map_wnd != nullptr) return;
 	
 	map_wnd = ui->add<gui_window>(float2(0.3f, 1.0f), float2(0.0f, 0.0f));
@@ -487,6 +490,7 @@ void albion_ui::open_goto_map_wnd() {
 }
 
 void albion_ui::close_goto_map_wnd() {
+	game_ui_hidden = false;
 	ui->remove(map_wnd);
 	map_wnd = nullptr;
 }

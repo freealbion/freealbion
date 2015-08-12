@@ -33,3 +33,4 @@ font_manager* fm = nullptr;
 ar_clock* clck = nullptr;
 bin_graphics* bin_gfx = nullptr;
 albion_script* script = nullptr;
+albion_ui* aui = nullptr;

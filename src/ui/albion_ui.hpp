@@ -71,6 +71,7 @@ protected:
 	size_t dot_timer;
 	bool game_ui_opened;
 	bool game_ui_loaded;
+	bool game_ui_hidden { false };
 	
 	void delete_game_ui();
 	

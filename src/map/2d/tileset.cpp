@@ -232,7 +232,7 @@ void tileset::load(const size_t& num, const size_t& palette) {
 		}
 	}
 
-	log_debug("map/2d/tileset %u loaded!", num);
+	log_debug("tileset %u loaded!", num);
 }
 
 void tileset::handle_animations(set<unsigned int>& modified_tiles) {

@@ -671,7 +671,7 @@ void labdata::load(const size_t& labdata_num, const size_t& palette) {
 
 	//
 	cur_labdata_num = labdata_num;
-	log_debug("map/3d/labdata #%u loaded!", labdata_num);
+	log_debug("labdata #%u loaded!", labdata_num);
 }
 
 void labdata::unload() {

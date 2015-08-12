@@ -34,10 +34,9 @@ static const float3 cam_speed(2.0f, 5.0f, 0.2f);
 static vector<light*> debug_lights;
 
 static map_handler* mh { nullptr };
-static albion_ui* aui { nullptr };
 static bool done { false };
 
-int main(int argc floor_unused, char *argv[]) {
+int main(int argc, char *argv[]) {
 	// initialize the engine
 #if !defined(FLOOR_IOS)
 	engine::init(argv[0], (const char*)"../data/");
@@ -108,7 +107,20 @@ int main(int argc floor_unused, char *argv[]) {
 
 	mh = new map_handler();
 	//size_t inital_map_num = 99; // shortcut map
-	size_t inital_map_num = 183; // beloveno
+	size_t inital_map_num = 181; // beloveno
+	if(argc > 1) {
+		const string arg_1_str = argv[1];
+		if(arg_1_str.size() > 0 && isdigit(arg_1_str[0])) {
+			const size_t arg_map_num = stosize(arg_1_str);
+			if((arg_map_num == 0 && arg_1_str[0] == '0') ||
+			   (arg_map_num != 0 && mh->get_map_type(arg_map_num) != MAP_TYPE::NONE)) {
+				inital_map_num = arg_map_num;
+			}
+			else {
+				log_error("invalid map number or map type!");
+			}
+		}
+	}
 	mh->load_map(inital_map_num);
 
 	aui = new albion_ui(mh);

@@ -64,7 +64,8 @@ a2e_texture albion_texture::create(const MAP_TYPE& map_type,
 				const size_t tex_num = (info->tex_num < 100 ? info->tex_num-1 : info->tex_num) % 100;
 				auto tex_data_ptr = tex_xld.get_object_data(tex_num);
 				const auto tex_data = tex_data_ptr->data();
-				gfxconv::convert_8to32(&tex_data[info->offset], data_32bpp, tile_size.x, tile_size.y, palette, info->palette_shift);
+				gfxconv::convert_8to32(&tex_data[info->offset], data_32bpp, tile_size.x, tile_size.y, palette, info->palette_shift,
+									   info->overwrite_alpha, info->replacement_alpha);
 				scaling::scale(scale_type, data_32bpp, tile_size, scaled_data);
 
 				// copy data into tiles surface
@@ -89,7 +90,8 @@ a2e_texture albion_texture::create(const MAP_TYPE& map_type,
 			albion_texture_single_object* info = (albion_texture_single_object*)tex_info[0];
 			const size_t obj_size = tile_size.x * tile_size.y;
 			for(size_t i = 0; i < info->object_count; i++) {
-				gfxconv::convert_8to32(&(info->data[info->offset + i*obj_size]), data_32bpp, tile_size.x, tile_size.y, palette, info->palette_shift);
+				gfxconv::convert_8to32(&(info->data[info->offset + i*obj_size]), data_32bpp, tile_size.x, tile_size.y, palette,
+									   info->palette_shift, info->overwrite_alpha, info->replacement_alpha);
 				scaling::scale(scale_type, data_32bpp, tile_size, scaled_data);
 
 				// copy data into tiles surface
@@ -121,7 +123,8 @@ a2e_texture albion_texture::create(const MAP_TYPE& map_type,
 
 				info->tex_coords.push_back(vector<float2>());
 				for(size_t j = 0; j < animations; j++) {
-					gfxconv::convert_8to32(&(info->data[info->offset + i*obj_size]), data_32bpp, tile_size.x, tile_size.y, palette, j);
+					gfxconv::convert_8to32(&(info->data[info->offset + i*obj_size]), data_32bpp, tile_size.x, tile_size.y, palette, j,
+										   info->overwrite_alpha, info->replacement_alpha);
 					scaling::scale(scale_type, data_32bpp, tile_size, scaled_data);
 
 					// copy data into tiles surface

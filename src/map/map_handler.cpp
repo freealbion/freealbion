@@ -18,6 +18,7 @@
  */
 
 #include "map/map_handler.hpp"
+#include "ui/albion_ui.hpp"
 #include <scene/camera.hpp>
 #include <gui/style/gui_surface.hpp>
 
@@ -195,8 +196,7 @@ bool map_handler::input_handler(EVENT_TYPE type, shared_ptr<event_object> obj) {
 			break;
 		}
 		
-#if 0
-		// TODO: touch handling on iOS (on the desktop touch input is linked to the mouse -> same position)
+#if defined(FLOOR_IOS) // touch handling is disabled on the desktop for now
 		case EVENT_TYPE::FINGER_DOWN: {
 			if(input_type != ACTIVE_INPUT_TYPE::NONE) return false;
 			input_type = ACTIVE_INPUT_TYPE::FINGER;
@@ -329,13 +329,12 @@ void map_handler::handle() {
 void map_handler::draw(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buffer floor_unused) {
 	if(active_map_type != MAP_TYPE::MAP_2D) return;
 	
-	maps2d->draw(MAP_DRAW_STAGE::NPCS, NPC_DRAW_STAGE::PRE_UNDERLAY);
-	p2d->draw(NPC_DRAW_STAGE::PRE_UNDERLAY);
-	
 	if(conf::get<bool>("map.draw_underlay")) maps2d->draw(MAP_DRAW_STAGE::UNDERLAY, NPC_DRAW_STAGE::NONE);
 	
+	glDepthMask(GL_FALSE);
 	maps2d->draw(MAP_DRAW_STAGE::NPCS, NPC_DRAW_STAGE::PRE_OVERLAY);
 	p2d->draw(NPC_DRAW_STAGE::PRE_OVERLAY);
+	glDepthMask(GL_TRUE);
 	
 	if(conf::get<bool>("map.draw_overlay")) maps2d->draw(MAP_DRAW_STAGE::OVERLAY, NPC_DRAW_STAGE::NONE);
 	
@@ -346,6 +345,7 @@ void map_handler::draw(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buff
 	glClear(GL_DEPTH_BUFFER_BIT);
 	maps2d->draw(MAP_DRAW_STAGE::DEBUGGING, NPC_DRAW_STAGE::NONE);
 	
+#if 0 // click/touch debug drawing
 	static const auto dpi_scale = float(floor::get_dpi()) / 72.0f;
 	if(input_lock.try_lock()) {
 		if(input_type != ACTIVE_INPUT_TYPE::NONE) {
@@ -371,6 +371,7 @@ void map_handler::draw(const DRAW_MODE_UI draw_mode floor_unused, rtt::fbo* buff
 		}
 		input_lock.unlock();
 	}
+#endif
 }
 
 void map_handler::load_map(const size_t& map_num, const size2 player_pos, const MOVE_DIRECTION player_direction) {

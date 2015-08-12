@@ -252,13 +252,6 @@ void map2d::unload() {
 	cur_map_num = (~0u);
 }
 
-// TODO: write correct/nice windows roundf
-#if defined(__WINDOWS__)
-#ifndef roundf
-#define roundf(x) (x > 0.0f ? floorf(x + 0.5f) : ceilf(x - 0.5f))
-#endif
-#endif
-
 void map2d::handle() {
 	if(!map_loaded) return;
 
@@ -274,16 +267,15 @@ void map2d::handle() {
 	last_frame_time = SDL_GetTicks();
 	
 	// compute target position (aka map draw offset/position, left top corner)
-	float2 target_position = compute_target_position();
+	const float2 target_position = compute_target_position();
 	
 	// compute scroll speed depending on distance (speed = 1 - 1/exp(|distance|))
-	float2 pos_diff = target_position - screen_position;
-	float2 scroll_speed = float2(expf(fabs(pos_diff.x)), expf(fabs(pos_diff.y)));
-	scroll_speed = float2(1.0f) - float2(1.0f) / scroll_speed;
+	const float2 pos_diff = target_position - screen_position;
+	float2 scroll_speed = 1.0f - 1.0f / pos_diff.absed().exped();
 	scroll_speed.clamp(float2(fabs(pos_diff.x) > snap_epsilon ? snap_epsilon : 0.0f,
 							  fabs(pos_diff.y) > snap_epsilon ? snap_epsilon : 0.0f),
 					   1.0f);
-	scroll_speed = scroll_speed * pos_diff.sign(); // correct direction
+	scroll_speed *= pos_diff.sign(); // correct direction
 	
 	// snap screen position to some even coordinate, so we don't get fugly aliasing artifacts or even wrong texels!
 	float2 snap_screen_position = screen_position;
@@ -358,10 +350,7 @@ void map2d::draw(const MAP_DRAW_STAGE& draw_stage, const NPC_DRAW_STAGE& npc_dra
 	const float scaled_tile_size = scale * tile_size;
 
 	static const float snap_factor = 100.0f;
-	float2 snapped_position = screen_position * snap_factor;
-	snapped_position.x = roundf(snapped_position.x);
-	snapped_position.y = roundf(snapped_position.y);
-	snapped_position = snapped_position / snap_factor;
+	const float2 snapped_position = (screen_position * snap_factor).round() / snap_factor;
 	*mvm *= matrix4f().translate(-snapped_position.x * scaled_tile_size,
 								 -snapped_position.y * scaled_tile_size,
 								 0.0f);

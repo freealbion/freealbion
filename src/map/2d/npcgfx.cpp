@@ -71,12 +71,8 @@ void npcgfx::load_npcgfx(const size_t& npc_num) {
 	
 	npc_graphics[npc_num] = albion_texture::create(MAP_TYPE::MAP_2D, texture_size, npc_size, cur_palette, tex_info, nullptr,
 												   albion_texture::TEXTURE_SPACING::NONE, 0, false,
-#if !defined(FLOOR_IOS)
-												   TEXTURE_FILTERING::TRILINEAR
-#else
-												   TEXTURE_FILTERING::LINEAR
-#endif
-												   );
+												   // this should never use mip-maps!
+												   TEXTURE_FILTERING::LINEAR);
 }
 
 const a2e_texture& npcgfx::get_npcgfx(const size_t& npc_num) {
@@ -94,8 +90,7 @@ const a2e_texture& npcgfx::get_npcgfx(const size_t& npc_num) {
 }
 
 void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame,
-					  const float2& screen_position, const float2& position,
-					  const float depth_overwrite) {
+					  const float2& screen_position, const float2& position) {
 	const float scale = conf::get<float>("map.scale");
 
 	//
@@ -141,8 +136,6 @@ void npcgfx::draw_npc(const size_t& npc_num, const size_t& frame,
 
 	// offset position a bit (prefer player/party)
 	float depth_val = (position.y - (npc_num < 200 ? 0.2f : 0.1f))/255.0f;
-	// depth overwrite
-	if(const_math::is_equal(depth_overwrite, -1.0f)) depth_val = depth_overwrite;
 	
 	const uint2 rect_start { screen_position.floored() };
 	const uint2 rect_end { rect_start + uint2 { draw_size.rounded() } };

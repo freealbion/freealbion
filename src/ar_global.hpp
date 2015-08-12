@@ -66,4 +66,7 @@ extern bin_graphics* bin_gfx;
 class albion_script;
 extern albion_script* script;
 
+class albion_ui;
+extern albion_ui* aui;
+
 #endif

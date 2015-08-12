@@ -49,6 +49,8 @@ public:
 		TEXTURE_INFO type { TEXTURE_INFO::NONE };
 		unsigned int palette_shift { 0 };
 		unsigned int offset { 0 };
+		bool overwrite_alpha { false };
+		unsigned int replacement_alpha { 0 };
 	};
 	struct albion_texture_multi_xld : public albion_texture_info {
 		unsigned int tex_num { 0 };
