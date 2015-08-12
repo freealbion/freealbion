@@ -57,7 +57,7 @@ BUILD_VERBOSE=0
 BUILD_JOB_COUNT=0
 
 # read/evaluate floor_conf.hpp to know which build configuration should be used (must match the floor one!)
-eval $(printf "" | ${CXX} -E -dM -isystem /usr/include -isystem /usr/local/include -include floor/floor/floor_conf.hpp - 2>&1 | grep -E "define FLOOR_" | sed -E "s/.*define (.*) [\"]*([^ \"]*)[\"]*/export \1=\2/g")
+eval $(printf "" | ${CXX} -E -dM ${INCLUDES} -isystem /usr/include -isystem /usr/local/include -include floor/floor/floor_conf.hpp - 2>&1 | grep -E "define FLOOR_" | sed -E "s/.*define (.*) [\"]*([^ \"]*)[\"]*/export \1=\2/g")
 BUILD_CONF_OPENCL=$((1 - $((${FLOOR_NO_OPENCL}))))
 BUILD_CONF_CUDA=$((1 - $((${FLOOR_NO_CUDA}))))
 BUILD_CONF_OPENAL=$((1 - $((${FLOOR_NO_OPENAL}))))
