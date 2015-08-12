@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 
 	mh = new map_handler();
 	//size_t inital_map_num = 99; // shortcut map
-	size_t inital_map_num = 181; // beloveno
+	size_t inital_map_num = 183; // beloveno
 	if(argc > 1) {
 		const string arg_1_str = argv[1];
 		if(arg_1_str.size() > 0 && isdigit(arg_1_str[0])) {
